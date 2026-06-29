@@ -1,0 +1,312 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { Product, Solution, Review, FAQ } from './types';
+
+export const PRODUCTS: Product[] = [
+  {
+    id: 'sy-ac07',
+    name: 'SY-AC07 스마트 홈 & 완속',
+    type: '완속',
+    power: '7kW',
+    features: [
+      '화재 감지 자동 전력 차단',
+      'PLC 모뎀 탑재 (화재 예방 충전)',
+      '스마트 부하 분배 (Dynamic Load Balancing)',
+      'IP55 방수/방진 등급',
+      '벽걸이 및 스탠드형 지원'
+    ],
+    specs: {
+      '정격 입력': 'Single Phase AC 220V ± 10%, 50/60Hz',
+      '충전 커넥터': 'Type 5핀 (국내 표준)',
+      '통신 방식': 'LTE / Wi-Fi / Ethernet',
+      '크기': '280 x 420 x 140 mm',
+      '인증': 'KC 안전인증 및 계량 형식 승인 완료'
+    },
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+    description: '공동주택 및 개인주택에 최적화된 스마트 완속 충전기입니다. 특허받은 실시간 온도 센서와 PLC 모뎀으로 화재 위험을 원천 차단합니다.',
+    plcSupported: true
+  },
+  {
+    id: 'sy-ac11',
+    name: 'SY-AC11 프로 멀티 완속',
+    type: '완속',
+    power: '11kW',
+    features: [
+      '속도가 빠른 11kW 화재감지형',
+      '과열 감지 스마트 디스플레이',
+      'RFID / 모바일 앱 원격 결제',
+      '동시 2대 분할 충전 (선택형)',
+      'B2B 원격 관제 OCPP 1.6 연동'
+    ],
+    specs: {
+      '정격 입력': 'Three Phase AC 380V ± 10%, 50/60Hz',
+      '충전 커넥터': 'Type 5핀 듀얼 커넥터',
+      '통신 방식': '4G LTE / Ethernet',
+      '크기': '320 x 480 x 160 mm',
+      '인증': '전력연구원 화재예방(PLC) 시험 합격'
+    },
+    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+    description: '오피스 빌딩, 상업 주차장에 적합한 고성능 11kW 충전기입니다. 스마트 부하 매칭으로 빌딩 계약 전력 한도 내에서 효율적으로 운영됩니다.',
+    plcSupported: true
+  },
+  {
+    id: 'sy-dc50',
+    name: 'SY-DC50 슬림 급속',
+    type: '급속',
+    power: '50kW',
+    features: [
+      '30분 내 80% 쾌속 충전',
+      'B2B 법인 원격 관제 및 정산 시스템 무상 지원',
+      '10인치 대형 터치스크린 탑재',
+      '강력한 실시간 안전 진단',
+      '카드/회원권/소셜 페이 결제 모듈'
+    ],
+    specs: {
+      '정격 입력': 'Three Phase AC 380V ± 10%, 50/60Hz',
+      '충전 커넥터': 'DC 콤보 1선식',
+      '효율': '94% 이상 고효율 모듈 탑재',
+      '크기': '650 x 1650 x 500 mm',
+      '동작 온도': '-25°C ~ 50°C'
+    },
+    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    description: '도심지 빌딩, 마트, 소형 휴게소에 적합한 공간절약형 급속 충전기입니다. 탁월한 안정성으로 쉬운 수익 사업 창출을 도와드립니다.',
+    plcSupported: false
+  },
+  {
+    id: 'sy-fc200',
+    name: 'SY-FC200 하이퍼 초급속',
+    type: '초급속',
+    power: '200kW',
+    features: [
+      '듀얼 디스펜서 100kW+100kW 동시 충전',
+      '15분 이내 완벽 완충 설계',
+      '수랭식 케이블로 높은 전류에서도 발열 최소화',
+      '정부 보조금 우선 신청 대상 검증 완료',
+      '국제 표준 OCPP 1.6 & 2.0.1 완벽 지원'
+    ],
+    specs: {
+      '정격 입력': 'Three Phase AC 380V / 440V ± 10%',
+      '충전 커넥터': 'DC 콤보 2선식 듀얼 디스펜서',
+      '최대 출력': '최대 200kW (최고 전압 1000V)',
+      '크기': '800 x 1950 x 850 mm',
+      '보호 등급': 'IP54 / 충격 보호 IK10 등급'
+    },
+    image: 'https://images.unsplash.com/photo-1620859309999-ed665c53a1ed?auto=format&fit=crop&q=80&w=600',
+    description: '고속도로 휴게소, 물류허브, 공영 차고지 전용 하이퍼 초급속 충전 모델입니다. 대용량 전기버스와 화물차량도 지체 없이 최상의 속도로 충전합니다.',
+    plcSupported: false
+  },
+  {
+    id: 'sy-home07',
+    name: 'SY-Home07 마이 박스',
+    type: '스마트홈',
+    power: '7kW',
+    features: [
+      '단독주택/빌라 개인 전용',
+      '블루투스 간편 사용자 인증',
+      '초소형 세련된 북유럽풍 미니멀 디자인',
+      '친환경 고내구성 소재 적용',
+      '전국 24시간 자가진단 알람'
+    ],
+    specs: {
+      '정격 입력': 'Single Phase AC 220V, 50/60Hz',
+      '설치 형태': '스탠드 또는 실내외 벽면 고정',
+      '부가 기능': '예약 충전 (전기세 저렴한 경부하 시간대 자동 실행)',
+      '크기': '220 x 300 x 110 mm',
+      '정격 전류': '32A'
+    },
+    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다. 심야 전력 요금 스케줄링이 탑재되어 매달 전기차 충전 비용을 최대로 절감합니다.',
+    plcSupported: true
+  }
+];
+
+export const SOLUTIONS: Solution[] = [
+  {
+    id: 'sol-commercial',
+    title: '기업/관공서용 맞춤 솔루션',
+    category: 'Commercial',
+    subtitle: '회사 사옥, 물류창고, 공장, 관공서',
+    description: '기업의 법인 차량 운영 효율성을 극대화하고 탄소배출 제로(RE100) 목표를 완벽하게 서포트합니다. 대규모 충전 인프라의 전력 부하 관리와 사내 정산 연동까지 한번에 설계해 드립니다.',
+    target: '법인 사옥 주차장, 물류 회사 차량 지차체 공용 주차장',
+    recommendedPower: '급속(50kW~100kW) + 완속(11kW) 복합 구성',
+    benefits: [
+      '사내 전력 요금 실시간 모니터링 및 스마트 제어',
+      '사용자별(직원/외부인) 차등 요금 정산 및 회원 연동',
+      '대규모 정부 보조금 매칭 및 복잡한 세금 혜택 서류 무료 대행',
+      'OCPP 1.6 연동 기업 ERP 연동 API 무상 제공'
+    ],
+    subsidyProcess: [
+      '1단계: SY.com 전문 컨설턴트 무료 현장 방문 및 전력 용량 진단',
+      '2단계: 지자체/정부 무상 보조금 신청 및 심사 서류 대행',
+      '3단계: 승인 완료 및 특허 시공팀 맞춤형 배치 설계',
+      '4단계: 원격 관제 시스템 셋업 및 2년간 전담 AS 유지보수'
+    ],
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'sol-residential',
+    title: '주거공간 안심 솔루션',
+    category: 'Residential',
+    subtitle: '단독주택, 빌라, 아파트(개인/공용)',
+    description: '집에 도착하는 순간, 충전 스트레스는 끝납니다. 화재 안심 센서 탑재 충전기로 온 가족과 이웃이 안심하고 사용하며, 까다로운 입주민 동의 및 관리사무소 설치 협의까지 전문가가 밀착 지원합니다.',
+    target: '단독주택 소유주, 빌라 입주 대표, 아파트 동대표 및 주민단',
+    recommendedPower: '스마트홈/완속(7kW)',
+    benefits: [
+      '업계 최초 온도상승/스파크 3단계 자동 전류 차단 시스템 적용',
+      '예약 충전 기능으로 누진세 없는 최적 시간대(경부하) 자동 예약',
+      '입주민간 RFID 공유 카드 또는 모바일 간편 터치 결제 지원',
+      '한전 계량기 신설 신청 및 접수 일체 무료 대행 서비스'
+    ],
+    subsidyProcess: [
+      '1단계: 주거 형태 및 주차 공간 사진 업로드 (또는 30초 간편 상담)',
+      '2단계: 거주 환경 분석 후 아파트/빌라 협의회 전용 맞춤 카탈로그 제공',
+      '3단계: 한전 불입금 납부 및 한전 계량기 수급 정식 신청',
+      '4단계: 깔끔하고 안전한 케이블 트레이 및 특허 세이프티 가드 시공'
+    ],
+    image: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'sol-parkinglot',
+    title: '수익형 주차장 솔루션',
+    category: 'ParkingLot',
+    subtitle: '대형 마트, 호텔, 빌딩, 공영주차장',
+    description: '비어있는 주차 면적, SY.com을 만나면 가장 스마트한 수익원이 됩니다. 방문 고객에게 최고의 충전 편의를 제공해 고정 고객을 확보하고, 충전 요금 수익의 최대 40%를 건물주께 공유해 드립니다.',
+    target: '종합 상가, 프랜차이즈 매장, 호텔 및 리조트 소유주, 대형 빌딩 자산관리자',
+    recommendedPower: '급속(100kW) + 초급속(200kW) 복합 솔루션',
+    benefits: [
+      '방문 고객 충전 시 매장 할인 쿠폰 / 주차권 연동 시스템 제공',
+      '주차장 내 유휴 공간을 충전 수익 및 전광판 광고 수익 공간으로 탈바꿈',
+      '24시간 실시간 모바일 원격 제어 및 고장 자동 복구 알고리즘 작동',
+      '화재예방 인증 및 시설 배상 책임 보험 (최대 10억 원 가입 완비)'
+    ],
+    subsidyProcess: [
+      '1단계: 건물 주차장 주소 입력 및 예상 연간 충전 수익 리포트 무료 발급',
+      '2단계: 유휴 계약 전력 한도 조회 및 충전기 최적 배치 수량 시뮬레이션',
+      '3단계: 충전 인프라 무상 지원 보조금 매칭 신청',
+      '4단계: 통합 모바일 앱 등록 및 충전 전용 안내선, LED 보강 등 디자인 시공'
+    ],
+    image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=800'
+  }
+];
+
+export const REVIEWS: Review[] = [
+  {
+    id: 'rev-1',
+    title: '강남 대형 오피스 타워 고효율 주차장 시공',
+    location: '서울 강남구 테헤란로 OOO 타워',
+    category: 'ParkingLot',
+    date: '2026-05-14',
+    rating: 5,
+    beforeImg: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=600',
+    afterImg: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+    author: '김태우 관리소장',
+    interview: '처음엔 입주민들의 화재 우려와 한도 전력 문제 때문에 고민이 많았습니다. SY.com에서 스마트 전력 부하 관리와 PLC 탑재 화재 안심 충전기를 제안해 주셔서 건물 관리위원회도 쉽게 통과했습니다. 설치 후 매달 충전기 자체에서 발생하는 부가 수익도 짭짤해 아주 만족스럽습니다.',
+    details: '급속 100kW 2대, 완속 11kW 6대 시공. 스마트 부하 매칭으로 빌딩 최대 전력을 한전 규제치 이내로 컨트롤.',
+    coordinates: { x: 35, y: 48 }
+  },
+  {
+    id: 'rev-2',
+    title: 'RE100 추진 물류창고 화물차 급속 충전 솔루션',
+    location: '경기 여주 OOO 물류센터',
+    category: 'Commercial',
+    date: '2026-06-02',
+    rating: 5,
+    beforeImg: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=600',
+    afterImg: 'https://images.unsplash.com/photo-1620859309999-ed665c53a1ed?auto=format&fit=crop&q=80&w=600',
+    author: '박정훈 인프라본부장',
+    interview: '화물 트럭들이 야간에 일제히 충전해야 해서 안정성이 최우선이었습니다. SY.com의 200kW 초급속 수랭식 디스펜서 충전기를 도입한 뒤 배송 출발 지연이 0%로 줄었습니다. 지자체 보조금도 80% 지원받아 대폭적인 설비 절감을 거뒀습니다.',
+    details: '초급속 200kW 3대 설치. 대형 전기 트럭 전전류 충전 안정성 테스트 100% 통과.',
+    coordinates: { x: 42, y: 55 }
+  },
+  {
+    id: 'rev-3',
+    title: '단독주택 주차장 개인 스마트홈 충전기 설치',
+    location: '제주 애월읍 OOO 펜션 및 주택',
+    category: 'Residential',
+    date: '2026-06-20',
+    rating: 5,
+    beforeImg: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600',
+    afterImg: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    author: '이지은 건축주',
+    interview: '단독주택이라 한전에서 전기 신설 신청을 직접 해야 하는 줄 알고 눈앞이 캄캄했는데, SY.com에서 기사님이 현장 견적 내러 오셔서 원스톱으로 서류 신청부터 시공까지 사흘 만에 다 끝내주셨어요. 북유럽풍 벽걸이형 디자인도 집 외관과 찰떡이라 펜션 손님들도 다들 예쁘다고 칭찬해요!',
+    details: 'SY-Home07 7kW 월박스 설치. 한전 인입선 신설 및 야간 저렴한 예약 충전 연동 셋업 완료.',
+    coordinates: { x: 25, y: 88 }
+  },
+  {
+    id: 'rev-4',
+    title: '종합 상가 주차 면적 유휴 공간 수익 극대화',
+    location: '부산 해운대구 센텀 OOO 타운',
+    category: 'ParkingLot',
+    date: '2026-06-25',
+    rating: 5,
+    beforeImg: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=600',
+    afterImg: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+    author: '최현우 건물관리 대표',
+    interview: '공실 상가 주차 구역이라 방치되어 있었는데 충전소로 바꾸고 나니 건물을 오가는 통행량 자체가 크게 늘었습니다. 충전하러 온 차량 고객들이 상가 식음료 매장을 추가 이용하는 낙수 효과도 엄청나며, 정산도 완전히 자동화되어 관리비 인건비 부담이 전혀 없습니다.',
+    details: '급속 50kW 1대, 완속 7kW 4대 설치. LED 안내 패널 및 충전 주차 도색 완비.',
+    coordinates: { x: 68, y: 72 }
+  }
+];
+
+export const FAQS: FAQ[] = [
+  {
+    id: 'faq-1',
+    question: '충전기 설치 시 정말 정부 보조금 신청을 지원해 주나요?',
+    answer: '네, 그렇습니다! SY.com은 환경부 승인 및 공식 보조금 사업 파트너로서 매년 지자체별/환경부별 남은 예산을 모니터링하여 우선적으로 보조금 혜택을 선점할 수 있도록 복잡한 구비 서류 작성과 행정 신고 절차를 무상으로 전부 대행해 드립니다. 개인 주택뿐만 아니라 기업용 대규모 단지 보조금 신청도 완벽 지원합니다.',
+    category: '보조금/비용'
+  },
+  {
+    id: 'faq-2',
+    question: '최근 이슈가 되는 전기차 화재가 걱정되는데, 안전 기술이 적용되어 있나요?',
+    answer: 'SY.com은 최고의 전기차 화재 안전 기술력을 탑재하고 있습니다. 자사 모든 신제품 모델에는 최고 사양의 과열 센서 및 전기 스파크(아크) 미세 차단 알고리즘이 내장되어 있습니다. 특히 SY-AC07/AC11 모델에는 환경부 공식 화재 감지용 핵심 모듈인 PLC 모뎀이 기본 탑재되어, 차량의 배터리 충전 상태(SoC)를 실시간 모니터링하여 만충 도달 전 또는 이상 고열 시 충전을 강제로 종료시키는 다중 예방 안전망을 구축하고 있습니다.',
+    category: '화재안전'
+  },
+  {
+    id: 'faq-3',
+    question: '아파트나 다세대 주택의 경우 입주민 동의 절차가 필요하지 않나요?',
+    answer: '맞습니다. 공동주택 주차 공간의 경우 관리사무소 협의 및 주민대표위원회 승인이 선결 과제입니다. SY.com은 이를 위해 다년간 축적한 전문 상담 자료를 보완 제공합니다. 입주민들이 가장 걱정하시는 전기료 공용화 우려를 씻어줄 RFID 개인별 결제 시스템 자료 및 정부 화재예방 특허 증빙서류를 묶은 전용 동의 설명서 패키지를 상담 직후 전달드리며, 필요시 기술 지원 상담사가 원격 및 방문 설명 협조를 드립니다.',
+    category: '설치과정'
+  },
+  {
+    id: 'faq-4',
+    question: '한전 계량기 신설은 무엇이며 추가 요금이 발생하나요?',
+    answer: '전기차 충전기는 기본 가정용 또는 상업용 가전제품과 달리 전력 소모량이 매우 큽니다(최소 7,000W 이상). 이에 따라 별도의 계량기를 한전에 신청하여 독립적인 전용 요금제를 매칭해야 누진세를 피하고 요금을 절감할 수 있습니다. SY.com에서는 이 한전 신청 접수 및 내선 설비 설계 일체를 자체 공인 전력기술팀이 무료로 대행하며, 국가가 부과하는 한전 불입금 외 설계 인건비는 받지 않습니다.',
+    category: '전기안전'
+  },
+  {
+    id: 'faq-5',
+    question: '설치 후 사후관리(A/S) 기간과 전국 네트워크는 어떻게 되나요?',
+    answer: 'SY.com은 전국 8개 광역본부 산하 24개의 전담 기술 정비 서비스망을 상시 보유하고 있습니다. 설치 후 무상 A/S 기간은 기본 2년(연장 시 최대 5년)이 보장되며, 24시간 원격 모니터링을 통해 고장 신호 감지 시 방문 기사가 출동하기 전에 1차 소프트웨어 자동 리셋 복구 처리를 진행합니다. 현장 처리가 필요한 경우 접수 당일 또는 익일 오전까지 100% 방문 수리를 원칙으로 삼고 있습니다.',
+    category: '사후관리(A/S)'
+  }
+];
+
+export const NOTICES = [
+  {
+    id: 1,
+    title: '[긴급] 2026년 하반기 지자체별 전기차 충전기 무상 보조금 한도 조기 소진 안내 (마감 임박)',
+    date: '2026-06-25',
+    important: true
+  },
+  {
+    id: 2,
+    title: 'SY.com 업계 최초 화재감지 차세대 PLC 모뎀 완속 충전기 11kW KC 형식승인 획득',
+    date: '2026-06-18',
+    important: false
+  },
+  {
+    id: 3,
+    title: '[서비스] 장마철 및 폭염 대비 야외 전기차 충전기 무상 침수방지 방진캡 안전 점검 캠페인 안내',
+    date: '2026-06-10',
+    important: false
+  },
+  {
+    id: 4,
+    title: 'B2B 파트너 대상: 유휴 주차 면적 수익 전환 원격 관제 플랫폼 (SY-OCS v2.1) 업데이트 배포',
+    date: '2026-05-30',
+    important: false
+  }
+];
