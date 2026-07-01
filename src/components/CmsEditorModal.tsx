@@ -17,6 +17,8 @@ interface CmsEditorModalProps {
     text: string;
     subtitle: string;
     imageUrl: string;
+    showCompanyName?: boolean;
+    companyNameText?: string;
   };
   onSaveLogoConfig: (config: any) => void;
 
@@ -42,6 +44,20 @@ interface CmsEditorModalProps {
   };
   onSaveFooterConfig: (config: any) => void;
 
+  snsConfig: {
+    kakaoUrl: string;
+    instagramUrl: string;
+    blogUrl: string;
+    showFloatingSns: boolean;
+  };
+  onSaveSnsConfig: (config: any) => void;
+
+  quickMenuConfig: {
+    showQuickMenu: boolean;
+    items: Array<{ id: string; label: string; iconType: string; targetPage: any }>;
+  };
+  onSaveQuickMenuConfig: (config: any) => void;
+
   // States and setter props
   heroConfig: {
     badge: string;
@@ -49,6 +65,8 @@ interface CmsEditorModalProps {
     description: string;
     ctaButton: string;
     calcButton: string;
+    imageUrl?: string;
+    showHeroImage?: boolean;
   };
   onSaveHeroConfig: (config: any) => void;
 
@@ -108,6 +126,10 @@ export default function CmsEditorModal({
   onSaveCategoryLabels,
   footerConfig,
   onSaveFooterConfig,
+  snsConfig,
+  onSaveSnsConfig,
+  quickMenuConfig,
+  onSaveQuickMenuConfig,
   heroConfig,
   onSaveHeroConfig,
   aboutConfig,
@@ -132,6 +154,8 @@ export default function CmsEditorModal({
   const [logoText, setLogoText] = useState(logoConfig.text);
   const [logoSubtitle, setLogoSubtitle] = useState(logoConfig.subtitle);
   const [logoImageUrl, setLogoImageUrl] = useState(logoConfig.imageUrl || '');
+  const [logoShowCompanyName, setLogoShowCompanyName] = useState(logoConfig.showCompanyName !== false);
+  const [logoCompanyNameText, setLogoCompanyNameText] = useState(logoConfig.companyNameText || '');
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [isDraggingCeoImg, setIsDraggingCeoImg] = useState(false);
   const [isDraggingProdImg, setIsDraggingProdImg] = useState(false);
@@ -144,6 +168,16 @@ export default function CmsEditorModal({
   const [menuSolutions, setMenuSolutions] = useState(categoryLabels.solutions);
   const [menuReview, setMenuReview] = useState(categoryLabels.review);
   const [menuSupport, setMenuSupport] = useState(categoryLabels.support);
+
+  // SNS State
+  const [snsKakaoUrl, setSnsKakaoUrl] = useState(snsConfig.kakaoUrl || '');
+  const [snsInstagramUrl, setSnsInstagramUrl] = useState(snsConfig.instagramUrl || '');
+  const [snsBlogUrl, setSnsBlogUrl] = useState(snsConfig.blogUrl || '');
+  const [snsShowFloating, setSnsShowFloating] = useState(snsConfig.showFloatingSns !== false);
+
+  // Quick Menu State
+  const [quickShowMenu, setQuickShowMenu] = useState(quickMenuConfig.showQuickMenu !== false);
+  const [quickMenuItems, setQuickMenuItems] = useState(quickMenuConfig.items || []);
 
   // Footer State
   const [footerPhone, setFooterPhone] = useState(footerConfig.phone);
@@ -177,6 +211,8 @@ export default function CmsEditorModal({
       setLogoText(logoConfig.text);
       setLogoSubtitle(logoConfig.subtitle);
       setLogoImageUrl(logoConfig.imageUrl || '');
+      setLogoShowCompanyName(logoConfig.showCompanyName !== false);
+      setLogoCompanyNameText(logoConfig.companyNameText || '');
 
       setMenuHome(categoryLabels.home);
       setMenuAbout(categoryLabels.about);
@@ -184,6 +220,14 @@ export default function CmsEditorModal({
       setMenuSolutions(categoryLabels.solutions);
       setMenuReview(categoryLabels.review);
       setMenuSupport(categoryLabels.support);
+
+      setSnsKakaoUrl(snsConfig.kakaoUrl || '');
+      setSnsInstagramUrl(snsConfig.instagramUrl || '');
+      setSnsBlogUrl(snsConfig.blogUrl || '');
+      setSnsShowFloating(snsConfig.showFloatingSns !== false);
+
+      setQuickShowMenu(quickMenuConfig.showQuickMenu !== false);
+      setQuickMenuItems(quickMenuConfig.items || []);
 
       setFooterPhone(footerConfig.phone);
       setFooterEmail(footerConfig.email);
@@ -208,7 +252,7 @@ export default function CmsEditorModal({
       setCeoMsg3(aboutConfig.ceoMessage3);
       setCeoImg(aboutConfig.ceoImage);
     }
-  }, [isOpen, logoConfig, categoryLabels, footerConfig, heroConfig, aboutConfig]);
+  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig]);
 
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -268,7 +312,9 @@ export default function CmsEditorModal({
     onSaveLogoConfig({
       text: logoText,
       subtitle: logoSubtitle,
-      imageUrl: logoImageUrl
+      imageUrl: logoImageUrl,
+      showCompanyName: logoShowCompanyName,
+      companyNameText: logoCompanyNameText
     });
     onSaveCategoryLabels({
       home: menuHome,
@@ -288,7 +334,17 @@ export default function CmsEditorModal({
       teleSalesNumber: footerTeleSalesNumber,
       licenseInfo: footerLicenseInfo
     });
-    showSaveSuccess('⚙️ 브랜드 로고, 카테고리 및 푸터 회사 정보가 즉시 저장되었습니다!');
+    onSaveSnsConfig({
+      kakaoUrl: snsKakaoUrl,
+      instagramUrl: snsInstagramUrl,
+      blogUrl: snsBlogUrl,
+      showFloatingSns: snsShowFloating
+    });
+    onSaveQuickMenuConfig({
+      showQuickMenu: quickShowMenu,
+      items: quickMenuItems
+    });
+    showSaveSuccess('⚙️ 브랜드 로고, 카테고리, 푸터 회사 정보 및 SNS, 퀵메뉴 설정이 즉시 저장되었습니다!');
   };
 
   const handleSaveHero = () => {
@@ -790,6 +846,37 @@ export default function CmsEditorModal({
                         ※ 이미지 파일을 업로드하면 자동으로 고화질 로컬 Base64 데이터로 인코딩되어 실시간으로 반영됩니다.
                       </span>
                     </div>
+
+                    <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-2xl space-y-3 mt-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="block text-xs font-black text-blue-900">로고 옆 회사명 표시 설정</span>
+                          <span className="block text-[10px] text-slate-500 font-bold">상단 헤더 로고 옆에 회사명을 함께 노출시킬지 설정합니다.</span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={logoShowCompanyName} 
+                            onChange={(e) => setLogoShowCompanyName(e.target.checked)} 
+                            className="sr-only peer" 
+                          />
+                          <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                      
+                      {logoShowCompanyName && (
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">노출할 회사명 텍스트</label>
+                          <input
+                            type="text"
+                            value={logoCompanyNameText}
+                            onChange={(e) => setLogoCompanyNameText(e.target.value)}
+                            placeholder="주식회사 에스와이코리아"
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -945,13 +1032,187 @@ export default function CmsEditorModal({
                   </div>
                 </div>
 
+                <div className="pt-2">
+                  <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                    <Save className="w-4 h-4 text-blue-600" />
+                    우측 플로팅 소셜 미디어(SNS) 연동 설정
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-bold mt-1.5 leading-relaxed">
+                    화면 오른쪽에 고정되는 플로팅 카카오톡 상담, 인스타그램 링크, 네이버 블로그 링크를 실시간으로 직접 수정할 수 있습니다.
+                  </p>
+
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-4 mt-3">
+                    <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                      <div>
+                        <span className="block text-xs font-black text-slate-800">우측 플로팅 SNS 버튼 노출</span>
+                        <span className="block text-[10px] text-slate-500 font-bold">화면 우측에 소셜 미디어 플로팅 링크 바를 띄울지 결정합니다.</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={snsShowFloating} 
+                          onChange={(e) => setSnsShowFloating(e.target.checked)} 
+                          className="sr-only peer" 
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    {snsShowFloating && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
+                            카카오톡 상담 링크 URL
+                          </label>
+                          <input
+                            type="text"
+                            value={snsKakaoUrl}
+                            onChange={(e) => setSnsKakaoUrl(e.target.value)}
+                            placeholder="https://pf.kakao.com/..."
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-pink-500"></span>
+                            인스타그램 링크 URL
+                          </label>
+                          <input
+                            type="text"
+                            value={snsInstagramUrl}
+                            onChange={(e) => setSnsInstagramUrl(e.target.value)}
+                            placeholder="https://www.instagram.com/..."
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            네이버 블로그 링크 URL
+                          </label>
+                          <input
+                            type="text"
+                            value={snsBlogUrl}
+                            onChange={(e) => setSnsBlogUrl(e.target.value)}
+                            placeholder="https://blog.naver.com/..."
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                    <Settings className="w-4 h-4 text-blue-600" />
+                    서비스 간편 8대 목차 바로가기(퀵메뉴) 아이콘 및 문구 수정
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-bold mt-1.5 leading-relaxed">
+                    메인 히어로 아래 노출되는 8가지 동그란 아이콘 형태의 바로가기 메뉴의 문구, 아이콘 디자인, 그리고 클릭 시 연결할 이동 탭 정보를 직접 설정할 수 있습니다.
+                  </p>
+
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-4 mt-3">
+                    <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+                      <div>
+                        <span className="block text-xs font-black text-slate-800">간편 퀵메뉴 영역 노출</span>
+                        <span className="block text-[10px] text-slate-500 font-bold">메인 화면에 원형 간편 목차 바로가기 영역을 띄울지 결정합니다.</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={quickShowMenu} 
+                          onChange={(e) => setQuickShowMenu(e.target.checked)} 
+                          className="sr-only peer" 
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    {quickShowMenu && (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                          {quickMenuItems.map((item, idx) => (
+                            <div key={item.id} className="bg-white border border-slate-200/80 p-3 rounded-xl space-y-2">
+                              <span className="text-[10px] font-black text-blue-600 font-mono">ITEM {idx + 1}</span>
+                              
+                              <div className="space-y-1">
+                                <label className="block text-[10px] font-bold text-slate-500">메뉴 노출 이름</label>
+                                <input
+                                  type="text"
+                                  value={item.label}
+                                  onChange={(e) => {
+                                    const updated = [...quickMenuItems];
+                                    updated[idx] = { ...item, label: e.target.value };
+                                    setQuickMenuItems(updated);
+                                  }}
+                                  className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="block text-[10px] font-bold text-slate-500">아이콘 모양 선택</label>
+                                <select
+                                  value={item.iconType}
+                                  onChange={(e) => {
+                                    const updated = [...quickMenuItems];
+                                    updated[idx] = { ...item, iconType: e.target.value };
+                                    setQuickMenuItems(updated);
+                                  }}
+                                  className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                                >
+                                  <option value="MapPin">📍 설치후기 (MapPin)</option>
+                                  <option value="Building2">🏢 기업용 충전 (Building2)</option>
+                                  <option value="Home">🏠 주택 비공용 (Home)</option>
+                                  <option value="GraduationCap">🎓 학교/기관 (GraduationCap)</option>
+                                  <option value="ParkingCircle">🅿️ 주차장 충전 (ParkingCircle)</option>
+                                  <option value="Zap">⚡ 급속충전 (Zap)</option>
+                                  <option value="RefreshCw">🔄 기기교체 (RefreshCw)</option>
+                                  <option value="TrendingUp">📈 홍보수익형 (TrendingUp)</option>
+                                  <option value="Phone">📞 전화상담 (Phone)</option>
+                                  <option value="Wrench">🔧 정비관리 (Wrench)</option>
+                                  <option value="ShieldCheck">🛡️ 품질보증 (ShieldCheck)</option>
+                                  <option value="Sparkles">✨ 혜택/뱃지 (Sparkles)</option>
+                                  <option value="Landmark">🏛️ 관공서 (Landmark)</option>
+                                  <option value="Calculator">🧮 견적계산 (Calculator)</option>
+                                </select>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="block text-[10px] font-bold text-slate-500">클릭 시 연결 탭</label>
+                                <select
+                                  value={item.targetPage}
+                                  onChange={(e) => {
+                                    const updated = [...quickMenuItems];
+                                    updated[idx] = { ...item, targetPage: e.target.value };
+                                    setQuickMenuItems(updated);
+                                  }}
+                                  className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                                >
+                                  <option value="home">메인 홈</option>
+                                  <option value="about">회사 소개</option>
+                                  <option value="products">신제품소개</option>
+                                  <option value="solutions">용도별솔루션</option>
+                                  <option value="review">설치후기</option>
+                                  <option value="support">고객지원</option>
+                                </select>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="pt-4 border-t border-slate-100 flex justify-end">
                   <button
                     onClick={handleSaveBrand}
                     className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/10"
                   >
                     <Save className="w-4 h-4" />
-                    대표 로고 및 카테고리 정보 실시간 변경 저장
+                    대표 로고, 회사명, SNS, 퀵메뉴 설정 저장
                   </button>
                 </div>
               </motion.div>

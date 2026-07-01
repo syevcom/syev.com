@@ -20,7 +20,7 @@ import AdminLoginModal from './components/AdminLoginModal';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ } from './types';
-import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark } from 'lucide-react';
+import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -49,7 +49,9 @@ export default function App() {
   const [logoConfig, setLogoConfig] = useState({
     text: 'SY',
     subtitle: 'SY.com',
-    imageUrl: ''
+    imageUrl: '',
+    showCompanyName: true,
+    companyNameText: '주식회사 에스와이코리아'
   });
 
   const [categoryLabels, setCategoryLabels] = useState({
@@ -77,7 +79,30 @@ export default function App() {
     title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
     description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
     ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
-    calcButton: '1분 스마트 보조금 견적 내기'
+    calcButton: '1분 스마트 보조금 견적 내기',
+    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+    showHeroImage: true
+  });
+
+  const [snsConfig, setSnsConfig] = useState({
+    kakaoUrl: 'https://pf.kakao.com/',
+    instagramUrl: 'https://www.instagram.com/',
+    blogUrl: 'https://section.blog.naver.com/',
+    showFloatingSns: true
+  });
+
+  const [quickMenuConfig, setQuickMenuConfig] = useState({
+    showQuickMenu: true,
+    items: [
+      { id: 'q-1', label: '설치후기', iconType: 'MapPin', targetPage: 'review' },
+      { id: 'q-2', label: '기업용 충전', iconType: 'Building2', targetPage: 'solutions' },
+      { id: 'q-3', label: '주택 비공용', iconType: 'Home', targetPage: 'solutions' },
+      { id: 'q-4', label: '학교&관공서', iconType: 'GraduationCap', targetPage: 'solutions' },
+      { id: 'q-5', label: '주차장 충전', iconType: 'ParkingCircle', targetPage: 'solutions' },
+      { id: 'q-6', label: '급속충전기', iconType: 'Zap', targetPage: 'products' },
+      { id: 'q-7', label: '기기 교체', iconType: 'RefreshCw', targetPage: 'support' },
+      { id: 'q-8', label: '홍보수익형', iconType: 'TrendingUp', targetPage: 'about' }
+    ]
   });
 
   const [aboutConfig, setAboutConfig] = useState({
@@ -221,6 +246,16 @@ export default function App() {
       setNotices(NOTICES);
       localStorage.setItem('sy_cms_notices', JSON.stringify(NOTICES));
     }
+
+    const savedSns = localStorage.getItem('sy_cms_sns');
+    if (savedSns) {
+      try { setSnsConfig(JSON.parse(savedSns)); } catch (e) { console.error(e); }
+    }
+
+    const savedQuickMenu = localStorage.getItem('sy_cms_quickmenu');
+    if (savedQuickMenu) {
+      try { setQuickMenuConfig(JSON.parse(savedQuickMenu)); } catch (e) { console.error(e); }
+    }
   }, []);
 
   // Sync state helpers
@@ -288,6 +323,16 @@ export default function App() {
     localStorage.setItem('sy_cms_about', JSON.stringify(config));
   };
 
+  const handleSaveSnsConfig = (config: any) => {
+    setSnsConfig(config);
+    localStorage.setItem('sy_cms_sns', JSON.stringify(config));
+  };
+
+  const handleSaveQuickMenuConfig = (config: any) => {
+    setQuickMenuConfig(config);
+    localStorage.setItem('sy_cms_quickmenu', JSON.stringify(config));
+  };
+
   const handleSaveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
     localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
@@ -324,11 +369,15 @@ export default function App() {
     localStorage.removeItem('sy_cms_reviews');
     localStorage.removeItem('sy_cms_faqs');
     localStorage.removeItem('sy_cms_notices');
+    localStorage.removeItem('sy_cms_sns');
+    localStorage.removeItem('sy_cms_quickmenu');
 
     setLogoConfig({
       text: 'SY',
       subtitle: 'SY.com',
-      imageUrl: ''
+      imageUrl: '',
+      showCompanyName: true,
+      companyNameText: '주식회사 에스와이코리아'
     });
 
     setCategoryLabels({
@@ -356,7 +405,30 @@ export default function App() {
       title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
       description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
       ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
-      calcButton: '1분 스마트 보조금 견적 내기'
+      calcButton: '1분 스마트 보조금 견적 내기',
+      imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+      showHeroImage: true
+    });
+
+    setSnsConfig({
+      kakaoUrl: 'https://pf.kakao.com/',
+      instagramUrl: 'https://www.instagram.com/',
+      blogUrl: 'https://section.blog.naver.com/',
+      showFloatingSns: true
+    });
+
+    setQuickMenuConfig({
+      showQuickMenu: true,
+      items: [
+        { id: 'q-1', label: '설치후기', iconType: 'MapPin', targetPage: 'review' },
+        { id: 'q-2', label: '기업용 충전', iconType: 'Building2', targetPage: 'solutions' },
+        { id: 'q-3', label: '주택 비공용', iconType: 'Home', targetPage: 'solutions' },
+        { id: 'q-4', label: '학교&관공서', iconType: 'GraduationCap', targetPage: 'solutions' },
+        { id: 'q-5', label: '주차장 충전', iconType: 'ParkingCircle', targetPage: 'solutions' },
+        { id: 'q-6', label: '급속충전기', iconType: 'Zap', targetPage: 'products' },
+        { id: 'q-7', label: '기기 교체', iconType: 'RefreshCw', targetPage: 'support' },
+        { id: 'q-8', label: '홍보수익형', iconType: 'TrendingUp', targetPage: 'about' }
+      ]
     });
 
     setAboutConfig({
@@ -398,6 +470,8 @@ export default function App() {
         return (
           <MainHero
             heroConfig={heroConfig}
+            quickMenuConfig={quickMenuConfig}
+            onPageChange={setActivePage}
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
@@ -497,6 +571,66 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Floating SNS & Quick Navigation Bar on the Right side (EVC1 Style but unique design) */}
+      {snsConfig.showFloatingSns && (
+        <div className="fixed right-4 bottom-24 sm:right-6 sm:bottom-28 z-40 flex flex-col gap-3 items-center">
+          {/* Box Wrapper with elegant glassmorphism and shadow */}
+          <div className="bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-slate-200/60 shadow-xl flex flex-col gap-2.5 items-center">
+            
+            {/* KakaoTalk URL */}
+            <a
+              href={snsConfig.kakaoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="카카오톡 실시간 상담"
+              className="w-10 h-10 rounded-full bg-[#FEE500] hover:scale-110 active:scale-95 flex items-center justify-center text-[#191919] font-black shadow-md transition-all cursor-pointer"
+            >
+              <MessageSquare className="w-5 h-5 animate-pulse" />
+            </a>
+
+            {/* Instagram URL */}
+            <a
+              href={snsConfig.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="인스타그램 방문"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
+
+            {/* Naver Blog URL */}
+            <a
+              href={snsConfig.blogUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="공식 블로그 방문"
+              className="w-10 h-10 rounded-full bg-[#03C75A] hover:scale-110 active:scale-95 flex items-center justify-center text-white text-[10px] font-black shadow-md transition-all cursor-pointer font-mono"
+            >
+              blog
+            </a>
+          </div>
+
+          {/* Quick Scroll Top / Bottom buttons */}
+          <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-800 shadow-xl flex flex-col gap-1.5 items-center">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              title="맨 위로 가기"
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+              title="맨 아래로 가기"
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Urgent Bottom Call To Action Sticky Banner (Satisfying CTA Button "올해 마감 임박 정부 보조금 혜택 선점") */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-t border-slate-850 py-5 px-4 shadow-xl text-white">
@@ -635,6 +769,10 @@ export default function App() {
             onSaveCategoryLabels={handleSaveCategoryLabels}
             footerConfig={footerConfig}
             onSaveFooterConfig={handleSaveFooterConfig}
+            snsConfig={snsConfig}
+            onSaveSnsConfig={handleSaveSnsConfig}
+            quickMenuConfig={quickMenuConfig}
+            onSaveQuickMenuConfig={handleSaveQuickMenuConfig}
             heroConfig={heroConfig}
             onSaveHeroConfig={handleSaveHeroConfig}
             aboutConfig={aboutConfig}

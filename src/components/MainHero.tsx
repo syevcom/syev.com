@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import * as Icons from 'lucide-react';
 import { CalendarDays, Calculator, MapPin, Wrench, ShieldCheck, Sparkles, Building, Home, ParkingSquare, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -19,10 +20,25 @@ interface MainHeroProps {
     description: string;
     ctaButton: string;
     calcButton: string;
+    imageUrl?: string;
+    showHeroImage?: boolean;
   };
+  quickMenuConfig?: {
+    showQuickMenu: boolean;
+    items: Array<{ id: string; label: string; iconType: string; targetPage: any }>;
+  };
+  onPageChange?: (page: any) => void;
   isEditMode?: boolean;
-  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'brand') => void;
 }
+
+const QuickMenuIcon = ({ iconName, className = "w-6 h-6" }: { iconName: string; className?: string }) => {
+  const IconComponent = (Icons as any)[iconName];
+  if (!IconComponent) {
+    return <Icons.HelpCircle className={className} />;
+  }
+  return <IconComponent className={className} />;
+};
 
 export default function MainHero({
   onOpenQuote,
@@ -31,6 +47,8 @@ export default function MainHero({
   onOpenAuth,
   isLoggedIn,
   heroConfig,
+  quickMenuConfig,
+  onPageChange,
   isEditMode = false,
   onOpenCms
 }: MainHeroProps) {
@@ -82,7 +100,7 @@ export default function MainHero({
         {/* Left Bento Column */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           {/* Hero Section (Large Box) */}
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between text-white shadow-xl border border-slate-800 min-h-[380px] lg:flex-grow group/hero">
+          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between text-white shadow-xl border border-slate-800 min-h-[420px] lg:flex-grow group/hero">
             {isEditMode && onOpenCms && (
               <button
                 onClick={() => onOpenCms('hero')}
@@ -92,46 +110,68 @@ export default function MainHero({
               </button>
             )}
 
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
               <svg width="280" height="280" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
             </div>
 
-            {/* Top Row inside Hero */}
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                {heroConfig.badge}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 w-full h-full">
+              {/* Text Area */}
+              <div className={`space-y-6 ${heroConfig.showHeroImage && heroConfig.imageUrl ? 'lg:col-span-7' : 'lg:col-span-12'}`}>
+                <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {heroConfig.badge}
+                </div>
+
+                <h1 
+                  className="text-3xl md:text-5xl font-black tracking-tight leading-tight md:leading-tight text-white"
+                  dangerouslySetInnerHTML={{ __html: heroConfig.title }}
+                />
+
+                <p className="text-slate-300 text-xs md:text-sm leading-relaxed font-medium max-w-lg">
+                  {heroConfig.description}
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <button
+                    onClick={onOpenQuote}
+                    id="btn-hero-quote-cta"
+                    className="py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    {heroConfig.ctaButton}
+                  </button>
+                  <button
+                    onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
+                    id="btn-hero-calc-cta"
+                    className="py-3 px-5 bg-white/10 hover:bg-white/15 border border-white/15 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <Calculator className="w-4 h-4 text-blue-400" />
+                    {heroConfig.calcButton}
+                  </button>
+                </div>
               </div>
 
-              <h1 
-                className="text-3xl md:text-5.5xl font-black tracking-tight leading-tight md:leading-tight"
-                dangerouslySetInnerHTML={{ __html: heroConfig.title }}
-              />
-
-              <p className="text-slate-300 text-xs md:text-sm leading-relaxed font-medium max-w-lg">
-                {heroConfig.description}
-              </p>
-            </div>
-
-            {/* Bottom Row inside Hero */}
-            <div className="relative z-10 flex flex-col sm:flex-row gap-3 pt-6">
-              <button
-                onClick={onOpenQuote}
-                id="btn-hero-quote-cta"
-                className="py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-              >
-                {heroConfig.ctaButton}
-              </button>
-              <button
-                onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
-                id="btn-hero-calc-cta"
-                className="py-3 px-5 bg-white/10 hover:bg-white/15 border border-white/15 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-              >
-                <Calculator className="w-4 h-4 text-blue-400" />
-                {heroConfig.calcButton}
-              </button>
+              {/* Dynamic Large Image Area */}
+              {heroConfig.showHeroImage && heroConfig.imageUrl && (
+                <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                  <div className="relative w-full max-w-[340px] aspect-[4/3] sm:aspect-square lg:aspect-[4/5] rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 group-hover/hero:scale-[1.02] transition-transform duration-500">
+                    <img 
+                      src={heroConfig.imageUrl} 
+                      alt="EV Charger Display" 
+                      className="w-full h-full object-cover brightness-95 contrast-105"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent pointer-events-none" />
+                    
+                    {/* Subtle branding layer on top of image */}
+                    <div className="absolute bottom-3 left-3 right-3 bg-slate-900/80 backdrop-blur-md border border-slate-700/50 p-3 rounded-xl text-left space-y-1">
+                      <span className="text-[9px] font-black text-blue-400 tracking-wider uppercase block font-mono">PREMIUM DESIGNS</span>
+                      <p className="text-[11px] font-extrabold text-white leading-tight">지능형 화재안심 차단형 충전 스마트 기기</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -251,6 +291,46 @@ export default function MainHero({
         </div>
 
       </div>
+
+      {/* 8-Icon Circular Quick Navigation Menu Grid (EVC1 Style but unique and copyright-free design) */}
+      {quickMenuConfig && quickMenuConfig.showQuickMenu && (
+        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+              <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">서비스 간편 바로가기</h3>
+            </div>
+            {isEditMode && onOpenCms && (
+              <button
+                onClick={() => onOpenCms('brand')}
+                className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-full cursor-pointer hover:bg-amber-200 transition-colors"
+              >
+                ✏️ 목차 아이콘 및 문구 편집
+              </button>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-4 md:gap-6 justify-center">
+            {quickMenuConfig.items.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onPageChange?.(item.targetPage)}
+                className="flex flex-col items-center gap-2.5 group cursor-pointer"
+              >
+                {/* Outer Circular Ring with rotate/spin styling on hover to ensure ultra-premium look */}
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-slate-50 to-blue-50 border border-slate-200/60 shadow-inner flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-600 group-hover:border-blue-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-500/10">
+                  <div className="text-blue-600 group-hover:text-white transition-colors duration-300">
+                    <QuickMenuIcon iconName={item.iconType} className="w-6 h-6 sm:w-6.5 sm:h-6.5" />
+                  </div>
+                </div>
+                <span className="text-[11px] sm:text-xs font-extrabold text-slate-700 tracking-tight group-hover:text-blue-600 transition-colors text-center line-clamp-1">
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Purpose Shortcuts / Solutions Section */}
       <section className="space-y-6 pt-6">

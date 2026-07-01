@@ -21,6 +21,8 @@ interface HeaderProps {
     text: string;
     subtitle: string;
     imageUrl?: string;
+    showCompanyName?: boolean;
+    companyNameText?: string;
   };
 }
 
@@ -34,7 +36,7 @@ export default function Header({
   isEditMode,
   onToggleEditMode,
   onOpenCms,
-  logoConfig = { text: 'SY', subtitle: 'SY.com' }
+  logoConfig = { text: 'SY', subtitle: 'SY.com', showCompanyName: true, companyNameText: '주식회사 에스와이코리아' }
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
@@ -49,28 +51,38 @@ export default function Header({
         <div 
           onClick={() => onPageChange('home')}
           id="logo-container"
-          className="flex items-center gap-2.5 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group"
         >
-          {logoConfig.imageUrl ? (
-            <img 
-              src={logoConfig.imageUrl} 
-              alt={logoConfig.subtitle} 
-              className="h-10 max-w-[160px] object-contain transition-transform group-hover:scale-102"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <>
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-                <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+          <div className="flex items-center gap-2.5">
+            {logoConfig.imageUrl ? (
+              <img 
+                src={logoConfig.imageUrl} 
+                alt={logoConfig.subtitle} 
+                className="h-10 max-w-[160px] object-contain transition-transform group-hover:scale-102"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                  <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-extrabold text-xl tracking-tighter text-blue-900 leading-none">
+                    {logoConfig.text}<span className="text-blue-600">.{logoConfig.subtitle.split('.').slice(1).join('.') || 'com'}</span>
+                  </span>
+                  <span className="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">EV Charging</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-2xl tracking-tighter text-blue-900 leading-none">
-                  {logoConfig.text}<span className="text-blue-600">.{logoConfig.subtitle.split('.').slice(1).join('.') || 'com'}</span>
+            )}
+
+            {logoConfig.showCompanyName && logoConfig.companyNameText && (
+              <div className="pl-3 border-l border-slate-200 h-6 flex items-center">
+                <span className="text-xs sm:text-sm font-extrabold text-slate-700 tracking-tight whitespace-nowrap">
+                  {logoConfig.companyNameText}
                 </span>
-                <span className="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">EV Charging Solution</span>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Action Buttons (Right) */}
