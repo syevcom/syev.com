@@ -4,17 +4,42 @@
  */
 
 import React, { useState } from 'react';
-import { FAQS, NOTICES } from '../data';
 import { Search, ChevronDown, ChevronUp, Bell, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+interface FAQ {
+  id: string;
+  category: string;
+  question: string;
+  answer: string;
+}
+
+interface Notice {
+  id: string;
+  title: string;
+  date: string;
+  important: boolean;
+}
 
 interface SupportSectionProps {
   onOpenMyPageAS: () => void;
   onOpenAuth: () => void;
   isLoggedIn: boolean;
+  faqs: FAQ[];
+  notices: Notice[];
+  isEditMode?: boolean;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
 }
 
-export default function SupportSection({ onOpenMyPageAS, onOpenAuth, isLoggedIn }: SupportSectionProps) {
+export default function SupportSection({ 
+  onOpenMyPageAS, 
+  onOpenAuth, 
+  isLoggedIn,
+  faqs,
+  notices,
+  isEditMode = false,
+  onOpenCms
+}: SupportSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFaq, setSelectedFaq] = useState<string | null>(null);
   const [faqCategory, setFaqCategory] = useState<'전체' | '보조금/비용' | '화재안전' | '설치과정' | '전기안전' | '사후관리(A/S)'>('전체');
@@ -27,7 +52,7 @@ export default function SupportSection({ onOpenMyPageAS, onOpenAuth, isLoggedIn 
   const [inquiryError, setInquiryError] = useState('');
 
   // Filter FAQs
-  const filteredFaqs = FAQS.filter((faq) => {
+  const filteredFaqs = faqs.filter((faq) => {
     const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = faqCategory === '전체' || faq.category === faqCategory;
@@ -62,7 +87,16 @@ export default function SupportSection({ onOpenMyPageAS, onOpenAuth, isLoggedIn 
   };
 
   return (
-    <div className="space-y-16 py-12">
+    <div className="space-y-16 py-12 relative group/support">
+      {isEditMode && onOpenCms && (
+        <button
+          onClick={() => onOpenCms('support')}
+          className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+        >
+          ✏️ 공지사항 및 FAQ 실시간 편집
+        </button>
+      )}
+
       {/* Notices Board Section (Top widget) */}
       <section className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
         <h3 className="text-sm font-black text-slate-950 uppercase tracking-wider mb-4 flex items-center gap-1.5">
@@ -71,7 +105,7 @@ export default function SupportSection({ onOpenMyPageAS, onOpenAuth, isLoggedIn 
         </h3>
 
         <div className="space-y-2.5">
-          {NOTICES.map((not) => (
+          {notices.map((not) => (
             <div
               key={not.id}
               className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-100/50 transition-colors"

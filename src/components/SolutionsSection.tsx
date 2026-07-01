@@ -4,18 +4,35 @@
  */
 
 import React from 'react';
-import { SOLUTIONS } from '../data';
+import { Solution } from '../types';
 import { Check, ArrowRight } from 'lucide-react';
 
 interface SolutionsSectionProps {
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
+  solutions: Solution[];
+  isEditMode?: boolean;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
 }
 
-export default function SolutionsSection({ onOpenQuoteWithPurpose }: SolutionsSectionProps) {
+export default function SolutionsSection({ 
+  onOpenQuoteWithPurpose,
+  solutions,
+  isEditMode = false,
+  onOpenCms
+}: SolutionsSectionProps) {
   return (
-    <div className="space-y-16 py-12">
+    <div className="space-y-16 py-12 relative group/solutions">
+      {isEditMode && onOpenCms && (
+        <button
+          onClick={() => onOpenCms('solutions')}
+          className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+        >
+          ✏️ 용도별 솔루션 실시간 편집
+        </button>
+      )}
+
       {/* Category detail block cards */}
-      {SOLUTIONS.map((sol, index) => {
+      {solutions.map((sol, index) => {
         const isEven = index % 2 === 0;
         return (
           <section

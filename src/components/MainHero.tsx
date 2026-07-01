@@ -13,6 +13,15 @@ interface MainHeroProps {
   onOpenMyPageAS: () => void;
   onOpenAuth: () => void;
   isLoggedIn: boolean;
+  heroConfig: {
+    badge: string;
+    title: string;
+    description: string;
+    ctaButton: string;
+    calcButton: string;
+  };
+  isEditMode?: boolean;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
 }
 
 export default function MainHero({
@@ -20,7 +29,10 @@ export default function MainHero({
   onOpenQuoteWithPurpose,
   onOpenMyPageAS,
   onOpenAuth,
-  isLoggedIn
+  isLoggedIn,
+  heroConfig,
+  isEditMode = false,
+  onOpenCms
 }: MainHeroProps) {
   // Mechanical Counting live state
   const [count, setCount] = useState(14520);
@@ -67,11 +79,19 @@ export default function MainHero({
       {/* MASTER BENTO GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        {/* Left Bento Module: Large Hero Block & Quick Icons */}
-        <div className="lg:col-span-7 flex flex-col gap-6 justify-between">
-          
+        {/* Left Bento Column */}
+        <div className="lg:col-span-7 flex flex-col gap-6">
           {/* Hero Section (Large Box) */}
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between text-white shadow-xl border border-slate-800 min-h-[380px] lg:flex-grow">
+          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between text-white shadow-xl border border-slate-800 min-h-[380px] lg:flex-grow group/hero">
+            {isEditMode && onOpenCms && (
+              <button
+                onClick={() => onOpenCms('hero')}
+                className="absolute top-4 right-4 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+              >
+                ✏️ 히어로 영역 실시간 편집
+              </button>
+            )}
+
             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
               <svg width="280" height="280" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -82,16 +102,16 @@ export default function MainHero({
             <div className="relative z-10 space-y-4">
               <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
-                전국 최대 원스톱 설치 네트워크
+                {heroConfig.badge}
               </div>
 
-              <h1 className="text-3xl md:text-5.5xl font-black tracking-tight leading-tight md:leading-tight">
-                대한민국 어디든,<br />
-                전기차가 멈추는 곳엔 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>
-              </h1>
+              <h1 
+                className="text-3xl md:text-5.5xl font-black tracking-tight leading-tight md:leading-tight"
+                dangerouslySetInnerHTML={{ __html: heroConfig.title }}
+              />
 
               <p className="text-slate-300 text-xs md:text-sm leading-relaxed font-medium max-w-lg">
-                전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.
+                {heroConfig.description}
               </p>
             </div>
 
@@ -102,7 +122,7 @@ export default function MainHero({
                 id="btn-hero-quote-cta"
                 className="py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
               >
-                👉 30초 만에 무료 설치 상담 예약하기
+                {heroConfig.ctaButton}
               </button>
               <button
                 onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
@@ -110,7 +130,7 @@ export default function MainHero({
                 className="py-3 px-5 bg-white/10 hover:bg-white/15 border border-white/15 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
               >
                 <Calculator className="w-4 h-4 text-blue-400" />
-                1분 스마트 보조금 견적 내기
+                {heroConfig.calcButton}
               </button>
             </div>
           </div>

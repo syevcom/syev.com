@@ -15,8 +15,11 @@ import SupportSection from './components/SupportSection';
 import AuthModal from './components/AuthModal';
 import QuoteModal from './components/QuoteModal';
 import MyPageModal from './components/MyPageModal';
+import CmsEditorModal from './components/CmsEditorModal';
+import AdminLoginModal from './components/AdminLoginModal';
 
-import { ActivePage, User, Booking, ASRequest } from './types';
+import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
+import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ } from './types';
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -28,6 +31,7 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   
   // Custom default purpose for Quote Modal
   const [quoteDefaultPurpose, setQuoteDefaultPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>('Residential');
@@ -35,6 +39,51 @@ export default function App() {
   // Bookings and A/S records stored persistently in localStorage
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [asRequests, setAsRequests] = useState<ASRequest[]>([]);
+
+  // CMS Live Editor states
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isCmsOpen, setIsCmsOpen] = useState(false);
+  const [cmsTab, setCmsTab] = useState<'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support'>('brand');
+
+  // Brand Logo & Categories config state
+  const [logoConfig, setLogoConfig] = useState({
+    text: 'SY',
+    subtitle: 'SY.com',
+    imageUrl: ''
+  });
+
+  const [categoryLabels, setCategoryLabels] = useState({
+    home: '홈',
+    about: '회사소개',
+    products: '신제품소개',
+    solutions: '용도별솔루션',
+    review: '설치후기',
+    support: '고객지원'
+  });
+
+  const [heroConfig, setHeroConfig] = useState({
+    badge: '전국 최대 원스톱 설치 네트워크',
+    title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
+    description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
+    ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
+    calcButton: '1분 스마트 보조금 견적 내기'
+  });
+
+  const [aboutConfig, setAboutConfig] = useState({
+    ceoName: '김 성 윤 대표이사',
+    ceoRole: 'SY.com Co., Ltd. Founder & CEO',
+    ceoGreeting: '"지속 가능한 전기차 운전의 첫걸음, \n내 주차장에서 시작되는 안전과 편안함입니다."',
+    ceoMessage1: '안녕하십니까, SY.com 대표이사 김성윤입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
+    ceoMessage2: '하지만 최근 다중이용시설 및 주거지역 내 전기차 충전 중의 크고 작은 전기적 트러블과 화재 위험에 대한 우려로 입주민 협의를 보지 못하고 설치를 망설이시는 고객분들이 많습니다.',
+    ceoMessage3: '저희 SY.com은 특허청에 등록된 차세대 화재감지 PLC 모뎀 차단 기술과 실시간 과열 진단 모니터링을 전 기종에 도입하여 완벽히 안전한 스마트 충전 생태계를 이룩했습니다. 설계부터 번거로운 관공서/한전/지자체 보조금 심사 서류 신청까지, SY.com 전 직원이 발로 뛰며 고객님의 편안함을 완성하겠습니다.',
+    ceoImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600'
+  });
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [solutions, setSolutions] = useState<Solution[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [notices, setNotices] = useState<any[]>([]);
 
   // Load from LocalStorage
   useEffect(() => {
@@ -95,6 +144,67 @@ export default function App() {
       setAsRequests(initialAS);
       localStorage.setItem('sy_as', JSON.stringify(initialAS));
     }
+
+    // CMS Configurations
+    const savedLogo = localStorage.getItem('sy_cms_logo');
+    if (savedLogo) {
+      try { setLogoConfig(JSON.parse(savedLogo)); } catch (e) { console.error(e); }
+    }
+
+    const savedCategories = localStorage.getItem('sy_cms_categories');
+    if (savedCategories) {
+      try { setCategoryLabels(JSON.parse(savedCategories)); } catch (e) { console.error(e); }
+    }
+
+    const savedHero = localStorage.getItem('sy_cms_hero');
+    if (savedHero) {
+      try { setHeroConfig(JSON.parse(savedHero)); } catch (e) { console.error(e); }
+    }
+
+    const savedAbout = localStorage.getItem('sy_cms_about');
+    if (savedAbout) {
+      try { setAboutConfig(JSON.parse(savedAbout)); } catch (e) { console.error(e); }
+    }
+
+    const savedProducts = localStorage.getItem('sy_cms_products');
+    if (savedProducts) {
+      try { setProducts(JSON.parse(savedProducts)); } catch (e) { console.error(e); }
+    } else {
+      setProducts(PRODUCTS);
+      localStorage.setItem('sy_cms_products', JSON.stringify(PRODUCTS));
+    }
+
+    const savedSolutions = localStorage.getItem('sy_cms_solutions');
+    if (savedSolutions) {
+      try { setSolutions(JSON.parse(savedSolutions)); } catch (e) { console.error(e); }
+    } else {
+      setSolutions(SOLUTIONS);
+      localStorage.setItem('sy_cms_solutions', JSON.stringify(SOLUTIONS));
+    }
+
+    const savedReviews = localStorage.getItem('sy_cms_reviews');
+    if (savedReviews) {
+      try { setReviews(JSON.parse(savedReviews)); } catch (e) { console.error(e); }
+    } else {
+      setReviews(REVIEWS);
+      localStorage.setItem('sy_cms_reviews', JSON.stringify(REVIEWS));
+    }
+
+    const savedFaqs = localStorage.getItem('sy_cms_faqs');
+    if (savedFaqs) {
+      try { setFaqs(JSON.parse(savedFaqs)); } catch (e) { console.error(e); }
+    } else {
+      setFaqs(FAQS);
+      localStorage.setItem('sy_cms_faqs', JSON.stringify(FAQS));
+    }
+
+    const savedNotices = localStorage.getItem('sy_cms_notices');
+    if (savedNotices) {
+      try { setNotices(JSON.parse(savedNotices)); } catch (e) { console.error(e); }
+    } else {
+      setNotices(NOTICES);
+      localStorage.setItem('sy_cms_notices', JSON.stringify(NOTICES));
+    }
   }, []);
 
   // Sync state helpers
@@ -136,6 +246,108 @@ export default function App() {
     localStorage.setItem('sy_as', JSON.stringify(updated));
   };
 
+  // CMS configuration save handlers
+  const handleSaveLogoConfig = (config: any) => {
+    setLogoConfig(config);
+    localStorage.setItem('sy_cms_logo', JSON.stringify(config));
+  };
+
+  const handleSaveCategoryLabels = (labels: any) => {
+    setCategoryLabels(labels);
+    localStorage.setItem('sy_cms_categories', JSON.stringify(labels));
+  };
+
+  const handleSaveHeroConfig = (config: any) => {
+    setHeroConfig(config);
+    localStorage.setItem('sy_cms_hero', JSON.stringify(config));
+  };
+
+  const handleSaveAboutConfig = (config: any) => {
+    setAboutConfig(config);
+    localStorage.setItem('sy_cms_about', JSON.stringify(config));
+  };
+
+  const handleSaveProducts = (newProducts: Product[]) => {
+    setProducts(newProducts);
+    localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
+  };
+
+  const handleSaveSolutions = (newSolutions: Solution[]) => {
+    setSolutions(newSolutions);
+    localStorage.setItem('sy_cms_solutions', JSON.stringify(newSolutions));
+  };
+
+  const handleSaveReviews = (newReviews: Review[]) => {
+    setReviews(newReviews);
+    localStorage.setItem('sy_cms_reviews', JSON.stringify(newReviews));
+  };
+
+  const handleSaveFaqs = (newFaqs: FAQ[]) => {
+    setFaqs(newFaqs);
+    localStorage.setItem('sy_cms_faqs', JSON.stringify(newFaqs));
+  };
+
+  const handleSaveNotices = (newNotices: any[]) => {
+    setNotices(newNotices);
+    localStorage.setItem('sy_cms_notices', JSON.stringify(newNotices));
+  };
+
+  const handleResetAll = () => {
+    localStorage.removeItem('sy_cms_logo');
+    localStorage.removeItem('sy_cms_categories');
+    localStorage.removeItem('sy_cms_hero');
+    localStorage.removeItem('sy_cms_about');
+    localStorage.removeItem('sy_cms_products');
+    localStorage.removeItem('sy_cms_solutions');
+    localStorage.removeItem('sy_cms_reviews');
+    localStorage.removeItem('sy_cms_faqs');
+    localStorage.removeItem('sy_cms_notices');
+
+    setLogoConfig({
+      text: 'SY',
+      subtitle: 'SY.com',
+      imageUrl: ''
+    });
+
+    setCategoryLabels({
+      home: '홈',
+      about: '회사소개',
+      products: '신제품소개',
+      solutions: '용도별솔루션',
+      review: '설치후기',
+      support: '고객지원'
+    });
+
+    setHeroConfig({
+      badge: '전국 최대 원스톱 설치 네트워크',
+      title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
+      description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
+      ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
+      calcButton: '1분 스마트 보조금 견적 내기'
+    });
+
+    setAboutConfig({
+      ceoName: '김 성 윤 대표이사',
+      ceoRole: 'SY.com Co., Ltd. Founder & CEO',
+      ceoGreeting: '"지속 가능한 전기차 운전의 첫걸음, \n내 주차장에서 시작되는 안전과 편안함입니다."',
+      ceoMessage1: '안녕하십니까, SY.com 대표이사 김성윤입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
+      ceoMessage2: '하지만 최근 다중이용시설 및 주거지역 내 전기차 충전 중의 크고 작은 전기적 트러블과 화재 위험에 대한 우려로 입주민 협의를 보지 못하고 설치를 망설이시는 고객분들이 많습니다.',
+      ceoMessage3: '저희 SY.com은 특허청에 등록된 차세대 화재감지 PLC 모뎀 차단 기술과 실시간 과열 진단 모니터링을 전 기종에 도입하여 완벽히 안전한 스마트 충전 생태계를 이룩했습니다. 설계부터 번거로운 관공서/한전/지자체 보조금 심사 서류 신청까지, SY.com 전 직원이 발로 뛰며 고객님의 편안함을 완성하겠습니다.',
+      ceoImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600'
+    });
+
+    setProducts(PRODUCTS);
+    setSolutions(SOLUTIONS);
+    setReviews(REVIEWS);
+    setFaqs(FAQS);
+    setNotices(NOTICES);
+  };
+
+  const handleOpenCmsTab = (tab: typeof cmsTab) => {
+    setCmsTab(tab);
+    setIsCmsOpen(true);
+  };
+
   // Dedicated Open quote with specific purpose pre-selected
   const handleOpenQuoteWithPurpose = (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => {
     setQuoteDefaultPurpose(purpose);
@@ -152,6 +364,9 @@ export default function App() {
       case 'home':
         return (
           <MainHero
+            heroConfig={heroConfig}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
             onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
             onOpenMyPageAS={handleOpenMyPageAS}
@@ -160,16 +375,46 @@ export default function App() {
           />
         );
       case 'about':
-        return <AboutSection />;
+        return (
+          <AboutSection 
+            aboutConfig={aboutConfig} 
+            isEditMode={isEditMode} 
+            onOpenCms={handleOpenCmsTab} 
+          />
+        );
       case 'products':
-        return <ProductsSection onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} />;
+        return (
+          <ProductsSection 
+            products={products}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
+          />
+        );
       case 'solutions':
-        return <SolutionsSection onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} />;
+        return (
+          <SolutionsSection 
+            solutions={solutions}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
+          />
+        );
       case 'review':
-        return <ReviewSection />;
+        return (
+          <ReviewSection 
+            reviews={reviews}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+          />
+        );
       case 'support':
         return (
           <SupportSection
+            faqs={faqs}
+            notices={notices}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
             onOpenMyPageAS={handleOpenMyPageAS}
             onOpenAuth={() => setIsAuthOpen(true)}
             isLoggedIn={!!user}
@@ -191,8 +436,18 @@ export default function App() {
           onOpenAuth={() => setIsAuthOpen(true)}
           onOpenMyPage={() => setIsMyPageOpen(true)}
           onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
+          isEditMode={isEditMode}
+          onToggleEditMode={() => {
+            if (!isEditMode) {
+              setIsAdminLoginOpen(true);
+            } else {
+              setIsEditMode(false);
+            }
+          }}
+          onOpenCms={() => setIsCmsOpen(true)}
+          logoConfig={logoConfig}
         />
-        <Navbar activePage={activePage} onPageChange={setActivePage} />
+        <Navbar activePage={activePage} onPageChange={setActivePage} categoryLabels={categoryLabels} />
       </div>
 
       {/* Main Container */}
@@ -243,16 +498,27 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {/* Branding & description */}
             <div className="md:col-span-5 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm tracking-tight">
-                  SY
-                </div>
-                <span className="font-extrabold text-white text-base tracking-tight">
-                  SY.com
-                </span>
+              <div className="flex items-center gap-2.5">
+                {logoConfig.imageUrl ? (
+                  <img 
+                    src={logoConfig.imageUrl} 
+                    alt={logoConfig.subtitle} 
+                    className="h-8 max-w-[140px] object-contain brightness-0 invert opacity-90"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <>
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm tracking-tight">
+                      {logoConfig.text}
+                    </div>
+                    <span className="font-extrabold text-white text-base tracking-tight">
+                      {logoConfig.subtitle}
+                    </span>
+                  </>
+                )}
               </div>
               <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-                SY.com은 대한민국 환경부 공식 대행 사업 파트너로서 친환경 과열감지 차단 기술 탑재 완속 및 초급속 충전기를 설계부터 국가보조금 지원까지 책임 시공합니다.
+                {logoConfig.subtitle}은 대한민국 환경부 공식 대행 사업 파트너로서 친환경 과열감지 차단 기술 탑재 완속 및 초급속 충전기를 설계부터 국가보조금 지원까지 책임 시공합니다.
               </p>
               <div className="text-xs text-slate-500 space-y-0.5">
                 <p>전국 통합 대표번호: 1588-SY01 (A/S 정비 전담 지원)</p>
@@ -323,6 +589,45 @@ export default function App() {
             asRequests={asRequests}
             onAddASRequest={handleAddASRequest}
             onLogout={handleLogout}
+          />
+        )}
+
+        {isCmsOpen && (
+          <CmsEditorModal
+            isOpen={isCmsOpen}
+            onClose={() => setIsCmsOpen(false)}
+            logoConfig={logoConfig}
+            onSaveLogoConfig={handleSaveLogoConfig}
+            categoryLabels={categoryLabels}
+            onSaveCategoryLabels={handleSaveCategoryLabels}
+            heroConfig={heroConfig}
+            onSaveHeroConfig={handleSaveHeroConfig}
+            aboutConfig={aboutConfig}
+            onSaveAboutConfig={handleSaveAboutConfig}
+            products={products}
+            onSaveProducts={handleSaveProducts}
+            solutions={solutions}
+            onSaveSolutions={handleSaveSolutions}
+            reviews={reviews}
+            onSaveReviews={handleSaveReviews}
+            faqs={faqs}
+            onSaveFaqs={handleSaveFaqs}
+            notices={notices}
+            onSaveNotices={handleSaveNotices}
+            onResetAll={handleResetAll}
+            initialTab={cmsTab}
+          />
+        )}
+
+        {isAdminLoginOpen && (
+          <AdminLoginModal
+            isOpen={isAdminLoginOpen}
+            onClose={() => setIsAdminLoginOpen(false)}
+            onLoginSuccess={() => {
+              setIsAdminLoginOpen(false);
+              setIsEditMode(true);
+              setIsCmsOpen(true);
+            }}
           />
         )}
       </AnimatePresence>

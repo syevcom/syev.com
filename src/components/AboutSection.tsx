@@ -6,7 +6,25 @@
 import React from 'react';
 import { Award, ShieldCheck, Network, FileText, CheckCircle } from 'lucide-react';
 
-export default function AboutSection() {
+interface AboutSectionProps {
+  aboutConfig: {
+    ceoName: string;
+    ceoRole: string;
+    ceoGreeting: string;
+    ceoMessage1: string;
+    ceoMessage2: string;
+    ceoMessage3: string;
+    ceoImage: string;
+  };
+  isEditMode?: boolean;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
+}
+
+export default function AboutSection({
+  aboutConfig,
+  isEditMode = false,
+  onOpenCms
+}: AboutSectionProps) {
   const regions = [
     { name: '서울/수도권 본부', locations: '강남, 영등포, 일산, 판교, 인천', tel: '1588-SY01' },
     { name: '강원 지사', locations: '춘천, 원주, 강릉', tel: '1588-SY02' },
@@ -43,33 +61,36 @@ export default function AboutSection() {
       </section>
 
       {/* CEO Message */}
-      <section className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative group/about">
+        {isEditMode && onOpenCms && (
+          <button
+            onClick={() => onOpenCms('about')}
+            className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+          >
+            ✏️ 대표자 및 회사 소개 실시간 편집
+          </button>
+        )}
+
         <div className="md:col-span-5 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-80 md:h-[400px]">
           <img 
-            src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600" 
+            src={aboutConfig.ceoImage} 
             alt="SY.com CEO" 
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-6 text-white">
-            <p className="font-extrabold text-lg">김 성 윤 대표이사</p>
-            <p className="text-xs text-blue-400 font-bold">SY.com Co., Ltd. Founder &amp; CEO</p>
+            <p className="font-extrabold text-lg">{aboutConfig.ceoName}</p>
+            <p className="text-xs text-blue-400 font-bold">{aboutConfig.ceoRole}</p>
           </div>
         </div>
         <div className="md:col-span-7 space-y-5">
           <span className="text-blue-600 font-bold text-xs tracking-wider uppercase block">CEO Greeting</span>
           <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-snug">
-            "지속 가능한 전기차 운전의 첫걸음, <br />내 주차장에서 시작되는 안전과 편안함입니다."
+            {aboutConfig.ceoGreeting}
           </h3>
           <div className="text-slate-600 text-sm leading-relaxed space-y-4 font-medium">
-            <p>
-              안녕하십니까, SY.com 대표이사 김성윤입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.
-            </p>
-            <p>
-              하지만 최근 다중이용시설 및 주거지역 내 전기차 충전 중의 크고 작은 전기적 트러블과 화재 위험에 대한 우려로 입주민 협의를 보지 못하고 설치를 망설이시는 고객분들이 많습니다.
-            </p>
-            <p>
-              저희 SY.com은 <strong>특허청에 등록된 차세대 화재감지 PLC 모뎀 차단 기술</strong>과 실시간 과열 진단 모니터링을 전 기종에 도입하여 완벽히 안전한 스마트 충전 생태계를 이룩했습니다. 설계부터 번거로운 관공서/한전/지자체 보조금 심사 서류 신청까지, SY.com 전 직원이 발로 뛰며 고객님의 편안함을 완성하겠습니다.
-            </p>
+            <p>{aboutConfig.ceoMessage1}</p>
+            <p>{aboutConfig.ceoMessage2}</p>
+            <p>{aboutConfig.ceoMessage3}</p>
           </div>
         </div>
       </section>

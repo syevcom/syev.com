@@ -10,16 +10,35 @@ import { Info, Zap, Settings, MapPin, HelpCircle, Home } from 'lucide-react';
 interface NavbarProps {
   activePage: ActivePage;
   onPageChange: (page: ActivePage) => void;
+  categoryLabels?: {
+    home: string;
+    about: string;
+    products: string;
+    solutions: string;
+    review: string;
+    support: string;
+  };
 }
 
-export default function Navbar({ activePage, onPageChange }: NavbarProps) {
+export default function Navbar({ 
+  activePage, 
+  onPageChange,
+  categoryLabels = {
+    home: '홈',
+    about: '회사소개',
+    products: '신제품소개',
+    solutions: '용도별솔루션',
+    review: '설치후기',
+    support: '고객지원'
+  }
+}: NavbarProps) {
   const menuItems: { id: ActivePage; label: string; icon: React.ReactNode }[] = [
-    { id: 'home', label: '메인', icon: <Home className="w-4 h-4" /> },
-    { id: 'about', label: 'ABOUT SY.com', icon: <Info className="w-4 h-4" /> },
-    { id: 'products', label: 'PRODUCTS (신제품)', icon: <Zap className="w-4 h-4" /> },
-    { id: 'solutions', label: 'SOLUTIONS (용도별)', icon: <Settings className="w-4 h-4" /> },
-    { id: 'review', label: 'REVIEW (설치후기)', icon: <MapPin className="w-4 h-4" /> },
-    { id: 'support', label: 'SUPPORT (고객지원)', icon: <HelpCircle className="w-4 h-4" /> }
+    { id: 'home', label: categoryLabels.home, icon: <Home className="w-4 h-4" /> },
+    { id: 'about', label: categoryLabels.about, icon: <Info className="w-4 h-4" /> },
+    { id: 'products', label: categoryLabels.products, icon: <Zap className="w-4 h-4" /> },
+    { id: 'solutions', label: categoryLabels.solutions, icon: <Settings className="w-4 h-4" /> },
+    { id: 'review', label: categoryLabels.review, icon: <MapPin className="w-4 h-4" /> },
+    { id: 'support', label: categoryLabels.support, icon: <HelpCircle className="w-4 h-4" /> }
   ];
 
   return (

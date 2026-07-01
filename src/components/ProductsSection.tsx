@@ -4,19 +4,28 @@
  */
 
 import React, { useState } from 'react';
-import { PRODUCTS } from '../data';
 import { Product } from '../types';
 import { Check, ShieldCheck, Cpu, Activity, FileDown } from 'lucide-react';
 
 interface ProductsSectionProps {
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
+  products: Product[];
+  isEditMode?: boolean;
+  onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
 }
 
-export default function ProductsSection({ onOpenQuoteWithPurpose }: ProductsSectionProps) {
+export default function ProductsSection({ 
+  onOpenQuoteWithPurpose,
+  products,
+  isEditMode = false,
+  onOpenCms
+}: ProductsSectionProps) {
   const [filter, setFilter] = useState<'전체' | '완속' | '급속' | '스마트홈'>('전체');
-  const [selectedProduct, setSelectedProduct] = useState<Product>(PRODUCTS[0]);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  const filteredProducts = PRODUCTS.filter((p) => {
+  const currentSelected = products.find(p => p.id === selectedProductId) || products[0];
+
+  const filteredProducts = products.filter((p) => {
     if (filter === '전체') return true;
     if (filter === '완속') return p.type === '완속';
     if (filter === '스마트홈') return p.type === '스마트홈';
@@ -32,7 +41,16 @@ export default function ProductsSection({ onOpenQuoteWithPurpose }: ProductsSect
   };
 
   return (
-    <div className="space-y-12 py-12">
+    <div className="space-y-12 py-12 relative group/products">
+      {isEditMode && onOpenCms && (
+        <button
+          onClick={() => onOpenCms('products')}
+          className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+        >
+          ✏️ 신제품 라인업 실시간 편집
+        </button>
+      )}
+
       {/* Promo banner highlighting high-tech features */}
       <section className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 md:p-8 border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6 shadow-xl">
         <div className="space-y-3.5">
@@ -85,10 +103,10 @@ export default function ProductsSection({ onOpenQuoteWithPurpose }: ProductsSect
         {filteredProducts.map((p) => (
           <div
             key={p.id}
-            onClick={() => setSelectedProduct(p)}
+            onClick={() => setSelectedProductId(p.id)}
             id={`card-product-${p.id}`}
             className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer ${
-              selectedProduct.id === p.id
+              currentSelected.id === p.id
                 ? 'border-blue-600 ring-2 ring-blue-600/10 shadow-lg'
                 : 'border-slate-200 hover:border-slate-300 shadow-sm'
             }`}
@@ -162,7 +180,7 @@ export default function ProductsSection({ onOpenQuoteWithPurpose }: ProductsSect
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <span className="text-blue-600 font-bold text-xs uppercase tracking-wider block">Spec Comparison</span>
-            <h3 className="text-xl font-black text-slate-950 mt-1">상세 제원 기술 규격 ({selectedProduct.name})</h3>
+            <h3 className="text-xl font-black text-slate-950 mt-1">상세 제원 기술 규격 ({currentSelected.name})</h3>
           </div>
           <button
             type="button"
@@ -182,7 +200,7 @@ export default function ProductsSection({ onOpenQuoteWithPurpose }: ProductsSect
               </tr>
             </thead>
             <tbody>
-              {Object.entries(selectedProduct.specs).map(([key, val], idx) => (
+              {Object.entries(currentSelected.specs).map(([key, val], idx) => (
                 <tr key={key} className={idx % 2 === 0 ? 'bg-white border-b border-slate-100' : 'bg-slate-50/50 border-b border-slate-100'}>
                   <td className="p-4 font-bold text-slate-600">{key}</td>
                   <td className="p-4 text-slate-800 font-medium">{val}</td>

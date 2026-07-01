@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { LogIn, LogOut, User, CalendarDays, Sparkles, MessageSquare } from 'lucide-react';
+import { LogIn, LogOut, User, CalendarDays, Sparkles, MessageSquare, Settings } from 'lucide-react';
 import { User as UserType, ActivePage } from '../types';
 
 interface HeaderProps {
@@ -14,6 +14,14 @@ interface HeaderProps {
   onOpenAuth: () => void;
   onOpenMyPage: () => void;
   onOpenQuote: () => void;
+  isEditMode: boolean;
+  onToggleEditMode: () => void;
+  onOpenCms?: () => void;
+  logoConfig?: {
+    text: string;
+    subtitle: string;
+    imageUrl?: string;
+  };
 }
 
 export default function Header({
@@ -22,7 +30,11 @@ export default function Header({
   onPageChange,
   onOpenAuth,
   onOpenMyPage,
-  onOpenQuote
+  onOpenQuote,
+  isEditMode,
+  onToggleEditMode,
+  onOpenCms,
+  logoConfig = { text: 'SY', subtitle: 'SY.com' }
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
@@ -37,19 +49,57 @@ export default function Header({
         <div 
           onClick={() => onPageChange('home')}
           id="logo-container"
-          className="flex items-center gap-2 cursor-pointer group"
+          className="flex items-center gap-2.5 cursor-pointer group"
         >
-          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <span className="font-black text-white text-base tracking-tighter">SY</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-2xl tracking-tighter text-blue-900 leading-none">SY<span className="text-blue-600">.com</span></span>
-            <span className="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">EV Charging Solution</span>
-          </div>
+          {logoConfig.imageUrl ? (
+            <img 
+              src={logoConfig.imageUrl} 
+              alt={logoConfig.subtitle} 
+              className="h-10 max-w-[160px] object-contain transition-transform group-hover:scale-102"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <>
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-extrabold text-2xl tracking-tighter text-blue-900 leading-none">
+                  {logoConfig.text}<span className="text-blue-600">.{logoConfig.subtitle.split('.').slice(1).join('.') || 'com'}</span>
+                </span>
+                <span className="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">EV Charging Solution</span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Action Buttons (Right) */}
         <div className="flex items-center gap-2.5 sm:gap-4">
+          {/* Admin Editor Mode Quick Toggle */}
+          <div className="flex items-center gap-1.5 bg-slate-100 rounded-full p-1 border border-slate-200">
+            <button
+              onClick={onToggleEditMode}
+              id="btn-header-edit-toggle"
+              className={`flex items-center gap-1 py-1 px-2.5 rounded-full text-[10px] font-black tracking-tight transition-all cursor-pointer ${
+                isEditMode
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Settings className={`w-3 h-3 ${isEditMode ? 'animate-spin' : ''}`} />
+              <span>{isEditMode ? '수정모드 On' : '관리자 에디터'}</span>
+            </button>
+            {isEditMode && onOpenCms && (
+              <button
+                onClick={onOpenCms}
+                id="btn-header-cms-open"
+                className="flex items-center gap-1 py-1 px-2.5 bg-slate-900 text-white rounded-full text-[10px] font-black cursor-pointer hover:bg-slate-800 transition-all shadow-sm"
+              >
+                <span>✏️ CMS 대시보드</span>
+              </button>
+            )}
+          </div>
+
           {user ? (
             <div className="flex items-center gap-2.5">
               {/* User Greeting (Desktop) */}
