@@ -23,6 +23,10 @@ interface HeaderProps {
     imageUrl?: string;
     showCompanyName?: boolean;
     companyNameText?: string;
+    companyNameFont?: string;
+    companyNameWeight?: string;
+    companyNameSize?: string;
+    companyNameColor?: string;
   };
 }
 
@@ -77,7 +81,35 @@ export default function Header({
 
             {logoConfig.showCompanyName && logoConfig.companyNameText && (
               <div className="pl-3 border-l border-slate-200 h-6 flex items-center">
-                <span className="text-xs sm:text-sm font-extrabold text-slate-700 tracking-tight whitespace-nowrap">
+                <span className={`tracking-tight whitespace-nowrap transition-all ${
+                  logoConfig.companyNameFont === 'noto' ? 'font-noto' :
+                  logoConfig.companyNameFont === 'gowun' ? 'font-gowun' :
+                  logoConfig.companyNameFont === 'dohyeon' ? 'font-dohyeon' :
+                  logoConfig.companyNameFont === 'blackhan' ? 'font-blackhan' :
+                  logoConfig.companyNameFont === 'songmyung' ? 'font-songmyung' :
+                  logoConfig.companyNameFont === 'nanumgothic' ? 'font-nanumgothic' : 'font-sans'
+                } ${
+                  logoConfig.companyNameWeight === 'normal' ? 'font-normal' :
+                  logoConfig.companyNameWeight === 'medium' ? 'font-medium' :
+                  logoConfig.companyNameWeight === 'semibold' ? 'font-semibold' :
+                  logoConfig.companyNameWeight === 'bold' ? 'font-bold' :
+                  logoConfig.companyNameWeight === 'extrabold' ? 'font-extrabold' :
+                  logoConfig.companyNameWeight === 'black' ? 'font-black' : 'font-extrabold'
+                } ${
+                  logoConfig.companyNameSize === 'xs' ? 'text-xs' :
+                  logoConfig.companyNameSize === 'sm' ? 'text-sm' :
+                  logoConfig.companyNameSize === 'base' ? 'text-base' :
+                  logoConfig.companyNameSize === 'lg' ? 'text-lg' :
+                  logoConfig.companyNameSize === 'xl' ? 'text-xl' :
+                  logoConfig.companyNameSize === '2xl' ? 'text-2xl' : 'text-xs sm:text-sm'
+                } ${
+                  logoConfig.companyNameColor === 'slate-900' ? 'text-slate-900' :
+                  logoConfig.companyNameColor === 'blue-600' ? 'text-blue-600' :
+                  logoConfig.companyNameColor === 'blue-900' ? 'text-blue-900' :
+                  logoConfig.companyNameColor === 'indigo-700' ? 'text-indigo-700' :
+                  logoConfig.companyNameColor === 'emerald-700' ? 'text-emerald-700' :
+                  logoConfig.companyNameColor === 'red-600' ? 'text-red-600' : 'text-slate-700'
+                }`}>
                   {logoConfig.companyNameText}
                 </span>
               </div>

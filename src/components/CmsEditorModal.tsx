@@ -19,6 +19,10 @@ interface CmsEditorModalProps {
     imageUrl: string;
     showCompanyName?: boolean;
     companyNameText?: string;
+    companyNameFont?: string;
+    companyNameWeight?: string;
+    companyNameSize?: string;
+    companyNameColor?: string;
   };
   onSaveLogoConfig: (config: any) => void;
 
@@ -156,6 +160,10 @@ export default function CmsEditorModal({
   const [logoImageUrl, setLogoImageUrl] = useState(logoConfig.imageUrl || '');
   const [logoShowCompanyName, setLogoShowCompanyName] = useState(logoConfig.showCompanyName !== false);
   const [logoCompanyNameText, setLogoCompanyNameText] = useState(logoConfig.companyNameText || '');
+  const [logoCompanyNameFont, setLogoCompanyNameFont] = useState(logoConfig.companyNameFont || 'noto');
+  const [logoCompanyNameWeight, setLogoCompanyNameWeight] = useState(logoConfig.companyNameWeight || 'extrabold');
+  const [logoCompanyNameSize, setLogoCompanyNameSize] = useState(logoConfig.companyNameSize || 'sm');
+  const [logoCompanyNameColor, setLogoCompanyNameColor] = useState(logoConfig.companyNameColor || 'slate-700');
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [isDraggingCeoImg, setIsDraggingCeoImg] = useState(false);
   const [isDraggingProdImg, setIsDraggingProdImg] = useState(false);
@@ -213,6 +221,10 @@ export default function CmsEditorModal({
       setLogoImageUrl(logoConfig.imageUrl || '');
       setLogoShowCompanyName(logoConfig.showCompanyName !== false);
       setLogoCompanyNameText(logoConfig.companyNameText || '');
+      setLogoCompanyNameFont(logoConfig.companyNameFont || 'noto');
+      setLogoCompanyNameWeight(logoConfig.companyNameWeight || 'extrabold');
+      setLogoCompanyNameSize(logoConfig.companyNameSize || 'sm');
+      setLogoCompanyNameColor(logoConfig.companyNameColor || 'slate-700');
 
       setMenuHome(categoryLabels.home);
       setMenuAbout(categoryLabels.about);
@@ -314,7 +326,11 @@ export default function CmsEditorModal({
       subtitle: logoSubtitle,
       imageUrl: logoImageUrl,
       showCompanyName: logoShowCompanyName,
-      companyNameText: logoCompanyNameText
+      companyNameText: logoCompanyNameText,
+      companyNameFont: logoCompanyNameFont,
+      companyNameWeight: logoCompanyNameWeight,
+      companyNameSize: logoCompanyNameSize,
+      companyNameColor: logoCompanyNameColor
     });
     onSaveCategoryLabels({
       home: menuHome,
@@ -865,15 +881,121 @@ export default function CmsEditorModal({
                       </div>
                       
                       {logoShowCompanyName && (
-                        <div className="space-y-1">
-                          <label className="block text-[11px] font-bold text-slate-600">노출할 회사명 텍스트</label>
-                          <input
-                            type="text"
-                            value={logoCompanyNameText}
-                            onChange={(e) => setLogoCompanyNameText(e.target.value)}
-                            placeholder="주식회사 에스와이코리아"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
-                          />
+                        <div className="space-y-4 pt-2 border-t border-blue-100">
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-600">노출할 회사명 텍스트</label>
+                            <input
+                              type="text"
+                              value={logoCompanyNameText}
+                              onChange={(e) => setLogoCompanyNameText(e.target.value)}
+                              placeholder="주식회사 에스와이코리아"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-bold text-slate-600">글씨체 (폰트)</label>
+                              <select
+                                value={logoCompanyNameFont}
+                                onChange={(e) => setLogoCompanyNameFont(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              >
+                                <option value="noto">Clean 고딕 (Noto Sans KR)</option>
+                                <option value="nanumgothic">Soft 나눔고딕 (Nanum Gothic)</option>
+                                <option value="gowun">Elegant 명조체 (Gowun Batang)</option>
+                                <option value="songmyung">Classic 서예체 (Song Myung)</option>
+                                <option value="dohyeon">Bold 배달의민족 도현체 (Do Hyeon)</option>
+                                <option value="blackhan">Display 블랙한산스 (Black Han Sans)</option>
+                                <option value="sans">기본 시스템 폰트 (Sans-serif)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-bold text-slate-600">글씨 두께 (굵기)</label>
+                              <select
+                                value={logoCompanyNameWeight}
+                                onChange={(e) => setLogoCompanyNameWeight(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              >
+                                <option value="normal">Normal (가늘게)</option>
+                                <option value="medium">Medium (보통)</option>
+                                <option value="semibold">Semibold (약간 두껍게)</option>
+                                <option value="bold">Bold (두껍게)</option>
+                                <option value="extrabold">Extrabold (매우 두껍게)</option>
+                                <option value="black">Black (가장 두껍게)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-bold text-slate-600">글씨 크기 (사이즈)</label>
+                              <select
+                                value={logoCompanyNameSize}
+                                onChange={(e) => setLogoCompanyNameSize(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              >
+                                <option value="xs">XS (가장 작게 - 12px)</option>
+                                <option value="sm">SM (표준 - 14px)</option>
+                                <option value="base">BASE (약간 크게 - 16px)</option>
+                                <option value="lg">LG (크게 - 18px)</option>
+                                <option value="xl">XL (아주 크게 - 20px)</option>
+                                <option value="2xl">2XL (극대화 - 24px)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-bold text-slate-600">글씨 색상 (컬러)</label>
+                              <select
+                                value={logoCompanyNameColor}
+                                onChange={(e) => setLogoCompanyNameColor(e.target.value)}
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              >
+                                <option value="slate-700">Slate Gray (중후한 회색)</option>
+                                <option value="slate-900">Charcoal Dark (세련된 차콜블랙)</option>
+                                <option value="blue-600">Electric Blue (활기찬 블루)</option>
+                                <option value="blue-900">Deep Ocean (신뢰의 남색)</option>
+                                <option value="indigo-700">Premium Indigo (품격있는 자줏빛인디고)</option>
+                                <option value="emerald-700">Eco Green (친환경 녹색)</option>
+                                <option value="red-600">Active Red (강렬한 붉은색)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Live Preview Font Demonstration in CMS Editor Modal */}
+                          <div className="bg-slate-100/60 p-3 rounded-xl border border-slate-200/50 space-y-1 text-center">
+                            <span className="text-[10px] text-slate-400 font-bold block">글씨체 설정 실시간 미리보기 (Live Preview)</span>
+                            <span className={`inline-block ${
+                              logoCompanyNameFont === 'noto' ? 'font-noto' :
+                              logoCompanyNameFont === 'gowun' ? 'font-gowun' :
+                              logoCompanyNameFont === 'dohyeon' ? 'font-dohyeon' :
+                              logoCompanyNameFont === 'blackhan' ? 'font-blackhan' :
+                              logoCompanyNameFont === 'songmyung' ? 'font-songmyung' :
+                              logoCompanyNameFont === 'nanumgothic' ? 'font-nanumgothic' : 'font-sans'
+                            } ${
+                              logoCompanyNameWeight === 'normal' ? 'font-normal' :
+                              logoCompanyNameWeight === 'medium' ? 'font-medium' :
+                              logoCompanyNameWeight === 'semibold' ? 'font-semibold' :
+                              logoCompanyNameWeight === 'bold' ? 'font-bold' :
+                              logoCompanyNameWeight === 'extrabold' ? 'font-extrabold' :
+                              logoCompanyNameWeight === 'black' ? 'font-black' : 'font-extrabold'
+                            } ${
+                              logoCompanyNameSize === 'xs' ? 'text-xs' :
+                              logoCompanyNameSize === 'sm' ? 'text-sm' :
+                              logoCompanyNameSize === 'base' ? 'text-base' :
+                              logoCompanyNameSize === 'lg' ? 'text-lg' :
+                              logoCompanyNameSize === 'xl' ? 'text-xl' :
+                              logoCompanyNameSize === '2xl' ? 'text-2xl' : 'text-sm'
+                            } ${
+                              logoCompanyNameColor === 'slate-900' ? 'text-slate-900' :
+                              logoCompanyNameColor === 'blue-600' ? 'text-blue-600' :
+                              logoCompanyNameColor === 'blue-900' ? 'text-blue-900' :
+                              logoCompanyNameColor === 'indigo-700' ? 'text-indigo-700' :
+                              logoCompanyNameColor === 'emerald-700' ? 'text-emerald-700' :
+                              logoCompanyNameColor === 'red-600' ? 'text-red-600' : 'text-slate-700'
+                            }`}>
+                              {logoCompanyNameText || '회사명 테스트'}
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>

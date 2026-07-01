@@ -51,7 +51,11 @@ export default function App() {
     subtitle: 'SY.com',
     imageUrl: '',
     showCompanyName: true,
-    companyNameText: '주식회사 에스와이코리아'
+    companyNameText: '주식회사 에스와이코리아',
+    companyNameFont: 'noto',
+    companyNameWeight: 'extrabold',
+    companyNameSize: 'sm',
+    companyNameColor: 'slate-700'
   });
 
   const [categoryLabels, setCategoryLabels] = useState({
@@ -377,7 +381,11 @@ export default function App() {
       subtitle: 'SY.com',
       imageUrl: '',
       showCompanyName: true,
-      companyNameText: '주식회사 에스와이코리아'
+      companyNameText: '주식회사 에스와이코리아',
+      companyNameFont: 'noto',
+      companyNameWeight: 'extrabold',
+      companyNameSize: 'sm',
+      companyNameColor: 'slate-700'
     });
 
     setCategoryLabels({

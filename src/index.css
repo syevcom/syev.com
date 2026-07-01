@@ -1,1 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Song+Myung&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-noto: "Noto Sans KR", sans-serif;
+  --font-gowun: "Gowun Batang", serif;
+  --font-dohyeon: "Do Hyeon", sans-serif;
+  --font-blackhan: "Black Han Sans", sans-serif;
+  --font-songmyung: "Song Myung", serif;
+  --font-nanumgothic: "Nanum Gothic", sans-serif;
+}
