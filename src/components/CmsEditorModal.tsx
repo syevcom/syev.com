@@ -71,6 +71,11 @@ interface CmsEditorModalProps {
     calcButton: string;
     imageUrl?: string;
     showHeroImage?: boolean;
+    titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
+    descriptionSize?: 'small' | 'medium' | 'large';
+    liveCountStart?: number;
+    liveCountLabel?: string;
+    liveCountSuffix?: string;
   };
   onSaveHeroConfig: (config: any) => void;
 
@@ -203,6 +208,11 @@ export default function CmsEditorModal({
   const [heroDesc, setHeroDesc] = useState(heroConfig.description);
   const [heroCta, setHeroCta] = useState(heroConfig.ctaButton);
   const [heroCalc, setHeroCalc] = useState(heroConfig.calcButton);
+  const [heroTitleSize, setHeroTitleSize] = useState(heroConfig.titleSize || 'large');
+  const [heroDescriptionSize, setHeroDescriptionSize] = useState(heroConfig.descriptionSize || 'medium');
+  const [heroLiveCountStart, setHeroLiveCountStart] = useState(heroConfig.liveCountStart || 14520);
+  const [heroLiveCountLabel, setHeroLiveCountLabel] = useState(heroConfig.liveCountLabel || '현재 전국 SY.com 충전기 설치 현황');
+  const [heroLiveCountSuffix, setHeroLiveCountSuffix] = useState(heroConfig.liveCountSuffix || '대 돌파');
 
   // 2. About Form State
   const [ceoName, setCeoName] = useState(aboutConfig.ceoName);
@@ -255,6 +265,11 @@ export default function CmsEditorModal({
       setHeroDesc(heroConfig.description);
       setHeroCta(heroConfig.ctaButton);
       setHeroCalc(heroConfig.calcButton);
+      setHeroTitleSize(heroConfig.titleSize || 'large');
+      setHeroDescriptionSize(heroConfig.descriptionSize || 'medium');
+      setHeroLiveCountStart(heroConfig.liveCountStart || 14520);
+      setHeroLiveCountLabel(heroConfig.liveCountLabel || '현재 전국 SY.com 충전기 설치 현황');
+      setHeroLiveCountSuffix(heroConfig.liveCountSuffix || '대 돌파');
 
       setCeoName(aboutConfig.ceoName);
       setCeoRole(aboutConfig.ceoRole);
@@ -365,13 +380,19 @@ export default function CmsEditorModal({
 
   const handleSaveHero = () => {
     onSaveHeroConfig({
+      ...heroConfig,
       badge: heroBadge,
       title: heroTitle,
       description: heroDesc,
       ctaButton: heroCta,
-      calcButton: heroCalc
+      calcButton: heroCalc,
+      titleSize: heroTitleSize,
+      descriptionSize: heroDescriptionSize,
+      liveCountStart: Number(heroLiveCountStart),
+      liveCountLabel: heroLiveCountLabel,
+      liveCountSuffix: heroLiveCountSuffix
     });
-    showSaveSuccess('🏠 메인 히어로 정보가 즉시 저장되었습니다!');
+    showSaveSuccess('🏠 메인 히어로 텍스트, 크기 및 라이브 설치 현황 설정이 즉시 저장되었습니다!');
   };
 
   const handleSaveAbout = () => {
@@ -1403,6 +1424,101 @@ export default function CmsEditorModal({
                     onChange={(e) => setHeroCalc(e.target.value)}
                     className="w-full max-w-md px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                   />
+                </div>
+
+                {/* 1-1. HERO TEXT SIZES */}
+                <div className="bg-amber-50/50 border border-amber-100 p-4 rounded-2xl space-y-3 mt-4">
+                  <span className="block text-xs font-black text-amber-900 flex items-center gap-1">
+                    🔍 글자 크기 (사이즈) 미세 조절 설정
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">메인 타이틀(제목) 글씨 크기</label>
+                      <select
+                        value={heroTitleSize}
+                        onChange={(e) => setHeroTitleSize(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                      >
+                        <option value="small">작게 (Small - 모바일에서 아담하게 노출)</option>
+                        <option value="medium">보통 (Medium - 단정하고 깔끔한 느낌)</option>
+                        <option value="large">크게 (Large - 웅장한 기본 크기)</option>
+                        <option value="xlarge">매우 크게 (X-Large - 시원시원한 극대화 크기)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">상세 설명 서브 단락 글씨 크기</label>
+                      <select
+                        value={heroDescriptionSize}
+                        onChange={(e) => setHeroDescriptionSize(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                      >
+                        <option value="small">작게 (Small)</option>
+                        <option value="medium">보통 (Medium - 기본값)</option>
+                        <option value="large">크게 (Large)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1-2. HERO LIVE COUNTER STATUS */}
+                <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl space-y-3 mt-4">
+                  <span className="block text-xs font-black text-blue-900 flex items-center gap-1.5">
+                    📊 우측 라이브(LIVE) 설치현황 숫자 및 문구 직접 수정
+                  </span>
+                  <p className="text-[10px] text-slate-500 font-bold leading-normal">
+                    전국 충전기 설치현황 전산 집계 수치의 실시간 시작값과 해당 영역의 문구들을 변경할 수 있습니다.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">누적 설치 시작 숫자 (숫자만 입력)</label>
+                      <input
+                        type="number"
+                        value={heroLiveCountStart}
+                        onChange={(e) => setHeroLiveCountStart(Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-black text-blue-700"
+                        placeholder="14520"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="block text-[11px] font-bold text-slate-600">설치 현황 안내 타이틀</label>
+                      <input
+                        type="text"
+                        value={heroLiveCountLabel}
+                        onChange={(e) => setHeroLiveCountLabel(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="현재 전국 SY.com 충전기 설치 현황"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">수치 뒤 돌파 문구</label>
+                      <input
+                        type="text"
+                        value={heroLiveCountSuffix}
+                        onChange={(e) => setHeroLiveCountSuffix(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="대 돌파"
+                      />
+                    </div>
+
+                    {/* Quick Live Preview inside CMS */}
+                    <div className="bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/50 flex flex-col items-center justify-center text-center space-y-1">
+                      <span className="text-[9px] text-slate-400 font-bold">라이브 카운터 실시간 미리보기 (Live Preview)</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-black bg-slate-900 text-white px-2.5 py-0.5 rounded font-mono">
+                          {heroLiveCountStart}
+                        </span>
+                        <span className="text-xs font-extrabold text-slate-700">
+                          {heroLiveCountSuffix || '대 돌파'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-3">

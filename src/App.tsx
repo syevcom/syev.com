@@ -85,7 +85,12 @@ export default function App() {
     ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
     calcButton: '1분 스마트 보조금 견적 내기',
     imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
-    showHeroImage: true
+    showHeroImage: true,
+    titleSize: 'large' as 'small' | 'medium' | 'large' | 'xlarge',
+    descriptionSize: 'medium' as 'small' | 'medium' | 'large',
+    liveCountStart: 14520,
+    liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
+    liveCountSuffix: '대 돌파'
   });
 
   const [snsConfig, setSnsConfig] = useState({
@@ -415,7 +420,12 @@ export default function App() {
       ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
       calcButton: '1분 스마트 보조금 견적 내기',
       imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
-      showHeroImage: true
+      showHeroImage: true,
+      titleSize: 'large' as 'small' | 'medium' | 'large' | 'xlarge',
+      descriptionSize: 'medium' as 'small' | 'medium' | 'large',
+      liveCountStart: 14520,
+      liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
+      liveCountSuffix: '대 돌파'
     });
 
     setSnsConfig({

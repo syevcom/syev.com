@@ -22,6 +22,11 @@ interface MainHeroProps {
     calcButton: string;
     imageUrl?: string;
     showHeroImage?: boolean;
+    titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
+    descriptionSize?: 'small' | 'medium' | 'large';
+    liveCountStart?: number;
+    liveCountLabel?: string;
+    liveCountSuffix?: string;
   };
   quickMenuConfig?: {
     showQuickMenu: boolean;
@@ -53,13 +58,17 @@ export default function MainHero({
   onOpenCms
 }: MainHeroProps) {
   // Mechanical Counting live state
-  const [count, setCount] = useState(14520);
+  const [count, setCount] = useState(heroConfig.liveCountStart || 14520);
   
   // Interactive "Near me charger finder" modal/state simulation
   const [isSearchingCharger, setIsSearchingCharger] = useState(false);
   const [searchRegion, setSearchRegion] = useState('서울 강남구');
   const [chargerList, setChargerList] = useState<any[]>([]);
   const [isScanning, setIsScanning] = useState(false);
+
+  useEffect(() => {
+    setCount(heroConfig.liveCountStart || 14520);
+  }, [heroConfig.liveCountStart]);
 
   useEffect(() => {
     // Slowly tick up live counter to maximize trust and brand dynamics
@@ -125,11 +134,20 @@ export default function MainHero({
                 </div>
 
                 <h1 
-                  className="text-3xl md:text-5xl font-black tracking-tight leading-tight md:leading-tight text-white"
+                  className={`${
+                    heroConfig.titleSize === 'small' ? 'text-xl md:text-3xl' :
+                    heroConfig.titleSize === 'medium' ? 'text-2xl md:text-4xl' :
+                    heroConfig.titleSize === 'xlarge' ? 'text-4xl md:text-6xl' :
+                    'text-3xl md:text-5xl'
+                  } font-black tracking-tight leading-tight md:leading-tight text-white`}
                   dangerouslySetInnerHTML={{ __html: heroConfig.title }}
                 />
 
-                <p className="text-slate-300 text-xs md:text-sm leading-relaxed font-medium max-w-lg">
+                <p className={`${
+                  heroConfig.descriptionSize === 'small' ? 'text-[11px] sm:text-xs' :
+                  heroConfig.descriptionSize === 'large' ? 'text-sm md:text-base' :
+                  'text-xs md:text-sm'
+                } text-slate-300 leading-relaxed font-medium max-w-lg`}>
                   {heroConfig.description}
                 </p>
 
@@ -238,7 +256,7 @@ export default function MainHero({
             </div>
 
             <div className="py-2 space-y-1.5">
-              <p className="text-slate-500 text-xs font-semibold">현재 전국 SY.com 충전기 설치 현황</p>
+              <p className="text-slate-500 text-xs font-semibold">{heroConfig.liveCountLabel || "현재 전국 SY.com 충전기 설치 현황"}</p>
               
               {/* Mechanical Odometer Display */}
               <div className="flex items-center gap-1">
@@ -250,7 +268,7 @@ export default function MainHero({
                     <span>{char}</span>
                   </div>
                 ))}
-                <span className="text-slate-800 text-sm font-extrabold ml-1.5">대 돌파</span>
+                <span className="text-slate-800 text-sm font-extrabold ml-1.5">{heroConfig.liveCountSuffix || "대 돌파"}</span>
               </div>
             </div>
 
