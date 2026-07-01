@@ -61,6 +61,17 @@ export default function App() {
     support: '고객지원'
   });
 
+  const [footerConfig, setFooterConfig] = useState({
+    phone: '1588-SY01 (A/S 정비 전담 지원)',
+    email: 'sy.car.com@gmail.com',
+    companyName: '주식회사 에스와이코리아',
+    ceoName: '김성윤',
+    businessNumber: '123-45-67890',
+    address: '서울특별시 강남구 테헤란로 OOO 타워 SY빌딩',
+    teleSalesNumber: '제 2026-서울강남-1234호',
+    licenseInfo: '모든 전기공사는 국가 정식 전기공사업 면허(제 OO-12345호) 보유 유자격 전담 시공팀이 직접 배정되어 법을 준수합니다.'
+  });
+
   const [heroConfig, setHeroConfig] = useState({
     badge: '전국 최대 원스톱 설치 네트워크',
     title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
@@ -154,6 +165,11 @@ export default function App() {
     const savedCategories = localStorage.getItem('sy_cms_categories');
     if (savedCategories) {
       try { setCategoryLabels(JSON.parse(savedCategories)); } catch (e) { console.error(e); }
+    }
+
+    const savedFooter = localStorage.getItem('sy_cms_footer');
+    if (savedFooter) {
+      try { setFooterConfig(JSON.parse(savedFooter)); } catch (e) { console.error(e); }
     }
 
     const savedHero = localStorage.getItem('sy_cms_hero');
@@ -257,6 +273,11 @@ export default function App() {
     localStorage.setItem('sy_cms_categories', JSON.stringify(labels));
   };
 
+  const handleSaveFooterConfig = (config: any) => {
+    setFooterConfig(config);
+    localStorage.setItem('sy_cms_footer', JSON.stringify(config));
+  };
+
   const handleSaveHeroConfig = (config: any) => {
     setHeroConfig(config);
     localStorage.setItem('sy_cms_hero', JSON.stringify(config));
@@ -295,6 +316,7 @@ export default function App() {
   const handleResetAll = () => {
     localStorage.removeItem('sy_cms_logo');
     localStorage.removeItem('sy_cms_categories');
+    localStorage.removeItem('sy_cms_footer');
     localStorage.removeItem('sy_cms_hero');
     localStorage.removeItem('sy_cms_about');
     localStorage.removeItem('sy_cms_products');
@@ -316,6 +338,17 @@ export default function App() {
       solutions: '용도별솔루션',
       review: '설치후기',
       support: '고객지원'
+    });
+
+    setFooterConfig({
+      phone: '1588-SY01 (A/S 정비 전담 지원)',
+      email: 'sy.car.com@gmail.com',
+      companyName: '주식회사 에스와이코리아',
+      ceoName: '김성윤',
+      businessNumber: '123-45-67890',
+      address: '서울특별시 강남구 테헤란로 OOO 타워 SY빌딩',
+      teleSalesNumber: '제 2026-서울강남-1234호',
+      licenseInfo: '모든 전기공사는 국가 정식 전기공사업 면허(제 OO-12345호) 보유 유자격 전담 시공팀이 직접 배정되어 법을 준수합니다.'
     });
 
     setHeroConfig({
@@ -521,8 +554,8 @@ export default function App() {
                 {logoConfig.subtitle}은 대한민국 환경부 공식 대행 사업 파트너로서 친환경 과열감지 차단 기술 탑재 완속 및 초급속 충전기를 설계부터 국가보조금 지원까지 책임 시공합니다.
               </p>
               <div className="text-xs text-slate-500 space-y-0.5">
-                <p>전국 통합 대표번호: 1588-SY01 (A/S 정비 전담 지원)</p>
-                <p>사업 제휴 메일: sy.car.com@gmail.com</p>
+                <p>전국 통합 대표번호: {footerConfig.phone}</p>
+                <p>사업 제휴 메일: {footerConfig.email}</p>
               </div>
             </div>
 
@@ -530,11 +563,11 @@ export default function App() {
             <div className="md:col-span-3 space-y-3">
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">주요 카테고리</h4>
               <ul className="text-xs space-y-2">
-                <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors">ABOUT SY.com (회사소개)</button></li>
-                <li><button onClick={() => setActivePage('products')} className="hover:text-white transition-colors">PRODUCTS (신제품 라인업)</button></li>
-                <li><button onClick={() => setActivePage('solutions')} className="hover:text-white transition-colors">SOLUTIONS (용도별 맞춤)</button></li>
-                <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors">REVIEW (설치후기 지도)</button></li>
-                <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors">SUPPORT (고객센터 FAQ)</button></li>
+                <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors">{categoryLabels.about} (회사소개)</button></li>
+                <li><button onClick={() => setActivePage('products')} className="hover:text-white transition-colors">{categoryLabels.products} (신제품 라인업)</button></li>
+                <li><button onClick={() => setActivePage('solutions')} className="hover:text-white transition-colors">{categoryLabels.solutions} (용도별 맞춤)</button></li>
+                <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors">{categoryLabels.review} (설치후기 지도)</button></li>
+                <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors">{categoryLabels.support} (고객센터 FAQ)</button></li>
               </ul>
             </div>
 
@@ -542,16 +575,16 @@ export default function App() {
             <div className="md:col-span-4 space-y-3">
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">회사 정보 및 면책 고지</h4>
               <p className="text-[10px] text-slate-500 leading-normal">
-                상호: 주식회사 에스와이코리아 | 대표이사: 김성윤 | 사업자등록번호: 123-45-67890 <br />
-                주소: 서울특별시 강남구 테헤란로 OOO 타워 SY빌딩 <br />
-                통신판매업신고번호: 제 2026-서울강남-1234호 <br />
-                모든 전기공사는 국가 정식 전기공사업 면허(제 OO-12345호) 보유 유자격 전담 시공팀이 직접 배정되어 법을 준수합니다.
+                상호: {footerConfig.companyName} | 대표이사: {footerConfig.ceoName} | 사업자등록번호: {footerConfig.businessNumber} <br />
+                주소: {footerConfig.address} <br />
+                통신판매업신고번호: {footerConfig.teleSalesNumber} <br />
+                {footerConfig.licenseInfo}
               </p>
             </div>
           </div>
 
           <div className="pt-8 border-t border-slate-800 text-center text-[10px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p>© 2026 SY.com Co., Ltd. All Rights Reserved.</p>
+            <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
             <div className="flex gap-4">
               <a href="#privacy" className="hover:underline">개인정보처리방침</a>
               <a href="#terms" className="hover:underline">이용약관</a>
@@ -600,6 +633,8 @@ export default function App() {
             onSaveLogoConfig={handleSaveLogoConfig}
             categoryLabels={categoryLabels}
             onSaveCategoryLabels={handleSaveCategoryLabels}
+            footerConfig={footerConfig}
+            onSaveFooterConfig={handleSaveFooterConfig}
             heroConfig={heroConfig}
             onSaveHeroConfig={handleSaveHeroConfig}
             aboutConfig={aboutConfig}

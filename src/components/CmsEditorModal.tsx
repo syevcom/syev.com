@@ -30,6 +30,18 @@ interface CmsEditorModalProps {
   };
   onSaveCategoryLabels: (labels: any) => void;
 
+  footerConfig: {
+    phone: string;
+    email: string;
+    companyName: string;
+    ceoName: string;
+    businessNumber: string;
+    address: string;
+    teleSalesNumber: string;
+    licenseInfo: string;
+  };
+  onSaveFooterConfig: (config: any) => void;
+
   // States and setter props
   heroConfig: {
     badge: string;
@@ -94,6 +106,8 @@ export default function CmsEditorModal({
   onSaveLogoConfig,
   categoryLabels,
   onSaveCategoryLabels,
+  footerConfig,
+  onSaveFooterConfig,
   heroConfig,
   onSaveHeroConfig,
   aboutConfig,
@@ -131,6 +145,16 @@ export default function CmsEditorModal({
   const [menuReview, setMenuReview] = useState(categoryLabels.review);
   const [menuSupport, setMenuSupport] = useState(categoryLabels.support);
 
+  // Footer State
+  const [footerPhone, setFooterPhone] = useState(footerConfig.phone);
+  const [footerEmail, setFooterEmail] = useState(footerConfig.email);
+  const [footerCompanyName, setFooterCompanyName] = useState(footerConfig.companyName);
+  const [footerCeoName, setFooterCeoName] = useState(footerConfig.ceoName);
+  const [footerBusinessNumber, setFooterBusinessNumber] = useState(footerConfig.businessNumber);
+  const [footerAddress, setFooterAddress] = useState(footerConfig.address);
+  const [footerTeleSalesNumber, setFooterTeleSalesNumber] = useState(footerConfig.teleSalesNumber);
+  const [footerLicenseInfo, setFooterLicenseInfo] = useState(footerConfig.licenseInfo);
+
   // 1. Hero Form State
   const [heroBadge, setHeroBadge] = useState(heroConfig.badge);
   const [heroTitle, setHeroTitle] = useState(heroConfig.title);
@@ -161,6 +185,15 @@ export default function CmsEditorModal({
       setMenuReview(categoryLabels.review);
       setMenuSupport(categoryLabels.support);
 
+      setFooterPhone(footerConfig.phone);
+      setFooterEmail(footerConfig.email);
+      setFooterCompanyName(footerConfig.companyName);
+      setFooterCeoName(footerConfig.ceoName);
+      setFooterBusinessNumber(footerConfig.businessNumber);
+      setFooterAddress(footerConfig.address);
+      setFooterTeleSalesNumber(footerConfig.teleSalesNumber);
+      setFooterLicenseInfo(footerConfig.licenseInfo);
+
       setHeroBadge(heroConfig.badge);
       setHeroTitle(heroConfig.title);
       setHeroDesc(heroConfig.description);
@@ -175,7 +208,7 @@ export default function CmsEditorModal({
       setCeoMsg3(aboutConfig.ceoMessage3);
       setCeoImg(aboutConfig.ceoImage);
     }
-  }, [isOpen, logoConfig, categoryLabels, heroConfig, aboutConfig]);
+  }, [isOpen, logoConfig, categoryLabels, footerConfig, heroConfig, aboutConfig]);
 
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -245,7 +278,17 @@ export default function CmsEditorModal({
       review: menuReview,
       support: menuSupport
     });
-    showSaveSuccess('⚙️ 브랜드 로고 및 카테고리 설정이 즉시 저장되었습니다!');
+    onSaveFooterConfig({
+      phone: footerPhone,
+      email: footerEmail,
+      companyName: footerCompanyName,
+      ceoName: footerCeoName,
+      businessNumber: footerBusinessNumber,
+      address: footerAddress,
+      teleSalesNumber: footerTeleSalesNumber,
+      licenseInfo: footerLicenseInfo
+    });
+    showSaveSuccess('⚙️ 브랜드 로고, 카테고리 및 푸터 회사 정보가 즉시 저장되었습니다!');
   };
 
   const handleSaveHero = () => {
@@ -812,6 +855,91 @@ export default function CmsEditorModal({
                         value={menuSupport}
                         onChange={(e) => setMenuSupport(e.target.value)}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                    <Building className="w-4 h-4 text-blue-600" />
+                    홈페이지 하단 회사 정보 및 푸터(Footer) 설정
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-bold mt-1.5 leading-relaxed">
+                    홈페이지 맨 아래(Footer) 영역에 노출되는 사업자 정보, 상호, 대표자명, 주소, 대표전화 및 이메일 정보를 실시간으로 수정할 수 있습니다.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">상호명 / 회사명</label>
+                      <input
+                        type="text"
+                        value={footerCompanyName}
+                        onChange={(e) => setFooterCompanyName(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">대표이사 이름</label>
+                      <input
+                        type="text"
+                        value={footerCeoName}
+                        onChange={(e) => setFooterCeoName(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">사업자 등록번호</label>
+                      <input
+                        type="text"
+                        value={footerBusinessNumber}
+                        onChange={(e) => setFooterBusinessNumber(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">전국 대표 전화번호</label>
+                      <input
+                        type="text"
+                        value={footerPhone}
+                        onChange={(e) => setFooterPhone(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">사업 제휴 이메일 주소</label>
+                      <input
+                        type="text"
+                        value={footerEmail}
+                        onChange={(e) => setFooterEmail(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">통신판매업 신고번호</label>
+                      <input
+                        type="text"
+                        value={footerTeleSalesNumber}
+                        onChange={(e) => setFooterTeleSalesNumber(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2 md:col-span-3">
+                      <label className="block text-[11px] font-bold text-slate-600">회사 본사 소재지 주소</label>
+                      <input
+                        type="text"
+                        value={footerAddress}
+                        onChange={(e) => setFooterAddress(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2 md:col-span-3">
+                      <label className="block text-[11px] font-bold text-slate-600">전기공사업 면허 정보 및 하단 법적 고지 문구</label>
+                      <textarea
+                        value={footerLicenseInfo}
+                        onChange={(e) => setFooterLicenseInfo(e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 leading-normal"
                       />
                     </div>
                   </div>
