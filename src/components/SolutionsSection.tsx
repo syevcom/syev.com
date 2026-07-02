@@ -94,7 +94,7 @@ export default function SolutionsSection({
                 }`}
               >
                 {getTabIcon(sol.category)}
-                <span>{sol.category === 'Commercial' ? '기업·관공서' : sol.category === 'Residential' ? '주택·아파트' : '주차장·공장'}</span>
+                <span>{sol.category === 'Commercial' ? '기업·관공서' : sol.category === 'Residential' ? '비공용·주택' : '수익형 상가'}</span>
               </button>
             ))}
           </div>
@@ -104,101 +104,117 @@ export default function SolutionsSection({
       {/* Category detail block cards */}
       <div className="space-y-16">
         {filteredSolutions.map((sol, index) => {
-          const isEven = index % 2 === 0;
           return (
             <section
               key={sol.id}
               id={`solution-section-${sol.id}`}
               className="p-6 md:p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Visual block: Premium Split Showcase Banner representing Cafe24/Skin18 */}
-                <div className={`lg:col-span-5 flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900 ${
-                  isEven ? 'lg:order-1' : 'lg:order-2'
-                }`}>
-                  {/* Split Image Grid */}
-                  <div className="grid grid-cols-2 h-64 md:h-72 relative">
-                    {/* Left Close-up: Charger Unit */}
-                    <div className="relative overflow-hidden border-r border-slate-800 bg-slate-950 flex items-center justify-center p-2">
-                      <img
-                        src={
-                          sol.category === 'Commercial'
-                            ? 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600' // Charger on wall
-                            : sol.category === 'Residential'
-                            ? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600' // Charger on post
-                            : 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600' // Charger station
-                        }
-                        alt="충전 기기 실사"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-contain hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute top-2 left-2 bg-blue-600/90 text-white font-black text-[8px] px-1.5 py-0.5 rounded-md">
-                        기기 정밀샷
-                      </div>
-                    </div>
-                    {/* Right Environment: Electric car parked in garage */}
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={
-                          sol.category === 'Commercial'
-                            ? 'https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800' // EV car
-                            : sol.category === 'Residential'
-                            ? 'https://images.unsplash.com/photo-1594535182308-8ffef9412388?auto=format&fit=crop&q=80&w=800' // EV in home
-                            : 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=800' // Parking lot
-                        }
-                        alt="시공 현장 실사"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute top-2 right-2 bg-emerald-600/90 text-white font-black text-[8px] px-1.5 py-0.5 rounded-md">
-                        시공 현장 예시
-                      </div>
-                    </div>
-                  </div>
-                  {/* Bold Bottom Banner overlay with title from 2nd photo */}
-                  <div className="bg-slate-950 text-white py-3 px-5 text-center border-t border-slate-800">
-                    <p className="text-[9px] text-blue-400 font-extrabold uppercase tracking-widest mb-0.5">SY.com PREMIUM CUSTOM INSTALL</p>
-                    <h4 className="font-black text-sm md:text-base tracking-tight text-white">
-                      {sol.category === 'Commercial' ? '기업·관공서 공용 충전기' : sol.category === 'Residential' ? '비공용 충전기' : '수익형 상가 공용 충전기'}
-                    </h4>
-                  </div>
-                </div>
-
-                {/* Info block */}
-                <div className={`lg:col-span-7 space-y-4 ${
-                  isEven ? 'lg:order-2' : 'lg:order-1'
-                }`}>
+              <div className="space-y-6">
+                {/* 1. Header Text & Benefits Block (Top) */}
+                <div className="space-y-4">
                   <div className="space-y-1">
                     <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">
                       {sol.category === 'Commercial' ? '🏢 기업·빌딩·공공기관 맞춤' : sol.category === 'Residential' ? '🏡 아파트·공동주택·개인소유지' : '🅿️ 수익형 상가주차장·드라이브스루'}
                     </span>
-                    <h3 className="text-lg md:text-xl font-black text-slate-950 tracking-tight leading-snug">
+                    <h3 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight leading-snug">
                       {sol.title}
                     </h3>
                   </div>
                   
-                  <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium">
+                  <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium max-w-4xl">
                     {sol.description}
                   </p>
 
                   {/* Grid benefits */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                     {sol.benefits.map((b) => (
-                      <div key={b} className="flex items-start gap-1.5 text-xs text-slate-600">
+                      <div key={b} className="flex items-start gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200/60 shadow-xs">
                         <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                         <span className="font-semibold leading-relaxed">{b}</span>
                       </div>
                     ))}
                   </div>
+                </div>
 
-                  {/* 해당 솔루션에서 추천하는 기기 라인업 상품 형식으로 연동 */}
+                {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) - 글 아래인 상단으로 이동 */}
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide block">
+                    정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-slate-600">
+                    {sol.subsidyProcess.map((step, sIdx) => (
+                      <div key={step} className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm relative">
+                        <span className="text-[8px] font-black text-blue-600 block mb-0.5">0{sIdx+1}단계</span>
+                        <span className="font-bold leading-normal block text-slate-700 truncate">{step.split(': ')[1]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row gap-3 items-center justify-between border-b border-slate-100 pb-4">
+                  <button
+                    onClick={() => onOpenQuoteWithPurpose(sol.category)}
+                    id={`btn-solution-cta-${sol.id}`}
+                    className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black shadow-md shadow-slate-900/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all w-full sm:w-auto"
+                  >
+                    <span>{sol.subtitle} 맞춤 상담 예약하기</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[11px] text-slate-400 font-bold hidden sm:inline">
+                    * 국고 보조금 예산 마감 전 신청을 적극 권장드립니다.
+                  </span>
+                </div>
+
+                {/* 2. Visuals & Details Block (Now laid out vertically at the bottom for maximum size) */}
+                <div className="space-y-6 pt-2">
+                  <div className="space-y-1">
+                    <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">VISUAL PORTFOLIO</span>
+                    <h4 className="text-base font-black text-slate-900">시공 완료 현장 및 추천 기종 상세 도면 (실사 크게보기)</h4>
+                  </div>
+
+                  {/* Representative Site Image - Huge full-width banner representing actual installations */}
+                  <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900 w-full group/banner">
+                    <div className="relative h-72 sm:h-96 md:h-[420px] bg-slate-950 flex items-center justify-center">
+                      <img
+                        src={sol.image || (
+                          sol.category === 'Commercial'
+                            ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200'
+                            : sol.category === 'Residential'
+                            ? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200'
+                            : 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'
+                        )}
+                        alt={`${sol.title} 실제 시공 완료 현장 사진`}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover/banner:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-transparent p-5 flex flex-col justify-end">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
+                            현장 실제 실사
+                          </span>
+                          <span className="bg-emerald-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
+                            정품 친환경 특허 시공
+                          </span>
+                        </div>
+                        <h4 className="font-black text-sm sm:text-base md:text-lg tracking-tight text-white">
+                          {sol.title} 시공 포트폴리오
+                        </h4>
+                        <p className="text-[11px] text-slate-300 font-bold mt-0.5">
+                          제조사 정품 충전기를 활용해 완벽히 책임 시공한 실제 준공 사진입니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interactive Specs or Comparison Infographic section (Standalone block below the representative photo) */}
                   {sol.recommendedProducts && sol.recommendedProducts.length > 0 && (() => {
                     const activeProdId = selectedProductIds[sol.id] || sol.recommendedProducts[0];
                     const selectedProd = PRODUCTS.find(p => p.id === activeProdId) || PRODUCTS.find(p => p.id === sol.recommendedProducts[0]);
                     const viewerMode = visualViewerMode[sol.id] || 'product';
 
                     return (
-                      <div className="mt-4 pt-4 border-t border-slate-100 space-y-4">
+                      <div className="pt-4 border-t border-slate-100 space-y-4">
                         {/* Master View Mode Selection Tabs (Product Spec vs Infographic Explainer) */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200">
                           <div className="flex gap-1 bg-white p-1 rounded-xl shadow-xs shrink-0">
@@ -311,7 +327,7 @@ export default function SolutionsSection({
                                     ) : (
                                       <div className="w-full h-full overflow-y-auto scrollbar-thin p-1.5 space-y-2 relative bg-slate-950">
                                         <img
-                                          src={sol.blueprintImageUrl}
+                                          src={sol.blueprintImageUrl || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'}
                                           alt={`${selectedProd.name} 상세 스펙 도면`}
                                           referrerPolicy="no-referrer"
                                           className="w-full object-contain"
@@ -454,7 +470,7 @@ export default function SolutionsSection({
 
                               <div className="absolute top-4 right-4 z-10">
                                 <a 
-                                  href={sol.detailImageUrl} 
+                                  href={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
                                   target="_blank" 
                                   rel="noreferrer" 
                                   className="bg-blue-600 hover:bg-blue-700 text-white font-black text-[9px] px-2.5 py-1 rounded-md shadow-md transition-all cursor-pointer inline-flex items-center gap-1"
@@ -467,7 +483,7 @@ export default function SolutionsSection({
                               <div className="h-96 md:h-[450px] overflow-y-auto scrollbar-thin p-1 bg-slate-950/60 scroll-smooth">
                                 <div className="relative">
                                   <img 
-                                    src={sol.detailImageUrl} 
+                                    src={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
                                     alt={`${sol.title} 브랜드별 상세 설명 인포그래픽`}
                                     referrerPolicy="no-referrer"
                                     className="w-full h-auto object-contain object-top rounded-2xl"
@@ -550,32 +566,6 @@ export default function SolutionsSection({
                       </div>
                     );
                   })()}
-
-                  {/* Subsidy Process Row */}
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide block">
-                      정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-slate-600">
-                      {sol.subsidyProcess.map((step, sIdx) => (
-                        <div key={step} className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm relative">
-                          <span className="text-[8px] font-black text-blue-600 block mb-0.5">0{sIdx+1}단계</span>
-                          <span className="font-bold leading-normal block text-slate-700 truncate">{step.split(': ')[1]}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex flex-col sm:flex-row gap-2">
-                    <button
-                      onClick={() => onOpenQuoteWithPurpose(sol.category)}
-                      id={`btn-solution-cta-${sol.id}`}
-                      className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black shadow-md shadow-slate-900/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all w-full sm:w-auto"
-                    >
-                      <span>{sol.subtitle} 맞춤 상담 예약하기</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
                 </div>
               </div>
             </section>

@@ -197,6 +197,9 @@ export default function CmsEditorModal({
   const [isDraggingProdImg, setIsDraggingProdImg] = useState(false);
   const [isDraggingBeforeImg, setIsDraggingBeforeImg] = useState(false);
   const [isDraggingAfterImg, setIsDraggingAfterImg] = useState(false);
+  const [isDraggingSolImage, setIsDraggingSolImage] = useState(false);
+  const [isDraggingSolBlueprint, setIsDraggingSolBlueprint] = useState(false);
+  const [isDraggingSolDetail, setIsDraggingSolDetail] = useState(false);
 
   const [menuHome, setMenuHome] = useState(categoryLabels.home);
   const [menuAbout, setMenuAbout] = useState(categoryLabels.about);
@@ -2100,50 +2103,305 @@ export default function CmsEditorModal({
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-700">대표 현장 이미지 URL (★실시간 교체)</label>
-                      <input
-                        type="text"
-                        value={solImage}
-                        onChange={(e) => setSolImage(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] text-blue-600 font-mono"
-                      />
-
-                      {/* Presets */}
-                      <div className="flex gap-2 pt-1.5">
-                        {CURATED_EV_IMAGES.slice(4).map((item, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setSolImage(item.url)}
-                            className={`p-1 border rounded-lg overflow-hidden shrink-0 transition-all ${
-                              solImage === item.url ? 'border-blue-600 ring-2 ring-blue-600/10' : 'border-slate-200'
+                    {/* Representative Site Image Upload & Preview Section */}
+                    <div className="space-y-2 border-t border-slate-100 pt-3">
+                      <label className="block text-[11px] font-bold text-slate-700">대표 현장 이미지 설정 (업로드 또는 URL 링크)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+                        {/* Drag & Drop Area */}
+                        <div className="md:col-span-8">
+                          <div
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolImage(true);
+                            }}
+                            onDragLeave={() => setIsDraggingSolImage(false)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolImage(false);
+                              const file = e.dataTransfer.files?.[0];
+                              if (file) {
+                                if (!file.type.startsWith('image/')) {
+                                  alert('이미지 파일만 업로드할 수 있습니다.');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setSolImage(reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            onClick={() => document.getElementById('sol-img-file-input')?.click()}
+                            className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[120px] ${
+                              isDraggingSolImage
+                                ? 'border-blue-500 bg-blue-50/50'
+                                : 'border-slate-200 bg-slate-50 hover:bg-slate-100/50 hover:border-slate-300'
                             }`}
                           >
-                            <img src={item.url} alt="preset" className="w-14 h-10 object-cover" />
-                          </button>
-                        ))}
+                            <input
+                              type="file"
+                              id="sol-img-file-input"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setSolImage(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <Upload className="w-5 h-5 text-slate-400 mb-1" />
+                            <p className="text-[11px] font-black text-slate-700">대표 현장 이미지 드래그 또는 클릭 업로드</p>
+                            <p className="text-[9px] text-slate-400 font-bold mt-0.5">PNG, JPG, JPEG 지원</p>
+                          </div>
+                        </div>
+
+                        {/* Preview Box */}
+                        <div className="md:col-span-4 flex flex-col justify-center items-center p-3 bg-slate-50 border border-slate-200 rounded-2xl relative overflow-hidden min-h-[120px]">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest absolute top-1.5 left-1.5">PREVIEW</span>
+                          {solImage ? (
+                            <div className="flex flex-col items-center gap-1.5 w-full mt-2">
+                              <img
+                                src={solImage}
+                                alt="Sol Image Preview"
+                                className="max-h-[60px] max-w-[100px] object-cover rounded-lg border border-slate-200"
+                                referrerPolicy="no-referrer"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setSolImage('')}
+                                className="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-lg text-[9px] font-black transition-all flex items-center gap-1 cursor-pointer border border-rose-150"
+                              >
+                                제거
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-center text-slate-400 text-[10px] font-bold mt-2">
+                              <ImageIcon className="w-4 h-4 mx-auto mb-1 opacity-40" />
+                              <span>등록 없음</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold text-slate-500">이미지 직접 입력 / 프리셋 선택</label>
+                        <input
+                          type="text"
+                          value={solImage}
+                          onChange={(e) => setSolImage(e.target.value)}
+                          className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] text-blue-600 font-mono"
+                        />
+                        <div className="flex gap-2 pt-1 overflow-x-auto scrollbar-none">
+                          {CURATED_EV_IMAGES.slice(4).map((item, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSolImage(item.url)}
+                              className={`p-1 border rounded-lg overflow-hidden shrink-0 transition-all ${
+                                solImage === item.url ? 'border-blue-600 ring-2 ring-blue-600/10' : 'border-slate-200'
+                              }`}
+                            >
+                              <img src={item.url} alt="preset" className="w-12 h-8 object-cover" />
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Blueprint / Infographic Image Upload & Preview Section */}
+                    <div className="space-y-2 border-t border-slate-100 pt-3">
+                      <label className="block text-[11px] font-bold text-slate-700">📐 도면/인포그래픽 이미지 설정 (업로드 또는 URL 링크)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+                        {/* Drag & Drop Area */}
+                        <div className="md:col-span-8">
+                          <div
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolBlueprint(true);
+                            }}
+                            onDragLeave={() => setIsDraggingSolBlueprint(false)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolBlueprint(false);
+                              const file = e.dataTransfer.files?.[0];
+                              if (file) {
+                                if (!file.type.startsWith('image/')) {
+                                  alert('이미지 파일만 업로드할 수 있습니다.');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setSolBlueprintImageUrl(reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            onClick={() => document.getElementById('sol-blueprint-file-input')?.click()}
+                            className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[120px] ${
+                              isDraggingSolBlueprint
+                                ? 'border-blue-500 bg-blue-50/50'
+                                : 'border-slate-200 bg-slate-50 hover:bg-slate-100/50 hover:border-slate-300'
+                            }`}
+                          >
+                            <input
+                              type="file"
+                              id="sol-blueprint-file-input"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setSolBlueprintImageUrl(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <Upload className="w-5 h-5 text-slate-400 mb-1" />
+                            <p className="text-[11px] font-black text-slate-700">도면/인포그래픽 이미지 드래그 또는 클릭 업로드</p>
+                            <p className="text-[9px] text-slate-400 font-bold mt-0.5">PNG, JPG, JPEG 지원</p>
+                          </div>
+                        </div>
+
+                        {/* Preview Box */}
+                        <div className="md:col-span-4 flex flex-col justify-center items-center p-3 bg-slate-50 border border-slate-200 rounded-2xl relative overflow-hidden min-h-[120px]">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest absolute top-1.5 left-1.5">PREVIEW</span>
+                          {solBlueprintImageUrl ? (
+                            <div className="flex flex-col items-center gap-1.5 w-full mt-2">
+                              <img
+                                src={solBlueprintImageUrl}
+                                alt="Blueprint Preview"
+                                className="max-h-[60px] max-w-[100px] object-cover rounded-lg border border-slate-200"
+                                referrerPolicy="no-referrer"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setSolBlueprintImageUrl('')}
+                                className="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-lg text-[9px] font-black transition-all flex items-center gap-1 cursor-pointer border border-rose-150"
+                              >
+                                제거
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-center text-slate-400 text-[10px] font-bold mt-2">
+                              <ImageIcon className="w-4 h-4 mx-auto mb-1 opacity-40" />
+                              <span>등록 없음</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="space-y-1">
-                        <label className="block text-[11px] font-bold text-slate-700">📐 도면/인포그래픽 이미지 URL (긴 사진)</label>
+                        <label className="block text-[10px] font-bold text-slate-500">이미지 직접 입력 URL</label>
                         <input
                           type="text"
                           value={solBlueprintImageUrl}
                           onChange={(e) => setSolBlueprintImageUrl(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] text-indigo-600 font-mono"
+                          className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] text-blue-600 font-mono"
                           placeholder="https://..."
                         />
                       </div>
+                    </div>
+
+                    {/* Catalog Detailed Specs Image Upload & Preview Section */}
+                    <div className="space-y-2 border-t border-slate-100 pt-3">
+                      <label className="block text-[11px] font-bold text-slate-700">📄 카탈로그 상세 사양표 이미지 설정 (업로드 또는 URL 링크)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+                        {/* Drag & Drop Area */}
+                        <div className="md:col-span-8">
+                          <div
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolDetail(true);
+                            }}
+                            onDragLeave={() => setIsDraggingSolDetail(false)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setIsDraggingSolDetail(false);
+                              const file = e.dataTransfer.files?.[0];
+                              if (file) {
+                                if (!file.type.startsWith('image/')) {
+                                  alert('이미지 파일만 업로드할 수 있습니다.');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setSolDetailImageUrl(reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            onClick={() => document.getElementById('sol-detail-file-input')?.click()}
+                            className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[120px] ${
+                              isDraggingSolDetail
+                                ? 'border-blue-500 bg-blue-50/50'
+                                : 'border-slate-200 bg-slate-50 hover:bg-slate-100/50 hover:border-slate-300'
+                            }`}
+                          >
+                            <input
+                              type="file"
+                              id="sol-detail-file-input"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setSolDetailImageUrl(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <Upload className="w-5 h-5 text-slate-400 mb-1" />
+                            <p className="text-[11px] font-black text-slate-700">카탈로그 상세 사양표 이미지 드래그 또는 클릭 업로드</p>
+                            <p className="text-[9px] text-slate-400 font-bold mt-0.5">PNG, JPG, JPEG 지원</p>
+                          </div>
+                        </div>
+
+                        {/* Preview Box */}
+                        <div className="md:col-span-4 flex flex-col justify-center items-center p-3 bg-slate-50 border border-slate-200 rounded-2xl relative overflow-hidden min-h-[120px]">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest absolute top-1.5 left-1.5">PREVIEW</span>
+                          {solDetailImageUrl ? (
+                            <div className="flex flex-col items-center gap-1.5 w-full mt-2">
+                              <img
+                                src={solDetailImageUrl}
+                                alt="Detail Spec Preview"
+                                className="max-h-[60px] max-w-[100px] object-cover rounded-lg border border-slate-200"
+                                referrerPolicy="no-referrer"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setSolDetailImageUrl('')}
+                                className="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-lg text-[9px] font-black transition-all flex items-center gap-1 cursor-pointer border border-rose-150"
+                              >
+                                제거
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="text-center text-slate-400 text-[10px] font-bold mt-2">
+                              <ImageIcon className="w-4 h-4 mx-auto mb-1 opacity-40" />
+                              <span>등록 없음</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="space-y-1">
-                        <label className="block text-[11px] font-bold text-slate-700">📄 카탈로그 상세 사양표 이미지 URL</label>
+                        <label className="block text-[10px] font-bold text-slate-500">이미지 직접 입력 URL</label>
                         <input
                           type="text"
                           value={solDetailImageUrl}
                           onChange={(e) => setSolDetailImageUrl(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] text-indigo-600 font-mono"
+                          className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[10px] text-blue-600 font-mono"
                           placeholder="https://..."
                         />
                       </div>
