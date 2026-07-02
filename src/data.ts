@@ -8,9 +8,11 @@ import { Product, Solution, Review, FAQ } from './types';
 export const PRODUCTS: Product[] = [
   {
     id: 'sy-ac07',
-    name: 'SY-AC07 스마트 홈 & 완속',
+    name: '스필SE 7kW 비공용 완속 충전기',
     type: '완속',
     power: '7kW',
+    price: 490000,
+    detailCategory: '비공용완속',
     features: [
       '화재 감지 자동 전력 차단',
       'PLC 모뎀 탑재 (화재 예방 충전)',
@@ -30,10 +32,62 @@ export const PRODUCTS: Product[] = [
     plcSupported: true
   },
   {
-    id: 'sy-ac11',
-    name: 'SY-AC11 프로 멀티 완속',
+    id: 'sy-home07',
+    name: '롯데 이브이시스 7kW 비공용 완속 충전기',
+    type: '스마트홈',
+    power: '7kW',
+    price: 850000,
+    detailCategory: '비공용완속',
+    features: [
+      '단독주택/빌라 개인 전용',
+      '블루투스 간편 사용자 인증',
+      '초소형 세련된 북유럽풍 미니멀 디자인',
+      '친환경 고내구성 소재 적용',
+      '전국 24시간 자가진단 알람'
+    ],
+    specs: {
+      '정격 입력': 'Single Phase AC 220V, 50/60Hz',
+      '설치 형태': '스탠드 또는 실내외 벽면 고정',
+      '부가 기능': '예약 충전 (전기세 저렴한 경부하 시간대 자동 실행)',
+      '크기': '220 x 300 x 110 mm',
+      '정격 전류': '32A'
+    },
+    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다. 심야 전력 요금 스케줄링이 탑재되어 매달 전기차 충전 비용을 최대로 절감합니다.',
+    plcSupported: true
+  },
+  {
+    id: 'sy-ac11-bi',
+    name: '스필SE 11kW 비공용 완속 충전기',
     type: '완속',
     power: '11kW',
+    price: 650000,
+    detailCategory: '비공용중속',
+    features: [
+      '속도가 빠른 11kW 중속 사양',
+      '과열 감지 센서 연동 셧다운',
+      '콤팩트한 메탈릭 하이글로시 마감',
+      '자가 진단 디스플레이 탑재',
+      '안심 KC 인증 100% 검증 완료'
+    ],
+    specs: {
+      '정격 입력': 'Three Phase AC 380V, 50/60Hz',
+      '충전 커넥터': 'Type 5핀 싱글 커넥터',
+      '통신 방식': '4G LTE / Ethernet',
+      '크기': '280 x 420 x 140 mm',
+      '인증': 'KC 안전인증 및 전자기 적합성 인증 완료'
+    },
+    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    description: '개인용 중속 사양에 충실한 11kW 충전 모델입니다. 단시간 내에 7kW 보다 약 1.5배 빠른 충전을 경제적인 단가로 시공할 수 있습니다.',
+    plcSupported: true
+  },
+  {
+    id: 'sy-ac11',
+    name: '롯데 이브이시스 11kW 공용 완속 충전기',
+    type: '완속',
+    power: '11kW',
+    price: 1250000,
+    detailCategory: '공용완속',
     features: [
       '속도가 빠른 11kW 화재감지형',
       '과열 감지 스마트 디스플레이',
@@ -54,9 +108,11 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'sy-dc50',
-    name: 'SY-DC50 슬림 급속',
+    name: 'SY-DC50 슬림형 공용 급속 충전기',
     type: '급속',
     power: '50kW',
+    price: 9800000,
+    detailCategory: '급속',
     features: [
       '30분 내 80% 쾌속 충전',
       'B2B 법인 원격 관제 및 정산 시스템 무상 지원',
@@ -77,9 +133,11 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'sy-fc200',
-    name: 'SY-FC200 하이퍼 초급속',
-    type: '초급속',
+    name: 'SY-FC200 하이퍼 초급속 충전기',
+    type: '급속',
     power: '200kW',
+    price: 24000000,
+    detailCategory: '급속',
     features: [
       '듀얼 디스펜서 100kW+100kW 동시 충전',
       '15분 이내 완벽 완충 설계',
@@ -99,27 +157,49 @@ export const PRODUCTS: Product[] = [
     plcSupported: false
   },
   {
-    id: 'sy-home07',
-    name: 'SY-Home07 마이 박스',
-    type: '스마트홈',
-    power: '7kW',
+    id: 'sy-stand-01',
+    name: '프리미엄 세이프티 싱글형 스탠드 케이스',
+    type: '스탠드',
+    power: '7~11kW 호환',
+    price: 250000,
+    detailCategory: '스탠드',
     features: [
-      '단독주택/빌라 개인 전용',
-      '블루투스 간편 사용자 인증',
-      '초소형 세련된 북유럽풍 미니멀 디자인',
-      '친환경 고내구성 소재 적용',
-      '전국 24시간 자가진단 알람'
+      '고정밀 부식방지 특수 분체도장 처리',
+      '실외 자외선 및 우천 보호용 빗물 받이 탑재',
+      '충전 케이블 자동 권취형 행거 설계',
+      '하단 콘크리트 앵커 단단 마운트'
     ],
     specs: {
-      '정격 입력': 'Single Phase AC 220V, 50/60Hz',
-      '설치 형태': '스탠드 또는 실내외 벽면 고정',
-      '부가 기능': '예약 충전 (전기세 저렴한 경부하 시간대 자동 실행)',
-      '크기': '220 x 300 x 110 mm',
-      '정격 전류': '32A'
+      '소재': '고강도 스틸 (Steel with Zinc powder)',
+      '호환 사양': '완속 7kW 및 11kW 전 기종 호환',
+      '크기': '300 x 1400 x 300 mm',
+      '색상': '다크 차콜 메탈릭 에디션'
     },
-    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-    description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다. 심야 전력 요금 스케줄링이 탑재되어 매달 전기차 충전 비용을 최대로 절감합니다.',
-    plcSupported: true
+    image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600',
+    description: '실내 주차장 벽면에 설치하기 곤란한 야외 주차장이나 마당에 충전기를 독립형 스탠드로 단단하게 세워 고정할 때 필수적인 전용 정품 스탠드 프레임입니다.',
+    plcSupported: false
+  },
+  {
+    id: 'sy-canopy-01',
+    name: '안도감 세이프 캐노피 보호부스',
+    type: '스탠드',
+    power: '전 기종 호환',
+    price: 450000,
+    detailCategory: '스탠드',
+    features: [
+      '눈, 비, 강풍 완벽 방풍 설계',
+      '열 차단 선루프 및 안전 야간 LED 인지 패널',
+      '혹한기 빙결 보호 설계',
+      '초보 운전자 진입 안내 반사판 스티커'
+    ],
+    specs: {
+      '소재': '알루미늄 프로파일 및 특수 폴리카보네이트 Canopy',
+      '치수': '600 x 1500 x 600 mm',
+      '적용 대상': '야외 설치 스탠드형 기기 일체'
+    },
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600',
+    description: '눈보라나 폭우 속에서도 안심하고 커넥터를 연결할 수 있도록 사방을 막아주는 안전 캐노피형 보호 하우징입니다. 방진/방수 수명을 200% 늘립니다.',
+    plcSupported: false
   }
 ];
 
@@ -144,7 +224,10 @@ export const SOLUTIONS: Solution[] = [
       '3단계: 승인 완료 및 특허 시공팀 맞춤형 배치 설계',
       '4단계: 원격 관제 시스템 셋업 및 2년간 전담 AS 유지보수'
     ],
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800'
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
+    detailImageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200',
+    blueprintImageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+    recommendedProducts: ['sy-ac11', 'sy-dc50', 'sy-fc200']
   },
   {
     id: 'sol-residential',
@@ -166,7 +249,10 @@ export const SOLUTIONS: Solution[] = [
       '3단계: 한전 불입금 납부 및 한전 계량기 수급 정식 신청',
       '4단계: 깔끔하고 안전한 케이블 트레이 및 특허 세이프티 가드 시공'
     ],
-    image: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=800'
+    image: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=800',
+    detailImageUrl: 'https://images.unsplash.com/photo-1594535182308-8ffef9412388?auto=format&fit=crop&q=80&w=1200',
+    blueprintImageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200',
+    recommendedProducts: ['sy-ac07', 'sy-home07']
   },
   {
     id: 'sol-parkinglot',
@@ -188,7 +274,10 @@ export const SOLUTIONS: Solution[] = [
       '3단계: 충전 인프라 무상 지원 보조금 매칭 신청',
       '4단계: 통합 모바일 앱 등록 및 충전 전용 안내선, LED 보강 등 디자인 시공'
     ],
-    image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=800'
+    image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=800',
+    detailImageUrl: 'https://images.unsplash.com/photo-1558441719-ff34b0524a24?auto=format&fit=crop&q=80&w=1200',
+    blueprintImageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200',
+    recommendedProducts: ['sy-ac11', 'sy-dc50', 'sy-fc200']
   }
 ];
 

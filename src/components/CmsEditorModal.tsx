@@ -126,6 +126,28 @@ const CURATED_CEO_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=600', label: '캐주얼 테크형 CEO' }
 ];
 
+function robustUrlDecode(s: string): string {
+  let result = '';
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '%') {
+      const hex = s.substring(i + 1, i + 3);
+      if (/^[0-9A-Fa-f]{2}$/.test(hex)) {
+        try {
+          result += decodeURIComponent('%' + hex);
+        } catch (e) {
+          result += s[i];
+        }
+        i += 2;
+      } else {
+        result += s[i];
+      }
+    } else {
+      result += s[i];
+    }
+  }
+  return result;
+}
+
 export default function CmsEditorModal({
   isOpen,
   onClose,
@@ -301,6 +323,8 @@ export default function CmsEditorModal({
   const [solTarget, setSolTarget] = useState('');
   const [solPower, setSolPower] = useState('');
   const [solImage, setSolImage] = useState('');
+  const [solBlueprintImageUrl, setSolBlueprintImageUrl] = useState('');
+  const [solDetailImageUrl, setSolDetailImageUrl] = useState('');
   const [solBenefits, setSolBenefits] = useState<string[]>([]);
 
   // 5. Reviews Form State
@@ -453,6 +477,8 @@ export default function CmsEditorModal({
     setSolTarget(sol.target);
     setSolPower(sol.recommendedPower);
     setSolImage(sol.image);
+    setSolBlueprintImageUrl(sol.blueprintImageUrl || '');
+    setSolDetailImageUrl(sol.detailImageUrl || '');
     setSolBenefits([...sol.benefits]);
   };
 
@@ -467,6 +493,8 @@ export default function CmsEditorModal({
           target: solTarget,
           recommendedPower: solPower,
           image: solImage,
+          blueprintImageUrl: solBlueprintImageUrl,
+          detailImageUrl: solDetailImageUrl,
           benefits: solBenefits
         };
       }
@@ -2098,6 +2126,29 @@ export default function CmsEditorModal({
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-bold text-slate-700">📐 도면/인포그래픽 이미지 URL (긴 사진)</label>
+                        <input
+                          type="text"
+                          value={solBlueprintImageUrl}
+                          onChange={(e) => setSolBlueprintImageUrl(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] text-indigo-600 font-mono"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-bold text-slate-700">📄 카탈로그 상세 사양표 이미지 URL</label>
+                        <input
+                          type="text"
+                          value={solDetailImageUrl}
+                          onChange={(e) => setSolDetailImageUrl(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[10px] text-indigo-600 font-mono"
+                          placeholder="https://..."
+                        />
+                      </div>
+                    </div>
+
                     <div className="space-y-1">
                       <label className="block text-[11px] font-bold text-slate-700">솔루션 메인 단락 카피 설명</label>
                       <textarea
@@ -2891,40 +2942,7 @@ export default function CmsEditorModal({
 
                   <div className="flex justify-end">
                     <button
-                      onClick={() => {
-                        if (!importCode.trim()) {
-                          alert('붙여넣을 동기화 코드를 입력해 주세요!');
-                          return;
-                        }
-                        try {
-                          const decoded = decodeURIComponent(atob(importCode.trim()));
-                          const data = JSON.parse(decoded);
-                          
-                          let importCount = 0;
-                          Object.entries(data).forEach(([key, val]) => {
-                            if (key.startsWith('sy_cms_')) {
-                              if (val === null) {
-                                localStorage.removeItem(key);
-                              } else if (typeof val === 'string') {
-                                localStorage.setItem(key, val);
-                              }
-                              importCount++;
-                            }
-                          });
-                          
-                          if (importCount === 0) {
-                            alert('가져올 유효한 설정 데이터가 없습니다.');
-                            return;
-                          }
-                          
-                          showSaveSuccess('🔄 다른 기기의 설정 데이터가 성공적으로 반영되었습니다! 웹페이지를 새로고침합니다.');
-                          setTimeout(() => {
-                            window.location.reload();
-                          }, 1500);
-                        } catch (err) {
-                          alert('동기화 코드가 올바르지 않거나 손상되었습니다. 복사가 제대로 되었는지 다시 확인해 주세요!');
-                        }
-                      }}
+                      onClick={() => handleImportSync(importCode, showSaveSuccess)}
                       className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-md shadow-emerald-500/10 cursor-pointer"
                     >
                       <span>🔄 이 기기에 설정 즉시 적용하기 (가져오기)</span>
@@ -2953,4 +2971,40 @@ export default function CmsEditorModal({
       </motion.div>
     </div>
   );
+}
+
+// Helper robust JSON URL parser when loading sync settings
+function handleImportSync(importCode: string, showSaveSuccess: (msg: string) => void) {
+  if (!importCode.trim()) {
+    alert('붙여넣을 동기화 코드를 입력해 주세요!');
+    return;
+  }
+  try {
+    const decoded = robustUrlDecode(atob(importCode.trim()));
+    const data = JSON.parse(decoded);
+    
+    let importCount = 0;
+    Object.entries(data).forEach(([key, val]) => {
+      if (key.startsWith('sy_cms_')) {
+        if (val === null) {
+          localStorage.removeItem(key);
+        } else if (typeof val === 'string') {
+          localStorage.setItem(key, val);
+        }
+        importCount++;
+      }
+    });
+    
+    if (importCount === 0) {
+      alert('가져올 유효한 설정 데이터가 없습니다.');
+      return;
+    }
+    
+    showSaveSuccess('🔄 다른 기기의 설정 데이터가 성공적으로 반영되었습니다! 웹페이지를 새로고침합니다.');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  } catch (err) {
+    alert('동기화 코드가 올바르지 않거나 손상되었습니다. 복사가 제대로 되었는지 다시 확인해 주세요!');
+  }
 }

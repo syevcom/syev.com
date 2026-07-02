@@ -17,13 +17,15 @@ export interface User {
 export interface Product {
   id: string;
   name: string;
-  type: '완속' | '급속' | '초급속' | '스마트홈';
+  type: '완속' | '급속' | '초급속' | '스마트홈' | '스탠드';
   power: string;
   features: string[];
   specs: { [key: string]: string };
   image: string;
   description: string;
   plcSupported: boolean;
+  price?: number;
+  detailCategory?: '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드';
 }
 
 export interface Solution {
@@ -37,6 +39,9 @@ export interface Solution {
   benefits: string[];
   subsidyProcess: string[];
   image: string;
+  detailImageUrl?: string;
+  blueprintImageUrl?: string;
+  recommendedProducts?: string[];
 }
 
 export interface Review {

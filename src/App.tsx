@@ -523,6 +523,7 @@ export default function App() {
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
+            onPageChange={setActivePage}
           />
         );
       case 'review':

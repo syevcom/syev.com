@@ -20,24 +20,34 @@ export default function ProductsSection({
   isEditMode = false,
   onOpenCms
 }: ProductsSectionProps) {
-  const [filter, setFilter] = useState<'전체' | '완속' | '급속' | '스마트홈'>('전체');
+  const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const currentSelected = products.find(p => p.id === selectedProductId) || products[0];
 
   const filteredProducts = products.filter((p) => {
     if (filter === '전체') return true;
-    if (filter === '완속') return p.type === '완속';
-    if (filter === '스마트홈') return p.type === '스마트홈';
-    if (filter === '급속') return p.type === '급속' || p.type === '초급속';
-    return true;
+    return p.detailCategory === filter;
   });
 
   const getPurposeByProductType = (type: string) => {
     if (type === '스마트홈') return 'Residential';
     if (type === '완속') return 'Residential';
-    if (type === '급속') return 'ParkingLot';
+    if (type === '급속' || type === '초급속') return 'ParkingLot';
     return 'Commercial';
+  };
+
+  const formatPrice = (price?: number) => {
+    return price ? `${price.toLocaleString()}원` : '별도 견적 문의';
+  };
+
+  // Helper to choose color of the round power badge based on capacity
+  const getPowerBadgeColor = (power: string) => {
+    if (power.includes('7kW')) return 'bg-indigo-600';
+    if (power.includes('11kW')) return 'bg-cyan-600';
+    if (power.includes('50kW')) return 'bg-teal-600';
+    if (power.includes('200kW')) return 'bg-pink-600';
+    return 'bg-slate-700';
   };
 
   return (
@@ -81,76 +91,96 @@ export default function ProductsSection({
       </section>
 
       {/* Filter Tabs */}
-      <div className="flex justify-center border-b border-slate-200">
-        {(['전체', '완속', '급속', '스마트홈'] as const).map((tab) => (
+      <div className="flex flex-wrap gap-1.5 justify-center border-b border-slate-200 pb-2 md:pb-0">
+        {[
+          { key: '전체', label: '전체상품' },
+          { key: '비공용완속', label: '비공용완속충전기' },
+          { key: '비공용중속', label: '비공용중속충전기' },
+          { key: '공용완속', label: '공용완속충전기' },
+          { key: '급속', label: '급속충전기' },
+          { key: '스탠드', label: '스탠드(캐노피)' }
+        ].map((tab) => (
           <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            id={`btn-product-filter-${tab}`}
-            className={`px-5 py-3 text-xs sm:text-sm font-extrabold border-b-2 transition-all -mb-[1px] cursor-pointer ${
-              (filter === tab)
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-400 hover:text-slate-600'
+            key={tab.key}
+            onClick={() => setFilter(tab.key as any)}
+            id={`btn-product-filter-${tab.key}`}
+            className={`px-4 py-2.5 text-xs sm:text-sm font-extrabold border-b-2 transition-all -mb-[1px] cursor-pointer ${
+              filter === tab.key
+                ? 'border-blue-600 text-blue-600 font-black'
+                : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-200'
             }`}
           >
-            {tab === '급속' ? '급속 / 초급속' : tab}
+            {tab.label}
           </button>
         ))}
       </div>
 
       {/* Grid of Products */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProducts.map((p) => (
           <div
             key={p.id}
             onClick={() => setSelectedProductId(p.id)}
             id={`card-product-${p.id}`}
-            className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer ${
+            className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer bg-white ${
               currentSelected.id === p.id
-                ? 'border-blue-600 ring-2 ring-blue-600/10 shadow-lg'
-                : 'border-slate-200 hover:border-slate-300 shadow-sm'
+                ? 'border-blue-600 ring-4 ring-blue-500/10 shadow-lg shadow-blue-500/5'
+                : 'border-slate-200 hover:border-slate-300 shadow-xs'
             }`}
           >
             <div>
               {/* Product Image Box */}
-              <div className="relative h-48 bg-slate-100 overflow-hidden">
+              <div className="relative h-56 bg-slate-50 overflow-hidden flex items-center justify-center p-3">
                 <img
                   src={p.image}
                   alt={p.name}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <span className="absolute top-3 left-3 bg-slate-900/80 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-md">
-                  {p.power} 출력
+                
+                {/* Brand Logo - Top Right overlay */}
+                <span className="absolute top-3 right-3 bg-[#e8f321] text-slate-950 font-black text-[9px] px-2 py-0.5 rounded shadow-sm border border-yellow-300 flex items-center gap-0.5 tracking-tighter">
+                  ⚡ EVMoA
                 </span>
 
+                {/* Circular Power Badge - Overlaps Bottom Left corner */}
+                <div className={`absolute bottom-3 left-3 w-12 h-12 flex flex-col items-center justify-center text-[10px] text-white font-black rounded-full shadow-md backdrop-blur-xs ${getPowerBadgeColor(p.power)}`}>
+                  <span className="leading-none text-[11px]">{p.power}</span>
+                </div>
+
                 {p.plcSupported && (
-                  <span className="absolute top-3 right-3 bg-blue-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
-                    <ShieldCheck className="w-3 h-3" />
-                    화재감지 PLC
+                  <span className="absolute top-3 left-3 bg-red-600 text-white font-bold text-[8px] px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-sm">
+                    <ShieldCheck className="w-2.5 h-2.5" />
+                    PLC 화재예방
                   </span>
                 )}
               </div>
 
               {/* Product Body */}
-              <div className="p-5 space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-slate-400 font-extrabold tracking-wider uppercase border border-slate-200 px-1.5 py-0.5 rounded">
-                    {p.type}
-                  </span>
-                </div>
-                <h4 className="text-base font-black text-slate-950 group-hover:text-blue-600 transition-colors">
+              <div className="p-4 space-y-2">
+                <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                   {p.name}
                 </h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                
+                {/* Price Label matching Korean EVMoA styling */}
+                <div className="pt-1 pb-1">
+                  <div className="text-xs text-slate-400 font-bold">판매 단가</div>
+                  <div className="text-sm sm:text-base font-black text-rose-600 flex items-baseline gap-1">
+                    <span>{formatPrice(p.price)}</span>
+                    {p.price && <span className="text-[10px] text-slate-400 font-normal">(설치 포함)</span>}
+                  </div>
+                  <div className="w-8 h-0.5 bg-blue-500 mt-1 rounded-full"></div>
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-normal line-clamp-2 font-medium">
                   {p.description}
                 </p>
 
                 {/* Features short-bullets */}
-                <div className="pt-3 space-y-1">
+                <div className="pt-2 border-t border-slate-100 space-y-1">
                   {p.features.slice(0, 3).map((f) => (
-                    <div key={f} className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <div key={f} className="flex items-center gap-1 text-[10px] text-slate-600 font-bold">
+                      <Check className="w-3 h-3 text-blue-600 shrink-0" />
                       <span className="truncate">{f}</span>
                     </div>
                   ))}
@@ -159,14 +189,14 @@ export default function ProductsSection({
             </div>
 
             {/* Actions Footer */}
-            <div className="p-5 pt-0 mt-2 flex gap-2">
+            <div className="p-4 pt-0 mt-1 flex gap-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
                 }}
                 id={`btn-product-quote-${p.id}`}
-                className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all"
+                className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-bold transition-all cursor-pointer"
               >
                 무료 설치 견적 요청
               </button>
