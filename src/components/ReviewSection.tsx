@@ -133,9 +133,17 @@ export default function ReviewSection({
                 </span>
               </div>
 
-              <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-lg">
-                {currentActiveReview.category === 'Commercial' ? '기업/관공서' : currentActiveReview.category === 'Residential' ? '주거 전용' : '수익형 주차장'}
-              </span>
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-lg">
+                  {currentActiveReview.category === 'Commercial' ? '기업/관공서' : currentActiveReview.category === 'Residential' ? '주거 전용' : '수익형 주차장'}
+                </span>
+                {currentActiveReview.isBlogImported && (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {currentActiveReview.blogName || '네이버 블로그'}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Before After Interactive Comparison slider */}
@@ -217,6 +225,31 @@ export default function ReviewSection({
               </p>
             </div>
 
+            {currentActiveReview.blogUrl && (
+              <a
+                href={currentActiveReview.blogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-3.5 bg-emerald-50 hover:bg-emerald-100/60 border border-emerald-100 rounded-2xl text-emerald-950 transition-all duration-300 group/blog shadow-xs hover:shadow-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-extrabold text-[11px] shadow-sm">
+                    N
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[9px] text-emerald-700 font-bold block uppercase tracking-wider">Naver Blog</span>
+                    <span className="text-xs font-black leading-tight text-emerald-800 flex items-center gap-1">
+                      블로그에 작성된 실제 후기 원문 전체 보기
+                      <span className="text-emerald-600 font-bold group-hover/blog:translate-x-1 transition-transform">→</span>
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black text-emerald-700 bg-white px-2 py-1 rounded-lg border border-emerald-200 group-hover/blog:border-emerald-300 transition-colors">
+                  원문보기
+                </span>
+              </a>
+            )}
+
             {/* Technical Case Details */}
             <div className="text-xs text-slate-500 space-y-1 bg-slate-50/50 rounded-2xl p-3 border border-slate-200">
               <p>• <strong className="text-slate-700">시공 내역 세부:</strong> {currentActiveReview.details}</p>
@@ -243,9 +276,16 @@ export default function ReviewSection({
               }`}
             >
               <div className="space-y-1.5">
-                <span className="text-[9px] text-slate-400 font-extrabold block uppercase">
-                  {rev.location.split(' ')[0]} {rev.location.split(' ')[1]}
-                </span>
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[9px] text-slate-400 font-extrabold block uppercase">
+                    {rev.location.split(' ')[0]} {rev.location.split(' ')[1]}
+                  </span>
+                  {rev.isBlogImported && (
+                    <span className="text-[8px] font-extrabold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">
+                      블로그 후기
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-bold text-slate-900 block line-clamp-2 leading-snug">
                   {rev.title}
                 </span>

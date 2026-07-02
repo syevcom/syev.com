@@ -57,6 +57,9 @@ export interface Review {
   interview: string;
   details: string;
   coordinates: { x: number; y: number }; // Percentage for interactive visual map
+  blogUrl?: string;
+  isBlogImported?: boolean;
+  blogName?: string;
 }
 
 export interface FAQ {

@@ -337,6 +337,23 @@ export const REVIEWS: Review[] = [
     interview: '공실 상가 주차 구역이라 방치되어 있었는데 충전소로 바꾸고 나니 건물을 오가는 통행량 자체가 크게 늘었습니다. 충전하러 온 차량 고객들이 상가 식음료 매장을 추가 이용하는 낙수 효과도 엄청나며, 정산도 완전히 자동화되어 관리비 인건비 부담이 전혀 없습니다.',
     details: '급속 50kW 1대, 완속 7kW 4대 설치. LED 안내 패널 및 충전 주차 도색 완비.',
     coordinates: { x: 68, y: 72 }
+  },
+  {
+    id: 'rev-blog-seed',
+    title: '[네이버 블로그] 분당 단독주택 7kW 전기차 충전기 무상보조금 전액지원 설치후기!',
+    location: '경기 성남시 분당구',
+    category: 'Residential',
+    date: '2026-06-29',
+    rating: 5,
+    beforeImg: 'https://images.unsplash.com/photo-1521500857785-5a827418b62c?auto=format&fit=crop&q=80&w=600',
+    afterImg: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+    author: '블로거 달콤한초코',
+    interview: '드디어 블로그에 자랑하고 싶던 전기차 홈충전기를 에스와이코리아(SY.com)에서 국고지원금 매칭 받아서 대만족하며 완공했어요! 복잡한 한전 보조금 서류 신청부터 대행까지 전부 무상으로 처리해주셔서 저는 그냥 구경만 했네요. 상세한 내용은 제 네이버 블로그 글에서 직접 확인하세요!',
+    details: '7kW 완속 스마트 월박스 시공 완료. 환경부 화재예방 PLC 탑재 적용 모델 선정.',
+    coordinates: { x: 38, y: 52 },
+    blogUrl: 'https://blog.naver.com/sy_car_com/223490181201',
+    isBlogImported: true,
+    blogName: '네이버 블로그'
   }
 ];
 
