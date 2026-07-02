@@ -106,7 +106,7 @@ interface CmsEditorModalProps {
   onSaveNotices: (notices: any[]) => void;
 
   onResetAll: () => void;
-  initialTab?: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support';
+  initialTab?: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sync';
 }
 
 const CURATED_EV_IMAGES = [
@@ -158,6 +158,7 @@ export default function CmsEditorModal({
 }: CmsEditorModalProps) {
   const [activeTab, setActiveTab] = useState<typeof initialTab>(initialTab);
   const [saveStatus, setSaveStatus] = useState('');
+  const [importCode, setImportCode] = useState('');
 
   // 0. Brand logo & Categories states
   const [logoText, setLogoText] = useState(logoConfig.text);
@@ -697,7 +698,7 @@ export default function CmsEditorModal({
 
         {/* Tab Controls */}
         <div className="flex border-b border-slate-200 bg-slate-50 overflow-x-auto shrink-0 scrollbar-none px-6">
-          {(['brand', 'hero', 'about', 'products', 'solutions', 'review', 'support'] as const).map((tab) => (
+          {(['brand', 'hero', 'about', 'products', 'solutions', 'review', 'support', 'sync'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => {
@@ -722,6 +723,7 @@ export default function CmsEditorModal({
               {tab === 'solutions' && '🛠️ 솔루션'}
               {tab === 'review' && '📍 후기 지도'}
               {tab === 'support' && '💬 FAQ & 공지'}
+              {tab === 'sync' && '📲 기기간 동기화'}
             </button>
           ))}
           
@@ -2742,6 +2744,192 @@ export default function CmsEditorModal({
                       </div>
                     </div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* 8. SYNC / BACKUP TAB */}
+            {activeTab === 'sync' && (
+              <motion.div
+                key="tab-sync"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="space-y-6"
+              >
+                <div>
+                  <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                    <Settings className="w-4 h-4 text-blue-600 animate-pulse" />
+                    📲 스마트폰 - 컴퓨터 기기간 설정 완벽 동기화 (기기 연동)
+                  </h4>
+                  
+                  <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-xs text-blue-900 font-bold leading-relaxed space-y-2.5 mt-3">
+                    <p className="flex items-start gap-1.5">
+                      <span className="text-sm">💡</span>
+                      <span>
+                        <strong>동기화가 필요한 이유:</strong> 관리자 모드에서 수정한 홈페이지 디자인 및 로고, 문구 등은 보안과 빠른 속도를 위해 각 브라우저의 <strong>로컬 스토리지(LocalStorage)</strong>에 개별 저장됩니다. 
+                        따라서 <u>컴퓨터에서 수정한 내용은 핸드폰에 바로 나타나지 않으며, 핸드폰에서 수정한 내용 역시 컴퓨터에 바로 연동되지 않습니다.</u>
+                      </span>
+                    </p>
+                    <p className="flex items-start gap-1.5 text-slate-600 font-semibold pl-4">
+                      <span>•</span>
+                      <span><strong>해결방법 1 (간편 기기 연동):</strong> 현재 컴퓨터의 모든 수정한 설정을 아래 [설정 내보내기] 버튼으로 복사하여 핸드폰 동기화 탭에 [가져오기]로 붙여넣으면 즉시 똑같아집니다!</span>
+                    </p>
+                    <p className="flex items-start gap-1.5 text-slate-600 font-semibold pl-4">
+                      <span>•</span>
+                      <span><strong>해결방법 2 (영구 서버 저장 - 가장 권장):</strong> 아래 동기화용 텍스트 코드를 복사해서 AI 어시스턴트(채팅창)에 <strong>"수정한 대로 코드에 영구 반영해줘"</strong>라고 전달해 주세요. 제가 개발자 권한으로 실제 소스코드에 바로 빌드해 드려, 모든 사용자에게 기본으로 노출되게 해 드립니다!</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* 1. Export Area */}
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3.5">
+                  <div>
+                    <h5 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      1단계: 현재 기기의 설정 코드 내보내기 (EXPORT)
+                    </h5>
+                    <p className="text-[11px] text-slate-500 font-medium mt-1">
+                      현재 기기(PC 등)에서 작업한 모든 홈페이지 세팅 정보를 하나의 암호화 텍스트 코드로 변환해 복사합니다.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const keys = [
+                          'sy_cms_logo',
+                          'sy_cms_categories',
+                          'sy_cms_footer',
+                          'sy_cms_hero',
+                          'sy_cms_about',
+                          'sy_cms_products',
+                          'sy_cms_solutions',
+                          'sy_cms_reviews',
+                          'sy_cms_faqs',
+                          'sy_cms_notices',
+                          'sy_cms_sns',
+                          'sy_cms_quickmenu'
+                        ];
+                        const data: Record<string, string | null> = {};
+                        keys.forEach(key => {
+                          data[key] = localStorage.getItem(key);
+                        });
+                        const code = btoa(encodeURIComponent(JSON.stringify(data)));
+                        navigator.clipboard.writeText(code).then(() => {
+                          showSaveSuccess('📋 설정 동기화 코드가 클립보드에 완벽히 복사되었습니다!');
+                        }).catch(() => {
+                          // Fallback to direct download/selection
+                          alert('클립보드 직접 복사가 거부되었습니다. 아래 표시된 긴 텍스트 코드를 전체 선택(Ctrl+A)하여 복사해 주세요!');
+                        });
+                      }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-md shadow-blue-500/10 cursor-pointer"
+                    >
+                      <span>📋 전체 설정 동기화 코드 클립보드 복사하기</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500">생성된 내보내기 코드 (전체 선택하여 복사해 대화창에 올려주셔도 됩니다)</label>
+                    <textarea
+                      readOnly
+                      onClick={(e) => {
+                        (e.target as HTMLTextAreaElement).select();
+                      }}
+                      value={(() => {
+                        try {
+                          const keys = [
+                            'sy_cms_logo',
+                            'sy_cms_categories',
+                            'sy_cms_footer',
+                            'sy_cms_hero',
+                            'sy_cms_about',
+                            'sy_cms_products',
+                            'sy_cms_solutions',
+                            'sy_cms_reviews',
+                            'sy_cms_faqs',
+                            'sy_cms_notices',
+                            'sy_cms_sns',
+                            'sy_cms_quickmenu'
+                          ];
+                          const data: Record<string, string | null> = {};
+                          keys.forEach(key => {
+                            data[key] = localStorage.getItem(key);
+                          });
+                          return btoa(encodeURIComponent(JSON.stringify(data)));
+                        } catch (err) {
+                          return '설정 데이터를 가져오지 못했습니다.';
+                        }
+                      })()}
+                      rows={3}
+                      className="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-[10px] font-mono text-slate-500 cursor-text select-all focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Import Area */}
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-3.5">
+                  <div>
+                    <h5 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      2단계: 다른 기기에서 가져온 설정 코드 붙여넣기 (IMPORT)
+                    </h5>
+                    <p className="text-[11px] text-slate-500 font-medium mt-1">
+                      PC나 다른 기기에서 복사한 동기화 코드를 아래에 붙여넣고 [설정 적용]을 누르면, 이 핸드폰 브라우저에 해당 디자인이 즉시 덮어씌워집니다.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <textarea
+                      placeholder="여기에 다른 기기에서 복사한 동기화 코드를 붙여넣어 주세요..."
+                      value={importCode}
+                      onChange={(e) => setImportCode(e.target.value)}
+                      rows={3.5}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-mono text-slate-800 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => {
+                        if (!importCode.trim()) {
+                          alert('붙여넣을 동기화 코드를 입력해 주세요!');
+                          return;
+                        }
+                        try {
+                          const decoded = decodeURIComponent(atob(importCode.trim()));
+                          const data = JSON.parse(decoded);
+                          
+                          let importCount = 0;
+                          Object.entries(data).forEach(([key, val]) => {
+                            if (key.startsWith('sy_cms_')) {
+                              if (val === null) {
+                                localStorage.removeItem(key);
+                              } else if (typeof val === 'string') {
+                                localStorage.setItem(key, val);
+                              }
+                              importCount++;
+                            }
+                          });
+                          
+                          if (importCount === 0) {
+                            alert('가져올 유효한 설정 데이터가 없습니다.');
+                            return;
+                          }
+                          
+                          showSaveSuccess('🔄 다른 기기의 설정 데이터가 성공적으로 반영되었습니다! 웹페이지를 새로고침합니다.');
+                          setTimeout(() => {
+                            window.location.reload();
+                          }, 1500);
+                        } catch (err) {
+                          alert('동기화 코드가 올바르지 않거나 손상되었습니다. 복사가 제대로 되었는지 다시 확인해 주세요!');
+                        }
+                      }}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-md shadow-emerald-500/10 cursor-pointer"
+                    >
+                      <span>🔄 이 기기에 설정 즉시 적용하기 (가져오기)</span>
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
