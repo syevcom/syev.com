@@ -27,6 +27,10 @@ interface MainHeroProps {
     liveCountStart?: number;
     liveCountLabel?: string;
     liveCountSuffix?: string;
+    solutionBlueSize?: 'small' | 'medium' | 'large' | 'xlarge';
+    commercialBlueText?: string;
+    residentialBlueText?: string;
+    parkingBlueText?: string;
   };
   quickMenuConfig?: {
     showQuickMenu: boolean;
@@ -59,6 +63,17 @@ export default function MainHero({
 }: MainHeroProps) {
   // Mechanical Counting live state
   const [count, setCount] = useState(heroConfig.liveCountStart || 14520);
+  
+  const getBlueSizeClass = (size?: 'small' | 'medium' | 'large' | 'xlarge') => {
+    switch (size) {
+      case 'small': return 'text-xs md:text-sm';
+      case 'large': return 'text-base md:text-xl';
+      case 'xlarge': return 'text-lg md:text-2xl';
+      case 'medium':
+      default:
+        return 'text-sm md:text-lg';
+    }
+  };
   
   // Interactive "Near me charger finder" modal/state simulation
   const [isSearchingCharger, setIsSearchingCharger] = useState(false);
@@ -368,7 +383,9 @@ export default function MainHero({
               </div>
               <div>
                 <h4 className="text-base font-extrabold text-slate-950">기업용 (Commercial)</h4>
-                <p className="text-[10px] text-blue-600 font-bold mt-0.5">회사 사옥, 물류창고, 공장, 관공서 전용</p>
+                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
+                  {heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용'}
+                </p>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
                   "비어있는 주차 면적, SY.com을 만나면 가장 스마트한 수익원이 됩니다. 빌딩 가치는 올리고 고정 고객은 확보하세요."
                 </p>
@@ -393,7 +410,9 @@ export default function MainHero({
               </div>
               <div>
                 <h4 className="text-base font-extrabold text-slate-950">주거용 (Residential)</h4>
-                <p className="text-[10px] text-blue-600 font-bold mt-0.5">단독주택, 빌라, 아파트(개인/공용) 전용</p>
+                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
+                  {heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용'}
+                </p>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
                   "집에 도착하는 순간, 충전 스트레스는 끝납니다. 화재 안심 센서 탑재! 까다로운 아파트 주민 협의 대행 지원."
                 </p>
@@ -418,7 +437,9 @@ export default function MainHero({
               </div>
               <div>
                 <h4 className="text-base font-extrabold text-slate-950">주차장용 (Parking Lot)</h4>
-                <p className="text-[10px] text-blue-600 font-bold mt-0.5">대형 마트, 호텔, 빌딩, 공영주차장 맞춤</p>
+                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
+                  {heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'}
+                </p>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
                   "주차 공간을 최고의 부가 수익원으로 전환해 드립니다. 원격 관제 및 정산 연동 무상 지원 솔루션 매칭 완료."
                 </p>

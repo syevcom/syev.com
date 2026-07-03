@@ -90,7 +90,11 @@ export default function App() {
     descriptionSize: 'medium' as 'small' | 'medium' | 'large',
     liveCountStart: 14520,
     liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
-    liveCountSuffix: '대 돌파'
+    liveCountSuffix: '대 돌파',
+    solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
+    commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
+    residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
+    parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'
   });
 
   const [snsConfig, setSnsConfig] = useState({
@@ -425,7 +429,11 @@ export default function App() {
       descriptionSize: 'medium' as 'small' | 'medium' | 'large',
       liveCountStart: 14520,
       liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
-      liveCountSuffix: '대 돌파'
+      liveCountSuffix: '대 돌파',
+      solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
+      commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
+      residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
+      parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'
     });
 
     setSnsConfig({
@@ -684,23 +692,35 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {/* Branding & description */}
             <div className="md:col-span-5 space-y-4">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 {logoConfig.imageUrl ? (
-                  <img 
-                    src={logoConfig.imageUrl} 
-                    alt={logoConfig.subtitle} 
-                    className="h-8 max-w-[140px] object-contain brightness-0 invert opacity-90"
-                    referrerPolicy="no-referrer"
-                  />
+                  <div className="flex items-center gap-2.5">
+                    <img 
+                      src={logoConfig.imageUrl} 
+                      alt={logoConfig.subtitle} 
+                      className="h-8 max-w-[140px] object-contain brightness-0 invert opacity-90"
+                      referrerPolicy="no-referrer"
+                    />
+                    {logoConfig.companyNameText && (
+                      <span className="font-extrabold text-white text-sm sm:text-base tracking-tight pl-2.5 border-l border-slate-700">
+                        {logoConfig.companyNameText}
+                      </span>
+                    )}
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm tracking-tight">
                       {logoConfig.text}
                     </div>
                     <span className="font-extrabold text-white text-base tracking-tight">
                       {logoConfig.subtitle}
                     </span>
-                  </>
+                    {logoConfig.companyNameText && (
+                      <span className="font-medium text-slate-300 text-xs sm:text-sm tracking-tight pl-2.5 border-l border-slate-700">
+                        {logoConfig.companyNameText}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
               <p className="text-xs text-slate-400 leading-relaxed max-w-sm">

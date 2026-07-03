@@ -76,6 +76,10 @@ interface CmsEditorModalProps {
     liveCountStart?: number;
     liveCountLabel?: string;
     liveCountSuffix?: string;
+    solutionBlueSize?: 'small' | 'medium' | 'large' | 'xlarge';
+    commercialBlueText?: string;
+    residentialBlueText?: string;
+    parkingBlueText?: string;
   };
   onSaveHeroConfig: (config: any) => void;
 
@@ -239,6 +243,10 @@ export default function CmsEditorModal({
   const [heroLiveCountStart, setHeroLiveCountStart] = useState(heroConfig.liveCountStart || 14520);
   const [heroLiveCountLabel, setHeroLiveCountLabel] = useState(heroConfig.liveCountLabel || '현재 전국 SY.com 충전기 설치 현황');
   const [heroLiveCountSuffix, setHeroLiveCountSuffix] = useState(heroConfig.liveCountSuffix || '대 돌파');
+  const [heroSolutionBlueSize, setHeroSolutionBlueSize] = useState(heroConfig.solutionBlueSize || 'medium');
+  const [heroCommercialBlueText, setHeroCommercialBlueText] = useState(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
+  const [heroResidentialBlueText, setHeroResidentialBlueText] = useState(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
+  const [heroParkingBlueText, setHeroParkingBlueText] = useState(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
 
   // 2. About Form State
   const [ceoName, setCeoName] = useState(aboutConfig.ceoName);
@@ -296,6 +304,10 @@ export default function CmsEditorModal({
       setHeroLiveCountStart(heroConfig.liveCountStart || 14520);
       setHeroLiveCountLabel(heroConfig.liveCountLabel || '현재 전국 SY.com 충전기 설치 현황');
       setHeroLiveCountSuffix(heroConfig.liveCountSuffix || '대 돌파');
+      setHeroSolutionBlueSize(heroConfig.solutionBlueSize || 'medium');
+      setHeroCommercialBlueText(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
+      setHeroResidentialBlueText(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
+      setHeroParkingBlueText(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
 
       setCeoName(aboutConfig.ceoName);
       setCeoRole(aboutConfig.ceoRole);
@@ -423,7 +435,11 @@ export default function CmsEditorModal({
       descriptionSize: heroDescriptionSize,
       liveCountStart: Number(heroLiveCountStart),
       liveCountLabel: heroLiveCountLabel,
-      liveCountSuffix: heroLiveCountSuffix
+      liveCountSuffix: heroLiveCountSuffix,
+      solutionBlueSize: heroSolutionBlueSize,
+      commercialBlueText: heroCommercialBlueText,
+      residentialBlueText: heroResidentialBlueText,
+      parkingBlueText: heroParkingBlueText
     });
     showSaveSuccess('🏠 메인 히어로 텍스트, 크기 및 라이브 설치 현황 설정이 즉시 저장되었습니다!');
   };
@@ -1563,6 +1579,67 @@ export default function CmsEditorModal({
                         <span className="text-xs font-extrabold text-slate-700">
                           {heroLiveCountSuffix || '대 돌파'}
                         </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1-3. CUSTOM SOLUTIONS CARD SUBTITLE AND SIZE SETTING */}
+                <div className="bg-blue-50/40 border border-blue-100 p-4 rounded-2xl space-y-3 mt-4">
+                  <span className="block text-xs font-black text-blue-900 flex items-center gap-1.5">
+                    ⚙️ 용도별 맞춤 충전 솔루션 카드 파란 글씨(소개글) 및 크기 편집
+                  </span>
+                  <p className="text-[10px] text-slate-500 font-bold leading-normal">
+                    홈 화면의 세 가지 카드(기업용, 주거용, 주차장용) 제목 아래에 있는 파란색 핵심 특징 소개 문구와 그 글씨 크기를 조절할 수 있습니다.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">핵심 특징 파란 글씨 크기 조절</label>
+                      <select
+                        value={heroSolutionBlueSize}
+                        onChange={(e) => setHeroSolutionBlueSize(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                      >
+                        <option value="small">작게 (Small)</option>
+                        <option value="medium">보통 (Medium - 기본값)</option>
+                        <option value="large">크게 (Large)</option>
+                        <option value="xlarge">매우 크게 (X-Large)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3.5 mt-2">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-bold text-slate-600">기업용 카드 파란 글씨</label>
+                        <input
+                          type="text"
+                          value={heroCommercialBlueText}
+                          onChange={(e) => setHeroCommercialBlueText(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          placeholder="회사 사옥, 물류창고, 공장, 관공서 전용"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-bold text-slate-600">주거용 카드 파란 글씨</label>
+                        <input
+                          type="text"
+                          value={heroResidentialBlueText}
+                          onChange={(e) => setHeroResidentialBlueText(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          placeholder="단독주택, 빌라, 아파트(개인/공용) 전용"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-bold text-slate-600">주차장용 카드 파란 글씨</label>
+                        <input
+                          type="text"
+                          value={heroParkingBlueText}
+                          onChange={(e) => setHeroParkingBlueText(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          placeholder="대형 마트, 호텔, 빌딩, 공영주차장 맞춤"
+                        />
                       </div>
                     </div>
                   </div>
