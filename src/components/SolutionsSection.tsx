@@ -30,6 +30,8 @@ export default function SolutionsSection({
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
   const [visualViewerMode, setVisualViewerMode] = useState<Record<string, 'product' | 'catalog'>>({});
   const [solutionTabs, setSolutionTabs] = useState<Record<string, 'specs' | 'infographic'>>({});
+  const [localBannerModes, setLocalBannerModes] = useState<Record<string, 'cover' | 'unfold'>>({});
+  const [localDetailModes, setLocalDetailModes] = useState<Record<string, 'scroll' | 'unfold'>>({});
 
   const filteredSolutions = solutions.filter(sol => {
     if (activeTab === 'ALL') return true;
@@ -179,38 +181,82 @@ export default function SolutionsSection({
                   </div>
 
                   {/* Representative Site Image - Huge full-width banner representing actual installations */}
-                  <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900 w-full group/banner">
-                    <div className="relative h-72 sm:h-96 md:h-[420px] bg-slate-950 flex items-center justify-center">
-                      <img
-                        src={sol.image || (
-                          sol.category === 'Commercial'
-                            ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200'
-                            : sol.category === 'Residential'
-                            ? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200'
-                            : 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'
-                        )}
-                        alt={`${sol.title} 실제 시공 완료 현장 사진`}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover/banner:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-transparent p-5 flex flex-col justify-end">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
-                            현장 실제 실사
-                          </span>
-                          <span className="bg-emerald-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
-                            정품 친환경 특허 시공
-                          </span>
+                  {(() => {
+                    const isBannerUnfolded = (localBannerModes[sol.id] || sol.bannerMode || 'cover') === 'unfold';
+                    return (
+                      <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900 w-full group/banner relative">
+                        {/* Expand/Unfold control floating overlay */}
+                        <div className="absolute top-4 right-4 z-20 flex gap-2">
+                          <button
+                            onClick={() => setLocalBannerModes(prev => ({ ...prev, [sol.id]: isBannerUnfolded ? 'cover' : 'unfold' }))}
+                            className="bg-slate-900/90 hover:bg-blue-600 text-white font-extrabold text-[10px] px-3.5 py-1.5 rounded-full shadow-lg transition-all flex items-center gap-1 cursor-pointer backdrop-blur-xs border border-white/10"
+                          >
+                            {isBannerUnfolded ? '🖼️ 슬림하게 채워보기' : '↕️ 상세페이지형 전체 펼쳐보기 (자름 해제)'}
+                          </button>
                         </div>
-                        <h4 className="font-black text-sm sm:text-base md:text-lg tracking-tight text-white">
-                          {sol.title} 시공 포트폴리오
-                        </h4>
-                        <p className="text-[11px] text-slate-300 font-bold mt-0.5">
-                          제조사 정품 충전기를 활용해 완벽히 책임 시공한 실제 준공 사진입니다.
-                        </p>
+
+                        <div className={`relative bg-slate-950 flex items-center justify-center transition-all duration-500 overflow-hidden ${
+                          isBannerUnfolded 
+                            ? 'h-auto w-full' 
+                            : 'h-72 sm:h-96 md:h-[420px]'
+                        }`}>
+                          <img
+                            src={sol.image || (
+                              sol.category === 'Commercial'
+                                ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200'
+                                : sol.category === 'Residential'
+                                ? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200'
+                                : 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'
+                            )}
+                            alt={`${sol.title} 실제 시공 완료 현장 사진`}
+                            referrerPolicy="no-referrer"
+                            className={`w-full transition-all duration-500 ${
+                              isBannerUnfolded
+                                ? 'h-auto object-contain'
+                                : 'h-full object-cover group-hover/banner:scale-105 duration-700'
+                            }`}
+                          />
+                          {!isBannerUnfolded && (
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-transparent p-5 flex flex-col justify-end">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
+                                  현장 실제 실사
+                                </span>
+                                <span className="bg-emerald-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md tracking-widest uppercase">
+                                  정품 친환경 특허 시공
+                                </span>
+                              </div>
+                              <h4 className="font-black text-sm sm:text-base md:text-lg tracking-tight text-white">
+                                {sol.title} 시공 포트폴리오
+                              </h4>
+                              <p className="text-[11px] text-slate-300 font-bold mt-0.5">
+                                제조사 정품 충전기를 활용해 완벽히 책임 시공한 실제 준공 사진입니다.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        {isBannerUnfolded && (
+                          <div className="bg-slate-950/90 p-4 border-t border-white/5 text-center flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div className="text-left">
+                              <h4 className="font-black text-sm tracking-tight text-white flex items-center gap-1.5">
+                                <span className="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-md uppercase">상세페이지 원본 뷰어</span>
+                                {sol.title} 시공 포트폴리오
+                              </h4>
+                              <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                                상세 설명이 기재된 원본 이미지를 자름 없이 전체 크기로 감상하실 수 있습니다.
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setLocalBannerModes(prev => ({ ...prev, [sol.id]: 'cover' }))}
+                              className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[10px] font-bold transition-all shrink-0 cursor-pointer border border-slate-700"
+                            >
+                              접기 (슬림 뷰로 변경)
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </div>
+                    );
+                  })()}
 
                   {/* Interactive Specs or Comparison Infographic section (Standalone block below the representative photo) */}
                   {sol.recommendedProducts && sol.recommendedProducts.length > 0 && (() => {
@@ -465,68 +511,93 @@ export default function SolutionsSection({
                               </p>
                             </div>
 
-                            {/* Long Vertical Image Viewer with scrollbar & magnifying visual effect */}
-                            <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-lg bg-slate-900 group/viewer">
-                              {/* Overlay Badge */}
-                              <div className="absolute top-4 left-4 z-10 bg-slate-950/80 text-white font-black text-[9px] px-2.5 py-1 rounded-md tracking-widest uppercase shadow-md backdrop-blur-xs flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span>설명형 인포그래픽 카탈로그 실사 뷰어</span>
-                              </div>
+                            {/* Adaptive Detail / Brochure Unfolded Viewer */}
+                            {(() => {
+                              const isDetailUnfolded = (localDetailModes[sol.id] || sol.detailMode || 'scroll') === 'unfold';
+                              return (
+                                <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-lg bg-slate-900 group/viewer flex flex-col">
+                                  {/* Overlay Badge */}
+                                  <div className="absolute top-4 left-4 z-10 bg-slate-950/80 text-white font-black text-[9px] px-2.5 py-1 rounded-md tracking-widest uppercase shadow-md backdrop-blur-xs flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>설명형 인포그래픽 카탈로그 실사 뷰어</span>
+                                  </div>
 
-                              <div className="absolute top-4 right-4 z-10">
-                                <a 
-                                  href={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
-                                  target="_blank" 
-                                  rel="noreferrer" 
-                                  className="bg-blue-600 hover:bg-blue-700 text-white font-black text-[9px] px-2.5 py-1 rounded-md shadow-md transition-all cursor-pointer inline-flex items-center gap-1"
-                                >
-                                  🖥️ 새 창에서 원본 크게보기
-                                </a>
-                              </div>
+                                  <div className="absolute top-4 right-4 z-20 flex gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setLocalDetailModes(prev => ({ ...prev, [sol.id]: isDetailUnfolded ? 'scroll' : 'unfold' }))}
+                                      className="bg-slate-950/90 hover:bg-blue-600 text-white font-extrabold text-[9px] px-2.5 py-1 rounded-md shadow-md transition-all cursor-pointer inline-flex items-center gap-1 border border-white/10 backdrop-blur-xs"
+                                    >
+                                      {isDetailUnfolded ? '↕️ 박스로 축소하기' : '↕️ 전체 펼치기 (자름 없음)'}
+                                    </button>
+                                    <a 
+                                      href={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
+                                      target="_blank" 
+                                      rel="noreferrer" 
+                                      className="bg-blue-600 hover:bg-blue-700 text-white font-black text-[9px] px-2.5 py-1 rounded-md shadow-md transition-all cursor-pointer inline-flex items-center gap-1"
+                                    >
+                                      🖥️ 새 창에서 원본 크게보기
+                                    </a>
+                                  </div>
 
-                              {/* Interactive Scrollable Area */}
-                              <div className="h-96 md:h-[450px] overflow-y-auto scrollbar-thin p-1 bg-slate-950/60 scroll-smooth">
-                                <div className="relative">
-                                  <img 
-                                    src={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
-                                    alt={`${sol.title} 브랜드별 상세 설명 인포그래픽`}
-                                    referrerPolicy="no-referrer"
-                                    className="w-full h-auto object-contain object-top rounded-2xl"
-                                  />
-                                  
-                                  {/* Custom graphic card labels rendered directly inside the image flow so that it looks exactly like comparison boards */}
-                                  <div className="absolute bottom-6 left-6 right-6 p-5 bg-slate-950/90 text-white rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm space-y-3 font-sans">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-[9px] font-black text-blue-400 tracking-widest uppercase">SY BRAND INTEGRATION GUIDELINE</span>
-                                      <span className="text-[9px] font-bold text-slate-400">EVMoA Premium Partners</span>
-                                    </div>
-                                    <h5 className="font-black text-sm tracking-tight text-white border-b border-white/10 pb-2">
-                                      🛡️ 브랜드별 대표 충전기 특징 요약본
-                                    </h5>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[10px] leading-relaxed">
-                                      <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
-                                        <span className="font-black text-blue-400 block text-[11px]">1. 스필SE (7kW/11kW)</span>
-                                        <p className="text-slate-300">화재예방 특허 PLC 모뎀 탑재로 안심. 공동주택 및 대중 이용 시설에 강력 추천하는 최고 가성비 정품.</p>
-                                      </div>
-                                      <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
-                                        <span className="font-black text-amber-400 block text-[11px]">2. 롯데 이브이시스 (7kW/11kW)</span>
-                                        <p className="text-slate-300">북유럽풍 세련된 디자인, 모바일 앱 원격 예약 충전, 최상의 대기업 24시 AS 망 보유.</p>
-                                      </div>
-                                      <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
-                                        <span className="font-black text-emerald-400 block text-[11px]">3. SY 공용 급속 (50kW/200kW)</span>
-                                        <p className="text-slate-300">수익형 상가, 공공 주차장 전용 고효율 급속 충전. B2B 통합 요금 정산 시스템 기본 제공.</p>
+                                  {/* Interactive Scrollable Area */}
+                                  <div className={`scrollbar-thin p-1 bg-slate-950/60 scroll-smooth transition-all duration-500 ${
+                                    isDetailUnfolded ? 'h-auto overflow-visible' : 'h-96 md:h-[450px] overflow-y-auto'
+                                  }`}>
+                                    <div className="relative">
+                                      <img 
+                                        src={sol.detailImageUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'} 
+                                        alt={`${sol.title} 브랜드별 상세 설명 인포그래픽`}
+                                        referrerPolicy="no-referrer"
+                                        className="w-full h-auto object-contain object-top rounded-2xl"
+                                      />
+                                      
+                                      {/* Custom graphic card labels rendered directly inside the image flow so that it looks exactly like comparison boards */}
+                                      <div className="absolute bottom-6 left-6 right-6 p-5 bg-slate-950/90 text-white rounded-3xl border border-white/10 shadow-xl backdrop-blur-sm space-y-3 font-sans">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[9px] font-black text-blue-400 tracking-widest uppercase">SY BRAND INTEGRATION GUIDELINE</span>
+                                          <span className="text-[9px] font-bold text-slate-400">EVMoA Premium Partners</span>
+                                        </div>
+                                        <h5 className="font-black text-sm tracking-tight text-white border-b border-white/10 pb-2">
+                                          🛡️ 브랜드별 대표 충전기 특징 요약본
+                                        </h5>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[10px] leading-relaxed">
+                                          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                                            <span className="font-black text-blue-400 block text-[11px]">1. 스필SE (7kW/11kW)</span>
+                                            <p className="text-slate-300">화재예방 특허 PLC 모뎀 탑재로 안심. 공동주택 및 대중 이용 시설에 강력 추천하는 최고 가성비 정품.</p>
+                                          </div>
+                                          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                                            <span className="font-black text-amber-400 block text-[11px]">2. 롯데 이브이시스 (7kW/11kW)</span>
+                                            <p className="text-slate-300">북유럽풍 세련된 디자인, 모바일 앱 원격 예약 충전, 최상의 대기업 24시 AS 망 보유.</p>
+                                          </div>
+                                          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                                            <span className="font-black text-emerald-400 block text-[11px]">3. SY 공용 급속 (50kW/200kW)</span>
+                                            <p className="text-slate-300">수익형 상가, 공공 주차장 전용 고효율 급속 충전. B2B 통합 요금 정산 시스템 기본 제공.</p>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
 
-                              {/* Help label footer overlay */}
-                              <div className="absolute bottom-2 left-2 right-2 bg-slate-950/90 text-slate-300 text-[9px] py-1.5 px-3 rounded-xl border border-slate-800 text-center flex items-center justify-center gap-1 font-bold">
-                                <span>👇 마우스 스크롤이나 손가락 터치로 아래 방향으로 스크롤하여 전체 카탈로그 설명판을 확인해 보세요.</span>
-                              </div>
-                            </div>
+                                  {/* Help label footer overlay */}
+                                  <div className="bg-slate-950 p-3 text-slate-300 text-[10px] border-t border-slate-800 text-center flex flex-col sm:flex-row items-center justify-between gap-3 font-bold">
+                                    <span className="text-left font-semibold">
+                                      {isDetailUnfolded 
+                                        ? '💡 현재 전체 펼침 모드입니다. 스크롤 없이 원본을 길게 읽으실 수 있습니다.'
+                                        : '👇 마우스 스크롤이나 손가락 터치로 아래 방향으로 스크롤하여 전체 카탈로그 설명판을 확인해 보세요.'}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setLocalDetailModes(prev => ({ ...prev, [sol.id]: isDetailUnfolded ? 'scroll' : 'unfold' }))}
+                                      className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold transition-all shrink-0 cursor-pointer border border-slate-700"
+                                    >
+                                      {isDetailUnfolded ? '박스로 축소하기' : '전체 펼쳐보기'}
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })()}
 
                             {/* Live Comparison Matrix Grid Table */}
                             <div className="space-y-2">

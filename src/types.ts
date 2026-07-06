@@ -42,6 +42,8 @@ export interface Solution {
   detailImageUrl?: string;
   blueprintImageUrl?: string;
   recommendedProducts?: string[];
+  bannerMode?: 'cover' | 'unfold';
+  detailMode?: 'scroll' | 'unfold';
 }
 
 export interface Review {

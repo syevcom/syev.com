@@ -453,6 +453,8 @@ export default function CmsEditorModal({
   const [solBlueprintImageUrl, setSolBlueprintImageUrl] = useState('');
   const [solDetailImageUrl, setSolDetailImageUrl] = useState('');
   const [solBenefits, setSolBenefits] = useState<string[]>([]);
+  const [solBannerMode, setSolBannerMode] = useState<'cover' | 'unfold'>('cover');
+  const [solDetailMode, setSolDetailMode] = useState<'scroll' | 'unfold'>('scroll');
 
   // 5. Reviews Form State
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
@@ -636,6 +638,8 @@ export default function CmsEditorModal({
     setSolBlueprintImageUrl(sol.blueprintImageUrl || '');
     setSolDetailImageUrl(sol.detailImageUrl || '');
     setSolBenefits([...sol.benefits]);
+    setSolBannerMode(sol.bannerMode || 'cover');
+    setSolDetailMode(sol.detailMode || 'scroll');
   };
 
   const handleUpdateSolution = () => {
@@ -651,7 +655,9 @@ export default function CmsEditorModal({
           image: solImage,
           blueprintImageUrl: solBlueprintImageUrl,
           detailImageUrl: solDetailImageUrl,
-          benefits: solBenefits
+          benefits: solBenefits,
+          bannerMode: solBannerMode,
+          detailMode: solDetailMode
         };
       }
       return sol;
@@ -2479,6 +2485,71 @@ export default function CmsEditorModal({
                             </button>
                           ))}
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Image presentation mode settings */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-b border-slate-100 py-3 my-2">
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-extrabold text-slate-800">🖼️ 대표 현장 이미지 출력 형태</label>
+                        <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
+                          <button
+                            type="button"
+                            onClick={() => setSolBannerMode('cover')}
+                            className={`py-1.5 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                              solBannerMode === 'cover'
+                                ? 'bg-white text-slate-950 shadow-xs border border-slate-200'
+                                : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            슬림형 커버 (가로 꽉참, 크롭)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSolBannerMode('unfold')}
+                            className={`py-1.5 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                              solBannerMode === 'unfold'
+                                ? 'bg-blue-600 text-white shadow-xs'
+                                : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            상세페이지형 전체 펼침 (자름 없음)
+                          </button>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-semibold leading-relaxed">
+                          * 홍보용 통 이미지나 사양 비교표를 등록할 경우 <b>'전체 펼침'</b>으로 설정해야 글씨가 안 잘리고 완벽히 보입니다.
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-extrabold text-slate-800">📄 통합 비교도/카탈로그 출력 형태</label>
+                        <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
+                          <button
+                            type="button"
+                            onClick={() => setSolDetailMode('scroll')}
+                            className={`py-1.5 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                              solDetailMode === 'scroll'
+                                ? 'bg-white text-slate-950 shadow-xs border border-slate-200'
+                                : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            스크롤 제안 박스 (상하 스크롤)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSolDetailMode('unfold')}
+                            className={`py-1.5 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                              solDetailMode === 'unfold'
+                                ? 'bg-blue-600 text-white shadow-xs'
+                                : 'text-slate-500 hover:text-slate-800'
+                            }`}
+                          >
+                            상세페이지형 전체 펼침 (스크롤 없음)
+                          </button>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-semibold leading-relaxed">
+                          * 카탈로그 설명 이미지가 아주 길 경우, 스크롤 없이 전체를 통째로 보실 수 있습니다.
+                        </p>
                       </div>
                     </div>
 
