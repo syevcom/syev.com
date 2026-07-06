@@ -9,11 +9,13 @@ import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Laye
 import { PRODUCTS } from '../data';
 
 interface SolutionsSectionProps {
+  key?: React.Key;
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
   solutions: Solution[];
   isEditMode?: boolean;
   onOpenCms?: (tab: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sync') => void;
   onPageChange?: (page: ActivePage) => void;
+  defaultActiveTab?: 'ALL' | 'Commercial' | 'Residential' | 'ParkingLot';
 }
 
 export default function SolutionsSection({ 
@@ -21,9 +23,10 @@ export default function SolutionsSection({
   solutions,
   isEditMode = false,
   onOpenCms,
-  onPageChange
+  onPageChange,
+  defaultActiveTab = 'ALL'
  }: SolutionsSectionProps) {
-  const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>(defaultActiveTab);
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
   const [visualViewerMode, setVisualViewerMode] = useState<Record<string, 'product' | 'catalog'>>({});
   const [solutionTabs, setSolutionTabs] = useState<Record<string, 'specs' | 'infographic'>>({});
@@ -57,49 +60,51 @@ export default function SolutionsSection({
         </button>
       )}
 
-      {/* Modern responsive category menu (목차) */}
-      <div className="space-y-4 text-center">
-        <span className="text-blue-600 font-black text-xs uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-          SOLUTIONS DIRECTORY
-        </span>
-        <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-          어떤 공간에 충전기를 설치하시겠습니까?
-        </h3>
-        <p className="text-xs text-slate-500 max-w-lg mx-auto font-medium">
-          설치 현장 용도에 맞춰 보조금 신청 절차와 권장 기기 라인업을 한눈에 비교해 보세요.
-        </p>
+      {/* Modern responsive category menu (목차) - Only show when no specific default tab is defined */}
+      {defaultActiveTab === 'ALL' && (
+        <div className="space-y-4 text-center">
+          <span className="text-blue-600 font-black text-xs uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            SOLUTIONS DIRECTORY
+          </span>
+          <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+            어떤 공간에 충전기를 설치하시겠습니까?
+          </h3>
+          <p className="text-xs text-slate-500 max-w-lg mx-auto font-medium">
+            설치 현장 용도에 맞춰 보조금 신청 절차와 권장 기기 라인업을 한눈에 비교해 보세요.
+          </p>
 
-        {/* Tab Selection Row */}
-        <div className="pt-4 flex justify-center">
-          <div className="inline-flex flex-wrap sm:flex-nowrap justify-center gap-1 bg-slate-100 p-1.5 rounded-2xl max-w-full overflow-x-auto scrollbar-none shadow-inner border border-slate-200/50">
-            <button
-              onClick={() => setActiveTab('ALL')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[40px] ${
-                activeTab === 'ALL'
-                  ? 'bg-slate-900 text-white shadow-md'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 shrink-0" />
-              <span>전체 솔루션</span>
-            </button>
-            {solutions.map((sol) => (
+          {/* Tab Selection Row */}
+          <div className="pt-4 flex justify-center">
+            <div className="inline-flex flex-wrap sm:flex-nowrap justify-center gap-1 bg-slate-100 p-1.5 rounded-2xl max-w-full overflow-x-auto scrollbar-none shadow-inner border border-slate-200/50">
               <button
-                key={sol.id}
-                onClick={() => setActiveTab(sol.category)}
+                onClick={() => setActiveTab('ALL')}
                 className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[40px] ${
-                  activeTab === sol.category
-                    ? 'bg-blue-600 text-white shadow-md'
+                  activeTab === 'ALL'
+                    ? 'bg-slate-900 text-white shadow-md'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                {getTabIcon(sol.category)}
-                <span>{sol.category === 'Commercial' ? '기업·관공서' : sol.category === 'Residential' ? '비공용·주택' : '수익형 상가'}</span>
+                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <span>전체 솔루션</span>
               </button>
-            ))}
+              {solutions.map((sol) => (
+                <button
+                  key={sol.id}
+                  onClick={() => setActiveTab(sol.category)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[40px] ${
+                    activeTab === sol.category
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {getTabIcon(sol.category)}
+                  <span>{sol.category === 'Commercial' ? '기업·관공서' : sol.category === 'Residential' ? '비공용·주택' : '수익형 상가'}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Category detail block cards */}
       <div className="space-y-16">

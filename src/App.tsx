@@ -20,7 +20,7 @@ import AdminLoginModal from './components/AdminLoginModal';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ } from './types';
-import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
+import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -61,10 +61,10 @@ export default function App() {
   const [categoryLabels, setCategoryLabels] = useState({
     home: '홈',
     about: '회사소개',
-    products: '신제품소개',
-    solutions: '용도별솔루션',
+    products: '가정용',
+    solutions: '아파트',
     review: '설치후기',
-    support: '고객지원'
+    support: '상업시설'
   });
 
   const [footerConfig, setFooterConfig] = useState({
@@ -94,8 +94,24 @@ export default function App() {
     solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
     commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
     residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
-    parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'
+    parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤',
+    quickContact1: '환경부지원 아파트 무상설치 문의 ⚡',
+    quickContact2: '가정용 · 홈 충전기 설치문의 🏠',
+    quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
   });
+
+  const [quoteConfig, setQuoteConfig] = useState({
+    badge: '정부보조금 마감 임박 혜택 우선 선점',
+    title: '무료 설치 상담 & 실시간 맞춤 견적',
+    submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
+    successTitle: '상담 신청이 정상 접수되었습니다!',
+    successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
+    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
+  });
+
+  // Dynamic sub-navigation tabs default filtering state
+  const [solutionsDefaultTab, setSolutionsDefaultTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>('ALL');
+  const [productsDefaultTab, setProductsDefaultTab] = useState<string>('ALL');
 
   const [snsConfig, setSnsConfig] = useState({
     kakaoUrl: 'https://pf.kakao.com/',
@@ -269,6 +285,11 @@ export default function App() {
     if (savedQuickMenu) {
       try { setQuickMenuConfig(JSON.parse(savedQuickMenu)); } catch (e) { console.error(e); }
     }
+
+    const savedQuote = localStorage.getItem('sy_cms_quote');
+    if (savedQuote) {
+      try { setQuoteConfig(JSON.parse(savedQuote)); } catch (e) { console.error(e); }
+    }
   }, []);
 
   // Sync state helpers
@@ -346,6 +367,11 @@ export default function App() {
     localStorage.setItem('sy_cms_quickmenu', JSON.stringify(config));
   };
 
+  const handleSaveQuoteConfig = (config: any) => {
+    setQuoteConfig(config);
+    localStorage.setItem('sy_cms_quote', JSON.stringify(config));
+  };
+
   const handleSaveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
     localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
@@ -384,6 +410,7 @@ export default function App() {
     localStorage.removeItem('sy_cms_notices');
     localStorage.removeItem('sy_cms_sns');
     localStorage.removeItem('sy_cms_quickmenu');
+    localStorage.removeItem('sy_cms_quote');
 
     setLogoConfig({
       text: 'SY',
@@ -400,10 +427,10 @@ export default function App() {
     setCategoryLabels({
       home: '홈',
       about: '회사소개',
-      products: '신제품소개',
-      solutions: '용도별솔루션',
+      products: '가정용',
+      solutions: '아파트',
       review: '설치후기',
-      support: '고객지원'
+      support: '상업시설'
     });
 
     setFooterConfig({
@@ -433,7 +460,19 @@ export default function App() {
       solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
       commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
       residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
-      parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'
+      parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤',
+      quickContact1: '환경부지원 아파트 무상설치 문의 ⚡',
+      quickContact2: '가정용 · 홈 충전기 설치문의 🏠',
+      quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
+    });
+
+    setQuoteConfig({
+      badge: '정부보조금 마감 임박 혜택 우선 선점',
+      title: '무료 설치 상담 & 실시간 맞춤 견적',
+      submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
+      successTitle: '상담 신청이 정상 접수되었습니다!',
+      successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
+      privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
     });
 
     setSnsConfig({
@@ -515,23 +554,41 @@ export default function App() {
             onOpenCms={handleOpenCmsTab} 
           />
         );
-      case 'products':
-        return (
-          <ProductsSection 
-            products={products}
-            isEditMode={isEditMode}
-            onOpenCms={handleOpenCmsTab}
-            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
-          />
-        );
       case 'solutions':
+      case 'sol_residential':
         return (
           <SolutionsSection 
+            key="sol_residential"
             solutions={solutions}
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={setActivePage}
+            defaultActiveTab="Residential"
+          />
+        );
+      case 'sol_commercial':
+        return (
+          <SolutionsSection 
+            key="sol_commercial"
+            solutions={solutions}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
+            onPageChange={setActivePage}
+            defaultActiveTab="Commercial"
+          />
+        );
+      case 'sol_parking':
+        return (
+          <SolutionsSection 
+            key="sol_parking"
+            solutions={solutions}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
+            onPageChange={setActivePage}
+            defaultActiveTab="ParkingLot"
           />
         );
       case 'review':
@@ -581,6 +638,69 @@ export default function App() {
           onOpenCms={() => setIsCmsOpen(true)}
           logoConfig={logoConfig}
         />
+
+        {/* 1. 환경부아파트 무상설치 / 가정용 / 상업시설 문의 상단 퀵 바로가기 3칸 카드 (아임웹 초월 초고품격 리디자인) */}
+        <div className="bg-slate-100 border-y border-slate-200/80 py-3.5 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3">
+            <button
+              onClick={() => handleOpenQuoteWithPurpose('Residential')}
+              className="flex items-center justify-between p-3.5 bg-white hover:bg-blue-50/60 border border-slate-200 hover:border-blue-500 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left"
+              id="quick-shortcut-apt"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm group-hover:scale-105 transition-transform">
+                  ⚡
+                </div>
+                <div>
+                  <span className="text-[9px] text-blue-600 font-black tracking-wide block uppercase">아파트 입주대표회의 우선배정</span>
+                  <span className="text-xs font-extrabold text-slate-800 group-hover:text-blue-600 transition-colors">
+                    {heroConfig.quickContact1 || '환경부지원 아파트 무상설치 문의'}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
+            </button>
+
+            <button
+              onClick={() => handleOpenQuoteWithPurpose('Residential')}
+              className="flex items-center justify-between p-3.5 bg-white hover:bg-emerald-50/60 border border-slate-200 hover:border-emerald-500 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left"
+              id="quick-shortcut-home"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm group-hover:scale-105 transition-transform">
+                  🏠
+                </div>
+                <div>
+                  <span className="text-[9px] text-emerald-600 font-black tracking-wide block uppercase">비공용 / 개인용 전단 완속충전</span>
+                  <span className="text-xs font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors">
+                    {heroConfig.quickContact2 || '가정용 · 홈 충전기 설치문의'}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+            </button>
+
+            <button
+              onClick={() => handleOpenQuoteWithPurpose('Commercial')}
+              className="flex items-center justify-between p-3.5 bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-500 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5 group cursor-pointer text-left"
+              id="quick-shortcut-commercial"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-sm group-hover:scale-105 transition-transform">
+                  🏢
+                </div>
+                <div>
+                  <span className="text-[9px] text-amber-600 font-black tracking-wide block uppercase">수익형 주차 인프라 무상설계</span>
+                  <span className="text-xs font-extrabold text-slate-800 group-hover:text-amber-600 transition-colors">
+                    {heroConfig.quickContact3 || '상업시설 · 수익형 충전기 설치문의'}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" />
+            </button>
+          </div>
+        </div>
+
         <Navbar activePage={activePage} onPageChange={setActivePage} categoryLabels={categoryLabels} />
       </div>
 
@@ -735,12 +855,13 @@ export default function App() {
             {/* Quick Links */}
             <div className="md:col-span-3 space-y-3">
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">주요 카테고리</h4>
-              <ul className="text-xs space-y-2">
-                <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors">{categoryLabels.about} (회사소개)</button></li>
-                <li><button onClick={() => setActivePage('products')} className="hover:text-white transition-colors">{categoryLabels.products} (신제품 라인업)</button></li>
-                <li><button onClick={() => setActivePage('solutions')} className="hover:text-white transition-colors">{categoryLabels.solutions} (용도별 맞춤)</button></li>
-                <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors">{categoryLabels.review} (설치후기 지도)</button></li>
-                <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors">{categoryLabels.support} (고객센터 FAQ)</button></li>
+              <ul className="text-xs space-y-2 text-left">
+                <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.about || '회사소개'}</button></li>
+                <li><button onClick={() => setActivePage('sol_residential')} className="hover:text-white transition-colors cursor-pointer">비공용·주택 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_commercial')} className="hover:text-white transition-colors cursor-pointer">기업·관공서 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_parking')} className="hover:text-white transition-colors cursor-pointer">수익형 상가 솔루션</button></li>
+                <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.review || '설치후기'}</button></li>
+                <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors cursor-pointer">고객지원</button></li>
               </ul>
             </div>
 
@@ -783,6 +904,7 @@ export default function App() {
             onClose={() => setIsQuoteOpen(false)}
             onSubmitBooking={handleAddBooking}
             initialPurpose={quoteDefaultPurpose}
+            quoteConfig={quoteConfig}
           />
         )}
 
@@ -828,6 +950,8 @@ export default function App() {
             onSaveNotices={handleSaveNotices}
             onResetAll={handleResetAll}
             initialTab={cmsTab}
+            quoteConfig={quoteConfig}
+            onSaveQuoteConfig={handleSaveQuoteConfig}
           />
         )}
 

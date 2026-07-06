@@ -118,252 +118,387 @@ export default function MainHero({
   return (
     <div className="space-y-12 py-6">
       
-      {/* MASTER BENTO GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* Left Bento Column */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* Hero Section (Large Box) */}
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 relative overflow-hidden flex flex-col justify-between text-white shadow-xl border border-slate-800 min-h-[420px] lg:flex-grow group/hero">
-            {isEditMode && onOpenCms && (
-              <button
-                onClick={() => onOpenCms('hero')}
-                className="absolute top-4 right-4 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
-              >
-                ✏️ 히어로 영역 실시간 편집
-              </button>
-            )}
+      {/* 100% FULL-WIDTH CINEMATIC HERO BANNER */}
+      <div className="relative rounded-3xl overflow-hidden min-h-[460px] md:min-h-[520px] flex items-center shadow-2xl border border-slate-800 bg-slate-950 group/hero">
+        {isEditMode && onOpenCms && (
+          <button
+            onClick={() => onOpenCms('hero')}
+            className="absolute top-4 right-4 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+          >
+            ✏️ 히어로 영역 실시간 편집
+          </button>
+        )}
 
-            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-              <svg width="280" height="280" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 w-full h-full">
-              {/* Text Area */}
-              <div className={`space-y-6 ${heroConfig.showHeroImage && heroConfig.imageUrl ? 'lg:col-span-7' : 'lg:col-span-12'}`}>
-                <div className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  {heroConfig.badge}
-                </div>
-
-                <h1 
-                  className={`${
-                    heroConfig.titleSize === 'small' ? 'text-xl md:text-3xl' :
-                    heroConfig.titleSize === 'medium' ? 'text-2xl md:text-4xl' :
-                    heroConfig.titleSize === 'xlarge' ? 'text-4xl md:text-6xl' :
-                    'text-3xl md:text-5xl'
-                  } font-black tracking-tight leading-tight md:leading-tight text-white`}
-                  dangerouslySetInnerHTML={{ __html: heroConfig.title }}
-                />
-
-                <p className={`${
-                  heroConfig.descriptionSize === 'small' ? 'text-[11px] sm:text-xs' :
-                  heroConfig.descriptionSize === 'large' ? 'text-sm md:text-base' :
-                  'text-xs md:text-sm'
-                } text-slate-300 leading-relaxed font-medium max-w-lg`}>
-                  {heroConfig.description}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <button
-                    onClick={onOpenQuote}
-                    id="btn-hero-quote-cta"
-                    className="py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xl shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                  >
-                    {heroConfig.ctaButton}
-                  </button>
-                  <button
-                    onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
-                    id="btn-hero-calc-cta"
-                    className="py-3 px-5 bg-white/10 hover:bg-white/15 border border-white/15 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                  >
-                    <Calculator className="w-4 h-4 text-blue-400" />
-                    {heroConfig.calcButton}
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Large Image Area */}
-              {heroConfig.showHeroImage && heroConfig.imageUrl && (
-                <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                  <div className="relative w-full max-w-[340px] aspect-[4/3] sm:aspect-square lg:aspect-[4/5] rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 group-hover/hero:scale-[1.02] transition-transform duration-500">
-                    <img 
-                      src={heroConfig.imageUrl} 
-                      alt="EV Charger Display" 
-                      className="w-full h-full object-cover brightness-95 contrast-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent pointer-events-none" />
-                    
-                    {/* Subtle branding layer on top of image */}
-                    <div className="absolute bottom-3 left-3 right-3 bg-slate-900/80 backdrop-blur-md border border-slate-700/50 p-3 rounded-xl text-left space-y-1">
-                      <span className="text-[9px] font-black text-blue-400 tracking-wider uppercase block font-mono">PREMIUM DESIGNS</span>
-                      <p className="text-[11px] font-extrabold text-white leading-tight">지능형 화재안심 차단형 충전 스마트 기기</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Menu Icons (Bento Row Grid) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button
-              onClick={() => setIsSearchingCharger(true)}
-              id="btn-quick-find"
-              className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-slate-700 block">내 주변 충전기 찾기</span>
-            </button>
-
-            <button
-              onClick={onOpenQuote}
-              id="btn-quick-quote"
-              className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Calculator className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-slate-700 block">1분 맞춤 견적</span>
-            </button>
-
-            <button
-              onClick={onOpenQuote}
-              id="btn-quick-booking"
-              className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <CalendarDays className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-slate-700 block">설치 예약</span>
-            </button>
-
-            <button
-              onClick={handleASQuickMenu}
-              id="btn-quick-as"
-              className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Wrench className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-slate-700 block">A/S 긴급 신청</span>
-            </button>
-          </div>
-
+        {/* Cinematic Background Image with Gradient Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"} 
+            alt="Eco-friendly EV Charging Cinematic Background" 
+            className="w-full h-full object-cover brightness-[0.45] contrast-[1.05] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
+            referrerPolicy="no-referrer"
+          />
+          {/* Subtle Ambient Vignette & Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
         </div>
 
-        {/* Right Bento Module: Real-time Counter Status & Urgent Promo Banner */}
-        <div className="lg:col-span-5 flex flex-col gap-6 justify-between">
-          
-          {/* Real-time Counter (LIVE Status Card) */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between min-h-[220px] lg:h-1/2">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">LIVE STATUS</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-slate-400 font-bold">실시간 동기화 중</span>
-                <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-              </div>
-            </div>
+        {/* Content Container */}
+        <div className="relative z-10 max-w-3xl px-8 md:px-12 py-12 text-white space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+            {heroConfig.badge}
+          </motion.div>
 
-            <div className="py-2 space-y-1.5">
-              <p className="text-slate-500 text-xs font-semibold">{heroConfig.liveCountLabel || "현재 전국 SY.com 충전기 설치 현황"}</p>
-              
-              {/* Mechanical Odometer Display */}
-              <div className="flex items-center gap-1">
-                {count.toString().split('').map((char, index) => (
-                  <div
-                    key={index}
-                    className="w-8 h-12 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center text-xl font-black text-white"
-                  >
-                    <span>{char}</span>
-                  </div>
-                ))}
-                <span className="text-slate-800 text-sm font-extrabold ml-1.5">{heroConfig.liveCountSuffix || "대 돌파"}</span>
-              </div>
-            </div>
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className={`${
+              heroConfig.titleSize === 'small' ? 'text-2xl md:text-4xl' :
+              heroConfig.titleSize === 'medium' ? 'text-3xl md:text-5xl' :
+              heroConfig.titleSize === 'xlarge' ? 'text-5xl md:text-7xl' :
+              'text-4xl md:text-6xl'
+            } font-black tracking-tight leading-tight md:leading-tight text-white`}
+            dangerouslySetInnerHTML={{ __html: heroConfig.title }}
+          />
 
-            <div className="space-y-1.5">
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-600 w-[78%] rounded-full" />
-              </div>
-              <p className="text-[9.5px] text-slate-400 font-medium leading-tight">
-                * 전국 8개 광역 지사 및 특허 기술 시공팀의 검수 완료 실시간 전산 집계 결과입니다.
-              </p>
-            </div>
-          </div>
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className={`${
+              heroConfig.descriptionSize === 'small' ? 'text-xs md:text-sm' :
+              heroConfig.descriptionSize === 'large' ? 'text-base md:text-lg' :
+              'text-sm md:text-base'
+            } text-slate-200 leading-relaxed font-semibold max-w-xl`}
+          >
+            {heroConfig.description}
+          </motion.p>
 
-          {/* Call to Action Banner (Orange-to-Red with Badge) */}
-          <div className="bg-gradient-to-br from-orange-400 via-rose-500 to-red-500 rounded-3xl p-6 md:p-8 text-white flex flex-col justify-between relative shadow-lg overflow-hidden min-h-[220px] lg:h-1/2 border border-red-500/20">
-            {/* Urgent rotating Stamp Badge */}
-            <div className="absolute -top-1 -right-1 bg-white text-red-600 text-[10px] font-black px-2.5 py-1.5 rounded-bl-xl border-b border-l border-red-200 rotate-3 z-10 shadow-sm animate-pulse">
-              올해 마감 임박! 🚨
-            </div>
-
-            <div className="space-y-1 relative z-10">
-              <p className="text-[10px] font-extrabold uppercase tracking-widest text-orange-100">정부 보조금 우선 선점 혜택</p>
-              <h4 className="text-lg md:text-xl font-black leading-snug">
-                지금 신청하시면 한전 인입 불입금 무료 대행과 화재감지 세이프 패키지를 선점합니다.
-              </h4>
-            </div>
-
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="flex flex-col sm:flex-row gap-4 pt-4"
+          >
             <button
-              onClick={() => onOpenQuoteWithPurpose('Residential')}
-              id="btn-bento-cta-booking"
-              className="w-full bg-white hover:bg-slate-50 text-red-600 py-3 rounded-xl font-extrabold text-xs md:text-sm shadow-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer mt-4 relative z-10"
+              onClick={onOpenQuote}
+              id="btn-hero-quote-cta"
+              className="py-3.5 px-7 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-xs sm:text-sm font-black shadow-xl shadow-blue-500/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-102 active:scale-98"
             >
-              <span>30초 무료 상담 신청하기</span>
-              <ArrowRight className="w-4 h-4" />
+              {heroConfig.ctaButton}
             </button>
-          </div>
-
+            <button
+              onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
+              id="btn-hero-calc-cta"
+              className="py-3.5 px-7 bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-md text-white rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-102 active:scale-98"
+            >
+              <Calculator className="w-4 h-4 text-blue-300" />
+              {heroConfig.calcButton}
+            </button>
+          </motion.div>
         </div>
-
       </div>
 
-      {/* 8-Icon Circular Quick Navigation Menu Grid (EVC1 Style but unique and copyright-free design) */}
-      {quickMenuConfig && quickMenuConfig.showQuickMenu && (
-        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">서비스 간편 바로가기</h3>
+      {/* Quick Menu Icons Grid below full hero */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          onClick={() => setIsSearchingCharger(true)}
+          id="btn-quick-find"
+          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
+        >
+          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-bold text-slate-700 block">내 주변 충전기 찾기</span>
+        </button>
+
+        <button
+          onClick={onOpenQuote}
+          id="btn-quick-quote"
+          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
+        >
+          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Calculator className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-bold text-slate-700 block">1분 맞춤 견적</span>
+        </button>
+
+        <button
+          onClick={onOpenQuote}
+          id="btn-quick-booking"
+          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
+        >
+          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <CalendarDays className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-bold text-slate-700 block">설치 예약</span>
+        </button>
+
+        <button
+          onClick={handleASQuickMenu}
+          id="btn-quick-as"
+          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
+        >
+          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Wrench className="w-5 h-5" />
+          </div>
+          <span className="text-xs font-bold text-slate-700 block">A/S 긴급 신청</span>
+        </button>
+      </div>
+
+      {/* Hand-crafted 3-Column Premium Category Shortcuts (As requested by user in image mockup) */}
+      <section className="py-8 sm:py-12 bg-white rounded-3xl border border-slate-100/80 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-stretch">
+            
+            {/* Column 1: 주택비공용 */}
+            <div className="flex flex-col items-center text-center space-y-4 group">
+              {/* Custom Vector Illustration */}
+              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* House Base Shadow */}
+                  <ellipse cx="175" cy="235" rx="110" ry="12" fill="#e2e8f0" opacity="0.6" />
+                  
+                  {/* Chimney */}
+                  <rect x="220" y="85" width="16" height="35" fill="#475569" />
+                  <rect x="216" y="80" width="24" height="6" fill="#1e293b" />
+
+                  {/* Roof (Blue gable) */}
+                  <polygon points="175,50 85,140 265,140" fill="#1e3a8a" />
+                  
+                  {/* Main House Body */}
+                  <rect x="95" y="140" width="160" height="90" fill="#f0f9ff" rx="2" />
+                  
+                  {/* Windows */}
+                  <rect x="115" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
+                  <line x1="126" y1="155" x2="126" y2="177" stroke="#2563eb" strokeWidth="1.5" />
+                  <line x1="115" y1="166" x2="137" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+
+                  <rect x="164" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
+                  <line x1="175" y1="155" x2="175" y2="177" stroke="#2563eb" strokeWidth="1.5" />
+                  <line x1="164" y1="166" x2="186" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+
+                  <rect x="213" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
+                  <line x1="224" y1="155" x2="224" y2="177" stroke="#2563eb" strokeWidth="1.5" />
+                  <line x1="213" y1="166" x2="235" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+                  
+                  {/* Door on bottom right */}
+                  <rect x="213" y="190" width="22" height="40" fill="#1e3a8a" rx="1" />
+                  <circle cx="218" cy="210" r="2" fill="#fef08a" />
+                  
+                  {/* Garage & Car on left */}
+                  <rect x="110" y="190" width="65" height="40" fill="#e2e8f0" rx="3" />
+                  {/* Car */}
+                  <rect x="117" y="198" width="50" height="28" fill="#1d4ed8" rx="6" />
+                  <circle cx="128" cy="226" r="5" fill="#1e293b" />
+                  <circle cx="156" cy="226" r="5" fill="#1e293b" />
+                  <rect x="122" y="202" width="40" height="12" fill="#dbeafe" rx="2" />
+                  {/* Headlights */}
+                  <circle cx="122" cy="212" r="2" fill="#fef08a" />
+                  <circle cx="162" cy="212" r="2" fill="#fef08a" />
+                  
+                  {/* Charger wire looping out to a charger block */}
+                  <path d="M 167,215 C 185,215 180,185 195,185" stroke="#1d4ed8" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                  <rect x="192" y="177" width="10" height="15" fill="#1d4ed8" rx="2" />
+                  <circle cx="197" cy="184" r="2" fill="#ffffff" />
+                  
+                  {/* Small Bushes on side */}
+                  <circle cx="260" cy="225" r="12" fill="#1d4ed8" />
+                  <circle cx="268" cy="228" r="8" fill="#1e40af" />
+                </svg>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">주택비공용</h4>
+                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
+                  개인 주택, 빌라, 다세대 주택 등{"\n"}비공용 충전기 설치
+                </p>
+              </div>
+              
+              <div className="pt-2">
+                <button
+                  onClick={() => onPageChange?.('sol_residential')}
+                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                >
+                  자세히 보기
+                </button>
+              </div>
             </div>
-            {isEditMode && onOpenCms && (
-              <button
-                onClick={() => onOpenCms('brand')}
-                className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-full cursor-pointer hover:bg-amber-200 transition-colors"
-              >
-                ✏️ 목차 아이콘 및 문구 편집
-              </button>
-            )}
+
+            {/* Column 2: 기업용 */}
+            <div className="flex flex-col items-center text-center space-y-4 group">
+              {/* Custom Vector Illustration */}
+              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Base Shadow */}
+                  <ellipse cx="175" cy="235" rx="120" ry="12" fill="#e2e8f0" opacity="0.6" />
+                  
+                  {/* Office Building Base Grid */}
+                  <rect x="110" y="60" width="130" height="170" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="2" rx="4" />
+                  {/* Roof Structure */}
+                  <rect x="105" y="50" width="140" height="10" fill="#475569" rx="3" />
+                  
+                  {/* Blue solar decoration dots */}
+                  <circle cx="140" cy="55" r="2.5" fill="#1d4ed8" />
+                  <circle cx="150" cy="55" r="2.5" fill="#1d4ed8" />
+                  <circle cx="160" cy="55" r="2.5" fill="#1d4ed8" />
+                  <circle cx="170" cy="55" r="2.5" fill="#1d4ed8" />
+                  <circle cx="180" cy="55" r="2.5" fill="#1d4ed8" />
+
+                  {/* Windows with alternating colors */}
+                  {/* Row 1 */}
+                  <rect x="125" y="75" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="152" y="75" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="179" y="75" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="206" y="75" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  
+                  {/* Row 2 */}
+                  <rect x="125" y="100" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="152" y="100" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="179" y="100" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="206" y="100" width="20" height="16" fill="#334155" rx="1.5" />
+                  
+                  {/* Row 3 */}
+                  <rect x="125" y="125" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="152" y="125" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="179" y="125" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="206" y="125" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  
+                  {/* Row 4 */}
+                  <rect x="125" y="150" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="152" y="150" width="20" height="16" fill="#334155" rx="1.5" />
+                  <rect x="179" y="150" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="206" y="150" width="20" height="16" fill="#334155" rx="1.5" />
+
+                  {/* Grand Entrance */}
+                  <rect x="160" y="185" width="30" height="45" fill="#e2e8f0" stroke="#475569" strokeWidth="2" />
+                  <line x1="175" y1="185" x2="175" y2="230" stroke="#475569" strokeWidth="2" />
+                  
+                  {/* Standing Chargers in front on side lanes */}
+                  {/* Charger Left 1 */}
+                  <rect x="70" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="75" cy="203" r="2" fill="#2563eb" />
+                  <line x1="75" y1="210" x2="75" y2="230" stroke="#64748b" strokeWidth="1" />
+
+                  {/* Charger Left 2 */}
+                  <rect x="88" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="93" cy="203" r="2" fill="#2563eb" />
+                  <line x1="93" y1="210" x2="93" y2="230" stroke="#64748b" strokeWidth="1" />
+
+                  {/* Charger Right 1 */}
+                  <rect x="252" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="257" cy="203" r="2" fill="#2563eb" />
+                  <line x1="257" y1="210" x2="257" y2="230" stroke="#64748b" strokeWidth="1" />
+
+                  {/* Charger Right 2 */}
+                  <rect x="270" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="275" cy="203" r="2" fill="#2563eb" />
+                  <line x1="275" y1="210" x2="275" y2="230" stroke="#64748b" strokeWidth="1" />
+                </svg>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">기업용</h4>
+                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
+                  사무실, 공장, 상업시설 등{"\n"}기업 맞춤형 충전 인프라
+                </p>
+              </div>
+              
+              <div className="pt-2">
+                <button
+                  onClick={() => onPageChange?.('sol_commercial')}
+                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                >
+                  자세히 보기
+                </button>
+              </div>
+            </div>
+
+            {/* Column 3: 공공기관 */}
+            <div className="flex flex-col items-center text-center space-y-4 group">
+              {/* Custom Vector Illustration */}
+              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Base Shadow */}
+                  <ellipse cx="175" cy="235" rx="130" ry="12" fill="#e2e8f0" opacity="0.6" />
+                  
+                  {/* Left wing of Public Hall */}
+                  <rect x="65" y="130" width="55" height="100" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
+                  <rect x="75" y="145" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="97" y="145" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="75" y="180" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="97" y="180" width="14" height="22" fill="#334155" rx="1" />
+
+                  {/* Right wing of Public Hall */}
+                  <rect x="230" y="130" width="55" height="100" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
+                  <rect x="240" y="145" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="262" y="145" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="240" y="180" width="14" height="22" fill="#334155" rx="1" />
+                  <rect x="262" y="180" width="14" height="22" fill="#334155" rx="1" />
+
+                  {/* Tall Symmetrical Center Block */}
+                  <rect x="120" y="80" width="110" height="150" fill="#f8fafc" stroke="#94a3b8" strokeWidth="2" />
+                  
+                  {/* Symmetrical Top Triangle Spire */}
+                  <polygon points="120,80 175,40 230,80" fill="#475569" />
+                  
+                  {/* Central flag pole & flag */}
+                  <rect x="173" y="15" width="4" height="25" fill="#475569" />
+                  <polygon points="177,15 208,22 177,30" fill="#1d4ed8" />
+                  
+                  {/* Symmetrical High-tech Lightning logo in center dome */}
+                  <circle cx="175" cy="62" r="12" fill="#1d4ed8" />
+                  <path d="M175,55 L169,63 L174,63 L173,69 L181,61 L176,61 Z" fill="#ffffff" />
+
+                  {/* Center windows */}
+                  <rect x="135" y="100" width="18" height="26" fill="#334155" rx="1" />
+                  <rect x="166" y="100" width="18" height="26" fill="#334155" rx="1" />
+                  <rect x="197" y="100" width="18" height="26" fill="#334155" rx="1" />
+                  
+                  <rect x="135" y="140" width="18" height="26" fill="#334155" rx="1" />
+                  <rect x="166" y="140" width="18" height="18" fill="#2563eb" rx="1" /> {/* Charging system indicator */}
+                  <rect x="197" y="140" width="18" height="26" fill="#334155" rx="1" />
+
+                  {/* Symmetrical Entrance Gate */}
+                  <rect x="150" y="180" width="50" height="50" fill="#e2e8f0" rx="4" stroke="#475569" strokeWidth="2" />
+                  <rect x="160" y="190" width="30" height="40" fill="#1e3a8a" rx="1" />
+                  <line x1="175" y1="190" x2="175" y2="230" stroke="#f0f9ff" strokeWidth="1" />
+
+                  {/* Symmetrical Outer charger towers on left & right road borders */}
+                  <rect x="42" y="200" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="47" cy="208" r="2" fill="#2563eb" />
+
+                  <rect x="298" y="200" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
+                  <circle cx="303" cy="208" r="2" fill="#2563eb" />
+                </svg>
+              </div>
+              
+              <div className="space-y-2">
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">공공기관</h4>
+                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
+                  관공서, 공공시설, 공영주차장 등{"\n"}공공 충전 인프라 구축
+                </p>
+              </div>
+              
+              <div className="pt-2">
+                <button
+                  onClick={() => onPageChange?.('sol_parking')}
+                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                >
+                  자세히 보기
+                </button>
+              </div>
+            </div>
+
           </div>
-          
-          <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-4 md:gap-6 justify-center">
-            {quickMenuConfig.items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onPageChange?.(item.targetPage)}
-                className="flex flex-col items-center gap-2.5 group cursor-pointer"
-              >
-                {/* Outer Circular Ring with rotate/spin styling on hover to ensure ultra-premium look */}
-                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-slate-50 to-blue-50 border border-slate-200/60 shadow-inner flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:from-blue-600 group-hover:to-indigo-600 group-hover:border-blue-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-500/10">
-                  <div className="text-blue-600 group-hover:text-white transition-colors duration-300">
-                    <QuickMenuIcon iconName={item.iconType} className="w-6 h-6 sm:w-6.5 sm:h-6.5" />
-                  </div>
-                </div>
-                <span className="text-[11px] sm:text-xs font-extrabold text-slate-700 tracking-tight group-hover:text-blue-600 transition-colors text-center line-clamp-1">
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Purpose Shortcuts / Solutions Section */}
       <section className="space-y-6 pt-6">

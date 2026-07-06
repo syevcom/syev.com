@@ -80,6 +80,9 @@ interface CmsEditorModalProps {
     commercialBlueText?: string;
     residentialBlueText?: string;
     parkingBlueText?: string;
+    quickContact1?: string;
+    quickContact2?: string;
+    quickContact3?: string;
   };
   onSaveHeroConfig: (config: any) => void;
 
@@ -110,7 +113,16 @@ interface CmsEditorModalProps {
   onSaveNotices: (notices: any[]) => void;
 
   onResetAll: () => void;
-  initialTab?: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sync';
+  initialTab?: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sync' | 'quote';
+  quoteConfig: {
+    badge: string;
+    title: string;
+    submitButton: string;
+    successTitle: string;
+    successDesc: string;
+    privacyNotice: string;
+  };
+  onSaveQuoteConfig: (config: any) => void;
 }
 
 const CURATED_EV_IMAGES = [
@@ -180,7 +192,9 @@ export default function CmsEditorModal({
   notices,
   onSaveNotices,
   onResetAll,
-  initialTab = 'brand'
+  initialTab = 'brand',
+  quoteConfig,
+  onSaveQuoteConfig
 }: CmsEditorModalProps) {
   const [activeTab, setActiveTab] = useState<typeof initialTab>(initialTab);
   const [saveStatus, setSaveStatus] = useState('');
@@ -247,6 +261,17 @@ export default function CmsEditorModal({
   const [heroCommercialBlueText, setHeroCommercialBlueText] = useState(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
   const [heroResidentialBlueText, setHeroResidentialBlueText] = useState(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
   const [heroParkingBlueText, setHeroParkingBlueText] = useState(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
+  const [heroQuick1, setHeroQuick1] = useState(heroConfig.quickContact1 || '환경부지원 아파트 무상설치 문의 ⚡');
+  const [heroQuick2, setHeroQuick2] = useState(heroConfig.quickContact2 || '가정용 · 홈 충전기 설치문의 🏠');
+  const [heroQuick3, setHeroQuick3] = useState(heroConfig.quickContact3 || '상업시설 · 수익형 충전기 설치문의 🏢');
+
+  // 1.5. Quote Modal settings Form State
+  const [quoteBadge, setQuoteBadge] = useState(quoteConfig.badge || '정부보조금 마감 임박 혜택 우선 선점');
+  const [quoteTitle, setQuoteTitle] = useState(quoteConfig.title || '무료 설치 상담 & 실시간 맞춤 견적');
+  const [quoteSubmitButton, setQuoteSubmitButton] = useState(quoteConfig.submitButton || '👉 30초 만에 무료 설치 상담 예약하기');
+  const [quoteSuccessTitle, setQuoteSuccessTitle] = useState(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
+  const [quoteSuccessDesc, setQuoteSuccessDesc] = useState(quoteConfig.successDesc || '');
+  const [quotePrivacyNotice, setQuotePrivacyNotice] = useState(quoteConfig.privacyNotice || '');
 
   // 2. About Form State
   const [ceoName, setCeoName] = useState(aboutConfig.ceoName);
@@ -308,6 +333,16 @@ export default function CmsEditorModal({
       setHeroCommercialBlueText(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
       setHeroResidentialBlueText(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
       setHeroParkingBlueText(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
+      setHeroQuick1(heroConfig.quickContact1 || '환경부지원 아파트 무상설치 문의 ⚡');
+      setHeroQuick2(heroConfig.quickContact2 || '가정용 · 홈 충전기 설치문의 🏠');
+      setHeroQuick3(heroConfig.quickContact3 || '상업시설 · 수익형 충전기 설치문의 🏢');
+
+      setQuoteBadge(quoteConfig.badge || '정부보조금 마감 임박 혜택 우선 선점');
+      setQuoteTitle(quoteConfig.title || '무료 설치 상담 & 실시간 맞춤 견적');
+      setQuoteSubmitButton(quoteConfig.submitButton || '👉 30초 만에 무료 설치 상담 예약하기');
+      setQuoteSuccessTitle(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
+      setQuoteSuccessDesc(quoteConfig.successDesc || '');
+      setQuotePrivacyNotice(quoteConfig.privacyNotice || '');
 
       setCeoName(aboutConfig.ceoName);
       setCeoRole(aboutConfig.ceoRole);
@@ -317,7 +352,7 @@ export default function CmsEditorModal({
       setCeoMsg3(aboutConfig.ceoMessage3);
       setCeoImg(aboutConfig.ceoImage);
     }
-  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig]);
+  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig, quoteConfig]);
 
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -439,9 +474,24 @@ export default function CmsEditorModal({
       solutionBlueSize: heroSolutionBlueSize,
       commercialBlueText: heroCommercialBlueText,
       residentialBlueText: heroResidentialBlueText,
-      parkingBlueText: heroParkingBlueText
+      parkingBlueText: heroParkingBlueText,
+      quickContact1: heroQuick1,
+      quickContact2: heroQuick2,
+      quickContact3: heroQuick3
     });
-    showSaveSuccess('🏠 메인 히어로 텍스트, 크기 및 라이브 설치 현황 설정이 즉시 저장되었습니다!');
+    showSaveSuccess('🏠 메인 히어로 및 상단 3개 간편 문의 텍스트가 즉시 저장되었습니다!');
+  };
+
+  const handleSaveQuote = () => {
+    onSaveQuoteConfig({
+      badge: quoteBadge,
+      title: quoteTitle,
+      submitButton: quoteSubmitButton,
+      successTitle: quoteSuccessTitle,
+      successDesc: quoteSuccessDesc,
+      privacyNotice: quotePrivacyNotice
+    });
+    showSaveSuccess('💬 온라인 무료 설치문의 팝업창 설정이 즉시 저장되었습니다!');
   };
 
   const handleSaveAbout = () => {
@@ -759,7 +809,7 @@ export default function CmsEditorModal({
 
         {/* Tab Controls */}
         <div className="flex border-b border-slate-200 bg-slate-50 overflow-x-auto shrink-0 scrollbar-none px-6">
-          {(['brand', 'hero', 'about', 'products', 'solutions', 'review', 'support', 'sync'] as const).map((tab) => (
+          {(['brand', 'hero', 'about', 'products', 'solutions', 'review', 'support', 'sync', 'quote'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => {
@@ -785,6 +835,7 @@ export default function CmsEditorModal({
               {tab === 'review' && '📍 후기 지도'}
               {tab === 'support' && '💬 FAQ & 공지'}
               {tab === 'sync' && '📲 기기간 동기화'}
+              {tab === 'quote' && '💬 문의 팝업'}
             </button>
           ))}
           
@@ -1641,6 +1692,49 @@ export default function CmsEditorModal({
                           placeholder="대형 마트, 호텔, 빌딩, 공영주차장 맞춤"
                         />
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1-4. TOP QUICK CONTACT SHORTCUTS */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-2xl space-y-3 mt-4">
+                  <span className="block text-xs font-black text-blue-900 flex items-center gap-1.5">
+                    ⚡ 상단 3개 간편 문의 바로가기 버튼 텍스트 수정
+                  </span>
+                  <p className="text-[10px] text-slate-500 font-bold leading-normal">
+                    홈페이지 상단 메뉴바 위에 노출되는 3개의 무상 설치 문의 버튼 안의 텍스트를 각각 변경할 수 있습니다.
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-3.5">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">첫 번째 버튼 텍스트</label>
+                      <input
+                        type="text"
+                        value={heroQuick1}
+                        onChange={(e) => setHeroQuick1(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="환경부지원 아파트 무상설치 문의 ⚡"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">두 번째 버튼 텍스트</label>
+                      <input
+                        type="text"
+                        value={heroQuick2}
+                        onChange={(e) => setHeroQuick2(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="가정용 · 홈 충전기 설치문의 🏠"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">세 번째 버튼 텍스트</label>
+                      <input
+                        type="text"
+                        value={heroQuick3}
+                        onChange={(e) => setHeroQuick3(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="상업시설 · 수익형 충전기 설치문의 🏢"
+                      />
                     </div>
                   </div>
                 </div>
@@ -3421,6 +3515,105 @@ export default function CmsEditorModal({
                       <span>🔄 이 기기에 설정 즉시 적용하기 (가져오기)</span>
                     </button>
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 8. QUOTE TAB (Custom Inquiry Popup) */}
+            {activeTab === 'quote' && (
+              <motion.div
+                key="tab-quote"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="space-y-6"
+              >
+                <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                  <Settings className="w-4 h-4 text-blue-600" />
+                  온라인 무료 설치 문의 팝업 내용 편집
+                </h4>
+                <p className="text-[11px] text-slate-500 font-bold leading-relaxed">
+                  화면의 모든 견적 및 무상 상담 신청 버튼을 클릭했을 때 나타나는 '온라인 설치문의 팝업창'의 모든 문구, 헤더 뱃지, 안심보증 문구, 제출 성공 안내글을 직접 수정할 수 있습니다.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-700">팝업 상단 미니 뱃지 문구</label>
+                    <input
+                      type="text"
+                      value={quoteBadge}
+                      onChange={(e) => setQuoteBadge(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      placeholder="정부보조금 마감 임박 혜택 우선 선점"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-700">팝업 메인 타이틀</label>
+                    <input
+                      type="text"
+                      value={quoteTitle}
+                      onChange={(e) => setQuoteTitle(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      placeholder="무료 설치 상담 & 실시간 맞춤 견적"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-700">상담 신청 접수 완료 타이틀</label>
+                    <input
+                      type="text"
+                      value={quoteSuccessTitle}
+                      onChange={(e) => setQuoteSuccessTitle(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      placeholder="상담 신청이 정상 접수되었습니다!"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-slate-700">상담 신청 제출 버튼 텍스트</label>
+                    <input
+                      type="text"
+                      value={quoteSubmitButton}
+                      onChange={(e) => setQuoteSubmitButton(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-blue-700"
+                      placeholder="👉 30초 만에 무료 설치 상담 예약하기"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-slate-700">상담 신청 완료시 안내 설명 본문</label>
+                  <textarea
+                    value={quoteSuccessDesc}
+                    onChange={(e) => setQuoteSuccessDesc(e.target.value)}
+                    rows={2.5}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 leading-normal"
+                    placeholder="올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다."
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-slate-700">하단 개인 정보 보호 고지 및 안심 보증 정책</label>
+                  <textarea
+                    value={quotePrivacyNotice}
+                    onChange={(e) => setQuotePrivacyNotice(e.target.value)}
+                    rows={2.5}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 leading-normal"
+                    placeholder="안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다."
+                  />
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex justify-end">
+                  <button
+                    onClick={handleSaveQuote}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/10"
+                  >
+                    <Save className="w-4 h-4" />
+                    문의 팝업 설정 즉시 저장
+                  </button>
                 </div>
               </motion.div>
             )}

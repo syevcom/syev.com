@@ -13,9 +13,30 @@ interface QuoteModalProps {
   onClose: () => void;
   onSubmitBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status'>) => void;
   initialPurpose?: 'Commercial' | 'Residential' | 'ParkingLot';
+  quoteConfig?: {
+    badge: string;
+    title: string;
+    submitButton: string;
+    successTitle: string;
+    successDesc: string;
+    privacyNotice: string;
+  };
 }
 
-export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPurpose = 'Residential' }: QuoteModalProps) {
+export default function QuoteModal({ 
+  isOpen, 
+  onClose, 
+  onSubmitBooking, 
+  initialPurpose = 'Residential',
+  quoteConfig = {
+    badge: '정부보조금 마감 임박 혜택 우선 선점',
+    title: '무료 설치 상담 & 실시간 맞춤 견적',
+    submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
+    successTitle: '상담 신청이 정상 접수되었습니다!',
+    successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
+    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
+  }
+}: QuoteModalProps) {
   const [activeTab, setActiveTab] = useState<'quick' | 'calc'>('quick');
   
   // Quick booking state (Exactly 4 fields!)
@@ -161,9 +182,9 @@ export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPu
                 <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-4 border border-blue-100">
                   <CheckCircle className="w-10 h-10 animate-bounce" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">상담 신청이 정상 접수되었습니다!</h3>
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{quoteConfig.successTitle}</h3>
                 <p className="text-slate-500 mt-2.5 max-w-sm text-xs font-semibold leading-relaxed">
-                  올해 배정된 <strong>정부 보조금 잔여 한도 선점</strong>을 위해, <strong>2시간 이내</strong>에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.
+                  {quoteConfig.successDesc}
                 </p>
                 <div className="mt-6 bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left text-xs text-slate-500 w-full max-w-md font-bold">
                   <div className="grid grid-cols-2 gap-2">
@@ -184,10 +205,10 @@ export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPu
                 <div className="mb-6">
                   <div className="flex items-center gap-1.5 text-blue-600 font-extrabold text-xs uppercase tracking-wider mb-1">
                     <Sparkles className="w-3.5 h-3.5" />
-                    정부보조금 마감 임박 혜택 우선 선점
+                    {quoteConfig.badge}
                   </div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                    무료 설치 상담 & 실시간 맞춤 견적
+                    {quoteConfig.title}
                   </h2>
                 </div>
 
@@ -303,7 +324,7 @@ export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPu
                     <div className="flex items-start gap-2 bg-blue-50/50 rounded-2xl p-4 border border-blue-100 text-[11px] text-slate-600 mt-4">
                       <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                       <div className="font-semibold leading-relaxed">
-                        <strong className="text-slate-800">안심 보증 정책:</strong> 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.
+                        <strong className="text-slate-800">안심 보증 정책:</strong> {quoteConfig.privacyNotice}
                       </div>
                     </div>
 
@@ -313,7 +334,7 @@ export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPu
                       className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all text-center flex items-center justify-center gap-2 mt-6 cursor-pointer"
                     >
                       <Send className="w-4 h-4" />
-                      👉 30초 만에 무료 설치 상담 예약하기
+                      {quoteConfig.submitButton}
                     </button>
                   </form>
                 ) : (
@@ -460,7 +481,7 @@ export default function QuoteModal({ isOpen, onClose, onSubmitBooking, initialPu
                         id="btn-calc-quote-submit"
                         className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
                       >
-                        👉 이 견적으로 보조금 선점 신청 접수하기
+                        {quoteConfig.submitButton}
                       </button>
                     </div>
                   </div>

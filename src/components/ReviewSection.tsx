@@ -47,7 +47,7 @@ export default function ReviewSection({
       {/* Top Header Copy */}
       <section className="text-center max-w-2xl mx-auto space-y-3">
         <span className="text-blue-600 font-bold text-xs uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-          Social Proof
+          Installation Gallery
         </span>
         <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">
           "이미 전국 1만 개 이상의 공간이 <br />SY.com과 함께하고 있습니다."
@@ -57,8 +57,80 @@ export default function ReviewSection({
         </p>
       </section>
 
+      {/* Grid of Other review cards list (Chronological - Sorted Newest First with blog Cover Thumbnail) */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">전국 생생한 시공후기 목록 (최신순 - 클릭 시 아래 상세 비교 분석 연동)</h4>
+          <span className="text-[11px] text-blue-600 font-bold">💡 후기 카드를 클릭해 보세요</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {sortedReviews.map((rev) => {
+            const isActive = currentActiveReview.id === rev.id;
+            return (
+              <div
+                key={rev.id}
+                onClick={() => setActiveReviewId(rev.id)}
+                id={`card-review-list-${rev.id}`}
+                className={`p-4 bg-white rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group/card hover:shadow-md ${
+                  isActive
+                    ? 'border-blue-600 ring-2 ring-blue-600/10 shadow-md bg-blue-50/10'
+                    : 'border-slate-200 hover:border-slate-300 shadow-sm'
+                }`}
+              >
+                <div className="space-y-3">
+                  {/* Blog / Case Study Thumbnail Cover Image */}
+                  <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
+                    <img
+                      src={rev.afterImg}
+                      alt={rev.title}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
+                    />
+                    {rev.isBlogImported ? (
+                      <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
+                        {rev.blogName || '네이버 블로그'}
+                      </div>
+                    ) : (
+                      <div className="absolute top-2 left-2 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                        시공사례
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[9px] text-slate-400 font-extrabold block uppercase">
+                        {rev.location.split(' ')[0]} {rev.location.split(' ')[1]}
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-bold block">
+                        {rev.date}
+                      </span>
+                    </div>
+                    <span className="text-xs font-black text-slate-950 block line-clamp-2 leading-snug group-hover/card:text-blue-600 transition-colors">
+                      {rev.title}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
+                  <span className="text-[10px] text-slate-500 font-extrabold">{rev.author}</span>
+                  <div className="flex items-center gap-0.5 text-amber-400">
+                    <Star className="w-3 h-3 fill-amber-400" />
+                    <span className="text-[10px] font-bold text-slate-700">{rev.rating}.0</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Active Review Card Display - Redesigned into a Beautiful 2-Column Grid (Map Removed) */}
-      <section className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm">
+      <section className="bg-slate-50/50 border border-slate-200/60 rounded-3xl p-6 md:p-8 shadow-xs space-y-4">
+        <div className="border-b border-slate-200 pb-2.5">
+          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">🎯 선택된 시공 현장 상세 비교 및 인터뷰 분석</h4>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
           {/* Left Column: Interactive Before/After Comparison slider (Col: 6) */}
@@ -207,69 +279,6 @@ export default function ReviewSection({
             </div>
           </div>
 
-        </div>
-      </section>
-
-      {/* Grid of Other review cards list (Chronological - Sorted Newest First with blog Cover Thumbnail) */}
-      <section className="space-y-4">
-        <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">전국 생생한 시공후기 목록 (최신순)</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {sortedReviews.map((rev) => (
-            <div
-              key={rev.id}
-              onClick={() => setActiveReviewId(rev.id)}
-              id={`card-review-list-${rev.id}`}
-              className={`p-4 bg-white rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group/card hover:shadow-md ${
-                currentActiveReview.id === rev.id
-                  ? 'border-blue-600 ring-2 ring-blue-600/10 shadow-md bg-blue-50/5'
-                  : 'border-slate-200 hover:border-slate-300 shadow-sm'
-              }`}
-            >
-              <div className="space-y-3">
-                {/* Blog / Case Study Thumbnail Cover Image */}
-                <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
-                  <img
-                    src={rev.afterImg}
-                    alt={rev.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-                  />
-                  {rev.isBlogImported ? (
-                    <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
-                      {rev.blogName || '네이버 블로그'}
-                    </div>
-                  ) : (
-                    <div className="absolute top-2 left-2 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
-                      시공사례
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-[9px] text-slate-400 font-extrabold block uppercase">
-                      {rev.location.split(' ')[0]} {rev.location.split(' ')[1]}
-                    </span>
-                    <span className="text-[9px] text-slate-400 font-bold block">
-                      {rev.date}
-                    </span>
-                  </div>
-                  <span className="text-xs font-black text-slate-950 block line-clamp-2 leading-snug group-hover/card:text-blue-600 transition-colors">
-                    {rev.title}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
-                <span className="text-[10px] text-slate-500 font-extrabold">{rev.author}</span>
-                <div className="flex items-center gap-0.5 text-amber-400">
-                  <Star className="w-3 h-3 fill-amber-400" />
-                  <span className="text-[10px] font-bold text-slate-700">{rev.rating}.0</span>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
     </div>

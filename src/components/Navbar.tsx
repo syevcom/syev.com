@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { ActivePage } from '../types';
-import { Info, Zap, Settings, MapPin, HelpCircle, Home } from 'lucide-react';
+import { Info, Zap, Settings, MapPin, HelpCircle, Home, Building2, Building, ClipboardCheck } from 'lucide-react';
 
 interface NavbarProps {
   activePage: ActivePage;
@@ -17,6 +17,9 @@ interface NavbarProps {
     solutions: string;
     review: string;
     support: string;
+    sol_residential?: string;
+    sol_commercial?: string;
+    sol_parking?: string;
   };
 }
 
@@ -26,19 +29,21 @@ export default function Navbar({
   categoryLabels = {
     home: '홈',
     about: '회사소개',
-    products: '신제품소개',
-    solutions: '용도별솔루션',
+    products: '가정용',
+    solutions: '아파트',
     review: '설치후기',
-    support: '고객지원'
+    support: '상업시설'
   }
 }: NavbarProps) {
+  // Ordered: 홈, 회사소개, 비공용·주택, 기업·관공서, 수익형 상가, 설치후기, 고객지원
   const menuItems: { id: ActivePage; label: string; icon: React.ReactNode }[] = [
-    { id: 'home', label: categoryLabels.home, icon: <Home className="w-4 h-4" /> },
-    { id: 'about', label: categoryLabels.about, icon: <Info className="w-4 h-4" /> },
-    { id: 'products', label: categoryLabels.products, icon: <Zap className="w-4 h-4" /> },
-    { id: 'solutions', label: categoryLabels.solutions, icon: <Settings className="w-4 h-4" /> },
-    { id: 'review', label: categoryLabels.review, icon: <MapPin className="w-4 h-4" /> },
-    { id: 'support', label: categoryLabels.support, icon: <HelpCircle className="w-4 h-4" /> }
+    { id: 'home', label: categoryLabels.home || '홈', icon: <Home className="w-4 h-4" /> },
+    { id: 'about', label: categoryLabels.about || '회사소개', icon: <Info className="w-4 h-4" /> },
+    { id: 'sol_residential', label: categoryLabels.sol_residential || '비공용·주택', icon: <Home className="w-4 h-4 text-emerald-600" /> },
+    { id: 'sol_commercial', label: categoryLabels.sol_commercial || '기업·관공서', icon: <Building className="w-4 h-4 text-blue-600" /> },
+    { id: 'sol_parking', label: categoryLabels.sol_parking || '수익형 상가', icon: <MapPin className="w-4 h-4 text-amber-600" /> },
+    { id: 'review', label: categoryLabels.review || '설치후기', icon: <ClipboardCheck className="w-4 h-4" /> },
+    { id: 'support', label: '고객지원', icon: <HelpCircle className="w-4 h-4" /> }
   ];
 
   return (

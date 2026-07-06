@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type ActivePage = 'home' | 'about' | 'products' | 'solutions' | 'review' | 'support';
+export type ActivePage = 'home' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sol_residential' | 'sol_commercial' | 'sol_parking';
 
 export interface User {
   id: string;
