@@ -35,13 +35,13 @@ export default function Navbar({
     support: '상업시설'
   }
 }: NavbarProps) {
-  // Ordered: 홈, 회사소개, 비공용·주택, 기업·관공서, 수익형 상가, 설치후기, 고객지원
+  // Ordered: 홈, 회사소개, 아파트, 가정용 홈, 상업시설 수익형, 설치후기, 고객지원
   const menuItems: { id: ActivePage; label: string; icon: React.ReactNode }[] = [
     { id: 'home', label: categoryLabels.home || '홈', icon: <Home className="w-4 h-4" /> },
     { id: 'about', label: categoryLabels.about || '회사소개', icon: <Info className="w-4 h-4" /> },
-    { id: 'sol_residential', label: categoryLabels.sol_residential || '비공용·주택', icon: <Home className="w-4 h-4 text-emerald-600" /> },
-    { id: 'sol_commercial', label: categoryLabels.sol_commercial || '기업·관공서', icon: <Building className="w-4 h-4 text-blue-600" /> },
-    { id: 'sol_parking', label: categoryLabels.sol_parking || '수익형 상가', icon: <MapPin className="w-4 h-4 text-amber-600" /> },
+    { id: 'sol_commercial', label: categoryLabels.sol_commercial || '아파트', icon: <Building className="w-4 h-4 text-blue-600" /> },
+    { id: 'sol_residential', label: categoryLabels.sol_residential || '가정용 홈', icon: <Home className="w-4 h-4 text-emerald-600" /> },
+    { id: 'sol_parking', label: categoryLabels.sol_parking || '상업시설 수익형', icon: <MapPin className="w-4 h-4 text-amber-600" /> },
     { id: 'review', label: categoryLabels.review || '설치후기', icon: <ClipboardCheck className="w-4 h-4" /> },
     { id: 'support', label: '고객지원', icon: <HelpCircle className="w-4 h-4" /> }
   ];

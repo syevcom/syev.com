@@ -98,7 +98,7 @@ export default function SolutionsSection({
                   }`}
                 >
                   {getTabIcon(sol.category)}
-                  <span>{sol.category === 'Commercial' ? '기업·관공서' : sol.category === 'Residential' ? '비공용·주택' : '수익형 상가'}</span>
+                  <span>{sol.category === 'Commercial' ? '아파트' : sol.category === 'Residential' ? '가정용 홈' : '상업시설 수익형'}</span>
                 </button>
               ))}
             </div>
@@ -120,7 +120,7 @@ export default function SolutionsSection({
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">
-                      {sol.category === 'Commercial' ? '🏢 기업·빌딩·공공기관 맞춤' : sol.category === 'Residential' ? '🏡 아파트·공동주택·개인소유지' : '🅿️ 수익형 상가주차장·드라이브스루'}
+                      {sol.category === 'Commercial' ? '🏢 아파트·공동주택·공용시설 맞춤' : sol.category === 'Residential' ? '🏡 가정용·홈·개인소유지' : '🅿️ 상업시설·수익형 주차장'}
                     </span>
                     <h3 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight leading-snug">
                       {sol.title}

@@ -23,6 +23,34 @@ import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ } 
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
+const DEFAULT_FIELDS = {
+  Residential: [
+    { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
+    { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
+  ],
+  Commercial: [
+    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
+    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+  ],
+  ParkingLot: [
+    { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
+    { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
+    { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
+    { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
+  ]
+};
+
 export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>('home');
   const [user, setUser] = useState<User | null>(null);
@@ -64,7 +92,10 @@ export default function App() {
     products: '가정용',
     solutions: '아파트',
     review: '설치후기',
-    support: '상업시설'
+    support: '상업시설',
+    sol_commercial: '아파트',
+    sol_residential: '가정용 홈',
+    sol_parking: '상업시설 수익형'
   });
 
   const [footerConfig, setFooterConfig] = useState({
@@ -100,13 +131,36 @@ export default function App() {
     quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
   });
 
-  const [quoteConfig, setQuoteConfig] = useState({
+  const [quoteConfig, setQuoteConfig] = useState<{
+    badge: string;
+    title: string;
+    submitButton: string;
+    successTitle: string;
+    successDesc: string;
+    privacyNotice: string;
+    purposeLabels?: {
+      Residential: string;
+      Commercial: string;
+      ParkingLot: string;
+    };
+    fields?: {
+      Residential: any[];
+      Commercial: any[];
+      ParkingLot: any[];
+    };
+  }>({
     badge: '정부보조금 마감 임박 혜택 우선 선점',
     title: '무료 설치 상담 & 실시간 맞춤 견적',
     submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
     successTitle: '상담 신청이 정상 접수되었습니다!',
     successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
-    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
+    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.',
+    purposeLabels: {
+      Residential: '가정용 홈 (단독주택/빌라/개인)',
+      Commercial: '아파트용 (공동주택/공용시설)',
+      ParkingLot: '상업시설 수익형 (호텔/마트/상가빌딩)'
+    },
+    fields: DEFAULT_FIELDS
   });
 
   // Dynamic sub-navigation tabs default filtering state
@@ -124,10 +178,10 @@ export default function App() {
     showQuickMenu: true,
     items: [
       { id: 'q-1', label: '설치후기', iconType: 'MapPin', targetPage: 'review' },
-      { id: 'q-2', label: '기업용 충전', iconType: 'Building2', targetPage: 'solutions' },
-      { id: 'q-3', label: '주택 비공용', iconType: 'Home', targetPage: 'solutions' },
+      { id: 'q-2', label: '아파트 충전', iconType: 'Building2', targetPage: 'solutions' },
+      { id: 'q-3', label: '가정용 홈', iconType: 'Home', targetPage: 'solutions' },
       { id: 'q-4', label: '학교&관공서', iconType: 'GraduationCap', targetPage: 'solutions' },
-      { id: 'q-5', label: '주차장 충전', iconType: 'ParkingCircle', targetPage: 'solutions' },
+      { id: 'q-5', label: '상업시설 수익형', iconType: 'ParkingCircle', targetPage: 'solutions' },
       { id: 'q-6', label: '급속충전기', iconType: 'Zap', targetPage: 'products' },
       { id: 'q-7', label: '기기 교체', iconType: 'RefreshCw', targetPage: 'support' },
       { id: 'q-8', label: '홍보수익형', iconType: 'TrendingUp', targetPage: 'about' }
@@ -218,7 +272,15 @@ export default function App() {
 
     const savedCategories = localStorage.getItem('sy_cms_categories');
     if (savedCategories) {
-      try { setCategoryLabels(JSON.parse(savedCategories)); } catch (e) { console.error(e); }
+      try {
+        const parsed = JSON.parse(savedCategories);
+        if (parsed) {
+          if (!parsed.sol_commercial) parsed.sol_commercial = '아파트';
+          if (!parsed.sol_residential) parsed.sol_residential = '가정용 홈';
+          if (!parsed.sol_parking) parsed.sol_parking = '상업시설 수익형';
+        }
+        setCategoryLabels(parsed);
+      } catch (e) { console.error(e); }
     }
 
     const savedFooter = localStorage.getItem('sy_cms_footer');
@@ -288,7 +350,28 @@ export default function App() {
 
     const savedQuote = localStorage.getItem('sy_cms_quote');
     if (savedQuote) {
-      try { setQuoteConfig(JSON.parse(savedQuote)); } catch (e) { console.error(e); }
+      try {
+        const parsed = JSON.parse(savedQuote);
+        if (parsed && parsed.purposeLabels) {
+          let migrated = false;
+          if (parsed.purposeLabels.Residential && (parsed.purposeLabels.Residential.includes('비공용') || parsed.purposeLabels.Residential.includes('주거용'))) {
+            parsed.purposeLabels.Residential = '가정용 홈 (단독주택/빌라/개인)';
+            migrated = true;
+          }
+          if (parsed.purposeLabels.Commercial && (parsed.purposeLabels.Commercial.includes('기업/관공서') || parsed.purposeLabels.Commercial.includes('기업용'))) {
+            parsed.purposeLabels.Commercial = '아파트용 (공동주택/공용시설)';
+            migrated = true;
+          }
+          if (parsed.purposeLabels.ParkingLot && (parsed.purposeLabels.ParkingLot.includes('수익형 주차장') || parsed.purposeLabels.ParkingLot.includes('수익형 상가'))) {
+            parsed.purposeLabels.ParkingLot = '상업시설 수익형 (호텔/마트/상가빌딩)';
+            migrated = true;
+          }
+          if (migrated) {
+            localStorage.setItem('sy_cms_quote', JSON.stringify(parsed));
+          }
+        }
+        setQuoteConfig(parsed);
+      } catch (e) { console.error(e); }
     }
   }, []);
 
@@ -472,7 +555,13 @@ export default function App() {
       submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
       successTitle: '상담 신청이 정상 접수되었습니다!',
       successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
-      privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
+      privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.',
+      purposeLabels: {
+        Residential: '가정용 홈 (단독주택/빌라/개인)',
+        Commercial: '아파트용 (공동주택/공용시설)',
+        ParkingLot: '상업시설 수익형 (호텔/마트/상가빌딩)'
+      },
+      fields: DEFAULT_FIELDS
     });
 
     setSnsConfig({
@@ -486,10 +575,10 @@ export default function App() {
       showQuickMenu: true,
       items: [
         { id: 'q-1', label: '설치후기', iconType: 'MapPin', targetPage: 'review' },
-        { id: 'q-2', label: '기업용 충전', iconType: 'Building2', targetPage: 'solutions' },
-        { id: 'q-3', label: '주택 비공용', iconType: 'Home', targetPage: 'solutions' },
+        { id: 'q-2', label: '아파트 충전', iconType: 'Building2', targetPage: 'solutions' },
+        { id: 'q-3', label: '가정용 홈', iconType: 'Home', targetPage: 'solutions' },
         { id: 'q-4', label: '학교&관공서', iconType: 'GraduationCap', targetPage: 'solutions' },
-        { id: 'q-5', label: '주차장 충전', iconType: 'ParkingCircle', targetPage: 'solutions' },
+        { id: 'q-5', label: '상업시설 수익형', iconType: 'ParkingCircle', targetPage: 'solutions' },
         { id: 'q-6', label: '급속충전기', iconType: 'Zap', targetPage: 'products' },
         { id: 'q-7', label: '기기 교체', iconType: 'RefreshCw', targetPage: 'support' },
         { id: 'q-8', label: '홍보수익형', iconType: 'TrendingUp', targetPage: 'about' }
@@ -857,9 +946,9 @@ export default function App() {
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">주요 카테고리</h4>
               <ul className="text-xs space-y-2 text-left">
                 <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.about || '회사소개'}</button></li>
-                <li><button onClick={() => setActivePage('sol_residential')} className="hover:text-white transition-colors cursor-pointer">비공용·주택 솔루션</button></li>
-                <li><button onClick={() => setActivePage('sol_commercial')} className="hover:text-white transition-colors cursor-pointer">기업·관공서 솔루션</button></li>
-                <li><button onClick={() => setActivePage('sol_parking')} className="hover:text-white transition-colors cursor-pointer">수익형 상가 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_commercial')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_commercial || '아파트'} 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_residential')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_residential || '가정용 홈'} 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_parking')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_parking || '상업시설 수익형'} 솔루션</button></li>
                 <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.review || '설치후기'}</button></li>
                 <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors cursor-pointer">고객지원</button></li>
               </ul>

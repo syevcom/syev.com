@@ -315,15 +315,15 @@ export default function MainHero({
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">주택비공용</h4>
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">아파트</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  개인 주택, 빌라, 다세대 주택 등{"\n"}비공용 충전기 설치
+                  아파트 단지, 입주민 공용{"\n"}환경부 무상 보조금 최적 설계
                 </p>
               </div>
               
               <div className="pt-2">
                 <button
-                  onClick={() => onPageChange?.('sol_residential')}
+                  onClick={() => onPageChange?.('sol_commercial')}
                   className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
@@ -404,15 +404,15 @@ export default function MainHero({
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">기업용</h4>
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">가정용 홈</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  사무실, 공장, 상업시설 등{"\n"}기업 맞춤형 충전 인프라
+                  단독주택, 빌라, 개인용 주차장{"\n"}7kW 개인 완속 스마트홈 홈충전기
                 </p>
               </div>
               
               <div className="pt-2">
                 <button
-                  onClick={() => onPageChange?.('sol_commercial')}
+                  onClick={() => onPageChange?.('sol_residential')}
                   className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
@@ -480,9 +480,9 @@ export default function MainHero({
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">공공기관</h4>
+                <h4 className="text-xl font-black text-blue-900 tracking-tight">상업시설 수익형</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  관공서, 공공시설, 공영주차장 등{"\n"}공공 충전 인프라 구축
+                  호텔, 마트, 대형 상가 빌딩{"\n"}수익형 완속/급속 충전소 구축
                 </p>
               </div>
               

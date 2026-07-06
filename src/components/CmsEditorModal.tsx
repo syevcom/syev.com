@@ -33,6 +33,9 @@ interface CmsEditorModalProps {
     solutions: string;
     review: string;
     support: string;
+    sol_residential?: string;
+    sol_commercial?: string;
+    sol_parking?: string;
   };
   onSaveCategoryLabels: (labels: any) => void;
 
@@ -121,6 +124,16 @@ interface CmsEditorModalProps {
     successTitle: string;
     successDesc: string;
     privacyNotice: string;
+    purposeLabels?: {
+      Residential: string;
+      Commercial: string;
+      ParkingLot: string;
+    };
+    fields?: {
+      Residential: any[];
+      Commercial: any[];
+      ParkingLot: any[];
+    };
   };
   onSaveQuoteConfig: (config: any) => void;
 }
@@ -164,6 +177,47 @@ function robustUrlDecode(s: string): string {
   return result;
 }
 
+interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'tel' | 'select' | 'number';
+  placeholder?: string;
+  required: boolean;
+  options?: string[];
+}
+
+const DEFAULT_FIELDS: {
+  Residential: CustomField[];
+  Commercial: CustomField[];
+  ParkingLot: CustomField[];
+} = {
+  Residential: [
+    { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
+    { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
+  ],
+  Commercial: [
+    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
+    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+  ],
+  ParkingLot: [
+    { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
+    { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
+    { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
+    { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
+  ]
+};
+
 export default function CmsEditorModal({
   isOpen,
   onClose,
@@ -199,6 +253,7 @@ export default function CmsEditorModal({
   const [activeTab, setActiveTab] = useState<typeof initialTab>(initialTab);
   const [saveStatus, setSaveStatus] = useState('');
   const [importCode, setImportCode] = useState('');
+  const [configActiveTab, setConfigActiveTab] = useState<'Residential' | 'Commercial' | 'ParkingLot'>('Residential');
 
   // 0. Brand logo & Categories states
   const [logoText, setLogoText] = useState(logoConfig.text);
@@ -225,6 +280,9 @@ export default function CmsEditorModal({
   const [menuSolutions, setMenuSolutions] = useState(categoryLabels.solutions);
   const [menuReview, setMenuReview] = useState(categoryLabels.review);
   const [menuSupport, setMenuSupport] = useState(categoryLabels.support);
+  const [menuSolCommercial, setMenuSolCommercial] = useState(categoryLabels.sol_commercial || '아파트');
+  const [menuSolResidential, setMenuSolResidential] = useState(categoryLabels.sol_residential || '가정용 홈');
+  const [menuSolParking, setMenuSolParking] = useState(categoryLabels.sol_parking || '상업시설 수익형');
 
   // SNS State
   const [snsKakaoUrl, setSnsKakaoUrl] = useState(snsConfig.kakaoUrl || '');
@@ -272,6 +330,16 @@ export default function CmsEditorModal({
   const [quoteSuccessTitle, setQuoteSuccessTitle] = useState(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
   const [quoteSuccessDesc, setQuoteSuccessDesc] = useState(quoteConfig.successDesc || '');
   const [quotePrivacyNotice, setQuotePrivacyNotice] = useState(quoteConfig.privacyNotice || '');
+  const [quotePurposeLabels, setQuotePurposeLabels] = useState(
+    quoteConfig.purposeLabels || {
+      Residential: '주거용 (단독주택/빌라/아파트)',
+      Commercial: '기업/관공서용 (사옥/공장/창고)',
+      ParkingLot: '수익형 주차장 (호텔/마트/상가빌딩)'
+    }
+  );
+  const [quoteFields, setQuoteFields] = useState(
+    quoteConfig.fields || DEFAULT_FIELDS
+  );
 
   // 2. About Form State
   const [ceoName, setCeoName] = useState(aboutConfig.ceoName);
@@ -301,6 +369,9 @@ export default function CmsEditorModal({
       setMenuSolutions(categoryLabels.solutions);
       setMenuReview(categoryLabels.review);
       setMenuSupport(categoryLabels.support);
+      setMenuSolCommercial(categoryLabels.sol_commercial || '아파트');
+      setMenuSolResidential(categoryLabels.sol_residential || '가정용 홈');
+      setMenuSolParking(categoryLabels.sol_parking || '상업시설 수익형');
 
       setSnsKakaoUrl(snsConfig.kakaoUrl || '');
       setSnsInstagramUrl(snsConfig.instagramUrl || '');
@@ -343,6 +414,12 @@ export default function CmsEditorModal({
       setQuoteSuccessTitle(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
       setQuoteSuccessDesc(quoteConfig.successDesc || '');
       setQuotePrivacyNotice(quoteConfig.privacyNotice || '');
+      setQuotePurposeLabels(quoteConfig.purposeLabels || {
+        Residential: '주거용 (단독주택/빌라/아파트)',
+        Commercial: '기업/관공서용 (사옥/공장/창고)',
+        ParkingLot: '수익형 주차장 (호텔/마트/상가빌딩)'
+      });
+      setQuoteFields(quoteConfig.fields || DEFAULT_FIELDS);
 
       setCeoName(aboutConfig.ceoName);
       setCeoRole(aboutConfig.ceoRole);
@@ -433,7 +510,10 @@ export default function CmsEditorModal({
       products: menuProducts,
       solutions: menuSolutions,
       review: menuReview,
-      support: menuSupport
+      support: menuSupport,
+      sol_commercial: menuSolCommercial,
+      sol_residential: menuSolResidential,
+      sol_parking: menuSolParking
     });
     onSaveFooterConfig({
       phone: footerPhone,
@@ -489,7 +569,9 @@ export default function CmsEditorModal({
       submitButton: quoteSubmitButton,
       successTitle: quoteSuccessTitle,
       successDesc: quoteSuccessDesc,
-      privacyNotice: quotePrivacyNotice
+      privacyNotice: quotePrivacyNotice,
+      purposeLabels: quotePurposeLabels,
+      fields: quoteFields
     });
     showSaveSuccess('💬 온라인 무료 설치문의 팝업창 설정이 즉시 저장되었습니다!');
   };
@@ -1166,38 +1248,38 @@ export default function CmsEditorModal({
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-600">메뉴 3: 신제품소개 (Products)</label>
+                      <label className="block text-[11px] font-bold text-slate-600">메뉴 3: 아파트 (Commercial)</label>
                       <input
                         type="text"
-                        value={menuProducts}
-                        onChange={(e) => setMenuProducts(e.target.value)}
+                        value={menuSolCommercial}
+                        onChange={(e) => setMenuSolCommercial(e.target.value)}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-600">메뉴 4: 용도별솔루션 (Solutions)</label>
+                      <label className="block text-[11px] font-bold text-slate-600">메뉴 4: 가정용 홈 (Residential)</label>
                       <input
                         type="text"
-                        value={menuSolutions}
-                        onChange={(e) => setMenuSolutions(e.target.value)}
+                        value={menuSolResidential}
+                        onChange={(e) => setMenuSolResidential(e.target.value)}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-600">메뉴 5: 설치후기 (Reviews)</label>
+                      <label className="block text-[11px] font-bold text-slate-600">메뉴 5: 상업시설 수익형 (ParkingLot)</label>
+                      <input
+                        type="text"
+                        value={menuSolParking}
+                        onChange={(e) => setMenuSolParking(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-600">메뉴 6: 설치후기 (Reviews)</label>
                       <input
                         type="text"
                         value={menuReview}
                         onChange={(e) => setMenuReview(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-600">메뉴 6: 고객지원 (Support)</label>
-                      <input
-                        type="text"
-                        value={menuSupport}
-                        onChange={(e) => setMenuSupport(e.target.value)}
                         className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                       />
                     </div>
@@ -2218,7 +2300,9 @@ export default function CmsEditorModal({
                           <div className="flex items-center gap-3 min-w-0">
                             <img src={sol.image} alt={sol.title} className="w-12 h-12 object-cover rounded-xl border border-slate-200/50" />
                             <div className="min-w-0">
-                              <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded font-bold">{sol.category}</span>
+                              <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-1.5 py-0.5 rounded font-bold">
+                                {sol.category === 'Commercial' ? (categoryLabels.sol_commercial || '아파트') : sol.category === 'Residential' ? (categoryLabels.sol_residential || '가정용 홈') : (categoryLabels.sol_parking || '상업시설 수익형')}
+                              </span>
                               <h5 className="text-xs font-black text-slate-900 mt-1 truncate">{sol.title}</h5>
                             </div>
                           </div>
@@ -3593,6 +3677,206 @@ export default function CmsEditorModal({
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 leading-normal"
                     placeholder="올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다."
                   />
+                </div>
+
+                {/* Dynamic Fields Customizer Section */}
+                <div className="border border-blue-100 bg-blue-50/20 rounded-3xl p-5 space-y-4">
+                  <div>
+                    <h5 className="text-xs font-black text-blue-900 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
+                      설치문의 입력창 & 탭 별 다르게 세부 항목 설정하기
+                    </h5>
+                    <p className="text-[11px] text-slate-500 font-bold mt-1">
+                      설치문의 팝업창에서 고객이 기재해야 할 세부 입력 항목을 탭(주거용 / 기업용 / 수익형 주차장)마다 다르게 직접 디자인할 수 있습니다. 항목의 문구, 형식(텍스트, 연락처, 선택 드롭다운, 숫자 등)을 마음대로 설정해 보세요!
+                    </p>
+                  </div>
+
+                  {/* Tab Selector inside config */}
+                  <div className="flex bg-slate-100 p-1 rounded-xl">
+                    {(['Residential', 'Commercial', 'ParkingLot'] as const).map((tabKey) => {
+                      const displayLabel = tabKey === 'Residential' ? '주거용' : tabKey === 'Commercial' ? '기업/관공서' : '수익형 주차장';
+                      const isActive = configActiveTab === tabKey;
+                      return (
+                        <button
+                          key={tabKey}
+                          onClick={() => setConfigActiveTab(tabKey)}
+                          className={`flex-1 py-1.5 text-xs font-black rounded-lg transition-all ${
+                            isActive
+                              ? 'bg-blue-600 text-white shadow-sm'
+                              : 'text-slate-500 hover:text-slate-800'
+                          }`}
+                        >
+                          {displayLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Selected Tab Info */}
+                  <div className="space-y-4 p-4 bg-white border border-slate-100 rounded-2xl">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-700">이 문의 탭 표시 이름</label>
+                      <input
+                        type="text"
+                        value={quotePurposeLabels[configActiveTab] || ''}
+                        onChange={(e) => {
+                          setQuotePurposeLabels({
+                            ...quotePurposeLabels,
+                            [configActiveTab]: e.target.value
+                          });
+                        }}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                        placeholder="탭 표시 이름"
+                      />
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-3 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-extrabold text-slate-800">이 탭의 현재 입력칸 목록 ({quoteFields[configActiveTab]?.length || 0}개)</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const currentList = quoteFields[configActiveTab] || [];
+                            const newId = `custom_field_${Date.now()}`;
+                            const updatedList = [
+                              ...currentList,
+                              { id: newId, label: '새 입력 항목', type: 'text', placeholder: '내용을 입력해 주세요.', required: false }
+                            ];
+                            setQuoteFields({
+                              ...quoteFields,
+                              [configActiveTab]: updatedList
+                            });
+                          }}
+                          className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-black rounded-lg border border-blue-200 cursor-pointer"
+                        >
+                          ➕ 새 입력창 항목 추가하기
+                        </button>
+                      </div>
+
+                      {/* Render fields list */}
+                      <div className="space-y-3.5">
+                        {(quoteFields[configActiveTab] || []).map((field, index) => (
+                          <div key={field.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-black text-slate-400 font-mono">항목 #{index + 1}</span>
+                              <div className="flex items-center gap-2">
+                                <label className="flex items-center gap-1 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={field.required}
+                                    onChange={(e) => {
+                                      const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                      updatedList[index] = { ...field, required: e.target.checked };
+                                      setQuoteFields({
+                                        ...quoteFields,
+                                        [configActiveTab]: updatedList
+                                      });
+                                    }}
+                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+                                  />
+                                  <span className="text-[10px] font-bold text-slate-600">필수 입력</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updatedList = (quoteFields[configActiveTab] || []).filter((f) => f.id !== field.id);
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="text-red-500 hover:text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100 transition-all border border-red-200 cursor-pointer"
+                                >
+                                  삭제
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="space-y-0.5">
+                                <span className="text-[10px] font-extrabold text-slate-500">입력 항목 이름 (라벨)</span>
+                                <input
+                                  type="text"
+                                  value={field.label}
+                                  onChange={(e) => {
+                                    const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                    updatedList[index] = { ...field, label: e.target.value };
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                />
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[10px] font-extrabold text-slate-500">입력창 가이드 (Placeholder)</span>
+                                <input
+                                  type="text"
+                                  value={field.placeholder || ''}
+                                  onChange={(e) => {
+                                    const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                    updatedList[index] = { ...field, placeholder: e.target.value };
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                />
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-[10px] font-extrabold text-slate-500">입력 방식 종류 (Type)</span>
+                                <select
+                                  value={field.type}
+                                  onChange={(e) => {
+                                    const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                    updatedList[index] = { ...field, type: e.target.value as any };
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                >
+                                  <option value="text">텍스트 입력칸 (이름 등)</option>
+                                  <option value="tel">연락처 입력칸 (전화번호)</option>
+                                  <option value="number">숫자 입력칸 (수량 등)</option>
+                                  <option value="select">드롭다운 선택창 (Select)</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {field.type === 'select' && (
+                              <div className="p-2 bg-slate-100 rounded-lg border border-slate-200 space-y-1">
+                                <span className="text-[10px] font-extrabold text-slate-600 block">드롭다운 선택 옵션 목록 (쉼표(,)로 구분)</span>
+                                <input
+                                  type="text"
+                                  value={field.options?.join(', ') || ''}
+                                  onChange={(e) => {
+                                    const opts = e.target.value.split(',').map((opt) => opt.trim()).filter(Boolean);
+                                    const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                    updatedList[index] = { ...field, options: opts };
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                                  placeholder="옵션1, 옵션2, 옵션3"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {(quoteFields[configActiveTab] || []).length === 0 && (
+                          <div className="py-6 text-center text-xs font-bold text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+                            설정된 입력 항목이 없습니다. 상단 추가 버튼으로 추가해 주세요.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-1">

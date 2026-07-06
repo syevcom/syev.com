@@ -8,6 +8,15 @@ import { X, Send, Calculator, ShieldCheck, Sparkles, CheckCircle } from 'lucide-
 import { motion, AnimatePresence } from 'motion/react';
 import { Booking } from '../types';
 
+interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'tel' | 'select' | 'number';
+  placeholder?: string;
+  required: boolean;
+  options?: string[];
+}
+
 interface QuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,8 +29,50 @@ interface QuoteModalProps {
     successTitle: string;
     successDesc: string;
     privacyNotice: string;
+    purposeLabels?: {
+      Residential: string;
+      Commercial: string;
+      ParkingLot: string;
+    };
+    fields?: {
+      Residential: CustomField[];
+      Commercial: CustomField[];
+      ParkingLot: CustomField[];
+    };
   };
 }
+
+const DEFAULT_FIELDS: {
+  Residential: CustomField[];
+  Commercial: CustomField[];
+  ParkingLot: CustomField[];
+} = {
+  Residential: [
+    { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
+    { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
+  ],
+  Commercial: [
+    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
+    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+  ],
+  ParkingLot: [
+    { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
+    { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
+    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
+    { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
+    { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
+  ]
+};
 
 export default function QuoteModal({ 
   isOpen, 
@@ -34,7 +85,13 @@ export default function QuoteModal({
     submitButton: '👉 30초 만에 무료 설치 상담 예약하기',
     successTitle: '상담 신청이 정상 접수되었습니다!',
     successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
-    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.'
+    privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.',
+    purposeLabels: {
+      Residential: '주거용 (단독주택/빌라/아파트)',
+      Commercial: '기업/관공서용 (사옥/공장/창고)',
+      ParkingLot: '수익형 주차장 (호텔/마트/상가빌딩)'
+    },
+    fields: DEFAULT_FIELDS
   }
 }: QuoteModalProps) {
   const [activeTab, setActiveTab] = useState<'quick' | 'calc'>('quick');
@@ -45,6 +102,9 @@ export default function QuoteModal({
   const [location, setLocation] = useState('서울');
   const [purpose, setPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>(initialPurpose);
   const [memo, setMemo] = useState('');
+
+  // Dynamic field values
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   // 1-minute estimation state
   const [calcPower, setCalcPower] = useState<'7' | '11' | '50' | '100' | '200'>('7');
@@ -60,31 +120,100 @@ export default function QuoteModal({
     '서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'
   ];
 
+  const activeFields = quoteConfig.fields?.[purpose] || DEFAULT_FIELDS[purpose];
+
+  // Initialize formValues when purpose changes
+  React.useEffect(() => {
+    if (isOpen) {
+      const initial: Record<string, string> = {};
+      activeFields.forEach(f => {
+        initial[f.id] = formValues[f.id] || (f.id === 'name' ? name : f.id === 'phone' ? phone : f.id === 'location' ? location : f.id === 'memo' ? memo : '') || (f.type === 'select' ? (f.options?.[0] || '') : '');
+      });
+      setFormValues(prev => ({
+        ...initial,
+        ...prev
+      }));
+    }
+  }, [purpose, isOpen, quoteConfig.fields]);
+
+  const handleInputChange = (fieldId: string, value: string) => {
+    setFormValues(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+
+    if (fieldId === 'name') setName(value);
+    else if (fieldId === 'phone') setPhone(value);
+    else if (fieldId === 'location') setLocation(value);
+    else if (fieldId === 'memo') setMemo(value);
+  };
+
   const handleQuickSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!name || !phone || !location || !purpose) {
-      setError('이름, 연락처, 설치 지역, 용도를 모두 정확히 입력해 주세요.');
+    // Check required fields dynamically
+    for (const field of activeFields) {
+      const val = (formValues[field.id] || '').trim();
+      if (field.required && !val) {
+        setError(`'${field.label}' 필드를 정확히 입력해 주세요.`);
+        return;
+      }
+    }
+
+    // Dynamic extraction of Name, Phone, and Location
+    const nameField = activeFields.find(f => f.id === 'name' || f.label.includes('이름') || f.label.includes('성함'));
+    const bookingName = nameField ? (formValues[nameField.id] || '').trim() : name || '익명 고객';
+
+    const phoneField = activeFields.find(f => f.id === 'phone' || f.type === 'tel' || f.label.includes('연락처') || f.label.includes('전화번호'));
+    const bookingPhone = phoneField ? (formValues[phoneField.id] || '').trim() : phone || '';
+
+    if (!bookingPhone) {
+      setError('연락처 휴대폰 번호가 필요합니다.');
       return;
     }
 
-    // Basic phone validation
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const cleanPhone = bookingPhone.replace(/[^0-9]/g, '');
     if (cleanPhone.length < 9) {
       setError('올바른 연락처(휴대폰 번호)를 입력해 주세요.');
       return;
     }
 
+    const locationField = activeFields.find(f => f.id === 'location' || f.label.includes('지역'));
+    const bookingLocation = locationField ? (formValues[locationField.id] || '') : location || '서울';
+
+    // Pack non-core custom fields into a neat memo bullet list
+    let compiledMemo = '';
+    activeFields.forEach(field => {
+      if (field.id !== 'name' && field.id !== 'phone' && field.id !== 'location' && field.id !== 'memo') {
+        const val = formValues[field.id] || '';
+        compiledMemo += `• [${field.label}] ${val}\n`;
+      }
+    });
+
+    const memoField = activeFields.find(f => f.id === 'memo' || f.label.includes('메모') || f.label.includes('상세'));
+    if (memoField && formValues[memoField.id]) {
+      compiledMemo += `• [${memoField.label}] ${formValues[memoField.id]}`;
+    }
+
+    if (!compiledMemo) {
+      compiledMemo = `${purpose === 'Commercial' ? '기업용' : purpose === 'Residential' ? '주거용' : '주차장용'} 무상 상담 신청`;
+    }
+
     // Submit
     onSubmitBooking({
-      name,
-      phone,
-      location,
+      name: bookingName,
+      phone: bookingPhone,
+      location: bookingLocation,
       purpose,
-      memo: memo || `${purpose === 'Commercial' ? '기업용' : purpose === 'Residential' ? '주거용' : '주차장용'} 무상 상담 신청`,
+      memo: compiledMemo,
       estimateCost: activeTab === 'calc' ? `${calculateFinalCost().toLocaleString()}원` : undefined
     });
+
+    // Also update states for final success screen
+    setName(bookingName);
+    setPhone(bookingPhone);
+    setLocation(bookingLocation);
 
     setSubmitted(true);
     setTimeout(() => {
@@ -92,6 +221,7 @@ export default function QuoteModal({
       setName('');
       setPhone('');
       setMemo('');
+      setFormValues({});
       onClose();
     }, 2500);
   };
@@ -249,51 +379,8 @@ export default function QuoteModal({
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Name */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5">신청인 이름 / 법인 담당자</label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="홍길동"
-                          id="input-quote-name"
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
-                        />
-                      </div>
-
-                      {/* Phone */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5">연락처 (휴대폰 번호)</label>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="010-1234-5678"
-                          id="input-quote-phone"
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Location */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5">설치 희망 지역</label>
-                        <select
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          id="select-quote-location"
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
-                        >
-                          {locations.map((loc) => (
-                            <option key={loc} value={loc}>{loc}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Purpose */}
-                      <div>
+                      {/* Purpose Select Field */}
+                      <div className="md:col-span-2">
                         <label className="block text-xs font-bold text-slate-700 mb-1.5">설치 용도 구분</label>
                         <select
                           value={purpose}
@@ -301,24 +388,56 @@ export default function QuoteModal({
                           id="select-quote-purpose"
                           className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
                         >
-                          <option value="Residential">주거용 (단독주택/빌라/아파트)</option>
-                          <option value="Commercial">기업/관공서용 (사옥/공장/창고)</option>
-                          <option value="ParkingLot">수익형 주차장 (호텔/마트/상가빌딩)</option>
+                          <option value="Commercial">{quoteConfig.purposeLabels?.Commercial || '아파트용 (공동주택/공용시설)'}</option>
+                          <option value="Residential">{quoteConfig.purposeLabels?.Residential || '가정용 홈 (단독주택/빌라/개인)'}</option>
+                          <option value="ParkingLot">{quoteConfig.purposeLabels?.ParkingLot || '상업시설 수익형 (호텔/마트/상가빌딩)'}</option>
                         </select>
                       </div>
-                    </div>
 
-                    {/* Memo (Optional) */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">상담 희망 메모 (선택사항)</label>
-                      <textarea
-                        value={memo}
-                        onChange={(e) => setMemo(e.target.value)}
-                        placeholder="예: 아파트 입주위원회 설명 자료가 필요합니다 / 100kW 급속 1대 설치하고 싶습니다"
-                        rows={3}
-                        id="textarea-quote-memo"
-                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all resize-none"
-                      />
+                      {/* Dynamic Input Fields */}
+                      {activeFields.map((field) => {
+                        const isFullWidth = field.id === 'memo' || (field.type === 'text' && (field.placeholder?.length || 0) > 20);
+                        
+                        return (
+                          <div key={field.id} className={isFullWidth ? "md:col-span-2" : "col-span-1"}>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                              {field.label}
+                              {field.required && <span className="text-rose-500 ml-0.5">*</span>}
+                            </label>
+                            
+                            {field.id === 'memo' ? (
+                              <textarea
+                                value={formValues[field.id] || ''}
+                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                placeholder={field.placeholder}
+                                rows={3}
+                                id={`input-quote-${field.id}`}
+                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all resize-none"
+                              />
+                            ) : field.type === 'select' ? (
+                              <select
+                                value={formValues[field.id] || ''}
+                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                id={`select-quote-${field.id}`}
+                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                              >
+                                {(field.options || []).map((opt) => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                type={field.type}
+                                value={formValues[field.id] || ''}
+                                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                placeholder={field.placeholder}
+                                id={`input-quote-${field.id}`}
+                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="flex items-start gap-2 bg-blue-50/50 rounded-2xl p-4 border border-blue-100 text-[11px] text-slate-600 mt-4">
@@ -438,24 +557,24 @@ export default function QuoteModal({
                         <input
                           type="text"
                           placeholder="이름 (예: 홍길동)"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          value={formValues['name'] || ''}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
                           id="input-calc-name"
                           className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-blue-500"
                         />
                         <input
                           type="tel"
                           placeholder="연락처 (예: 010-1234-5678)"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
+                          value={formValues['phone'] || ''}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
                           id="input-calc-phone"
                           className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-blue-500"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <select
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
+                          value={formValues['location'] || '서울'}
+                          onChange={(e) => handleInputChange('location', e.target.value)}
                           id="select-calc-location"
                           className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-blue-500"
                         >
@@ -469,9 +588,9 @@ export default function QuoteModal({
                           id="select-calc-purpose"
                           className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-blue-500"
                         >
-                          <option value="Residential">주거용 (7kW 추천)</option>
-                          <option value="Commercial">기업용 (급속/완속 추천)</option>
-                          <option value="ParkingLot">수익형 주차장 (급속 추천)</option>
+                          <option value="Commercial">{quoteConfig.purposeLabels?.Commercial || '아파트용 (급속/완속 추천)'}</option>
+                          <option value="Residential">{quoteConfig.purposeLabels?.Residential || '가정용 홈 (7kW 추천)'}</option>
+                          <option value="ParkingLot">{quoteConfig.purposeLabels?.ParkingLot || '상업시설 수익형 (급속 추천)'}</option>
                         </select>
                       </div>
 
