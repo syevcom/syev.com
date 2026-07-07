@@ -145,30 +145,38 @@ export default function SolutionsSection({
                 </div>
 
                 {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) - 글 아래인 상단으로 이동 */}
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide block">
+                <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                  <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
                     정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
                   </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-slate-600">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-600">
                     {sol.subsidyProcess.map((step, sIdx) => (
-                      <div key={step} className="p-2 bg-white rounded-xl border border-slate-200 shadow-sm relative">
-                        <span className="text-[8px] font-black text-blue-600 block mb-0.5">0{sIdx+1}단계</span>
-                        <span className="font-bold leading-normal block text-slate-700 truncate">{step.split(': ')[1]}</span>
+                      <div key={step} className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-xs relative flex flex-col justify-between">
+                        <div>
+                          <span className="text-[10px] font-black text-blue-600 block mb-1">0{sIdx+1}단계</span>
+                          <span className="font-extrabold leading-relaxed block text-slate-800 text-xs sm:text-[11px]">{step.split(': ')[1]}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row gap-3 items-center justify-between border-b border-slate-100 pb-4">
+                 <div className="pt-3 pb-6 flex flex-col items-center justify-center text-center gap-3 py-6 border-b border-slate-100">
                   <button
                     onClick={() => onOpenQuoteWithPurpose(sol.category)}
                     id={`btn-solution-cta-${sol.id}`}
-                    className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black shadow-md shadow-slate-900/10 flex items-center justify-center gap-1.5 cursor-pointer transition-all w-full sm:w-auto"
+                    className={`w-full sm:w-auto min-w-[280px] sm:min-w-[420px] py-4 px-10 font-black shadow-md rounded-2xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer text-white ${
+                      sol.category === 'Residential'
+                        ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25'
+                        : sol.category === 'Commercial'
+                        ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25'
+                        : 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25'
+                    }`}
                   >
                     <span>{sol.subtitle} 맞춤 상담 예약하기</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-4 h-4 ml-1.5 animate-pulse" />
                   </button>
-                  <span className="text-[11px] text-slate-400 font-bold hidden sm:inline">
+                  <span className="text-[11px] text-slate-400 font-bold block">
                     * 국고 보조금 예산 마감 전 신청을 적극 권장드립니다.
                   </span>
                 </div>

@@ -29,6 +29,8 @@ interface QuoteModalProps {
     successTitle: string;
     successDesc: string;
     privacyNotice: string;
+    directPhone?: string;
+    directKakaoUrl?: string;
     purposeLabels?: {
       Residential: string;
       Commercial: string;
@@ -50,7 +52,7 @@ const DEFAULT_FIELDS: {
   Residential: [
     { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
@@ -58,7 +60,7 @@ const DEFAULT_FIELDS: {
     { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
     { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
     { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
     { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
@@ -67,7 +69,7 @@ const DEFAULT_FIELDS: {
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
     { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
     { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
     { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
@@ -86,6 +88,8 @@ export default function QuoteModal({
     successTitle: '상담 신청이 정상 접수되었습니다!',
     successDesc: '올해 배정된 정부 보조금 잔여 한도 선점을 위해, 2시간 이내에 담당 전문 컨설턴트가 기재해 주신 번호로 연락드리겠습니다.',
     privacyNotice: '안심 보증 정책: 입력하신 정보는 한전 한도 및 정부 무상 보조금 산정 용도로만 안전하게 활용되며, 전문 법률에 따라 개인정보보호법을 철저히 준수합니다.',
+    directPhone: '1588-SY01',
+    directKakaoUrl: 'https://pf.kakao.com/',
     purposeLabels: {
       Residential: '주거용 (단독주택/빌라/아파트)',
       Commercial: '기업/관공서용 (사옥/공장/창고)',
@@ -112,6 +116,7 @@ export default function QuoteModal({
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [addressSearchFieldId, setAddressSearchFieldId] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -121,6 +126,43 @@ export default function QuoteModal({
   ];
 
   const activeFields = quoteConfig.fields?.[purpose] || DEFAULT_FIELDS[purpose];
+
+  // Address search with Daum Postcode
+  React.useEffect(() => {
+    if (addressSearchFieldId) {
+      const runPostcode = () => {
+        const container = document.getElementById('daum-postcode-container');
+        if (container && (window as any).daum && (window as any).daum.Postcode) {
+          new (window as any).daum.Postcode({
+            oncomplete: function(data: any) {
+              const fullAddress = data.roadAddress || data.address;
+              handleInputChange(addressSearchFieldId, fullAddress);
+              setAddressSearchFieldId(null);
+            },
+            width: '100%',
+            height: '100%'
+          }).embed(container);
+        }
+      };
+
+      if ((window as any).daum && (window as any).daum.Postcode) {
+        setTimeout(runPostcode, 150);
+      } else {
+        const scriptId = 'daum-postcode-script';
+        let script = document.getElementById(scriptId) as HTMLScriptElement;
+        if (!script) {
+          script = document.createElement('script');
+          script.id = scriptId;
+          script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+          script.async = true;
+          document.body.appendChild(script);
+        }
+        script.onload = () => {
+          setTimeout(runPostcode, 150);
+        };
+      }
+    }
+  }, [addressSearchFieldId]);
 
   // Initialize formValues when purpose changes
   React.useEffect(() => {
@@ -332,7 +374,7 @@ export default function QuoteModal({
                 exit={{ opacity: 0 }}
               >
                 {/* Header */}
-                <div className="mb-6">
+                <div className="mb-5">
                   <div className="flex items-center gap-1.5 text-blue-600 font-extrabold text-xs uppercase tracking-wider mb-1">
                     <Sparkles className="w-3.5 h-3.5" />
                     {quoteConfig.badge}
@@ -340,6 +382,36 @@ export default function QuoteModal({
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
                     {quoteConfig.title}
                   </h2>
+                </div>
+
+                {/* Realtime Direct Contacts */}
+                <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                  <a
+                    href={`tel:${quoteConfig.directPhone || '1588-SY01'}`}
+                    className="flex items-center justify-center gap-2.5 py-3 px-4 bg-white hover:bg-slate-50 border border-blue-200 rounded-xl text-slate-800 transition-all cursor-pointer text-center group"
+                  >
+                    <span className="text-xl group-hover:scale-110 transition-transform">📞</span>
+                    <div className="text-left min-w-0">
+                      <span className="text-[9px] text-slate-400 block font-bold leading-none mb-0.5">실시간 전화 문의</span>
+                      <span className="text-xs sm:text-sm font-black text-blue-600 block leading-tight truncate">
+                        {quoteConfig.directPhone || '1588-SY01'}
+                      </span>
+                    </div>
+                  </a>
+                  <a
+                    href={quoteConfig.directKakaoUrl || 'https://pf.kakao.com/'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2.5 py-3 px-4 bg-[#FEE500] hover:bg-[#FEE500]/95 border border-yellow-300 rounded-xl text-amber-950 transition-all cursor-pointer text-center group"
+                  >
+                    <span className="text-xl group-hover:scale-110 transition-transform">💬</span>
+                    <div className="text-left min-w-0">
+                      <span className="text-[9px] text-yellow-900/60 block font-bold leading-none mb-0.5">카카오톡 상담</span>
+                      <span className="text-xs sm:text-sm font-black text-amber-950 block leading-tight truncate">
+                        1:1 빠른 실시간 상담
+                      </span>
+                    </div>
+                  </a>
                 </div>
 
                 {/* Navigation Tabs */}
@@ -426,14 +498,25 @@ export default function QuoteModal({
                                 ))}
                               </select>
                             ) : (
-                              <input
-                                type={field.type}
-                                value={formValues[field.id] || ''}
-                                onChange={(e) => handleInputChange(field.id, e.target.value)}
-                                placeholder={field.placeholder}
-                                id={`input-quote-${field.id}`}
-                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
-                              />
+                              <div className="relative flex gap-1.5">
+                                <input
+                                  type={field.type}
+                                  value={formValues[field.id] || ''}
+                                  onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                  placeholder={field.placeholder}
+                                  id={`input-quote-${field.id}`}
+                                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                                />
+                                {(field.id === 'location' || field.label.includes('주소') || field.label.includes('지역')) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setAddressSearchFieldId(field.id)}
+                                    className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shrink-0 cursor-pointer transition-colors flex items-center justify-center gap-1 shadow-sm"
+                                  >
+                                    <span>🔍 주소 검색</span>
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
                         );
@@ -610,6 +693,32 @@ export default function QuoteModal({
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Daum Postcode Modal Overlay */}
+      {addressSearchFieldId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs">
+          <div className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 flex flex-col">
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+              <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                📍 주소 검색 (도로명/지번)
+              </span>
+              <button
+                type="button"
+                onClick={() => setAddressSearchFieldId(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded bg-slate-100 cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-2.5 bg-amber-50 border-b border-amber-100 text-[10px] text-amber-800 font-bold text-center">
+              💡 원하시는 동(읍/면/리) 또는 건물명을 입력해 주세요.
+            </div>
+            <div className="p-2 bg-white min-h-[420px] relative">
+              <div id="daum-postcode-container" className="w-full h-[400px]" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

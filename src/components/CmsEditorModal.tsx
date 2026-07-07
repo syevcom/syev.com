@@ -124,6 +124,8 @@ interface CmsEditorModalProps {
     successTitle: string;
     successDesc: string;
     privacyNotice: string;
+    directPhone?: string;
+    directKakaoUrl?: string;
     purposeLabels?: {
       Residential: string;
       Commercial: string;
@@ -194,7 +196,7 @@ const DEFAULT_FIELDS: {
   Residential: [
     { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
@@ -202,7 +204,7 @@ const DEFAULT_FIELDS: {
     { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
     { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
     { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
     { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
@@ -211,7 +213,7 @@ const DEFAULT_FIELDS: {
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
     { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
     { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
     { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
@@ -330,6 +332,8 @@ export default function CmsEditorModal({
   const [quoteSuccessTitle, setQuoteSuccessTitle] = useState(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
   const [quoteSuccessDesc, setQuoteSuccessDesc] = useState(quoteConfig.successDesc || '');
   const [quotePrivacyNotice, setQuotePrivacyNotice] = useState(quoteConfig.privacyNotice || '');
+  const [quoteDirectPhone, setQuoteDirectPhone] = useState(quoteConfig.directPhone || '1588-SY01');
+  const [quoteDirectKakaoUrl, setQuoteDirectKakaoUrl] = useState(quoteConfig.directKakaoUrl || 'https://pf.kakao.com/');
   const [quotePurposeLabels, setQuotePurposeLabels] = useState(
     quoteConfig.purposeLabels || {
       Residential: '주거용 (단독주택/빌라/아파트)',
@@ -414,6 +418,8 @@ export default function CmsEditorModal({
       setQuoteSuccessTitle(quoteConfig.successTitle || '상담 신청이 정상 접수되었습니다!');
       setQuoteSuccessDesc(quoteConfig.successDesc || '');
       setQuotePrivacyNotice(quoteConfig.privacyNotice || '');
+      setQuoteDirectPhone(quoteConfig.directPhone || '1588-SY01');
+      setQuoteDirectKakaoUrl(quoteConfig.directKakaoUrl || 'https://pf.kakao.com/');
       setQuotePurposeLabels(quoteConfig.purposeLabels || {
         Residential: '주거용 (단독주택/빌라/아파트)',
         Commercial: '기업/관공서용 (사옥/공장/창고)',
@@ -572,6 +578,8 @@ export default function CmsEditorModal({
       successTitle: quoteSuccessTitle,
       successDesc: quoteSuccessDesc,
       privacyNotice: quotePrivacyNotice,
+      directPhone: quoteDirectPhone,
+      directKakaoUrl: quoteDirectKakaoUrl,
       purposeLabels: quotePurposeLabels,
       fields: quoteFields
     });
@@ -3717,6 +3725,30 @@ export default function CmsEditorModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-blue-800">📞 실시간 직통 전화번호</label>
+                    <input
+                      type="text"
+                      value={quoteDirectPhone}
+                      onChange={(e) => setQuoteDirectPhone(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-blue-200 rounded-xl text-xs font-black text-blue-700"
+                      placeholder="1588-SY01"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-bold text-amber-800">💬 카카오톡 1:1 상담 URL</label>
+                    <input
+                      type="text"
+                      value={quoteDirectKakaoUrl}
+                      onChange={(e) => setQuoteDirectKakaoUrl(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-50 border border-amber-200 rounded-xl text-xs font-black text-amber-700"
+                      placeholder="https://pf.kakao.com/"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
                     <label className="block text-[11px] font-bold text-slate-700">상담 신청 접수 완료 타이틀</label>
                     <input
                       type="text"
@@ -3830,7 +3862,47 @@ export default function CmsEditorModal({
                           <div key={field.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-[10px] font-black text-slate-400 font-mono">항목 #{index + 1}</span>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  disabled={index === 0}
+                                  onClick={() => {
+                                    if (index === 0) return;
+                                    const updatedList = [...(quoteFields[configActiveTab] || [])];
+                                    const temp = updatedList[index];
+                                    updatedList[index] = updatedList[index - 1];
+                                    updatedList[index - 1] = temp;
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 cursor-pointer"
+                                  title="위로 이동"
+                                >
+                                  ▲ 위로
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={index === (quoteFields[configActiveTab] || []).length - 1}
+                                  onClick={() => {
+                                    const fieldsList = quoteFields[configActiveTab] || [];
+                                    if (index === fieldsList.length - 1) return;
+                                    const updatedList = [...fieldsList];
+                                    const temp = updatedList[index];
+                                    updatedList[index] = updatedList[index + 1];
+                                    updatedList[index + 1] = temp;
+                                    setQuoteFields({
+                                      ...quoteFields,
+                                      [configActiveTab]: updatedList
+                                    });
+                                  }}
+                                  className="text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 cursor-pointer"
+                                  title="아래로 이동"
+                                >
+                                  ▼ 아래로
+                                </button>
+                                <div className="h-4 w-px bg-slate-200 mx-0.5" />
                                 <label className="flex items-center gap-1 cursor-pointer">
                                   <input
                                     type="checkbox"
