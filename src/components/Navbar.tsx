@@ -41,7 +41,7 @@ export default function Navbar({
     { id: 'about', label: categoryLabels.about || '회사소개', icon: <Info className="w-4 h-4" /> },
     { id: 'sol_commercial', label: categoryLabels.sol_commercial || '아파트', icon: <Building className="w-4 h-4 text-blue-600" /> },
     { id: 'sol_residential', label: categoryLabels.sol_residential || '가정용 홈', icon: <Home className="w-4 h-4 text-emerald-600" /> },
-    { id: 'sol_parking', label: categoryLabels.sol_parking || '상업시설 수익형', icon: <MapPin className="w-4 h-4 text-amber-600" /> },
+    { id: 'sol_parking', label: categoryLabels.sol_parking || '상업시설 수익형', icon: <MapPin className="w-4 h-4 text-blue-600" /> },
     { id: 'review', label: categoryLabels.review || '설치후기', icon: <ClipboardCheck className="w-4 h-4" /> },
     { id: 'support', label: '고객지원', icon: <HelpCircle className="w-4 h-4" /> }
   ];

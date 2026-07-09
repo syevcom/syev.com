@@ -116,14 +116,14 @@ export default function MainHero({
   };
 
   return (
-    <div className="space-y-12 py-6">
+    <div className="space-y-0 pb-16">
       
       {/* 100% FULL-WIDTH CINEMATIC HERO BANNER */}
-      <div className="relative rounded-3xl overflow-hidden min-h-[460px] md:min-h-[520px] flex items-center shadow-2xl border border-slate-800 bg-slate-950 group/hero">
+      <div className="relative rounded-none overflow-hidden min-h-[500px] md:min-h-[620px] flex items-center bg-slate-950 group/hero w-full">
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('hero')}
-            className="absolute top-4 right-4 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+            className="absolute top-4 right-4 z-30 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
           >
             ✏️ 히어로 영역 실시간 편집
           </button>
@@ -205,8 +205,11 @@ export default function MainHero({
         </div>
       </div>
 
-      {/* Quick Menu Icons Grid below full hero */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Boxed Content Area for the rest of the page */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-12">
+
+        {/* Quick Menu Icons Grid below full hero */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <button
           onClick={() => setIsSearchingCharger(true)}
           id="btn-quick-find"
@@ -661,7 +664,7 @@ export default function MainHero({
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                         ch.status === '충전가능' 
                           ? 'bg-blue-50 text-blue-600 border border-blue-100' 
-                          : 'bg-amber-50 text-amber-600 border border-amber-100'
+                          : 'bg-stone-100 text-stone-600 border border-stone-200'
                       }`}>
                         {ch.status}
                       </span>
@@ -677,6 +680,7 @@ export default function MainHero({
           </div>
         )}
       </AnimatePresence>
+      </div> {/* Closing Boxed Content Area */}
     </div>
   );
 }

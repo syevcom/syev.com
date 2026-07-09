@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import Navbar from './components/Navbar';
 import MainHero from './components/MainHero';
 import AboutSection from './components/AboutSection';
 import ProductsSection from './components/ProductsSection';
@@ -713,8 +712,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50/30 text-slate-900 font-sans flex flex-col justify-between">
-      {/* Header & Navbar Top Navigation structure */}
-      <div className="w-full">
+      {/* Spacer container to match the fixed Header height and prevent page content overlap */}
+      <div className="w-full h-[120px] sm:h-[135px] md:h-[145px] xl:h-[155px] shrink-0">
         <Header
           user={user}
           activePage={activePage}
@@ -722,6 +721,7 @@ export default function App() {
           onOpenAuth={() => setIsAuthOpen(true)}
           onOpenMyPage={() => setIsMyPageOpen(true)}
           onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
+          onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
           isEditMode={isEditMode}
           onToggleEditMode={() => {
             if (!isEditMode) {
@@ -732,75 +732,20 @@ export default function App() {
           }}
           onOpenCms={() => setIsCmsOpen(true)}
           logoConfig={logoConfig}
+          snsConfig={snsConfig}
+          footerConfig={footerConfig}
         />
 
-        {/* 1. 환경부아파트 무상설치 / 가정용 / 상업시설 문의 상단 퀵 바로가기 3칸 카드 (아임웹 초월 초고품격 리디자인) */}
-        <div className="sticky top-[60px] sm:top-[112px] md:top-[92px] lg:top-[92px] z-30 py-2 sm:py-3.5 px-3 sm:px-6 lg:px-8 bg-slate-50/80 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto bg-white/95 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/60 grid grid-cols-3 gap-1.5 sm:gap-4">
-            <button
-              onClick={() => handleOpenQuoteWithPurpose('Commercial')}
-              className="flex items-center justify-between p-1.5 sm:p-4 bg-slate-50/50 hover:bg-blue-50/40 border-2 border-slate-100 hover:border-blue-500 rounded-xl sm:rounded-2xl transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer text-left min-w-0 shadow-xs hover:shadow-lg hover:shadow-blue-500/10"
-              id="quick-shortcut-apt"
-            >
-              <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0 w-full">
-                <div className="w-6 h-6 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs sm:text-lg group-hover:scale-105 group-hover:rotate-6 transition-transform shrink-0 shadow-md shadow-blue-600/25">
-                  ⚡
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[7.5px] sm:text-[10px] text-blue-600 font-extrabold tracking-tight sm:tracking-wider block uppercase mb-0.5 sm:mb-1">아파트 무상설치</span>
-                  <span className="text-[9.5px] sm:text-sm font-black text-slate-800 group-hover:text-blue-600 transition-colors truncate block leading-tight">
-                    {heroConfig.quickContact1 || '아파트 무상설치 문의'}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all hidden sm:block shrink-0" />
-            </button>
- 
-            <button
-              onClick={() => handleOpenQuoteWithPurpose('Residential')}
-              className="flex items-center justify-between p-1.5 sm:p-4 bg-slate-50/50 hover:bg-emerald-50/40 border-2 border-slate-100 hover:border-emerald-500 rounded-xl sm:rounded-2xl transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer text-left min-w-0 shadow-xs hover:shadow-lg hover:shadow-emerald-500/10"
-              id="quick-shortcut-home"
-            >
-              <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0 w-full">
-                <div className="w-6 h-6 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs sm:text-lg group-hover:scale-105 group-hover:rotate-6 transition-transform shrink-0 shadow-md shadow-emerald-600/25">
-                  🏠
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[7.5px] sm:text-[10px] text-emerald-600 font-extrabold tracking-tight sm:tracking-wider block uppercase mb-0.5 sm:mb-1">가정용 완속충전</span>
-                  <span className="text-[9.5px] sm:text-sm font-black text-slate-800 group-hover:text-emerald-600 transition-colors truncate block leading-tight">
-                    {heroConfig.quickContact2 || '가정용 · 홈 설치문의'}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all hidden sm:block shrink-0" />
-            </button>
- 
-            <button
-              onClick={() => handleOpenQuoteWithPurpose('ParkingLot')}
-              className="flex items-center justify-between p-1.5 sm:p-4 bg-slate-50/50 hover:bg-amber-50/40 border-2 border-slate-100 hover:border-amber-500 rounded-xl sm:rounded-2xl transition-all duration-300 hover:-translate-y-0.5 group cursor-pointer text-left min-w-0 shadow-xs hover:shadow-lg hover:shadow-amber-500/10"
-              id="quick-shortcut-commercial"
-            >
-              <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0 w-full">
-                <div className="w-6 h-6 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-amber-600 text-white flex items-center justify-center font-black text-xs sm:text-lg group-hover:scale-105 group-hover:rotate-6 transition-transform shrink-0 shadow-md shadow-amber-600/25">
-                  🏢
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[7.5px] sm:text-[10px] text-amber-600 font-extrabold tracking-tight sm:tracking-wider block uppercase mb-0.5 sm:mb-1">상업시설 수익형</span>
-                  <span className="text-[9.5px] sm:text-sm font-black text-slate-800 group-hover:text-amber-600 transition-colors truncate block leading-tight">
-                    {heroConfig.quickContact3 || '수익형 충전기 문의'}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all hidden sm:block shrink-0" />
-            </button>
-          </div>
-        </div>
 
-        <Navbar activePage={activePage} onPageChange={setActivePage} categoryLabels={categoryLabels} />
+
       </div>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow w-full py-6">
+      <main className={`flex-grow w-full ${
+        activePage === 'home' 
+          ? 'py-0' 
+          : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'
+      }`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activePage}

@@ -182,7 +182,7 @@ function robustUrlDecode(s: string): string {
 interface CustomField {
   id: string;
   label: string;
-  type: 'text' | 'tel' | 'select' | 'number';
+  type: 'text' | 'tel' | 'select' | 'number' | 'address';
   placeholder?: string;
   required: boolean;
   options?: string[];
@@ -196,7 +196,7 @@ const DEFAULT_FIELDS: {
   Residential: [
     { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
@@ -204,7 +204,7 @@ const DEFAULT_FIELDS: {
     { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
     { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
     { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
     { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
@@ -213,7 +213,7 @@ const DEFAULT_FIELDS: {
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
     { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
     { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
     { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
@@ -3985,6 +3985,7 @@ export default function CmsEditorModal({
                                   <option value="text">텍스트 입력칸 (이름 등)</option>
                                   <option value="tel">연락처 입력칸 (전화번호)</option>
                                   <option value="number">숫자 입력칸 (수량 등)</option>
+                                  <option value="address">주소 검색 입력칸 (Daum 우편번호 검색)</option>
                                   <option value="select">드롭다운 선택창 (Select)</option>
                                 </select>
                               </div>

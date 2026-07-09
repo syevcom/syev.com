@@ -56,7 +56,7 @@ export default function SolutionsSection({
       {isEditMode && onOpenCms && (
         <button
           onClick={() => onOpenCms('solutions')}
-          className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+          className="absolute top-2 right-2 z-30 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
         >
           ✏️ 용도별 솔루션 실시간 편집
         </button>
@@ -170,7 +170,7 @@ export default function SolutionsSection({
                         ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25'
                         : sol.category === 'Commercial'
                         ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25'
-                        : 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25'
+                        : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25'
                     }`}
                   >
                     <span>{sol.subtitle} 맞춤 상담 예약하기</span>
@@ -321,7 +321,7 @@ export default function SolutionsSection({
                                   </span>
                                   <span className={`text-[9px] font-black px-2 py-0.5 rounded-md ${
                                     selectedProd.type === '급속' || selectedProd.type === '초급속'
-                                      ? 'bg-amber-100 text-amber-800'
+                                      ? 'bg-indigo-100 text-indigo-800'
                                       : 'bg-emerald-100 text-emerald-800'
                                   }`}>
                                     {selectedProd.type}형 모델

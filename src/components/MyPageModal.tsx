@@ -74,7 +74,7 @@ export default function MyPageModal({
       case '접수대기':
         return 'bg-blue-50 text-blue-600 border-blue-100';
       case '상담예약완료':
-        return 'bg-amber-50 text-amber-600 border-amber-100';
+        return 'bg-cyan-50 text-cyan-600 border-cyan-100';
       case '시공설계중':
         return 'bg-indigo-50 text-indigo-600 border-indigo-100';
       case '시공완료':

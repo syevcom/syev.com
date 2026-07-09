@@ -57,13 +57,13 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
         className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden"
       >
         {/* Decorative Top Accent */}
-        <div className="h-2 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600" />
+        <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-indigo-600" />
 
         {/* Modal Header */}
         <div className="p-6 pb-4 flex justify-between items-start border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100">
-              <ShieldCheck className="w-5 h-5 text-amber-600" />
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <h3 className="font-black text-slate-900 text-sm tracking-tight">SY.com 관리자 인증</h3>
@@ -81,10 +81,10 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl text-xs font-semibold text-slate-600 leading-relaxed">
-            <span className="block font-black text-amber-700 mb-1">📢 에디터 모드 보안 안내</span>
+            <span className="block font-black text-blue-700 mb-1">📢 에디터 모드 보안 안내</span>
             홈페이지의 <strong>로고, 카테고리 메뉴 이름, 그리고 시공 후기 지도 게시글</strong>을 직접 실시간으로 관리하고 추가하기 위해 비밀번호를 입력해 주세요.
-            <div className="mt-2 text-[10px] bg-amber-500/10 text-amber-800 px-2 py-1 rounded-md font-bold inline-block">
-              🔑 초기 관리자 비밀번호: <span className="font-extrabold text-amber-950 underline">1234</span>
+            <div className="mt-2 text-[10px] bg-blue-500/10 text-blue-800 px-2 py-1 rounded-md font-bold inline-block">
+              🔑 초기 관리자 비밀번호: <span className="font-extrabold text-blue-950 underline">1234</span>
             </div>
           </div>
 
@@ -99,7 +99,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호 4자리를 입력해 주세요"
-                className="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 rounded-xl text-sm font-bold transition-all"
+                className="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl text-sm font-bold transition-all"
                 autoFocus
               />
               <button
@@ -141,7 +141,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
             type="submit"
             className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <ShieldCheck className="w-4 h-4 text-blue-400" />
             관리자 모드 활성화하기
           </button>
         </form>

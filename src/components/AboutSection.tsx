@@ -65,7 +65,7 @@ export default function AboutSection({
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('about')}
-            className="absolute top-2 right-2 z-30 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+            className="absolute top-2 right-2 z-30 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
           >
             ✏️ 대표자 및 회사 소개 실시간 편집
           </button>

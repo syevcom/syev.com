@@ -11,7 +11,7 @@ import { Booking } from '../types';
 interface CustomField {
   id: string;
   label: string;
-  type: 'text' | 'tel' | 'select' | 'number';
+  type: 'text' | 'tel' | 'select' | 'number' | 'address';
   placeholder?: string;
   required: boolean;
   options?: string[];
@@ -52,7 +52,7 @@ const DEFAULT_FIELDS: {
   Residential: [
     { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
@@ -60,7 +60,7 @@ const DEFAULT_FIELDS: {
     { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
     { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
     { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
     { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
@@ -69,7 +69,7 @@ const DEFAULT_FIELDS: {
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
     { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'text', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
     { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
     { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
@@ -384,36 +384,6 @@ export default function QuoteModal({
                   </h2>
                 </div>
 
-                {/* Realtime Direct Contacts */}
-                <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                  <a
-                    href={`tel:${quoteConfig.directPhone || '1588-SY01'}`}
-                    className="flex items-center justify-center gap-2.5 py-3 px-4 bg-white hover:bg-slate-50 border border-blue-200 rounded-xl text-slate-800 transition-all cursor-pointer text-center group"
-                  >
-                    <span className="text-xl group-hover:scale-110 transition-transform">📞</span>
-                    <div className="text-left min-w-0">
-                      <span className="text-[9px] text-slate-400 block font-bold leading-none mb-0.5">실시간 전화 문의</span>
-                      <span className="text-xs sm:text-sm font-black text-blue-600 block leading-tight truncate">
-                        {quoteConfig.directPhone || '1588-SY01'}
-                      </span>
-                    </div>
-                  </a>
-                  <a
-                    href={quoteConfig.directKakaoUrl || 'https://pf.kakao.com/'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2.5 py-3 px-4 bg-[#FEE500] hover:bg-[#FEE500]/95 border border-yellow-300 rounded-xl text-amber-950 transition-all cursor-pointer text-center group"
-                  >
-                    <span className="text-xl group-hover:scale-110 transition-transform">💬</span>
-                    <div className="text-left min-w-0">
-                      <span className="text-[9px] text-yellow-900/60 block font-bold leading-none mb-0.5">카카오톡 상담</span>
-                      <span className="text-xs sm:text-sm font-black text-amber-950 block leading-tight truncate">
-                        1:1 빠른 실시간 상담
-                      </span>
-                    </div>
-                  </a>
-                </div>
-
                 {/* Navigation Tabs */}
                 <div className="flex border-b border-slate-200 mb-6">
                   <button
@@ -500,14 +470,14 @@ export default function QuoteModal({
                             ) : (
                               <div className="relative flex gap-1.5">
                                 <input
-                                  type={field.type}
+                                  type={field.type === 'address' ? 'text' : field.type}
                                   value={formValues[field.id] || ''}
                                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                                   placeholder={field.placeholder}
                                   id={`input-quote-${field.id}`}
                                   className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
                                 />
-                                {(field.id === 'location' || field.label.includes('주소') || field.label.includes('지역')) && (
+                                {(field.id === 'location' || field.type === 'address' || field.label.includes('주소') || field.label.includes('지역')) && (
                                   <button
                                     type="button"
                                     onClick={() => setAddressSearchFieldId(field.id)}
