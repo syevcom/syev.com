@@ -8,6 +8,128 @@ import { Solution, ActivePage } from '../types';
 import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image } from 'lucide-react';
 import { PRODUCTS } from '../data';
 
+const BRAND_METADATA: Record<string, {
+  name: string;
+  slogan: string;
+  description: string;
+  highlights: string[];
+  logoBg: string;
+  icon: string;
+  benefits: string[];
+}> = {
+  'sk일렉링크': {
+    name: 'sk일렉링크 (SK electlink)',
+    slogan: 'SK그룹의 신뢰도 높은 전국 최대 급속/완속 충전 네트워크',
+    description: 'SK일렉링크는 대기업의 강력한 인프라와 높은 보안 수준을 바탕으로 고속 충전 및 지능형 완속 전력 제어 장치를 공급하며, 전국 1위의 가동률과 원격 고장 복구 시스템을 자랑합니다.',
+    highlights: ['대기업 대규모 인프라망', '실시간 스마트 전력 분배', '24시간 무인 모니터링'],
+    logoBg: 'bg-red-50 text-red-600 border-red-100',
+    icon: '⚡',
+    benefits: ['SK 멤버십 할인 혜택 연동', '100% 무상 설치 지원 (정부보조금)', 'PLC 화재 예방 안심 모뎀 기본 탑재']
+  },
+  '플러그링크': {
+    name: '플러그링크 (pluglink)',
+    slogan: 'IT 기술 기반의 혁신적인 스마트 로드 밸런싱 충전 기술',
+    description: '플러그링크는 스마트 분배 제어 솔루션으로 한전 전력 승압 비용을 최소화하며, 깔끔한 스페이스 그레이 메탈 월박스 디자인으로 아파트 가치를 한층 드높입니다.',
+    highlights: ['스마트 로드 밸런싱 특허', '스페이스 그레이 메탈 디자인', '카카오톡 연동 간편 요금 결제'],
+    logoBg: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    icon: '🔌',
+    benefits: ['단일 회선 전력 5대 분배 시공', '자가 부담금 ZERO 무상 설치', '업계 유일 100% 친환경 재생에너지 요금제']
+  },
+  '이엘일렉트릭': {
+    name: '이엘일렉트릭 (EL Electric)',
+    slogan: '온도센서 연동형 화재 안심 스마트 제어 기술의 절대 강자',
+    description: '이EL일렉트릭은 완속 충전기 자체의 복합 온도 측정 센서와 과열 자동 차단 회로를 보유하여 화재 예방에 가장 안전한 1등 품질 신뢰 아파트 충전 모델입니다.',
+    highlights: ['온도 센서 내장 화재 예방', '실시간 과전류 3중 차단', '안전 안심 시공 가이드 준수'],
+    logoBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    icon: '🛡️',
+    benefits: ['화재 예방 충전기 우선 보조금 적용', '전기 안전 사고 책임 보증 보험 가입', '무상 현장 정밀 안전 진단']
+  },
+  '나이스차져': {
+    name: '나이스차져 (NICE Charger)',
+    slogan: 'NICE 홀딩스 금융 인프라의 투명하고 편리한 과금 수납 솔루션',
+    description: '나이스차져는 국내 최고 신용평가 그룹인 NICE 그룹의 정밀 무인 금융 단말 수납 기술을 탑재하여 365일 실시간 투명한 요금 정산과 안전한 보안 인증을 완료했습니다.',
+    highlights: ['금융 등급 보안 정산망', 'NICE 간편 결제 완벽 지원', '365일 24시간 CS 콜센터'],
+    logoBg: 'bg-cyan-50 text-cyan-600 border-cyan-100',
+    icon: '💳',
+    benefits: ['신용카드 단말기 탑재 가능 모델', '아파트 관리비 고지서 연동 수납', '정부 승인 공식 보조금 시공']
+  },
+  '에버온': {
+    name: '에버온 (Everon)',
+    slogan: '대한민국 누적 시공 실적 1위에 빛나는 대표 완속 파트너',
+    description: '에버온은 오랜 충전 비즈니스 역사와 폭넓은 현장 데이터베이스를 기반으로 어떤 구옥/신축 아파트 주차 현장에도 완벽한 전력선 인입과 최적 충전 구역 선정을 보장합니다.',
+    highlights: ['누적 설치량 1위의 노하우', '가장 저렴한 표준 충전 단가', '전국 직영 A/S 기술망 구축'],
+    logoBg: 'bg-amber-50 text-amber-700 border-amber-100',
+    icon: '🌟',
+    benefits: ['24시간 원격 복구 솔루션 무상 제공', '최첨단 슬림형 LED 디스플레이', '입주민 대상 100% 무상 설치 지원']
+  },
+  '현대엔지니어링': {
+    name: '현대엔지니어링 (HEC Charger)',
+    slogan: '현대자동차그룹의 정식 전기차 충전 서비스 시공 공식 사업자',
+    description: '현대엔지니어링은 국내 최고의 대기업 주택건설 역량과 자본금을 활용해 최고 품질의 하이엔드형 아파트 완속/급속 충전 기기 및 프리미엄 전기공사를 제공합니다.',
+    highlights: ['현대자동차그룹 공식 파트너', '1군 건설사 명품 프리미엄 시공', '고품격 통합 회원 혜택 연동'],
+    logoBg: 'bg-blue-50 text-blue-700 border-blue-100',
+    icon: '🚙',
+    benefits: ['현대/기아 멤버십 포인트 사용 연동', '100% 하이엔드 신뢰성 부품 사용', '전국 한전 용량 사전 무상 대관 컨설팅']
+  }
+};
+
+const HOME_POWER_METADATA: Record<string, {
+  name: string;
+  slogan: string;
+  description: string;
+  highlights: string[];
+  logoBg: string;
+  icon: string;
+  benefits: string[];
+  specs: { label: string; value: string }[];
+}> = {
+  '5kW': {
+    name: '5kW 슬림형 스마트 홈 충전기',
+    slogan: '단상 220V 소형 계약 전력 및 구옥 주택용 최적화 모델',
+    description: '한전 승압 공사 요금이 부담스럽거나 기본 전기 요금을 절감하고 싶은 단독주택 소유주분들을 위한 실속형 충전 시스템입니다. 기존 7kW 대비 승압 추가 비용 부담 없이 간편한 전기 인입으로 야간 수면 중 안전하게 완충이 가능합니다.',
+    highlights: ['승압 기본요금 절약', '플러그 앤 플레이 지원', '소형 컴팩트 디자인'],
+    logoBg: 'bg-teal-50 text-teal-600 border-teal-100',
+    icon: '🔋',
+    benefits: ['한전 기본요금 월 약 1만원 영구 절감 효과', '자가부담 최소화 맞춤 실속 시공', '과전류/과온도 방지 오토 제어 센서'],
+    specs: [
+      { label: '최대 출력 용량', value: '5kW (단상 220V)' },
+      { label: '완충 소요 시간', value: '84kWh 기준 약 16.5시간 (기본 야간 주차 시 충분)' },
+      { label: '권장 설치 환경', value: '단독주택, 농어촌 주택, 계약전력 5kW 이하 공간' },
+      { label: '케이블 길이', value: '기본 5m 고품질 난연 케이블 제공 (최대 7m 연장 가능)' }
+    ]
+  },
+  '7kW': {
+    name: '7kW 표준형 스마트 홈 충전기',
+    slogan: '대한민국 보급률 1위! 가장 표준적이고 든든한 고성능 홈 충전 표준',
+    description: '단독주택, 빌라, 개인 전용 차고지에 가장 많이 시공되는 베스트셀러 표준 용량입니다. 퇴근 후 주차하여 밤사이(8~10시간) 충전해 두면, 다음날 상쾌한 기분으로 100% 완전 충전된 차량을 주행할 수 있어 최상의 가성비와 충전 만족도를 자랑합니다.',
+    highlights: ['대한민국 표준기 규격', '방수/방진 IP55 최고 등급', '예약 시간 충전 스마트 칩'],
+    logoBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    icon: '⚡',
+    benefits: ['심야 시간 할인 전기요금 자동 예약 세팅', '100% 한전 한도 사전 대관 무료 대행', 'KC 국가안전인증 및 전자파 무해 입증'],
+    specs: [
+      { label: '최대 출력 용량', value: '7kW (단상 220V)' },
+      { label: '완충 소요 시간', value: '84kWh 기준 약 12시간 (야간 1회 주차로 100% 완충)' },
+      { label: '권장 설치 환경', value: '일반 단독주택, 신축 빌라, 개인 상가 소유 주차장' },
+      { label: '케이블 길이', value: '기본 5m 고강도 내한성 실리콘 케이블 기본 탑재' }
+    ]
+  },
+  '11kW': {
+    name: '11kW 고속형 3상 프리미엄 홈 충전기',
+    slogan: '3상 380V 고전력 인입 전용, 고출력 수입/대형 EV 특화 시스템',
+    description: '3상 380V 동력 전기를 활용할 수 있는 단독주택이나 준공공 시설, 개인 사업장에 완벽하게 대응하는 하이엔드 모델입니다. 테슬라, 아우디 e-tron, 타이칸 등 대용량 고전압 배터리를 탑재한 수입/국산 프리미엄 전기차를 7kW 대비 최대 1.5배 이상 신속하게 완충합니다.',
+    highlights: ['3상 동력 11kW 초고속 완속', '수입/대용량 EV 충전 완벽 호환', '고급 LED 지능형 디스플레이'],
+    logoBg: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    icon: '🚀',
+    benefits: ['7kW 대비 약 4.5시간 이상 시간 단축 효과', '기기 가동 상태 실시간 LED 직관 모니터링', '업계 최고 5억 생산물 배상 책임 보험 가입'],
+    specs: [
+      { label: '최대 출력 용량', value: '11kW (3상 380V)' },
+      { label: '완충 소요 시간', value: '84kWh 기준 단 7.5시간 (급속 못지않은 완속 속도)' },
+      { label: '권장 설치 환경', value: '3상 동력 전기 사용 주택, 개인 법인 사옥, 프리미엄 차고지' },
+      { label: '케이블 길이', value: '기본 5m 일체형 하이그레이드 커넥터 제공' }
+    ]
+  }
+};
+
 interface SolutionsSectionProps {
   key?: React.Key;
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
@@ -16,6 +138,10 @@ interface SolutionsSectionProps {
   onOpenCms?: (tab: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sync') => void;
   onPageChange?: (page: ActivePage) => void;
   defaultActiveTab?: 'ALL' | 'Commercial' | 'Residential' | 'ParkingLot';
+  selectedAptBrand?: string;
+  onSelectAptBrand?: (brand: string) => void;
+  selectedHomePower?: string;
+  onSelectHomePower?: (power: string) => void;
 }
 
 export default function SolutionsSection({ 
@@ -24,7 +150,11 @@ export default function SolutionsSection({
   isEditMode = false,
   onOpenCms,
   onPageChange,
-  defaultActiveTab = 'ALL'
+  defaultActiveTab = 'ALL',
+  selectedAptBrand = 'sk일렉링크',
+  onSelectAptBrand,
+  selectedHomePower = '7kW',
+  onSelectHomePower
  }: SolutionsSectionProps) {
   const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>(defaultActiveTab);
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
@@ -143,6 +273,215 @@ export default function SolutionsSection({
                     ))}
                   </div>
                 </div>
+
+                {sol.category === 'Commercial' && (() => {
+                  const brandData = BRAND_METADATA[selectedAptBrand] || BRAND_METADATA['sk일렉링크'];
+                  return (
+                    <div className="p-6 bg-slate-900 text-white rounded-3xl border border-slate-800/80 space-y-6 shadow-xl relative overflow-hidden group/brand">
+                      {/* Decorative Background Glow */}
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                      
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 relative z-10">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl sm:text-2xl">{brandData.icon}</span>
+                            <span className="text-[10px] font-extrabold text-blue-400 tracking-wider uppercase block bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-900/40">
+                              SY.com 아파트 브랜드 공식 파트너
+                            </span>
+                          </div>
+                          <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                            {brandData.name}
+                          </h4>
+                          <p className="text-xs text-slate-400 font-bold">
+                            {brandData.slogan}
+                          </p>
+                        </div>
+                        <div className="flex gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none self-stretch lg:self-auto">
+                          {Object.keys(BRAND_METADATA).map((b) => {
+                            const isSel = selectedAptBrand === b;
+                            return (
+                              <button
+                                key={b}
+                                type="button"
+                                onClick={() => onSelectAptBrand?.(b)}
+                                className={`px-3 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
+                                  isSel
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-103'
+                                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700/80'
+                                }`}
+                              >
+                                {b}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                        <div className="space-y-4">
+                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-semibold">
+                            {brandData.description}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {brandData.highlights.map((hl) => (
+                              <span key={hl} className="text-[10px] font-black bg-slate-800/80 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700/40">
+                                ✓ {hl}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                          <span className="text-[10px] font-extrabold text-blue-400 tracking-wider uppercase block">
+                            🎁 SY.com 무상 설치 공식 혜택
+                          </span>
+                          <div className="space-y-2">
+                            {brandData.benefits.map((benefit, bIdx) => (
+                              <div key={bIdx} className="flex items-start gap-2 text-xs text-slate-200">
+                                <span className="text-blue-500 font-bold mt-0.5">•</span>
+                                <span className="font-bold leading-relaxed">{benefit}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50 relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                          <p className="text-[11px] sm:text-xs text-slate-300 font-bold">
+                            지금 문의하시면 <span className="text-amber-400 font-black">{brandData.name}</span> 정부 및 지자체 무상 지원 자격을 즉시 심사 매칭해 드립니다.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onOpenQuoteWithPurpose('Commercial')}
+                          className="w-full md:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0"
+                        >
+                          ⚡ {selectedAptBrand} 무상설치 문의하기
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {sol.category === 'Residential' && (() => {
+                  const powerData = HOME_POWER_METADATA[selectedHomePower] || HOME_POWER_METADATA['7kW'];
+                  return (
+                    <div className="p-6 bg-slate-900 text-white rounded-3xl border border-slate-800/80 space-y-6 shadow-xl relative overflow-hidden group/brand">
+                      {/* Decorative Background Glow */}
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                      
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 relative z-10">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl sm:text-2xl">{powerData.icon}</span>
+                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-900/40">
+                              가정용 홈충전기 상세 스펙 비교
+                            </span>
+                          </div>
+                          <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                            {powerData.name}
+                          </h4>
+                          <p className="text-xs text-slate-400 font-bold">
+                            {powerData.slogan}
+                          </p>
+                        </div>
+                        
+                        {/* Interactive kW selection tabs */}
+                        <div className="flex gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none self-stretch lg:self-auto">
+                          {Object.keys(HOME_POWER_METADATA).map((p) => {
+                            const isSel = selectedHomePower === p;
+                            return (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() => onSelectHomePower?.(p)}
+                                className={`px-4 py-2.5 rounded-xl text-[12px] font-black transition-all cursor-pointer whitespace-nowrap ${
+                                  isSel
+                                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 scale-103 font-black'
+                                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700/80'
+                                }`}
+                              >
+                                {p} 충전기
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+                        {/* Left column (7/12) */}
+                        <div className="lg:col-span-7 space-y-4">
+                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-semibold">
+                            {powerData.description}
+                          </p>
+                          
+                          {/* Highlights */}
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {powerData.highlights.map((hl) => (
+                              <span key={hl} className="text-[10px] font-black bg-slate-800/80 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700/40">
+                                ✓ {hl}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Technical specs card */}
+                          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block">
+                              📊 {selectedHomePower} 기술 세부 사양 (Technical Specifications)
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {powerData.specs.map((spec, sIdx) => (
+                                <div key={sIdx} className="space-y-0.5 border-l border-emerald-500/20 pl-2">
+                                  <span className="text-[10px] text-slate-400 font-extrabold block">{spec.label}</span>
+                                  <span className="text-xs text-slate-200 font-bold">{spec.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right column (5/12) */}
+                        <div className="lg:col-span-5 space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                          <div className="space-y-3">
+                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block">
+                              🎁 SY.com 가정용 무상 설치 공식 특전
+                            </span>
+                            <div className="space-y-2">
+                              {powerData.benefits.map((benefit, bIdx) => (
+                                <div key={bIdx} className="flex items-start gap-2 text-xs text-slate-200">
+                                  <span className="text-emerald-500 font-bold mt-0.5">•</span>
+                                  <span className="font-bold leading-relaxed">{benefit}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="pt-4 border-t border-slate-800/60 text-xs text-slate-400 leading-relaxed font-medium">
+                            💡 <span className="text-slate-300 font-bold">자가 소유지 단독주택</span> 뿐만 아니라, 빌라 주차장 및 아파트 개인 배정 주차면 내 설치 가능 여부를 무료로 사전 분석해 드립니다.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50 relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                          <p className="text-[11px] sm:text-xs text-slate-300 font-bold">
+                            지금 문의하시면 <span className="text-amber-400 font-black">{powerData.name}</span> 정부 및 지자체 무상 인입 자격을 즉시 심사 매칭해 드립니다.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onOpenQuoteWithPurpose('Residential')}
+                          className="w-full md:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0 shadow-md shadow-emerald-500/20"
+                        >
+                          ⚡ {selectedHomePower} 무상설치 문의하기
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) - 글 아래인 상단으로 이동 */}
                 <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">

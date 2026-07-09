@@ -52,6 +52,10 @@ interface HeaderProps {
     phone: string;
     email: string;
   };
+  selectedAptBrand?: string;
+  onSelectAptBrand?: (brand: string) => void;
+  selectedHomePower?: string;
+  onSelectHomePower?: (power: string) => void;
 }
 
 export default function Header({
@@ -67,7 +71,11 @@ export default function Header({
   onOpenCms,
   logoConfig = { text: 'SY', subtitle: 'SY.com', showCompanyName: true, companyNameText: '주식회사 에스와이코리아' },
   snsConfig = { kakaoUrl: 'https://pf.kakao.com/', instagramUrl: 'https://www.instagram.com/', blogUrl: 'https://section.blog.naver.com/', showFloatingSns: true },
-  footerConfig = { phone: '1588-SY01', email: 'sy.car.com@gmail.com' }
+  footerConfig = { phone: '1588-SY01', email: 'sy.car.com@gmail.com' },
+  selectedAptBrand = 'sk일렉링크',
+  onSelectAptBrand,
+  selectedHomePower = '7kW',
+  onSelectHomePower
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
@@ -168,10 +176,16 @@ export default function Header({
             {/* 1. 아파트 무상 설치 문의 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Commercial') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 border border-blue-500/10 rounded-md text-[12.5px] lg:text-[13.5px] font-black text-white transition-all cursor-pointer shadow-sm group shrink"
+              className={`flex items-center justify-center px-3 py-1.5 border border-blue-500/10 rounded-md text-[12.5px] lg:text-[13.5px] font-black text-white transition-all cursor-pointer shadow-sm group shrink ${
+                activePage === 'sol_commercial' 
+                  ? 'bg-amber-500 hover:bg-amber-600 animate-pulse' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
               id="btn-header-shortcut-apt"
             >
-              <span className="truncate">⚡ 아파트 무상설치</span>
+              <span className="truncate">
+                ⚡ {activePage === 'sol_commercial' ? `${selectedAptBrand} 무상설치 문의` : '아파트 무상설치'}
+              </span>
             </button>
 
             {/* 2. 가정용 · 홈 충전기 설치 문의 */}
@@ -271,7 +285,7 @@ export default function Header({
                 onClick={() => handleInquirySelect('Commercial')}
                 className="w-full px-4 py-3 bg-white hover:bg-blue-50/50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 flex items-center justify-center gap-1 shadow-sm"
               >
-                <span>⚡ 아파트 무상 설치 문의</span>
+                <span>⚡ {activePage === 'sol_commercial' ? `${selectedAptBrand} 무상설치 문의` : '아파트 무상 설치 문의'}</span>
               </button>
               <button
                 onClick={() => handleInquirySelect('Residential')}
@@ -360,6 +374,65 @@ export default function Header({
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* Sub-navigation bar for Brands (Only visible when 'sol_commercial' / Apartment Charger page is active) */}
+      {activePage === 'sol_commercial' && (
+        <div className="w-full bg-slate-900 border-t border-slate-800/80 py-3 shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {[
+              'sk일렉링크',
+              '플러그링크',
+              '이엘일렉트릭',
+              '나이스차져',
+              '에버온',
+              '현대엔지니어링'
+            ].map((brand) => {
+              const isSelected = selectedAptBrand === brand;
+              return (
+                <button
+                  key={brand}
+                  onClick={() => onSelectAptBrand?.(brand)}
+                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-black scale-105'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {brand}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sub-navigation bar for Home Power Capacities (Only visible when 'sol_residential' is active) */}
+      {activePage === 'sol_residential' && (
+        <div className="w-full bg-emerald-950 border-t border-emerald-900/40 py-3 shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {[
+              '5kW',
+              '7kW',
+              '11kW'
+            ].map((kw) => {
+              const isSelected = selectedHomePower === kw;
+              return (
+                <button
+                  key={kw}
+                  onClick={() => onSelectHomePower?.(kw)}
+                  className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/35 font-black scale-105'
+                      : 'text-emerald-100 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {kw} (가정용 홈충전기)
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </header>

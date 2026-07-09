@@ -22,6 +22,8 @@ interface QuoteModalProps {
   onClose: () => void;
   onSubmitBooking: (booking: Omit<Booking, 'id' | 'createdAt' | 'status'>) => void;
   initialPurpose?: 'Commercial' | 'Residential' | 'ParkingLot';
+  initialBrand?: string;
+  initialHomePower?: string;
   quoteConfig?: {
     badge: string;
     title: string;
@@ -57,13 +59,15 @@ const DEFAULT_FIELDS: {
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
   Commercial: [
-    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
-    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'companyName', label: '아파트명 (건물명)', type: 'text', placeholder: '예: 에스와이 1차 아파트', required: true },
+    { id: 'location', label: '주소', type: 'address', placeholder: '설치지 상세 주소를 입력 또는 검색해 주세요.', required: true },
+    { id: 'parkingCount', label: '보유 주차면수', type: 'text', placeholder: '예: 150면', required: true },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '예: 10', required: true },
+    { id: 'ownedChargers', label: '보유 충전기 수량 (대)', type: 'number', placeholder: '예: 2 (없을 시 0 입력)', required: true },
+    { id: 'name', label: '신청자명', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
-    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
-    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
-    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+    { id: 'email', label: '이메일 주소', type: 'text', placeholder: 'example@domain.com', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '기타 추가 질문이나 특이사항을 입력해 주세요.', required: false }
   ],
   ParkingLot: [
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
@@ -81,6 +85,8 @@ export default function QuoteModal({
   onClose, 
   onSubmitBooking, 
   initialPurpose = 'Residential',
+  initialBrand = 'sk일렉링크',
+  initialHomePower = '7kW',
   quoteConfig = {
     badge: '정부보조금 마감 임박 혜택 우선 선점',
     title: '무료 설치 상담 & 실시간 맞춤 견적',
@@ -105,6 +111,8 @@ export default function QuoteModal({
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('서울');
   const [purpose, setPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>(initialPurpose);
+  const [selectedBrand, setSelectedBrand] = useState<string>(initialBrand);
+  const [selectedHomePower, setSelectedHomePower] = useState<string>(initialHomePower);
   const [memo, setMemo] = useState('');
 
   // Dynamic field values
@@ -167,6 +175,14 @@ export default function QuoteModal({
   // Initialize formValues when purpose changes
   React.useEffect(() => {
     if (isOpen) {
+      setPurpose(initialPurpose);
+      setSelectedBrand(initialBrand);
+      setSelectedHomePower(initialHomePower);
+    }
+  }, [isOpen, initialPurpose, initialBrand, initialHomePower]);
+
+  React.useEffect(() => {
+    if (isOpen) {
       const initial: Record<string, string> = {};
       activeFields.forEach(f => {
         initial[f.id] = formValues[f.id] || (f.id === 'name' ? name : f.id === 'phone' ? phone : f.id === 'location' ? location : f.id === 'memo' ? memo : '') || (f.type === 'select' ? (f.options?.[0] || '') : '');
@@ -226,6 +242,12 @@ export default function QuoteModal({
 
     // Pack non-core custom fields into a neat memo bullet list
     let compiledMemo = '';
+    if (purpose === 'Commercial') {
+      compiledMemo += `• [희망 브랜드] ${selectedBrand}\n`;
+    }
+    if (purpose === 'Residential') {
+      compiledMemo += `• [희망 용량] ${selectedHomePower}\n`;
+    }
     activeFields.forEach(field => {
       if (field.id !== 'name' && field.id !== 'phone' && field.id !== 'location' && field.id !== 'memo') {
         const val = formValues[field.id] || '';
@@ -384,33 +406,6 @@ export default function QuoteModal({
                   </h2>
                 </div>
 
-                {/* Navigation Tabs */}
-                <div className="flex border-b border-slate-200 mb-6">
-                  <button
-                    onClick={() => setActiveTab('quick')}
-                    id="tab-quote-quick"
-                    className={`pb-3 text-xs sm:text-sm font-extrabold border-b-2 transition-all mr-6 cursor-pointer ${
-                      activeTab === 'quick'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    30초 초간편 무료 상담 접수
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('calc')}
-                    id="tab-quote-calc"
-                    className={`pb-3 text-xs sm:text-sm font-extrabold border-b-2 transition-all flex items-center gap-1 cursor-pointer ${
-                      activeTab === 'calc'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    <Calculator className="w-4 h-4" />
-                    1분 스마트 보조금 견적기
-                  </button>
-                </div>
-
                 {/* Tab content */}
                 {activeTab === 'quick' ? (
                   <form onSubmit={handleQuickSubmit} className="space-y-4">
@@ -435,6 +430,101 @@ export default function QuoteModal({
                           <option value="ParkingLot">{quoteConfig.purposeLabels?.ParkingLot || '상업시설 수익형 (호텔/마트/상가빌딩)'}</option>
                         </select>
                       </div>
+
+                      {/* Apartment Brand Selection Grid */}
+                      {purpose === 'Commercial' && (
+                        <div className="md:col-span-2 space-y-2 pt-1 pb-1">
+                          <label className="block text-xs font-extrabold text-blue-600">
+                            🏢 희망하시는 충전기 사업자 (브랜드)를 선택해 주세요:
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {[
+                              { id: 'sk-link', name: 'sk일렉링크', desc: 'SK의 강력한 인프라' },
+                              { id: 'plug-link', name: '플러그링크', desc: '스마트 완속 전력 제어' },
+                              { id: 'el-electric', name: '이엘일렉트릭', desc: '화재 예방 특화 차단' },
+                              { id: 'nice-charger', name: '나이스차져', desc: '금융급 완벽 과금 관리' },
+                              { id: 'everon', name: '에버온', desc: '전국 최다 시공 실적' },
+                              { id: 'hyundai-eng', name: '현대엔지니어링', desc: '현대자동차 공식 파트너' }
+                            ].map((b) => {
+                              const isSelected = selectedBrand === b.name;
+                              return (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  onClick={() => setSelectedBrand(b.name)}
+                                  className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[68px] ${
+                                    isSelected
+                                      ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600'
+                                      : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
+                                  }`}
+                                >
+                                  <div className="w-full">
+                                    <div className="flex items-center justify-between w-full">
+                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-blue-700' : 'text-slate-800'}`}>
+                                        {b.name}
+                                      </span>
+                                      {isSelected && (
+                                        <span className="text-[9px] bg-blue-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-bold shrink-0">
+                                          ✓
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-[9px] text-slate-400 font-bold mt-1 leading-tight">
+                                      {b.desc}
+                                    </p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Home Charger Power Selection Grid */}
+                      {purpose === 'Residential' && (
+                        <div className="md:col-span-2 space-y-2 pt-1 pb-1">
+                          <label className="block text-xs font-extrabold text-emerald-600">
+                            🏡 희망하시는 가정용 충전기 용량을 선택해 주세요:
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: '5kw', name: '5kW', desc: '슬림형 / 계약전력 최소화' },
+                              { id: '7kw', name: '7kW', desc: '표준형 / 가장 보편적 선택' },
+                              { id: '11kw', name: '11kW', desc: '고출력 3상 / 빠른 속도' }
+                            ].map((b) => {
+                              const isSelected = selectedHomePower === b.name;
+                              return (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  onClick={() => setSelectedHomePower(b.name)}
+                                  className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[68px] ${
+                                    isSelected
+                                      ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600'
+                                      : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
+                                  }`}
+                                >
+                                  <div className="w-full">
+                                    <div className="flex items-center justify-between w-full">
+                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
+                                        {b.name}
+                                      </span>
+                                      {isSelected && (
+                                        <span className="text-[9px] bg-emerald-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-bold shrink-0">
+                                          ✓
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-[9px] text-slate-400 font-bold mt-1 leading-tight">
+                                      {b.desc}
+                                    </p>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Dynamic Input Fields */}
                       {activeFields.map((field) => {

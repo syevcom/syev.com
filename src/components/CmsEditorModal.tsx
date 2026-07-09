@@ -201,13 +201,15 @@ const DEFAULT_FIELDS: {
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
   Commercial: [
-    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
-    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'companyName', label: '아파트명 (건물명)', type: 'text', placeholder: '예: 에스와이 1차 아파트', required: true },
+    { id: 'location', label: '주소', type: 'address', placeholder: '설치지 상세 주소를 입력 또는 검색해 주세요.', required: true },
+    { id: 'parkingCount', label: '보유 주차면수', type: 'text', placeholder: '예: 150면', required: true },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '예: 10', required: true },
+    { id: 'ownedChargers', label: '보유 충전기 수량 (대)', type: 'number', placeholder: '예: 2 (없을 시 0 입력)', required: true },
+    { id: 'name', label: '신청자명', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
-    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
-    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
-    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+    { id: 'email', label: '이메일 주소', type: 'text', placeholder: 'example@domain.com', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '기타 추가 질문이나 특이사항을 입력해 주세요.', required: false }
   ],
   ParkingLot: [
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },

@@ -31,13 +31,15 @@ const DEFAULT_FIELDS = {
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
   Commercial: [
-    { id: 'companyName', label: '회사명 / 기관명', type: 'text', placeholder: '주식회사 에스와이코리아', required: true },
-    { id: 'name', label: '담당자 성함', type: 'text', placeholder: '홍길동', required: true },
+    { id: 'companyName', label: '아파트명 (건물명)', type: 'text', placeholder: '예: 에스와이 1차 아파트', required: true },
+    { id: 'location', label: '주소', type: 'address', placeholder: '설치지 상세 주소를 입력 또는 검색해 주세요.', required: true },
+    { id: 'parkingCount', label: '보유 주차면수', type: 'text', placeholder: '예: 150면', required: true },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '예: 10', required: true },
+    { id: 'ownedChargers', label: '보유 충전기 수량 (대)', type: 'number', placeholder: '예: 2 (없을 시 0 입력)', required: true },
+    { id: 'name', label: '신청자명', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
-    { id: 'powerCapacity', label: '필요 전력 용량', type: 'select', required: true, options: ['7kW 완속', '11kW 고속완속', '50kW 급속', '100kW 급속', '200kW 초급속', '기타/미정'] },
-    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '1', required: true },
-    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '설치 목적 및 요청 사항을 입력하세요.', required: false }
+    { id: 'email', label: '이메일 주소', type: 'text', placeholder: 'example@domain.com', required: true },
+    { id: 'memo', label: '문의 상세 사항 (선택사항)', type: 'text', placeholder: '기타 추가 질문이나 특이사항을 입력해 주세요.', required: false }
   ],
   ParkingLot: [
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
@@ -71,6 +73,8 @@ export default function App() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isCmsOpen, setIsCmsOpen] = useState(false);
   const [cmsTab, setCmsTab] = useState<'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support'>('brand');
+  const [selectedAptBrand, setSelectedAptBrand] = useState<string>('sk일렉링크');
+  const [selectedHomePower, setSelectedHomePower] = useState<string>('7kW');
 
   // Brand Logo & Categories config state
   const [logoConfig, setLogoConfig] = useState({
@@ -355,20 +359,31 @@ export default function App() {
     if (savedQuote) {
       try {
         const parsed = JSON.parse(savedQuote);
-        if (parsed && parsed.purposeLabels) {
+        if (parsed) {
           let migrated = false;
-          if (parsed.purposeLabels.Residential && (parsed.purposeLabels.Residential.includes('비공용') || parsed.purposeLabels.Residential.includes('주거용'))) {
-            parsed.purposeLabels.Residential = '가정용 홈 (단독주택/빌라/개인)';
+          if (parsed.purposeLabels) {
+            if (parsed.purposeLabels.Residential && (parsed.purposeLabels.Residential.includes('비공용') || parsed.purposeLabels.Residential.includes('주거용'))) {
+              parsed.purposeLabels.Residential = '가정용 홈 (단독주택/빌라/개인)';
+              migrated = true;
+            }
+            if (parsed.purposeLabels.Commercial && (parsed.purposeLabels.Commercial.includes('기업/관공서') || parsed.purposeLabels.Commercial.includes('기업용'))) {
+              parsed.purposeLabels.Commercial = '아파트용 (공동주택/공용시설)';
+              migrated = true;
+            }
+            if (parsed.purposeLabels.ParkingLot && (parsed.purposeLabels.ParkingLot.includes('수익형 주차장') || parsed.purposeLabels.ParkingLot.includes('수익형 상가'))) {
+              parsed.purposeLabels.ParkingLot = '상업시설 수익형 (호텔/마트/상가빌딩)';
+              migrated = true;
+            }
+          }
+          
+          if (!parsed.fields || !parsed.fields.Commercial || parsed.fields.Commercial.some((f: any) => f.id === 'powerCapacity') || !parsed.fields.Commercial.some((f: any) => f.id === 'ownedChargers')) {
+            parsed.fields = {
+              ...parsed.fields,
+              Commercial: DEFAULT_FIELDS.Commercial
+            };
             migrated = true;
           }
-          if (parsed.purposeLabels.Commercial && (parsed.purposeLabels.Commercial.includes('기업/관공서') || parsed.purposeLabels.Commercial.includes('기업용'))) {
-            parsed.purposeLabels.Commercial = '아파트용 (공동주택/공용시설)';
-            migrated = true;
-          }
-          if (parsed.purposeLabels.ParkingLot && (parsed.purposeLabels.ParkingLot.includes('수익형 주차장') || parsed.purposeLabels.ParkingLot.includes('수익형 상가'))) {
-            parsed.purposeLabels.ParkingLot = '상업시설 수익형 (호텔/마트/상가빌딩)';
-            migrated = true;
-          }
+
           if (migrated) {
             localStorage.setItem('sy_cms_quote', JSON.stringify(parsed));
           }
@@ -659,6 +674,8 @@ export default function App() {
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={setActivePage}
             defaultActiveTab="Residential"
+            selectedHomePower={selectedHomePower}
+            onSelectHomePower={setSelectedHomePower}
           />
         );
       case 'sol_commercial':
@@ -671,6 +688,8 @@ export default function App() {
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={setActivePage}
             defaultActiveTab="Commercial"
+            selectedAptBrand={selectedAptBrand}
+            onSelectAptBrand={setSelectedAptBrand}
           />
         );
       case 'sol_parking':
@@ -713,7 +732,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50/30 text-slate-900 font-sans flex flex-col justify-between">
       {/* Spacer container to match the fixed Header height and prevent page content overlap */}
-      <div className="w-full h-[120px] sm:h-[135px] md:h-[145px] xl:h-[155px] shrink-0">
+      <div className={`w-full shrink-0 ${
+        activePage === 'sol_commercial' || activePage === 'sol_residential'
+          ? 'h-[165px] sm:h-[180px] md:h-[190px] xl:h-[210px]'
+          : 'h-[120px] sm:h-[135px] md:h-[145px] xl:h-[155px]'
+      }`}>
         <Header
           user={user}
           activePage={activePage}
@@ -734,6 +757,10 @@ export default function App() {
           logoConfig={logoConfig}
           snsConfig={snsConfig}
           footerConfig={footerConfig}
+          selectedAptBrand={selectedAptBrand}
+          onSelectAptBrand={setSelectedAptBrand}
+          selectedHomePower={selectedHomePower}
+          onSelectHomePower={setSelectedHomePower}
         />
 
 
@@ -944,6 +971,8 @@ export default function App() {
             onClose={() => setIsQuoteOpen(false)}
             onSubmitBooking={handleAddBooking}
             initialPurpose={quoteDefaultPurpose}
+            initialBrand={selectedAptBrand}
+            initialHomePower={selectedHomePower}
             quoteConfig={quoteConfig}
           />
         )}

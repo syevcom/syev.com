@@ -193,67 +193,12 @@ export default function MainHero({
             >
               {heroConfig.ctaButton}
             </button>
-            <button
-              onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
-              id="btn-hero-calc-cta"
-              className="py-3.5 px-7 bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-md text-white rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-102 active:scale-98"
-            >
-              <Calculator className="w-4 h-4 text-blue-300" />
-              {heroConfig.calcButton}
-            </button>
           </motion.div>
         </div>
       </div>
 
       {/* Boxed Content Area for the rest of the page */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-12">
-
-        {/* Quick Menu Icons Grid below full hero */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button
-          onClick={() => setIsSearchingCharger(true)}
-          id="btn-quick-find"
-          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
-        >
-          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <MapPin className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-bold text-slate-700 block">내 주변 충전기 찾기</span>
-        </button>
-
-        <button
-          onClick={onOpenQuote}
-          id="btn-quick-quote"
-          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
-        >
-          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <Calculator className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-bold text-slate-700 block">1분 맞춤 견적</span>
-        </button>
-
-        <button
-          onClick={onOpenQuote}
-          id="btn-quick-booking"
-          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
-        >
-          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <CalendarDays className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-bold text-slate-700 block">설치 예약</span>
-        </button>
-
-        <button
-          onClick={handleASQuickMenu}
-          id="btn-quick-as"
-          className="p-4 rounded-3xl bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 group cursor-pointer hover:shadow-md"
-        >
-          <div className="w-10 h-10 rounded-full bg-slate-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <Wrench className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-bold text-slate-700 block">A/S 긴급 신청</span>
-        </button>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-8">
 
       {/* Hand-crafted 3-Column Premium Category Shortcuts (As requested by user in image mockup) */}
       <section className="py-8 sm:py-12 bg-white rounded-3xl border border-slate-100/80 shadow-sm">
@@ -503,99 +448,7 @@ export default function MainHero({
         </div>
       </section>
 
-      {/* Purpose Shortcuts / Solutions Section */}
-      <section className="space-y-6 pt-6">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-blue-600 font-bold text-xs uppercase tracking-wider block">Custom Solutions</span>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">용도별 맞춤 충전 솔루션</h2>
-          <p className="text-xs text-slate-500">설치 환경에 알맞은 정부 지원 정책과 최적의 충전 기술을 직접 확인해 보세요.</p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Commercial */}
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <Building className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-base font-extrabold text-slate-950">기업용 (Commercial)</h4>
-                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
-                  {heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용'}
-                </p>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  "비어있는 주차 면적, SY.com을 만나면 가장 스마트한 수익원이 됩니다. 빌딩 가치는 올리고 고정 고객은 확보하세요."
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => onOpenQuoteWithPurpose('Commercial')}
-              id="btn-shortcut-commercial"
-              className="mt-6 py-2.5 px-4 bg-slate-50 hover:bg-blue-600 hover:text-white text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer border border-transparent"
-            >
-              <span>기업 제안서 및 견적 요청</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Residential */}
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <Home className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-base font-extrabold text-slate-950">주거용 (Residential)</h4>
-                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
-                  {heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용'}
-                </p>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  "집에 도착하는 순간, 충전 스트레스는 끝납니다. 화재 안심 센서 탑재! 까다로운 아파트 주민 협의 대행 지원."
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => onOpenQuoteWithPurpose('Residential')}
-              id="btn-shortcut-residential"
-              className="mt-6 py-2.5 px-4 bg-slate-50 hover:bg-blue-600 hover:text-white text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer border border-transparent"
-            >
-              <span>주거용 7kW 신청 상담</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Parking Lot */}
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <ParkingSquare className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-base font-extrabold text-slate-950">주차장용 (Parking Lot)</h4>
-                <p className={`${getBlueSizeClass(heroConfig.solutionBlueSize)} text-blue-600 font-black mt-0.5`}>
-                  {heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤'}
-                </p>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                  "주차 공간을 최고의 부가 수익원으로 전환해 드립니다. 원격 관제 및 정산 연동 무상 지원 솔루션 매칭 완료."
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => onOpenQuoteWithPurpose('ParkingLot')}
-              id="btn-shortcut-parking"
-              className="mt-6 py-2.5 px-4 bg-slate-50 hover:bg-blue-600 hover:text-white text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer border border-transparent"
-            >
-              <span>수익성 계산 및 상담 예약</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-        </div>
-      </section>
 
       {/* Near me Charger Finder Slide Drawer Simulation Dialog */}
       <AnimatePresence>
