@@ -21,6 +21,7 @@ interface MainHeroProps {
     ctaButton: string;
     calcButton: string;
     imageUrl?: string;
+    height?: number;
     showHeroImage?: boolean;
     titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
     descriptionSize?: 'small' | 'medium' | 'large';
@@ -119,7 +120,10 @@ export default function MainHero({
     <div className="space-y-0 pb-16">
       
       {/* 100% FULL-WIDTH CINEMATIC HERO BANNER */}
-      <div className="relative rounded-none overflow-hidden min-h-[500px] md:min-h-[620px] flex items-center bg-slate-950 group/hero w-full">
+      <div 
+        className="relative rounded-none overflow-hidden flex items-center bg-slate-950 group/hero w-full"
+        style={{ minHeight: `${heroConfig.height || 750}px` }}
+      >
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('hero')}

@@ -17,6 +17,7 @@ interface CmsEditorModalProps {
     text: string;
     subtitle: string;
     imageUrl: string;
+    height?: number;
     showCompanyName?: boolean;
     companyNameText?: string;
     companyNameFont?: string;
@@ -73,6 +74,7 @@ interface CmsEditorModalProps {
     ctaButton: string;
     calcButton: string;
     imageUrl?: string;
+    height?: number;
     showHeroImage?: boolean;
     titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
     descriptionSize?: 'small' | 'medium' | 'large';
@@ -269,6 +271,7 @@ export default function CmsEditorModal({
   const [logoCompanyNameWeight, setLogoCompanyNameWeight] = useState(logoConfig.companyNameWeight || 'extrabold');
   const [logoCompanyNameSize, setLogoCompanyNameSize] = useState(logoConfig.companyNameSize || 'sm');
   const [logoCompanyNameColor, setLogoCompanyNameColor] = useState(logoConfig.companyNameColor || 'slate-700');
+  const [logoHeight, setLogoHeight] = useState(logoConfig.height || 44);
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [isDraggingCeoImg, setIsDraggingCeoImg] = useState(false);
   const [isDraggingProdImg, setIsDraggingProdImg] = useState(false);
@@ -314,6 +317,8 @@ export default function CmsEditorModal({
   const [heroDesc, setHeroDesc] = useState(heroConfig.description);
   const [heroCta, setHeroCta] = useState(heroConfig.ctaButton);
   const [heroCalc, setHeroCalc] = useState(heroConfig.calcButton);
+  const [heroImageUrl, setHeroImageUrl] = useState(heroConfig.imageUrl || '');
+  const [heroHeight, setHeroHeight] = useState(heroConfig.height || 750);
   const [heroTitleSize, setHeroTitleSize] = useState(heroConfig.titleSize || 'large');
   const [heroDescriptionSize, setHeroDescriptionSize] = useState(heroConfig.descriptionSize || 'medium');
   const [heroLiveCountStart, setHeroLiveCountStart] = useState(heroConfig.liveCountStart || 14520);
@@ -368,6 +373,7 @@ export default function CmsEditorModal({
       setLogoCompanyNameWeight(logoConfig.companyNameWeight || 'extrabold');
       setLogoCompanyNameSize(logoConfig.companyNameSize || 'sm');
       setLogoCompanyNameColor(logoConfig.companyNameColor || 'slate-700');
+      setLogoHeight(logoConfig.height || 44);
 
       setMenuHome(categoryLabels.home);
       setMenuAbout(categoryLabels.about);
@@ -401,6 +407,8 @@ export default function CmsEditorModal({
       setHeroDesc(heroConfig.description);
       setHeroCta(heroConfig.ctaButton);
       setHeroCalc(heroConfig.calcButton);
+      setHeroImageUrl(heroConfig.imageUrl || '');
+      setHeroHeight(heroConfig.height || 750);
       setHeroTitleSize(heroConfig.titleSize || 'large');
       setHeroDescriptionSize(heroConfig.descriptionSize || 'medium');
       setHeroLiveCountStart(heroConfig.liveCountStart || 14520);
@@ -508,6 +516,7 @@ export default function CmsEditorModal({
       text: logoText,
       subtitle: logoSubtitle,
       imageUrl: logoImageUrl,
+      height: Number(logoHeight),
       showCompanyName: logoShowCompanyName,
       companyNameText: logoCompanyNameText,
       companyNameFont: logoCompanyNameFont,
@@ -557,6 +566,8 @@ export default function CmsEditorModal({
       description: heroDesc,
       ctaButton: heroCta,
       calcButton: heroCalc,
+      imageUrl: heroImageUrl,
+      height: Number(heroHeight),
       titleSize: heroTitleSize,
       descriptionSize: heroDescriptionSize,
       liveCountStart: Number(heroLiveCountStart),
@@ -1150,6 +1161,45 @@ export default function CmsEditorModal({
                       </span>
                     </div>
 
+                    {/* Logo Image Height Config */}
+                    <div className="space-y-1 bg-emerald-50/50 border border-emerald-100 p-3.5 rounded-2xl mt-4">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-xs font-black text-slate-800 flex items-center gap-1.5">
+                          📐 상단 로고 이미지 크기(높이) 조절
+                        </label>
+                        <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                          {logoHeight} px
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-bold leading-normal">
+                        실제 홈페이지에서 로고 이미지가 너무 작거나 크게 보일 경우, 아래 슬라이더 또는 숫자로 최적의 크기를 직접 설정할 수 있습니다. (기본값: 44px)
+                      </p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <input
+                          type="range"
+                          min="20"
+                          max="120"
+                          step="1"
+                          value={logoHeight}
+                          onChange={(e) => setLogoHeight(parseInt(e.target.value, 10))}
+                          className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="number"
+                          min="20"
+                          max="120"
+                          value={logoHeight}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val)) {
+                              setLogoHeight(Math.max(20, Math.min(120, val)));
+                            }
+                          }}
+                          className="w-16 px-2 py-1 text-center bg-white border border-slate-200 rounded-lg text-xs font-extrabold text-emerald-800"
+                        />
+                      </div>
+                    </div>
+
                     <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-2xl space-y-3 mt-3">
                       <div className="flex items-center justify-between">
                         <div>
@@ -1659,6 +1709,72 @@ export default function CmsEditorModal({
                       onChange={(e) => setHeroCta(e.target.value)}
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
                     />
+                  </div>
+                </div>
+
+                {/* 1-0. HERO BACKGROUND IMAGE & HEIGHT CONFIG */}
+                <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl space-y-3 mt-1.5">
+                  <span className="block text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                    🖼️ 메인 배경 이미지 및 배너 세로 높이 설정
+                  </span>
+                  <p className="text-[10px] text-slate-500 font-bold leading-normal">
+                    홈페이지에 첫 진입했을 때 보이는 대형 차량 메인 배경 이미지를 직접 변경하고, 세로 길이를 조절하여 더 웅장하고 높은 시네마틱 화면을 연출할 수 있습니다.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-700">메인 배경 이미지 URL</label>
+                      <input
+                        type="text"
+                        value={heroImageUrl}
+                        onChange={(e) => setHeroImageUrl(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-blue-600"
+                        placeholder="https://images.unsplash.com/... 또는 직접 이미지 주소 입력"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Image Upload Area */}
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold text-slate-500">배경 이미지 파일 직접 업로드</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setHeroImageUrl(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="w-full text-[10px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Banner Height Adjust */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="block text-[11px] font-bold text-slate-700">배너 세로 높이 조절 (px 단위)</label>
+                          <span className="text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                            {heroHeight} px
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="range"
+                            min="450"
+                            max="1100"
+                            step="10"
+                            value={heroHeight}
+                            onChange={(e) => setHeroHeight(parseInt(e.target.value, 10))}
+                            className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

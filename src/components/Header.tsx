@@ -35,6 +35,7 @@ interface HeaderProps {
     text: string;
     subtitle: string;
     imageUrl?: string;
+    height?: number;
     showCompanyName?: boolean;
     companyNameText?: string;
     companyNameFont?: string;
@@ -145,7 +146,7 @@ export default function Header({
         <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 flex items-center justify-between relative">
+      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between relative">
         
         {/* 1. Left side: Brand Logo Container (Stacked Vertically, Shifted Left, Left-Aligned) */}
         <div 
@@ -157,7 +158,8 @@ export default function Header({
             <img 
               src={logoConfig.imageUrl} 
               alt={logoConfig.subtitle} 
-              className="h-11 max-w-[170px] object-contain transition-transform group-hover:scale-103 shrink-0"
+              style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
+              className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
               referrerPolicy="no-referrer"
             />
           ) : (
@@ -181,7 +183,7 @@ export default function Header({
         </div>
 
         {/* 2. Center: Elegant Navigation Links (No background box, elegant under-line) */}
-        <nav className="hidden xl:flex items-center gap-x-1 sm:gap-x-1.5 lg:gap-x-2 shrink-0">
+        <nav className="hidden xl:flex items-center gap-x-3 lg:gap-x-5 xl:gap-x-7 2xl:gap-x-9 shrink-0">
           {menuItems.map((item) => {
             const isActive = activePage === item.id || 
               (item.id === 'sol_residential' && activePage === 'solutions');
@@ -189,9 +191,9 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
-                className={`px-3 lg:px-4 py-2 text-[14px] lg:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                className={`px-3.5 lg:px-5 py-2.5 text-[15px] lg:text-[17px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
                   isActive
-                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-3 after:right-3 after:h-[2.5px] after:bg-emerald-600'
+                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-3.5 after:right-3.5 after:h-[2.5px] after:bg-emerald-600'
                     : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
                 }`}
               >
