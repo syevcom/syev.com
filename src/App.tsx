@@ -26,13 +26,13 @@ const DEFAULT_FIELDS = {
   Residential: [
     { id: 'name', label: '신청인 이름 / 법인 담당자', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
+    { id: 'location', label: '설치 희망 주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
     { id: 'residenceType', label: '주거 형태', type: 'select', required: true, options: ['아파트(공용)', '아파트(개인)', '단독주택', '빌라/연립', '기타'] },
     { id: 'memo', label: '상담 희망 메모 (선택사항)', type: 'text', placeholder: '기타 상세한 요구 사항을 적어주세요.', required: false }
   ],
   Commercial: [
     { id: 'companyName', label: '아파트명 (건물명)', type: 'text', placeholder: '예: 에스와이 1차 아파트', required: true },
-    { id: 'location', label: '주소', type: 'address', placeholder: '설치지 상세 주소를 입력 또는 검색해 주세요.', required: true },
+    { id: 'location', label: '설치희망주소', type: 'address', placeholder: '설치지 상세 주소를 입력 또는 검색해 주세요.', required: true },
     { id: 'parkingCount', label: '보유 주차면수', type: 'text', placeholder: '예: 150면', required: true },
     { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '예: 10', required: true },
     { id: 'ownedChargers', label: '보유 충전기 수량 (대)', type: 'number', placeholder: '예: 2 (없을 시 0 입력)', required: true },
@@ -45,8 +45,9 @@ const DEFAULT_FIELDS = {
     { id: 'parkingName', label: '주차장 상호 / 빌딩명', type: 'text', placeholder: '강남 타워 주차장', required: true },
     { id: 'name', label: '담당자 이름', type: 'text', placeholder: '홍길동', required: true },
     { id: 'phone', label: '연락처 (휴대폰 번호)', type: 'tel', placeholder: '010-1234-5678', required: true },
-    { id: 'location', label: '설치 희망 지역', type: 'select', required: true, options: ['서울', '경기', '인천', '강원', '충북', '충남/대전', '전북', '전남/광주', '경북/대구', '경남/부산/울산', '제주'] },
-    { id: 'parkingCount', label: '총 주차 가능 면수', type: 'text', placeholder: '예: 50면', required: true },
+    { id: 'location', label: '설치희망주소', type: 'address', placeholder: '설치 주소를 검색하거나 입력해 주세요.', required: true },
+    { id: 'parkingCount', label: '보유주차면수', type: 'text', placeholder: '예: 50면', required: true },
+    { id: 'quantity', label: '설치 희망 수량 (대)', type: 'number', placeholder: '예: 10', required: true },
     { id: 'operatingType', label: '주차장 운영 방식', type: 'select', required: true, options: ['유료 주차장', '무료 주차장', '일부 유료/혼합', '기타'] },
     { id: 'memo', label: '추가 상담 사항 (선택사항)', type: 'text', placeholder: '희망하는 운영 방식이나 질문을 기재해 주세요.', required: false }
   ]
@@ -72,7 +73,7 @@ export default function App() {
   // CMS Live Editor states
   const [isEditMode, setIsEditMode] = useState(false);
   const [isCmsOpen, setIsCmsOpen] = useState(false);
-  const [cmsTab, setCmsTab] = useState<'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support'>('brand');
+  const [cmsTab, setCmsTab] = useState<'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'quote'>('brand');
   const [selectedAptBrand, setSelectedAptBrand] = useState<string>('sk일렉링크');
   const [selectedHomePower, setSelectedHomePower] = useState<string>('7kW');
 
@@ -376,7 +377,65 @@ export default function App() {
             }
           }
           
-          if (!parsed.fields || !parsed.fields.Commercial || parsed.fields.Commercial.some((f: any) => f.id === 'powerCapacity') || !parsed.fields.Commercial.some((f: any) => f.id === 'ownedChargers')) {
+          if (!parsed.fields) {
+            parsed.fields = DEFAULT_FIELDS;
+            migrated = true;
+          } else {
+            // 1. Wipe out any added custom fields for Residential (가정용 홈 설치문의 새입력항목 없애기)
+            if (parsed.fields.Residential) {
+              const originalLength = parsed.fields.Residential.length;
+              parsed.fields.Residential = parsed.fields.Residential.filter((f: any) => 
+                !f.id.startsWith('custom_field') && f.label !== '새 입력 항목'
+              );
+              if (parsed.fields.Residential.length !== originalLength) {
+                migrated = true;
+              }
+            }
+
+            // 2. Align Commercial fields
+            if (parsed.fields.Commercial) {
+              let updated = false;
+              parsed.fields.Commercial = parsed.fields.Commercial.map((f: any) => {
+                if (f.id === 'location' && f.label !== '설치희망주소') {
+                  updated = true;
+                  return { ...f, label: '설치희망주소' };
+                }
+                return f;
+              });
+              if (updated) migrated = true;
+            }
+
+            // 3. Align ParkingLot fields
+            if (parsed.fields.ParkingLot) {
+              let updated = false;
+              // Map labels
+              parsed.fields.ParkingLot = parsed.fields.ParkingLot.map((f: any) => {
+                if (f.id === 'location' && f.label !== '설치희망주소') {
+                  updated = true;
+                  return { ...f, label: '설치희망주소' };
+                }
+                if (f.id === 'parkingCount' && f.label !== '보유주차면수') {
+                  updated = true;
+                  return { ...f, label: '보유주차면수' };
+                }
+                return f;
+              });
+              // Ensure quantity field exists
+              if (!parsed.fields.ParkingLot.some((f: any) => f.id === 'quantity')) {
+                parsed.fields.ParkingLot.splice(4, 0, {
+                  id: 'quantity',
+                  label: '설치 희망 수량 (대)',
+                  type: 'number',
+                  placeholder: '예: 10',
+                  required: true
+                });
+                updated = true;
+              }
+              if (updated) migrated = true;
+            }
+          }
+          
+          if (!parsed.fields.Commercial || parsed.fields.Commercial.some((f: any) => f.id === 'powerCapacity') || !parsed.fields.Commercial.some((f: any) => f.id === 'ownedChargers')) {
             parsed.fields = {
               ...parsed.fields,
               Commercial: DEFAULT_FIELDS.Commercial
@@ -753,7 +812,8 @@ export default function App() {
               setIsEditMode(false);
             }
           }}
-          onOpenCms={() => setIsCmsOpen(true)}
+          onOpenCms={handleOpenCmsTab}
+          categoryLabels={categoryLabels}
           logoConfig={logoConfig}
           snsConfig={snsConfig}
           footerConfig={footerConfig}

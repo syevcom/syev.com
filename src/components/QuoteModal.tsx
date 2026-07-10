@@ -444,7 +444,9 @@ export default function QuoteModal({
                               { id: 'el-electric', name: '이엘일렉트릭', desc: '화재 예방 특화 차단' },
                               { id: 'nice-charger', name: '나이스차져', desc: '금융급 완벽 과금 관리' },
                               { id: 'everon', name: '에버온', desc: '전국 최다 시공 실적' },
-                              { id: 'hyundai-eng', name: '현대엔지니어링', desc: '현대자동차 공식 파트너' }
+                              { id: 'hyundai-eng', name: '현대엔지니어링', desc: '현대자동차 공식 파트너' },
+                              { id: 'iparking', name: '아이파킹', desc: '무인 주차 1위 연동 제어' },
+                              { id: 'lg-voltup', name: 'LG유플러스볼트업', desc: 'LG 신뢰성 망 프리미엄' }
                             ].map((b) => {
                               const isSelected = selectedBrand === b.name;
                               return (
@@ -452,7 +454,7 @@ export default function QuoteModal({
                                   key={b.id}
                                   type="button"
                                   onClick={() => setSelectedBrand(b.name)}
-                                  className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[68px] ${
+                                  className={`p-3 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[82px] ${
                                     isSelected
                                       ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600'
                                       : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
@@ -460,7 +462,7 @@ export default function QuoteModal({
                                 >
                                   <div className="w-full">
                                     <div className="flex items-center justify-between w-full">
-                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
+                                      <span className={`text-[15px] sm:text-[17px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
                                         {b.name}
                                       </span>
                                       {isSelected && (
@@ -469,7 +471,7 @@ export default function QuoteModal({
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-[9px] text-slate-400 font-bold mt-1 leading-tight">
+                                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold mt-1 leading-tight">
                                       {b.desc}
                                     </p>
                                   </div>
@@ -498,15 +500,16 @@ export default function QuoteModal({
                                   key={b.id}
                                   type="button"
                                   onClick={() => setSelectedHomePower(b.name)}
-                                  className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[68px] ${
+                                  className={`p-3 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[82px] ${
                                     isSelected
                                       ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600'
                                       : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
                                   }`}
+                                  id={`btn-home-power-${b.id}`}
                                 >
                                   <div className="w-full">
                                     <div className="flex items-center justify-between w-full">
-                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
+                                      <span className={`text-[15px] sm:text-[17px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
                                         {b.name}
                                       </span>
                                       {isSelected && (
@@ -515,7 +518,7 @@ export default function QuoteModal({
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-[9px] text-slate-400 font-bold mt-1 leading-tight">
+                                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold mt-1 leading-tight">
                                       {b.desc}
                                     </p>
                                   </div>
@@ -567,7 +570,7 @@ export default function QuoteModal({
                                   id={`input-quote-${field.id}`}
                                   className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-xs font-bold transition-all"
                                 />
-                                {(field.id === 'location' || field.type === 'address' || field.label.includes('주소') || field.label.includes('지역')) && (
+                                {(field.id === 'location' || field.type === 'address' || (field.label.includes('주소') && !field.label.includes('이메일') && field.id !== 'email') || field.label.includes('지역')) && (
                                   <button
                                     type="button"
                                     onClick={() => setAddressSearchFieldId(field.id)}

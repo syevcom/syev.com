@@ -436,8 +436,9 @@ export default function CmsEditorModal({
       setCeoMsg2(aboutConfig.ceoMessage2);
       setCeoMsg3(aboutConfig.ceoMessage3);
       setCeoImg(aboutConfig.ceoImage);
+      setActiveTab(initialTab === 'products' ? 'solutions' : initialTab);
     }
-  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig, quoteConfig]);
+  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig, quoteConfig, initialTab]);
 
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -907,7 +908,7 @@ export default function CmsEditorModal({
 
         {/* Tab Controls */}
         <div className="flex border-b border-slate-200 bg-slate-50 overflow-x-auto shrink-0 scrollbar-none px-6">
-          {(['brand', 'hero', 'about', 'products', 'solutions', 'review', 'support', 'sync', 'quote'] as const).map((tab) => (
+          {(['brand', 'hero', 'about', 'solutions', 'review', 'support', 'sync', 'quote'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => {
@@ -925,15 +926,22 @@ export default function CmsEditorModal({
                   : 'border-transparent text-slate-500 hover:text-slate-850'
               }`}
             >
-              {tab === 'brand' && '⚙️ 로고 & 카테고리'}
-              {tab === 'hero' && '🏠 메인 히어로'}
-              {tab === 'about' && '🏢 회사 소개'}
-              {tab === 'products' && '⚡ 신제품'}
-              {tab === 'solutions' && '🛠️ 솔루션'}
-              {tab === 'review' && '📍 후기 지도'}
-              {tab === 'support' && '💬 FAQ & 공지'}
-              {tab === 'sync' && '📲 기기간 동기화'}
-              {tab === 'quote' && '💬 문의 팝업'}
+              {tab === 'brand' && '⚙️ 메뉴명 & 로고 설정'}
+              {tab === 'hero' && '🏠 메인 화면 (히어로)'}
+              {tab === 'about' && '🏢 회사소개 관리'}
+              {tab === 'solutions' && '🛠️ 추천 상품 & 비교표 관리'}
+              {tab === 'review' && '📍 설치후기 (설치지도/사례)'}
+              {tab === 'support' && '💬 자주묻는질문 & 공지사항'}
+              {tab === 'sync' && '📲 기기 동기화'}
+              {tab === 'quote' && (
+                <span className="relative flex items-center gap-1 text-emerald-600 font-extrabold">
+                  🔥 설치문의 팝업 설정
+                  <span className="flex h-1.5 w-1.5 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                  </span>
+                </span>
+              )}
             </button>
           ))}
           
@@ -949,6 +957,52 @@ export default function CmsEditorModal({
 
         {/* Main Form Fields scroll box */}
         <div className="overflow-y-auto p-6 flex-grow bg-white text-slate-800">
+          {/* Admin Easy Navigation and Helper Guide Box */}
+          <div className="mb-6 bg-gradient-to-br from-emerald-50 via-teal-50/30 to-blue-50 border border-emerald-100/80 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="p-1.5 bg-emerald-100 text-emerald-800 rounded-lg text-sm font-black shrink-0 animate-bounce">
+                💡
+              </span>
+              <div className="space-y-1.5">
+                <h5 className="text-xs font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  관리자 전용 실시간 편집 꿀팁 &amp; 메뉴 가이드
+                </h5>
+                <p className="text-[11px] text-slate-600 font-bold leading-relaxed">
+                  현재 홈페이지의 상단 메뉴명(<span className="text-blue-600 font-extrabold">{categoryLabels.products}</span>, <span className="text-blue-600 font-extrabold">{categoryLabels.solutions}</span>, <span className="text-blue-600 font-extrabold">{categoryLabels.review}</span>, <span className="text-blue-600 font-extrabold">{categoryLabels.support}</span>)과 에디터 탭 이름이 실시간으로 <span className="text-emerald-700 font-black underline">100% 자동 동기화</span>되어 관리하기 쉽습니다!
+                </p>
+                <div className="text-[11px] text-slate-500 font-bold leading-relaxed">
+                  📌 <strong className="text-slate-800">설치문의 팝업 설정 방법:</strong> 상단 우측의 <span className="text-emerald-700 font-black">🔥 설치문의 팝업 설정</span> 탭에서 팝업창 문구, 대표 번호, 신청 양식(이름, 주소, 연락처 등)을 다이렉트로 추가·삭제하실 수 있습니다.
+                </div>
+                
+                {/* Dynamic Shortcuts */}
+                <div className="pt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('quote')}
+                    className={`px-3 py-1.5 rounded-lg text-[10.5px] font-black transition-all cursor-pointer flex items-center gap-1 shadow-xs ${
+                      activeTab === 'quote'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50'
+                    }`}
+                  >
+                    🔥 설치문의 팝업/입력항목 설정 바로가기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('brand')}
+                    className={`px-3 py-1.5 rounded-lg text-[10.5px] font-black transition-all cursor-pointer flex items-center gap-1 shadow-xs ${
+                      activeTab === 'brand'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white border border-blue-200 text-blue-800 hover:bg-blue-50'
+                    }`}
+                  >
+                    ⚙️ 메뉴 이름 &amp; 로고 수정 바로가기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <AnimatePresence mode="wait">
             {/* 0. BRAND & CATEGORIES TAB */}
             {activeTab === 'brand' && (

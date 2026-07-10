@@ -30,7 +30,7 @@ interface HeaderProps {
   onOpenQuoteWithPurpose?: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
   isEditMode: boolean;
   onToggleEditMode: () => void;
-  onOpenCms?: () => void;
+  onOpenCms?: (tab?: 'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'quote') => void;
   logoConfig?: {
     text: string;
     subtitle: string;
@@ -56,6 +56,17 @@ interface HeaderProps {
   onSelectAptBrand?: (brand: string) => void;
   selectedHomePower?: string;
   onSelectHomePower?: (power: string) => void;
+  categoryLabels?: {
+    home: string;
+    about: string;
+    products: string;
+    solutions: string;
+    review: string;
+    support: string;
+    sol_residential?: string;
+    sol_commercial?: string;
+    sol_parking?: string;
+  };
 }
 
 export default function Header({
@@ -75,18 +86,40 @@ export default function Header({
   selectedAptBrand = 'sk일렉링크',
   onSelectAptBrand,
   selectedHomePower = '7kW',
-  onSelectHomePower
+  onSelectHomePower,
+  categoryLabels
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
 
+  const getMenuLabel = (id: ActivePage) => {
+    switch (id) {
+      case 'home': return categoryLabels?.home || '홈';
+      case 'about': return categoryLabels?.about || '회사소개';
+      case 'sol_commercial': {
+        const val = categoryLabels?.sol_commercial || '아파트';
+        return val.includes('충전기') ? val : `${val}충전기`;
+      }
+      case 'sol_residential': {
+        const val = categoryLabels?.sol_residential || '가정용 홈';
+        return val.includes('충전기') ? val : `${val} 충전기`;
+      }
+      case 'sol_parking': {
+        const val = categoryLabels?.sol_parking || '상업시설 수익형';
+        return val.includes('충전기') ? val : `${val} 충전기`;
+      }
+      case 'review': return categoryLabels?.review || '설치후기';
+      default: return '';
+    }
+  };
+
   const menuItems: { id: ActivePage; label: string }[] = [
-    { id: 'home', label: '홈' },
-    { id: 'about', label: '회사소개' },
-    { id: 'sol_commercial', label: '아파트충전기' },
-    { id: 'sol_residential', label: '가정용 홈 충전기' },
-    { id: 'sol_parking', label: '상업시설 수익형 충전기' },
-    { id: 'review', label: '설치후기' }
+    { id: 'home', label: getMenuLabel('home') },
+    { id: 'about', label: getMenuLabel('about') },
+    { id: 'sol_commercial', label: getMenuLabel('sol_commercial') },
+    { id: 'sol_residential', label: getMenuLabel('sol_residential') },
+    { id: 'sol_parking', label: getMenuLabel('sol_parking') },
+    { id: 'review', label: getMenuLabel('review') }
   ];
 
   const handleMenuClick = (pageId: ActivePage) => {
@@ -174,8 +207,14 @@ export default function Header({
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
           <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">
             {/* 상단 통합 레이블 */}
-            <div className="text-[12px] lg:text-[13px] font-black text-emerald-800 text-center tracking-wider bg-emerald-50 border border-emerald-100/60 rounded-md py-1 mb-1 select-none shadow-xs">
-              ⚡ 전기차충전기 설치문의
+            <div 
+              onClick={() => isEditMode ? onOpenCms?.('quote') : onOpenQuote()}
+              className={`text-[15px] lg:text-[17px] font-black text-emerald-800 hover:text-white text-center tracking-wider bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-md py-1.5 mb-1 select-none shadow-xs cursor-pointer transition-all duration-200 ${
+                isEditMode ? 'border-dashed border-2 animate-pulse' : ''
+              }`}
+              title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
+            >
+              {isEditMode ? '✏️ 설치문의 실시간 편집' : '⚡ 전기차충전기 설치문의'}
             </div>
 
             {/* 1. 아파트 전기차 충전기 설치문의 (녹색으로 통일) */}
@@ -284,8 +323,14 @@ export default function Header({
           
           {/* Direct Installation Inquiry 3 Stacked Buttons */}
           <div className="space-y-2">
-            <span className="text-[12px] sm:text-[13px] font-black text-emerald-800 tracking-wider block uppercase bg-emerald-50 border border-emerald-100/60 rounded-xl px-2.5 py-2 text-center select-none shadow-xs">
-              ⚡ 전기차충전기 설치문의
+            <span 
+              onClick={() => isEditMode ? onOpenCms?.('quote') : onOpenQuote()}
+              className={`text-[14.5px] sm:text-[15.5px] font-black text-emerald-800 hover:text-white tracking-wider block uppercase bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-xl px-2.5 py-2.5 text-center select-none shadow-xs cursor-pointer transition-all duration-200 ${
+                isEditMode ? 'border-dashed border-2 animate-pulse' : ''
+              }`}
+              title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
+            >
+              {isEditMode ? '✏️ 설치문의 실시간 편집' : '⚡ 전기차충전기 설치문의'}
             </span>
             <div className="grid grid-cols-1 gap-2">
               <button
