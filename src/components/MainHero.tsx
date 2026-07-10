@@ -123,7 +123,7 @@ export default function MainHero({
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('hero')}
-            className="absolute top-4 right-4 z-30 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+            className="absolute top-4 right-4 z-30 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
           >
             ✏️ 히어로 영역 실시간 편집
           </button>
@@ -148,9 +148,9 @@ export default function MainHero({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider"
+            className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
             {heroConfig.badge}
           </motion.div>
 
@@ -189,7 +189,7 @@ export default function MainHero({
             <button
               onClick={onOpenQuote}
               id="btn-hero-quote-cta"
-              className="py-3.5 px-7 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-xs sm:text-sm font-black shadow-xl shadow-blue-500/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-102 active:scale-98"
+              className="py-3.5 px-7 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-2xl text-xs sm:text-sm font-black shadow-xl shadow-amber-500/30 flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-102 active:scale-98"
             >
               {heroConfig.ctaButton}
             </button>
@@ -217,53 +217,53 @@ export default function MainHero({
                   <rect x="220" y="85" width="16" height="35" fill="#475569" />
                   <rect x="216" y="80" width="24" height="6" fill="#1e293b" />
 
-                  {/* Roof (Blue gable) */}
-                  <polygon points="175,50 85,140 265,140" fill="#1e3a8a" />
+                  {/* Roof (Blue/Green gable) */}
+                  <polygon points="175,50 85,140 265,140" fill="#064e3b" />
                   
                   {/* Main House Body */}
-                  <rect x="95" y="140" width="160" height="90" fill="#f0f9ff" rx="2" />
+                  <rect x="95" y="140" width="160" height="90" fill="#f0fdf4" rx="2" />
                   
                   {/* Windows */}
-                  <rect x="115" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
-                  <line x1="126" y1="155" x2="126" y2="177" stroke="#2563eb" strokeWidth="1.5" />
-                  <line x1="115" y1="166" x2="137" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+                  <rect x="115" y="155" width="22" height="22" fill="#ffffff" stroke="#10b981" strokeWidth="2.5" rx="2" />
+                  <line x1="126" y1="155" x2="126" y2="177" stroke="#10b981" strokeWidth="1.5" />
+                  <line x1="115" y1="166" x2="137" y2="166" stroke="#10b981" strokeWidth="1.5" />
 
-                  <rect x="164" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
-                  <line x1="175" y1="155" x2="175" y2="177" stroke="#2563eb" strokeWidth="1.5" />
-                  <line x1="164" y1="166" x2="186" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+                  <rect x="164" y="155" width="22" height="22" fill="#ffffff" stroke="#10b981" strokeWidth="2.5" rx="2" />
+                  <line x1="175" y1="155" x2="175" y2="177" stroke="#10b981" strokeWidth="1.5" />
+                  <line x1="164" y1="166" x2="186" y2="166" stroke="#10b981" strokeWidth="1.5" />
 
-                  <rect x="213" y="155" width="22" height="22" fill="#ffffff" stroke="#2563eb" strokeWidth="2.5" rx="2" />
-                  <line x1="224" y1="155" x2="224" y2="177" stroke="#2563eb" strokeWidth="1.5" />
-                  <line x1="213" y1="166" x2="235" y2="166" stroke="#2563eb" strokeWidth="1.5" />
+                  <rect x="213" y="155" width="22" height="22" fill="#ffffff" stroke="#10b981" strokeWidth="2.5" rx="2" />
+                  <line x1="224" y1="155" x2="224" y2="177" stroke="#10b981" strokeWidth="1.5" />
+                  <line x1="213" y1="166" x2="235" y2="166" stroke="#10b981" strokeWidth="1.5" />
                   
                   {/* Door on bottom right */}
-                  <rect x="213" y="190" width="22" height="40" fill="#1e3a8a" rx="1" />
+                  <rect x="213" y="190" width="22" height="40" fill="#064e3b" rx="1" />
                   <circle cx="218" cy="210" r="2" fill="#fef08a" />
                   
                   {/* Garage & Car on left */}
                   <rect x="110" y="190" width="65" height="40" fill="#e2e8f0" rx="3" />
                   {/* Car */}
-                  <rect x="117" y="198" width="50" height="28" fill="#1d4ed8" rx="6" />
+                  <rect x="117" y="198" width="50" height="28" fill="#059669" rx="6" />
                   <circle cx="128" cy="226" r="5" fill="#1e293b" />
                   <circle cx="156" cy="226" r="5" fill="#1e293b" />
-                  <rect x="122" y="202" width="40" height="12" fill="#dbeafe" rx="2" />
+                  <rect x="122" y="202" width="40" height="12" fill="#d1fae5" rx="2" />
                   {/* Headlights */}
                   <circle cx="122" cy="212" r="2" fill="#fef08a" />
                   <circle cx="162" cy="212" r="2" fill="#fef08a" />
                   
                   {/* Charger wire looping out to a charger block */}
-                  <path d="M 167,215 C 185,215 180,185 195,185" stroke="#1d4ed8" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-                  <rect x="192" y="177" width="10" height="15" fill="#1d4ed8" rx="2" />
+                  <path d="M 167,215 C 185,215 180,185 195,185" stroke="#059669" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                  <rect x="192" y="177" width="10" height="15" fill="#059669" rx="2" />
                   <circle cx="197" cy="184" r="2" fill="#ffffff" />
                   
                   {/* Small Bushes on side */}
-                  <circle cx="260" cy="225" r="12" fill="#1d4ed8" />
-                  <circle cx="268" cy="228" r="8" fill="#1e40af" />
+                  <circle cx="260" cy="225" r="12" fill="#059669" />
+                  <circle cx="268" cy="228" r="8" fill="#047857" />
                 </svg>
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">아파트</h4>
+                <h4 className="text-xl font-black text-emerald-950 tracking-tight">아파트</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
                   아파트 단지, 입주민 공용{"\n"}환경부 무상 보조금 최적 설계
                 </p>
@@ -272,7 +272,7 @@ export default function MainHero({
               <div className="pt-2">
                 <button
                   onClick={() => onPageChange?.('sol_commercial')}
-                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
                 </button>
@@ -292,36 +292,36 @@ export default function MainHero({
                   {/* Roof Structure */}
                   <rect x="105" y="50" width="140" height="10" fill="#475569" rx="3" />
                   
-                  {/* Blue solar decoration dots */}
-                  <circle cx="140" cy="55" r="2.5" fill="#1d4ed8" />
-                  <circle cx="150" cy="55" r="2.5" fill="#1d4ed8" />
-                  <circle cx="160" cy="55" r="2.5" fill="#1d4ed8" />
-                  <circle cx="170" cy="55" r="2.5" fill="#1d4ed8" />
-                  <circle cx="180" cy="55" r="2.5" fill="#1d4ed8" />
+                  {/* Blue/Green solar decoration dots */}
+                  <circle cx="140" cy="55" r="2.5" fill="#059669" />
+                  <circle cx="150" cy="55" r="2.5" fill="#059669" />
+                  <circle cx="160" cy="55" r="2.5" fill="#059669" />
+                  <circle cx="170" cy="55" r="2.5" fill="#059669" />
+                  <circle cx="180" cy="55" r="2.5" fill="#059669" />
 
                   {/* Windows with alternating colors */}
                   {/* Row 1 */}
                   <rect x="125" y="75" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="152" y="75" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="152" y="75" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="179" y="75" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="206" y="75" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="206" y="75" width="20" height="16" fill="#10b981" rx="1.5" />
                   
                   {/* Row 2 */}
-                  <rect x="125" y="100" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="125" y="100" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="152" y="100" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="179" y="100" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="179" y="100" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="206" y="100" width="20" height="16" fill="#334155" rx="1.5" />
                   
                   {/* Row 3 */}
                   <rect x="125" y="125" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="152" y="125" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="152" y="125" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="179" y="125" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="206" y="125" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="206" y="125" width="20" height="16" fill="#10b981" rx="1.5" />
                   
                   {/* Row 4 */}
-                  <rect x="125" y="150" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="125" y="150" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="152" y="150" width="20" height="16" fill="#334155" rx="1.5" />
-                  <rect x="179" y="150" width="20" height="16" fill="#2563eb" rx="1.5" />
+                  <rect x="179" y="150" width="20" height="16" fill="#10b981" rx="1.5" />
                   <rect x="206" y="150" width="20" height="16" fill="#334155" rx="1.5" />
 
                   {/* Grand Entrance */}
@@ -330,29 +330,29 @@ export default function MainHero({
                   
                   {/* Standing Chargers in front on side lanes */}
                   {/* Charger Left 1 */}
-                  <rect x="70" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="75" cy="203" r="2" fill="#2563eb" />
+                  <rect x="70" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="75" cy="203" r="2" fill="#10b981" />
                   <line x1="75" y1="210" x2="75" y2="230" stroke="#64748b" strokeWidth="1" />
 
                   {/* Charger Left 2 */}
-                  <rect x="88" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="93" cy="203" r="2" fill="#2563eb" />
+                  <rect x="88" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="93" cy="203" r="2" fill="#10b981" />
                   <line x1="93" y1="210" x2="93" y2="230" stroke="#64748b" strokeWidth="1" />
 
                   {/* Charger Right 1 */}
-                  <rect x="252" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="257" cy="203" r="2" fill="#2563eb" />
+                  <rect x="252" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="257" cy="203" r="2" fill="#10b981" />
                   <line x1="257" y1="210" x2="257" y2="230" stroke="#64748b" strokeWidth="1" />
 
                   {/* Charger Right 2 */}
-                  <rect x="270" y="195" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="275" cy="203" r="2" fill="#2563eb" />
+                  <rect x="270" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="275" cy="203" r="2" fill="#10b981" />
                   <line x1="275" y1="210" x2="275" y2="230" stroke="#64748b" strokeWidth="1" />
                 </svg>
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">가정용 홈</h4>
+                <h4 className="text-xl font-black text-emerald-950 tracking-tight">가정용 홈</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
                   단독주택, 빌라, 개인용 주차장{"\n"}7kW 개인 완속 스마트홈 홈충전기
                 </p>
@@ -361,7 +361,7 @@ export default function MainHero({
               <div className="pt-2">
                 <button
                   onClick={() => onPageChange?.('sol_residential')}
-                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
                 </button>
@@ -398,10 +398,10 @@ export default function MainHero({
                   
                   {/* Central flag pole & flag */}
                   <rect x="173" y="15" width="4" height="25" fill="#475569" />
-                  <polygon points="177,15 208,22 177,30" fill="#1d4ed8" />
+                  <polygon points="177,15 208,22 177,30" fill="#059669" />
                   
                   {/* Symmetrical High-tech Lightning logo in center dome */}
-                  <circle cx="175" cy="62" r="12" fill="#1d4ed8" />
+                  <circle cx="175" cy="62" r="12" fill="#059669" />
                   <path d="M175,55 L169,63 L174,63 L173,69 L181,61 L176,61 Z" fill="#ffffff" />
 
                   {/* Center windows */}
@@ -410,25 +410,25 @@ export default function MainHero({
                   <rect x="197" y="100" width="18" height="26" fill="#334155" rx="1" />
                   
                   <rect x="135" y="140" width="18" height="26" fill="#334155" rx="1" />
-                  <rect x="166" y="140" width="18" height="18" fill="#2563eb" rx="1" /> {/* Charging system indicator */}
+                  <rect x="166" y="140" width="18" height="18" fill="#10b981" rx="1" /> {/* Charging system indicator */}
                   <rect x="197" y="140" width="18" height="26" fill="#334155" rx="1" />
 
                   {/* Symmetrical Entrance Gate */}
                   <rect x="150" y="180" width="50" height="50" fill="#e2e8f0" rx="4" stroke="#475569" strokeWidth="2" />
-                  <rect x="160" y="190" width="30" height="40" fill="#1e3a8a" rx="1" />
+                  <rect x="160" y="190" width="30" height="40" fill="#064e3b" rx="1" />
                   <line x1="175" y1="190" x2="175" y2="230" stroke="#f0f9ff" strokeWidth="1" />
 
                   {/* Symmetrical Outer charger towers on left & right road borders */}
-                  <rect x="42" y="200" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="47" cy="208" r="2" fill="#2563eb" />
+                  <rect x="42" y="200" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="47" cy="208" r="2" fill="#10b981" />
 
-                  <rect x="298" y="200" width="10" height="35" fill="#f8fafc" stroke="#1d4ed8" strokeWidth="2" rx="1" />
-                  <circle cx="303" cy="208" r="2" fill="#2563eb" />
+                  <rect x="298" y="200" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <circle cx="303" cy="208" r="2" fill="#10b981" />
                 </svg>
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-blue-900 tracking-tight">상업시설 수익형</h4>
+                <h4 className="text-xl font-black text-emerald-950 tracking-tight">상업시설 수익형</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
                   호텔, 마트, 대형 상가 빌딩{"\n"}수익형 완속/급속 충전소 구축
                 </p>
@@ -437,7 +437,7 @@ export default function MainHero({
               <div className="pt-2">
                 <button
                   onClick={() => onPageChange?.('sol_parking')}
-                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
                 </button>
@@ -478,7 +478,7 @@ export default function MainHero({
               </button>
 
               <div className="space-y-1">
-                <span className="text-blue-600 font-bold text-[10px] tracking-wider uppercase block">GPS Location Simulator</span>
+                <span className="text-emerald-600 font-bold text-[10px] tracking-wider uppercase block">GPS Location Simulator</span>
                 <h4 className="text-base font-extrabold text-slate-950">내 주변 실시간 SY.com 충전기 찾기</h4>
               </div>
 
@@ -495,7 +495,7 @@ export default function MainHero({
                   type="button"
                   onClick={startFakeScan}
                   id="btn-finder-scan"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shrink-0 hover:bg-blue-700"
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shrink-0 hover:bg-emerald-700"
                 >
                   조회
                 </button>
@@ -504,19 +504,19 @@ export default function MainHero({
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {isScanning ? (
                   <div className="py-12 text-center text-slate-500 text-xs flex flex-col items-center justify-center space-y-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-blue-500 animate-spin" />
+                    <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-emerald-500 animate-spin" />
                     <span>실시간 한전 전력망 및 기기 가동 여부 조회 중...</span>
                   </div>
                 ) : chargerList.length > 0 ? (
                   chargerList.map((ch, idx) => (
                     <div key={idx} className="p-3 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center text-xs">
-                      <div className="space-y-0.5">
+                       <div className="space-y-0.5">
                         <span className="font-bold text-slate-900 block">{ch.name}</span>
                         <span className="text-[10px] text-slate-400 block">{ch.power} • 거리 {ch.distance}</span>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                         ch.status === '충전가능' 
-                          ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
                           : 'bg-stone-100 text-stone-600 border border-stone-200'
                       }`}>
                         {ch.status}

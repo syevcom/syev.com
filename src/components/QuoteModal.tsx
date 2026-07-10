@@ -361,7 +361,7 @@ export default function QuoteModal({
         </button>
 
         {/* Top Gradient Ribbon */}
-        <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500" />
+        <div className="h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500" />
 
         {/* Scrollable Content wrapper */}
         <div className="overflow-y-auto p-6 md:p-8">
@@ -373,7 +373,7 @@ export default function QuoteModal({
                 exit={{ opacity: 0, scale: 0.9 }}
                 className="text-center py-12 px-4 flex flex-col items-center justify-center"
               >
-                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-4 border border-blue-100">
+                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mb-4 border border-emerald-100">
                   <CheckCircle className="w-10 h-10 animate-bounce" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{quoteConfig.successTitle}</h3>
@@ -397,7 +397,7 @@ export default function QuoteModal({
               >
                 {/* Header */}
                 <div className="mb-5">
-                  <div className="flex items-center gap-1.5 text-blue-600 font-extrabold text-xs uppercase tracking-wider mb-1">
+                  <div className="flex items-center gap-1.5 text-emerald-600 font-extrabold text-xs uppercase tracking-wider mb-1">
                     <Sparkles className="w-3.5 h-3.5" />
                     {quoteConfig.badge}
                   </div>
@@ -423,7 +423,7 @@ export default function QuoteModal({
                           value={purpose}
                           onChange={(e) => setPurpose(e.target.value as any)}
                           id="select-quote-purpose"
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-xs font-bold transition-all"
                         >
                           <option value="Commercial">{quoteConfig.purposeLabels?.Commercial || '아파트용 (공동주택/공용시설)'}</option>
                           <option value="Residential">{quoteConfig.purposeLabels?.Residential || '가정용 홈 (단독주택/빌라/개인)'}</option>
@@ -434,7 +434,7 @@ export default function QuoteModal({
                       {/* Apartment Brand Selection Grid */}
                       {purpose === 'Commercial' && (
                         <div className="md:col-span-2 space-y-2 pt-1 pb-1">
-                          <label className="block text-xs font-extrabold text-blue-600">
+                          <label className="block text-xs font-extrabold text-emerald-600">
                             🏢 희망하시는 충전기 사업자 (브랜드)를 선택해 주세요:
                           </label>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -454,17 +454,17 @@ export default function QuoteModal({
                                   onClick={() => setSelectedBrand(b.name)}
                                   className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[68px] ${
                                     isSelected
-                                      ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600'
+                                      ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600'
                                       : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
                                   }`}
                                 >
                                   <div className="w-full">
                                     <div className="flex items-center justify-between w-full">
-                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-blue-700' : 'text-slate-800'}`}>
+                                      <span className={`text-[11px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
                                         {b.name}
                                       </span>
                                       {isSelected && (
-                                        <span className="text-[9px] bg-blue-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-bold shrink-0">
+                                        <span className="text-[9px] bg-emerald-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-bold shrink-0">
                                           ✓
                                         </span>
                                       )}
@@ -544,14 +544,14 @@ export default function QuoteModal({
                                 placeholder={field.placeholder}
                                 rows={3}
                                 id={`input-quote-${field.id}`}
-                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all resize-none"
+                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-xs font-bold transition-all resize-none"
                               />
                             ) : field.type === 'select' ? (
                               <select
                                 value={formValues[field.id] || ''}
                                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                                 id={`select-quote-${field.id}`}
-                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-xs font-bold transition-all"
                               >
                                 {(field.options || []).map((opt) => (
                                   <option key={opt} value={opt}>{opt}</option>
@@ -565,13 +565,13 @@ export default function QuoteModal({
                                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                                   placeholder={field.placeholder}
                                   id={`input-quote-${field.id}`}
-                                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
+                                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 text-xs font-bold transition-all"
                                 />
                                 {(field.id === 'location' || field.type === 'address' || field.label.includes('주소') || field.label.includes('지역')) && (
                                   <button
                                     type="button"
                                     onClick={() => setAddressSearchFieldId(field.id)}
-                                    className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shrink-0 cursor-pointer transition-colors flex items-center justify-center gap-1 shadow-sm"
+                                    className="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shrink-0 cursor-pointer transition-colors flex items-center justify-center gap-1 shadow-sm"
                                   >
                                     <span>🔍 주소 검색</span>
                                   </button>
@@ -583,8 +583,8 @@ export default function QuoteModal({
                       })}
                     </div>
 
-                    <div className="flex items-start gap-2 bg-blue-50/50 rounded-2xl p-4 border border-blue-100 text-[11px] text-slate-600 mt-4">
-                      <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 text-[11px] text-slate-600 mt-4">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <div className="font-semibold leading-relaxed">
                         <strong className="text-slate-800">안심 보증 정책:</strong> {quoteConfig.privacyNotice}
                       </div>
@@ -593,7 +593,7 @@ export default function QuoteModal({
                     <button
                       type="submit"
                       id="btn-quote-submit"
-                      className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:via-indigo-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all text-center flex items-center justify-center gap-2 mt-6 cursor-pointer"
+                      className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:via-yellow-400 hover:to-amber-500 text-slate-950 rounded-xl text-xs font-black shadow-xl shadow-amber-500/25 hover:shadow-amber-500/45 transition-all text-center flex items-center justify-center gap-2 mt-6 cursor-pointer"
                     >
                       <Send className="w-4 h-4" />
                       {quoteConfig.submitButton}
@@ -613,7 +613,7 @@ export default function QuoteModal({
                             value={calcPower}
                             onChange={(e) => setCalcPower(e.target.value as any)}
                             id="select-calc-power"
-                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
                           >
                             <option value="7">7kW 스마트 완속 (주택, 빌라, 아파트)</option>
                             <option value="11">11kW 스마트 고속완속 (빌딩, 주차장)</option>
@@ -642,7 +642,7 @@ export default function QuoteModal({
                               value={calcQty}
                               onChange={(e) => setCalcQty(Math.max(1, parseInt(e.target.value) || 1))}
                               id="input-calc-qty"
-                              className="w-16 h-10 bg-white border border-slate-200 rounded-xl text-center font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                              className="w-16 h-10 bg-white border border-slate-200 rounded-xl text-center font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
                             />
                             <button
                               type="button"
@@ -665,9 +665,9 @@ export default function QuoteModal({
                           {totalCost.toLocaleString()}원
                         </span>
                       </div>
-                      <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-center">
-                        <span className="text-[10px] text-blue-600 font-extrabold block mb-1">예상 정부 보조금</span>
-                        <span className="text-xs font-black text-blue-600">
+                      <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                        <span className="text-[10px] text-emerald-600 font-extrabold block mb-1">예상 정부 보조금</span>
+                        <span className="text-xs font-black text-emerald-600">
                           - {totalSubsidy.toLocaleString()}원
                         </span>
                       </div>
@@ -680,9 +680,9 @@ export default function QuoteModal({
                     </div>
 
                     {/* Explanatory text */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-4 border border-blue-200/50 text-xs text-slate-600 space-y-1.5 font-semibold">
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50/20 rounded-3xl p-4 border border-emerald-200/50 text-xs text-slate-600 space-y-1.5 font-semibold">
                       <p className="font-extrabold text-slate-800 flex items-center gap-1.5 text-xs">
-                        <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
+                        <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" />
                         올해 정부보조금 선점 우선 신청 대상자 추가 혜택
                       </p>
                       <p>
@@ -703,7 +703,7 @@ export default function QuoteModal({
                           value={formValues['name'] || ''}
                           onChange={(e) => handleInputChange('name', e.target.value)}
                           id="input-calc-name"
-                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-blue-500"
+                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-emerald-500"
                         />
                         <input
                           type="tel"
@@ -711,7 +711,7 @@ export default function QuoteModal({
                           value={formValues['phone'] || ''}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
                           id="input-calc-phone"
-                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-blue-500"
+                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-bold focus:ring-1 focus:ring-emerald-500"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -719,7 +719,7 @@ export default function QuoteModal({
                           value={formValues['location'] || '서울'}
                           onChange={(e) => handleInputChange('location', e.target.value)}
                           id="select-calc-location"
-                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-blue-500"
+                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-emerald-500"
                         >
                           {locations.map((loc) => (
                             <option key={loc} value={loc}>{loc}</option>
@@ -729,7 +729,7 @@ export default function QuoteModal({
                           value={purpose}
                           onChange={(e) => setPurpose(e.target.value as any)}
                           id="select-calc-purpose"
-                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-blue-500"
+                          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-1 focus:ring-emerald-500"
                         >
                           <option value="Commercial">{quoteConfig.purposeLabels?.Commercial || '아파트용 (급속/완속 추천)'}</option>
                           <option value="Residential">{quoteConfig.purposeLabels?.Residential || '가정용 홈 (7kW 추천)'}</option>
@@ -741,7 +741,7 @@ export default function QuoteModal({
                         type="button"
                         onClick={handleQuickSubmit}
                         id="btn-calc-quote-submit"
-                        className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
+                        className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl text-xs font-black transition-all text-center cursor-pointer shadow-md shadow-amber-500/10"
                       >
                         {quoteConfig.submitButton}
                       </button>

@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Solution, ActivePage } from '../types';
-import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image } from 'lucide-react';
+import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink } from 'lucide-react';
 import { PRODUCTS } from '../data';
+import PdfImageRenderer from './PdfImageRenderer';
 
 const BRAND_METADATA: Record<string, {
   name: string;
@@ -70,6 +71,24 @@ const BRAND_METADATA: Record<string, {
     logoBg: 'bg-blue-50 text-blue-700 border-blue-100',
     icon: '🚙',
     benefits: ['현대/기아 멤버십 포인트 사용 연동', '100% 하이엔드 신뢰성 부품 사용', '전국 한전 용량 사전 무상 대관 컨설팅']
+  },
+  '아이파킹': {
+    name: '아이파킹 EV (iParking EV)',
+    slogan: '무인 주차 시스템 전국 1위 연동 고효율 충전 제어 서비스',
+    description: '아이파킹 EV는 무인 주차 정산 선두 주자 파킹클라우드의 IT 기술력을 기반으로 주차 정산기, 주차장 입출입 차단 시스템과 유기적으로 연동하여 충전 요금 주차비 사전 할인 및 통합 결제 편의성을 극대화합니다.',
+    highlights: ['주차관제 시스템 연동', '자동 차량 번호 인식', '주차요금 감면 혜택'],
+    logoBg: 'bg-orange-50 text-orange-600 border-orange-100',
+    icon: '🚗',
+    benefits: ['충전 완료 시 주차요금 즉시 자동 감면', '주차 앱 하나로 할인권 및 충전 원스톱 결제', '24시간 무인 안심 주차-충전 관제 모니터링']
+  },
+  'LG유플러스볼트업': {
+    name: 'LG유플러스 볼트업 (VoltUp)',
+    slogan: 'LG그룹의 최고 신뢰성 망 인프라 기반 프리미엄 충전망',
+    description: 'LG유플러스 볼트업은 3대 통신사의 강력하고 안정적인 모바일 통신 회선을 기본 무상 장착하고, 전국 직영 24시간 철저한 원격 제어 및 현장 긴급 출동 긴급 복구 시스템으로 압도적인 운용 신뢰성을 보장합니다.',
+    highlights: ['대기업 전용 통신망 연동', 'U+ 통신 요금 멤버십 할인', '24시간 관제 센터 가동'],
+    logoBg: 'bg-pink-50 text-pink-600 border-pink-100',
+    icon: '🔌',
+    benefits: ['LG U+ 모바일 고객 충전 요금 상시 10% 추가 할인', '365일 실시간 안전 감지 및 원격 셧다운 기능', '전 입주민 자가부담금 ZERO 완전 무상 설치 시공']
   }
 };
 
@@ -162,6 +181,59 @@ export default function SolutionsSection({
   const [solutionTabs, setSolutionTabs] = useState<Record<string, 'specs' | 'infographic'>>({});
   const [localBannerModes, setLocalBannerModes] = useState<Record<string, 'cover' | 'unfold'>>({});
   const [localDetailModes, setLocalDetailModes] = useState<Record<string, 'scroll' | 'unfold'>>({});
+
+  const [brands, setBrands] = useState<Record<string, any>>(() => {
+    const saved = localStorage.getItem('sy_cms_brands');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...BRAND_METADATA, ...parsed };
+      } catch (e) {
+        return BRAND_METADATA;
+      }
+    }
+    return BRAND_METADATA;
+  });
+
+  const [isDraggingPdf, setIsDraggingPdf] = useState<Record<string, boolean>>({});
+
+  const handlePdfUpload = (brandKey: string, file: File) => {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isImage = file.type.startsWith('image/');
+
+    if (!isPdf && !isImage) {
+      alert('PDF 파일 또는 이미지 파일(PNG/JPG/JPEG)만 업로드할 수 있습니다.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const updated = {
+        ...brands,
+        [brandKey]: {
+          ...brands[brandKey],
+          pdfUrl: reader.result as string,
+          pdfName: file.name
+        }
+      };
+      setBrands(updated);
+      localStorage.setItem('sy_cms_brands', JSON.stringify(updated));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeletePdf = (brandKey: string) => {
+    const updated = {
+      ...brands,
+      [brandKey]: {
+        ...brands[brandKey],
+        pdfUrl: undefined,
+        pdfName: undefined
+      }
+    };
+    setBrands(updated);
+    localStorage.setItem('sy_cms_brands', JSON.stringify(updated));
+  };
 
   const filteredSolutions = solutions.filter(sol => {
     if (activeTab === 'ALL') return true;
@@ -275,29 +347,29 @@ export default function SolutionsSection({
                 </div>
 
                 {sol.category === 'Commercial' && (() => {
-                  const brandData = BRAND_METADATA[selectedAptBrand] || BRAND_METADATA['sk일렉링크'];
+                  const brandData = brands[selectedAptBrand] || brands['sk일렉링크'];
                   return (
-                    <div className="p-6 bg-slate-900 text-white rounded-3xl border border-slate-800/80 space-y-6 shadow-xl relative overflow-hidden group/brand">
+                    <div className="p-6 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
                       {/* Decorative Background Glow */}
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
                       
-                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 relative z-10">
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-emerald-500/30 pb-4 relative z-10">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xl sm:text-2xl">{brandData.icon}</span>
-                            <span className="text-[10px] font-extrabold text-blue-400 tracking-wider uppercase block bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-900/40">
+                            <span className="text-[10px] font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
                               SY.com 아파트 브랜드 공식 파트너
                             </span>
                           </div>
                           <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
                             {brandData.name}
                           </h4>
-                          <p className="text-xs text-slate-400 font-bold">
+                          <p className="text-xs text-emerald-100 font-bold">
                             {brandData.slogan}
                           </p>
                         </div>
                         <div className="flex gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none self-stretch lg:self-auto">
-                          {Object.keys(BRAND_METADATA).map((b) => {
+                          {Object.keys(brands).map((b) => {
                             const isSel = selectedAptBrand === b;
                             return (
                               <button
@@ -306,8 +378,8 @@ export default function SolutionsSection({
                                 onClick={() => onSelectAptBrand?.(b)}
                                 className={`px-3 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
                                   isSel
-                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-103'
-                                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700/80'
+                                    ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/30 scale-103'
+                                    : 'bg-emerald-800/80 text-emerald-100 hover:text-white hover:bg-emerald-700/80'
                                 }`}
                               >
                                 {b}
@@ -319,26 +391,26 @@ export default function SolutionsSection({
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                         <div className="space-y-4">
-                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-semibold">
+                          <p className="text-xs sm:text-sm text-emerald-50 leading-relaxed font-semibold">
                             {brandData.description}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {brandData.highlights.map((hl) => (
-                              <span key={hl} className="text-[10px] font-black bg-slate-800/80 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700/40">
+                              <span key={hl} className="text-[10px] font-black bg-emerald-800/50 text-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
                                 ✓ {hl}
                               </span>
                             ))}
                           </div>
                         </div>
 
-                        <div className="space-y-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
-                          <span className="text-[10px] font-extrabold text-blue-400 tracking-wider uppercase block">
+                        <div className="space-y-3 bg-emerald-800/40 p-4 rounded-2xl border border-emerald-500/30">
+                          <span className="text-[10px] font-extrabold text-yellow-300 tracking-wider uppercase block">
                             🎁 SY.com 무상 설치 공식 혜택
                           </span>
                           <div className="space-y-2">
                             {brandData.benefits.map((benefit, bIdx) => (
-                              <div key={bIdx} className="flex items-start gap-2 text-xs text-slate-200">
-                                <span className="text-blue-500 font-bold mt-0.5">•</span>
+                              <div key={bIdx} className="flex items-start gap-2 text-xs text-emerald-50">
+                                <span className="text-yellow-400 font-bold mt-0.5">•</span>
                                 <span className="font-bold leading-relaxed">{benefit}</span>
                               </div>
                             ))}
@@ -346,17 +418,108 @@ export default function SolutionsSection({
                         </div>
                       </div>
 
-                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50 relative z-10">
+                      {/* Brand PDF Catalog & Inline Document Viewer */}
+                      <div className="border border-emerald-500/20 bg-emerald-800/20 rounded-2xl p-5 space-y-4 relative z-10">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/30 pb-3">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-amber-300 animate-pulse" />
+                            <h5 className="text-xs font-black text-white uppercase tracking-wider">
+                              📄 {brandData.name} 공식 사양서 및 카탈로그
+                             </h5>
+                          </div>
+                          {brandData.pdfUrl && (
+                            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                              {isEditMode && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeletePdf(selectedAptBrand)}
+                                  className="px-2.5 py-1.5 bg-rose-900/80 hover:bg-rose-800 text-rose-100 rounded-lg text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border border-rose-700/50"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  브로셔 삭제
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {brandData.pdfUrl ? (
+                          <div className="space-y-2">
+                            <PdfImageRenderer 
+                              fileUrl={brandData.pdfUrl} 
+                              fileName={brandData.pdfName || 'catalog.pdf'} 
+                              brandName={brandData.name} 
+                              isAdmin={isEditMode}
+                            />
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {isEditMode ? (
+                              <div
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: true }));
+                                }}
+                                onDragLeave={() => {
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: false }));
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: false }));
+                                  const file = e.dataTransfer.files?.[0];
+                                  if (file) {
+                                    handlePdfUpload(selectedAptBrand, file);
+                                  }
+                                }}
+                                onClick={() => document.getElementById(`pdf-file-input-${selectedAptBrand}`)?.click()}
+                                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] ${
+                                  isDraggingPdf[selectedAptBrand]
+                                    ? 'border-yellow-400 bg-yellow-500/10'
+                                    : 'border-emerald-500/40 bg-emerald-800/20 hover:bg-emerald-700/40 hover:border-emerald-400'
+                                }`}
+                              >
+                                <input
+                                  type="file"
+                                  id={`pdf-file-input-${selectedAptBrand}`}
+                                  accept="application/pdf, image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      handlePdfUpload(selectedAptBrand, file);
+                                    }
+                                  }}
+                                />
+                                <Upload className="w-7 h-7 text-emerald-100 mb-2" />
+                                <p className="text-xs font-black text-white">
+                                  여기에 <span className="text-yellow-300">[{brandData.name}]</span> 브랜드 카탈로그 PDF 또는 이미지 파일을 드래그하거나 클릭하여 업로드
+                                </p>
+                                <p className="text-[10px] text-emerald-200 font-bold mt-1">
+                                  PDF 파일 또는 이미지 형식(PNG, JPG, JPEG) 모두 완벽 지원 및 자동 고선명 실시간 렌더링
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="py-8 text-center bg-emerald-800/20 border border-emerald-500/20 rounded-xl flex flex-col items-center justify-center space-y-1.5">
+                                <FileText className="w-6 h-6 text-emerald-200" />
+                                <p className="text-xs text-white font-bold">현재 등록된 브랜드 공식 카탈로그가 없습니다.</p>
+                                <p className="text-[10px] text-emerald-100">우측 상단의 '실시간 편집 모드'를 활성화하면 PDF 또는 이미지 브로셔를 직접 등록하실 수 있습니다.</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-emerald-800/30 p-4 rounded-2xl border border-emerald-500/20 relative z-10">
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-                          <p className="text-[11px] sm:text-xs text-slate-300 font-bold">
-                            지금 문의하시면 <span className="text-amber-400 font-black">{brandData.name}</span> 정부 및 지자체 무상 지원 자격을 즉시 심사 매칭해 드립니다.
+                          <span className="w-2 h-2 rounded-full bg-yellow-400 animate-ping shrink-0"></span>
+                          <p className="text-[11px] sm:text-xs text-white font-bold">
+                            지금 문의하시면 <span className="text-yellow-300 font-black">{brandData.name}</span> 정부 및 지자체 무상 지원 자격을 즉시 심사 매칭해 드립니다.
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => onOpenQuoteWithPurpose('Commercial')}
-                          className="w-full md:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0"
+                          className="w-full md:w-auto px-5 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0 shadow-md shadow-yellow-500/20"
                         >
                           ⚡ {selectedAptBrand} 무상설치 문의하기
                         </button>

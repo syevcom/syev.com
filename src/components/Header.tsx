@@ -105,9 +105,9 @@ export default function Header({
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-md shadow-slate-900/5">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/75 backdrop-blur-lg border-b border-slate-200/80 shadow-md shadow-slate-900/5">
       {/* Top Banner (Subtle, professional notification with premium deep blue theme) */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-950 to-slate-900 text-white text-[11px] py-2 px-4 text-center font-bold tracking-wide flex justify-center items-center gap-1.5 border-b border-blue-500/10">
+      <div className="bg-gradient-to-r from-emerald-600 via-emerald-950 to-slate-900 text-white text-[11px] py-2 px-4 text-center font-bold tracking-wide flex justify-center items-center gap-1.5 border-b border-emerald-500/10">
         <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse shrink-0" />
         <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
@@ -128,7 +128,7 @@ export default function Header({
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
               <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
             </div>
           )}
@@ -158,7 +158,7 @@ export default function Header({
                 onClick={() => handleMenuClick(item.id)}
                 className={`px-3 lg:px-4 py-2 text-[14px] lg:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
                   isActive
-                    ? 'text-blue-600 font-black after:absolute after:bottom-[-8px] after:left-3 after:right-3 after:h-[2.5px] after:bg-blue-600'
+                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-3 after:right-3 after:h-[2.5px] after:bg-emerald-600'
                     : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
                 }`}
               >
@@ -171,39 +171,44 @@ export default function Header({
         {/* 3. Right side: Premium Inquiry CTA + Utility */}
         <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink">
 
-          {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Blue Theme */}
-          <div className="flex flex-col gap-1 w-[200px] lg:w-[220px] shrink">
-            {/* 1. 아파트 무상 설치 문의 */}
+          {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
+          <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">
+            {/* 상단 통합 레이블 */}
+            <div className="text-[10px] font-black text-emerald-800 text-center tracking-wider bg-emerald-50/80 border border-emerald-100/50 rounded-md py-0.5 mb-1 select-none">
+              ⚡ 전기차충전기 설치문의
+            </div>
+
+            {/* 1. 아파트 전기차 충전기 설치문의 (녹색으로 통일) */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Commercial') : onOpenQuote()}
-              className={`flex items-center justify-center px-3 py-1.5 border border-blue-500/10 rounded-md text-[12.5px] lg:text-[13.5px] font-black text-white transition-all cursor-pointer shadow-sm group shrink ${
+              className={`flex items-center justify-center px-3 py-1.5 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink hover:bg-yellow-500 hover:text-white ${
                 activePage === 'sol_commercial' 
-                  ? 'bg-amber-500 hover:bg-amber-600 animate-pulse' 
-                  : 'bg-blue-600 hover:bg-blue-700'
+                  ? 'bg-emerald-500 text-white animate-pulse' 
+                  : 'bg-emerald-600 text-white'
               }`}
               id="btn-header-shortcut-apt"
             >
               <span className="truncate">
-                ⚡ {activePage === 'sol_commercial' ? `${selectedAptBrand} 무상설치 문의` : '아파트 무상설치'}
+                ⚡ 아파트 · 공동주택
               </span>
             </button>
 
-            {/* 2. 가정용 · 홈 충전기 설치 문의 */}
+            {/* 2. 가정용 홈 전기차 충전기 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Residential') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 border border-blue-500/10 rounded-md text-[12.5px] lg:text-[13.5px] font-black text-white transition-all cursor-pointer shadow-sm group shrink"
+              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-home"
             >
-              <span className="truncate">🏠 가정용 홈 충전기</span>
+              <span className="truncate">🏠 가정용 · 개인 홈</span>
             </button>
 
-            {/* 3. 상업시설 · 수익형 설치 문의 */}
+            {/* 3. 상업시설 · 수익형 전기차 충전기 설치문의 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('ParkingLot') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 border border-blue-500/10 rounded-md text-[12.5px] lg:text-[13.5px] font-black text-white transition-all cursor-pointer shadow-sm group shrink"
+              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-commercial"
             >
-              <span className="truncate">🏢 상업시설 수익형</span>
+              <span className="truncate">🏢 상업시설 · 수익형</span>
             </button>
           </div>
 
@@ -213,7 +218,7 @@ export default function Header({
               <button
                 onClick={onOpenMyPage}
                 title="마이페이지"
-                className="w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
+                className="w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
               >
                 <User className="w-3.5 h-3.5" />
               </button>
@@ -221,7 +226,7 @@ export default function Header({
               <button
                 onClick={onOpenAuth}
                 title="로그인 / 회원가입"
-                className="w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
+                className="w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
               >
                 <LogIn className="w-3.5 h-3.5" />
               </button>
@@ -232,8 +237,8 @@ export default function Header({
               onClick={onToggleEditMode}
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${
                 isEditMode 
-                  ? 'bg-blue-500 text-white shadow-md animate-pulse' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'bg-emerald-500 text-white shadow-md animate-pulse' 
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
               }`}
               title={isEditMode ? "수정모드 켜짐" : "관리자 에디터 열기"}
             >
@@ -242,7 +247,7 @@ export default function Header({
             {isEditMode && onOpenCms && (
               <button
                 onClick={onOpenCms}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full font-black text-[9px] px-2 py-1 cursor-pointer transition-all shrink-0 animate-bounce"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-black text-[9px] px-2 py-1 cursor-pointer transition-all shrink-0 animate-bounce"
               >
                 CMS
               </button>
@@ -257,7 +262,7 @@ export default function Header({
           <button
             onClick={onToggleEditMode}
             className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              isEditMode ? 'bg-blue-500 text-white shadow-md' : 'bg-stone-100 text-stone-600 border border-stone-200 shadow-sm'
+              isEditMode ? 'bg-emerald-500 text-white shadow-md' : 'bg-stone-100 text-stone-600 border border-stone-200 shadow-sm'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -275,29 +280,31 @@ export default function Header({
 
       {/* 5. Mobile Drawer Overlay Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[115px] bottom-0 z-40 bg-white/98 backdrop-blur-md flex flex-col p-5 space-y-6 overflow-y-auto border-t border-slate-200/80">
+        <div className="md:hidden fixed inset-x-0 top-[115px] bottom-0 z-40 bg-white/85 backdrop-blur-lg flex flex-col p-5 space-y-6 overflow-y-auto border-t border-slate-200/80">
           
           {/* Direct Installation Inquiry 3 Stacked Buttons */}
           <div className="space-y-2">
-            <span className="text-[10px] font-bold text-stone-500 tracking-wider block uppercase">실시간 설치 상담 문의</span>
+            <span className="text-[10px] font-black text-emerald-800 tracking-wider block uppercase bg-emerald-50 border border-emerald-100/50 rounded-lg px-2.5 py-1.5 text-center select-none">
+              ⚡ 전기차충전기 설치문의
+            </span>
             <div className="grid grid-cols-1 gap-2">
               <button
                 onClick={() => handleInquirySelect('Commercial')}
-                className="w-full px-4 py-3 bg-white hover:bg-blue-50/50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 flex items-center justify-center gap-1 shadow-sm"
+                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>⚡ {activePage === 'sol_commercial' ? `${selectedAptBrand} 무상설치 문의` : '아파트 무상 설치 문의'}</span>
+                <span>⚡ 아파트 · 공동주택</span>
               </button>
               <button
                 onClick={() => handleInquirySelect('Residential')}
-                className="w-full px-4 py-3 bg-white hover:bg-blue-50/50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 flex items-center justify-center gap-1 shadow-sm"
+                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>🏠 가정용 · 홈 충전기 문의</span>
+                <span>🏠 가정용 · 개인 홈</span>
               </button>
               <button
                 onClick={() => handleInquirySelect('ParkingLot')}
-                className="w-full px-4 py-3 bg-white hover:bg-blue-50/50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 flex items-center justify-center gap-1 shadow-sm"
+                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>🏢 상업시설 · 수익형 설치 문의</span>
+                <span>🏢 상업시설 · 수익형</span>
               </button>
             </div>
           </div>
@@ -313,7 +320,7 @@ export default function Header({
                   onClick={() => handleMenuClick(item.id)}
                   className={`w-full text-left px-4 py-3 rounded-xl text-sm font-black transition-all ${
                     isActive 
-                      ? 'bg-blue-600/10 text-blue-700 border-l-4 border-blue-600 pl-3' 
+                      ? 'bg-emerald-600/10 text-emerald-700 border-l-4 border-emerald-600 pl-3' 
                       : 'text-stone-700 hover:bg-stone-200/50'
                   }`}
                 >
@@ -338,7 +345,7 @@ export default function Header({
               ) : (
                 <button
                   onClick={() => { onOpenAuth(); setIsMobileMenuOpen(false); }}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold text-center shadow-sm"
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold text-center shadow-sm"
                 >
                   로그인 / 회원가입
                 </button>
@@ -351,7 +358,7 @@ export default function Header({
                 href={snsConfig.blogUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-stone-600 hover:text-blue-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white shadow-sm"
+                className="text-stone-600 hover:text-emerald-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white shadow-sm"
               >
                 네이버 블로그
               </a>
@@ -366,9 +373,9 @@ export default function Header({
               </a>
               <a 
                 href={`tel:${footerConfig.phone.split(' ')[0]}`}
-                className="text-stone-600 hover:text-blue-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 shadow-sm"
+                className="text-stone-600 hover:text-emerald-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 shadow-sm"
               >
-                <Phone className="w-3 h-3 text-blue-600" />
+                <Phone className="w-3 h-3 text-emerald-600" />
                 전화문의
               </a>
             </div>
@@ -387,7 +394,9 @@ export default function Header({
               '이엘일렉트릭',
               '나이스차져',
               '에버온',
-              '현대엔지니어링'
+              '현대엔지니어링',
+              '아이파킹',
+              'LG유플러스볼트업'
             ].map((brand) => {
               const isSelected = selectedAptBrand === brand;
               return (
@@ -396,7 +405,7 @@ export default function Header({
                   onClick={() => onSelectAptBrand?.(brand)}
                   className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
                     isSelected
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-black scale-105'
+                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-black scale-105'
                       : 'text-slate-300 hover:text-white hover:bg-white/5'
                   }`}
                 >

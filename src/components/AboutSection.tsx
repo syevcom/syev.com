@@ -47,12 +47,12 @@ export default function AboutSection({
     <div className="space-y-16 py-12">
       {/* Intro Hero banner */}
       <section className="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-8 md:p-12 border border-slate-800 shadow-xl">
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-400 via-indigo-900 to-slate-950" />
+        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-emerald-950 to-slate-950" />
         <div className="relative max-w-3xl space-y-4">
-          <span className="text-blue-400 font-bold text-xs uppercase tracking-wider">Corporate Profile</span>
+          <span className="text-emerald-400 font-bold text-xs uppercase tracking-wider">Corporate Profile</span>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
             대한민국 전기차 충전 인프라의 기준, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">SY.com이 만들어 가고 있습니다.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com이 만들어 가고 있습니다.</span>
           </h2>
           <p className="text-slate-300 text-sm leading-relaxed font-medium">
             SY.com은 충전기 하드웨어 설계부터 정부 무상 보조금 지원 컨설팅, 한전 배선 허가, 정밀 시공 및 전국 실시간 AS망 구축까지 모든 단계를 원스톱으로 제공하는 친환경 모빌리티 솔루션 전문 기업입니다.
@@ -65,7 +65,7 @@ export default function AboutSection({
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('about')}
-            className="absolute top-2 right-2 z-30 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+            className="absolute top-2 right-2 z-30 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
           >
             ✏️ 대표자 및 회사 소개 실시간 편집
           </button>
@@ -79,11 +79,11 @@ export default function AboutSection({
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-6 text-white">
             <p className="font-extrabold text-lg">{aboutConfig.ceoName}</p>
-            <p className="text-xs text-blue-400 font-bold">{aboutConfig.ceoRole}</p>
+            <p className="text-xs text-emerald-400 font-bold">{aboutConfig.ceoRole}</p>
           </div>
         </div>
         <div className="md:col-span-7 space-y-5">
-          <span className="text-blue-600 font-bold text-xs tracking-wider uppercase block">CEO Greeting</span>
+          <span className="text-emerald-600 font-bold text-xs tracking-wider uppercase block">CEO Greeting</span>
           <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-snug">
             {aboutConfig.ceoGreeting}
           </h3>
@@ -98,13 +98,13 @@ export default function AboutSection({
       {/* Corporate Vision & Values */}
       <section className="space-y-6">
         <div className="text-center">
-          <span className="text-blue-600 font-bold text-xs tracking-wider uppercase">Our Core Value</span>
+          <span className="text-emerald-600 font-bold text-xs tracking-wider uppercase">Our Core Value</span>
           <h3 className="text-2xl font-black text-slate-900 mt-1">SY.com이 지켜가는 3대 약속</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <ShieldCheck className="w-5.5 h-5.5" />
             </div>
             <h4 className="text-base font-bold text-slate-900">1. 타협 없는 화재안전 예방</h4>
@@ -114,7 +114,7 @@ export default function AboutSection({
           </div>
 
           <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <Award className="w-5.5 h-5.5" />
             </div>
             <h4 className="text-base font-bold text-slate-900">2. 원스톱 고객 행정 면제</h4>
@@ -124,7 +124,7 @@ export default function AboutSection({
           </div>
 
           <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <Network className="w-5.5 h-5.5" />
             </div>
             <h4 className="text-base font-bold text-slate-900">3. 전국 무정지 인프라 약속</h4>
@@ -138,7 +138,7 @@ export default function AboutSection({
       {/* Nationwide Network */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
         <div className="lg:col-span-5 space-y-4">
-          <span className="text-blue-600 font-bold text-xs uppercase tracking-wider block">Nationwide Infrastructure</span>
+          <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider block">Nationwide Infrastructure</span>
           <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-tight">전국 24시간 실시간 유지 보수 원스톱 네트워크</h3>
           <p className="text-slate-600 text-xs leading-relaxed font-medium">
             SY.com은 대한민국 어느 지역이든 정비 출동이 가능하도록 전국 단위 전담 직영 서비스 망을 운영하고 있습니다. 소프트웨어 원격 제어로 1차 자동 복구 처리를 진행하며, 필요시 정비 차량이 바로 긴급 정비를 출동합니다.
@@ -157,7 +157,7 @@ export default function AboutSection({
                 <span className="text-xs font-extrabold text-slate-900 block mb-1">{reg.name}</span>
                 <span className="text-[10px] text-slate-400 font-bold block">{reg.locations}</span>
               </div>
-              <span className="text-xs font-black text-blue-600 mt-2 block">{reg.tel}</span>
+              <span className="text-xs font-black text-emerald-600 mt-2 block">{reg.tel}</span>
             </div>
           ))}
         </div>
@@ -166,7 +166,7 @@ export default function AboutSection({
       {/* Certifications and Patents */}
       <section className="space-y-6">
         <div className="text-center">
-          <span className="text-blue-600 font-bold text-xs uppercase tracking-wider">Credentials</span>
+          <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider">Credentials</span>
           <h3 className="text-2xl font-black text-slate-900 mt-1">인증 및 기술 특허 특전</h3>
         </div>
 
@@ -180,7 +180,7 @@ export default function AboutSection({
                 <span className="text-xs font-bold text-slate-800 block truncate">{pat.title}</span>
                 <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">{pat.agency} 정식 승인 및 검증 완료</span>
               </div>
-              <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
             </div>
           ))}
         </div>

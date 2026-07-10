@@ -114,7 +114,7 @@ export default function App() {
 
   const [heroConfig, setHeroConfig] = useState({
     badge: '전국 최대 원스톱 설치 네트워크',
-    title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
+    title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com</span>',
     description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
     ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
     calcButton: '1분 스마트 보조금 견적 내기',
@@ -547,7 +547,7 @@ export default function App() {
 
     setHeroConfig({
       badge: '전국 최대 원스톱 설치 네트워크',
-      title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">SY.com</span>',
+      title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com</span>',
       description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
       ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
       calcButton: '1분 스마트 보조금 견적 내기',
@@ -847,17 +847,17 @@ export default function App() {
       )}
 
       {/* Urgent Bottom Call To Action Sticky Banner (Satisfying CTA Button "올해 마감 임박 정부 보조금 혜택 선점") */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-t border-slate-850 py-5 px-4 shadow-xl text-white">
+      <div className="bg-gradient-to-r from-slate-900 via-emerald-800 to-slate-900 border-t border-emerald-700/40 py-5 px-4 shadow-xl text-white">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 shadow-lg">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 shadow-lg">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <p className="text-xs sm:text-sm font-black text-white leading-snug">
                 "지금 신청하시면, 올해 마감 임박한 정부 보조금 혜택을 우선 선점해 드립니다."
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-bold mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-300 font-bold mt-0.5">
                 지자체 예산 소진 전 한전 불입금 무료 대행과 특허 세이프티 시공 패키지를 즉시 확보하세요.
               </p>
             </div>
@@ -866,7 +866,7 @@ export default function App() {
           <button
             onClick={() => handleOpenQuoteWithPurpose('Residential')}
             id="btn-footer-sticky-cta"
-            className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs sm:text-sm font-extrabold transition-all text-center flex items-center justify-center gap-1 shrink-0 shadow-lg cursor-pointer"
+            className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 active:scale-98 text-slate-950 rounded-xl text-xs sm:text-sm font-black transition-all text-center flex items-center justify-center gap-1 shrink-0 shadow-lg cursor-pointer"
           >
             👉 30초 만에 무료 설치 상담 예약하기
           </button>
@@ -874,7 +874,7 @@ export default function App() {
       </div>
 
       {/* Footer (Premium, honest, and highly clean) */}
-      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+      <footer className="bg-gradient-to-b from-[#0a2e21] to-[#041610] text-slate-200 py-12 border-t border-emerald-800/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {/* Branding & description */}
@@ -885,71 +885,71 @@ export default function App() {
                     <img 
                       src={logoConfig.imageUrl} 
                       alt={logoConfig.subtitle} 
-                      className="h-8 max-w-[140px] object-contain brightness-0 invert opacity-90"
+                      className="h-8 max-w-[140px] object-contain brightness-0 invert opacity-95"
                       referrerPolicy="no-referrer"
                     />
                     {logoConfig.companyNameText && (
-                      <span className="font-extrabold text-white text-sm sm:text-base tracking-tight pl-2.5 border-l border-slate-700">
+                      <span className="font-extrabold text-white text-sm sm:text-base tracking-tight pl-2.5 border-l border-emerald-800/80">
                         {logoConfig.companyNameText}
                       </span>
                     )}
                   </div>
                 ) : (
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm tracking-tight">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-sm tracking-tight">
                       {logoConfig.text}
                     </div>
                     <span className="font-extrabold text-white text-base tracking-tight">
                       {logoConfig.subtitle}
                     </span>
                     {logoConfig.companyNameText && (
-                      <span className="font-medium text-slate-300 text-xs sm:text-sm tracking-tight pl-2.5 border-l border-slate-700">
+                      <span className="font-medium text-slate-200 text-xs sm:text-sm tracking-tight pl-2.5 border-l border-emerald-800/80">
                         {logoConfig.companyNameText}
                       </span>
                     )}
                   </div>
                 )}
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              <p className="text-xs text-slate-300 leading-relaxed max-w-sm">
                 {logoConfig.subtitle}은 대한민국 환경부 공식 대행 사업 파트너로서 친환경 과열감지 차단 기술 탑재 완속 및 초급속 충전기를 설계부터 국가보조금 지원까지 책임 시공합니다.
               </p>
-              <div className="text-xs text-slate-500 space-y-0.5">
-                <p>전국 통합 대표번호: {footerConfig.phone}</p>
-                <p>사업 제휴 메일: {footerConfig.email}</p>
+              <div className="text-xs text-slate-300 space-y-1">
+                <p><span className="text-slate-400">전국 통합 대표번호:</span> <span className="text-white font-bold">{footerConfig.phone}</span></p>
+                <p><span className="text-slate-400">사업 제휴 메일:</span> <span className="text-white font-bold">{footerConfig.email}</span></p>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="md:col-span-3 space-y-3">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">주요 카테고리</h4>
+              <h4 className="text-xs font-black text-slate-100 uppercase tracking-wider">주요 카테고리</h4>
               <ul className="text-xs space-y-2 text-left">
-                <li><button onClick={() => setActivePage('about')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.about || '회사소개'}</button></li>
-                <li><button onClick={() => setActivePage('sol_commercial')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_commercial || '아파트'} 솔루션</button></li>
-                <li><button onClick={() => setActivePage('sol_residential')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_residential || '가정용 홈'} 솔루션</button></li>
-                <li><button onClick={() => setActivePage('sol_parking')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.sol_parking || '상업시설 수익형'} 솔루션</button></li>
-                <li><button onClick={() => setActivePage('review')} className="hover:text-white transition-colors cursor-pointer">{categoryLabels.review || '설치후기'}</button></li>
-                <li><button onClick={() => setActivePage('support')} className="hover:text-white transition-colors cursor-pointer">고객지원</button></li>
+                <li><button onClick={() => setActivePage('about')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">{categoryLabels.about || '회사소개'}</button></li>
+                <li><button onClick={() => setActivePage('sol_commercial')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">{categoryLabels.sol_commercial || '아파트'} 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_residential')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">{categoryLabels.sol_residential || '가정용 홈'} 솔루션</button></li>
+                <li><button onClick={() => setActivePage('sol_parking')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">{categoryLabels.sol_parking || '상업시설 수익형'} 솔루션</button></li>
+                <li><button onClick={() => setActivePage('review')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">{categoryLabels.review || '설치후기'}</button></li>
+                <li><button onClick={() => setActivePage('support')} className="text-slate-300 hover:text-emerald-400 transition-colors cursor-pointer">고객지원</button></li>
               </ul>
             </div>
 
             {/* Legal and compliance footnotes */}
             <div className="md:col-span-4 space-y-3">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">회사 정보 및 면책 고지</h4>
-              <p className="text-[10px] text-slate-500 leading-normal">
-                상호: {footerConfig.companyName} | 대표이사: {footerConfig.ceoName} | 사업자등록번호: {footerConfig.businessNumber} <br />
-                주소: {footerConfig.address} <br />
-                통신판매업신고번호: {footerConfig.teleSalesNumber} <br />
-                {footerConfig.licenseInfo}
+              <h4 className="text-xs font-black text-slate-100 uppercase tracking-wider">회사 정보 및 면책 고지</h4>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                <span className="text-slate-400">상호:</span> {footerConfig.companyName} | <span className="text-slate-400">대표이사:</span> {footerConfig.ceoName} | <span className="text-slate-400">사업자등록번호:</span> {footerConfig.businessNumber} <br />
+                <span className="text-slate-400">주소:</span> {footerConfig.address} <br />
+                <span className="text-slate-400">통신판매업신고번호:</span> {footerConfig.teleSalesNumber} <br />
+                <span className="text-slate-400">{footerConfig.licenseInfo}</span>
               </p>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-800 text-center text-[10px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="pt-8 border-t border-emerald-900/30 text-center text-xs text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
             <div className="flex gap-4">
-              <a href="#privacy" className="hover:underline">개인정보처리방침</a>
-              <a href="#terms" className="hover:underline">이용약관</a>
-              <a href="#standard" className="hover:underline">한전 인입공사 표준</a>
+              <a href="#privacy" className="hover:text-emerald-400 hover:underline">개인정보처리방침</a>
+              <a href="#terms" className="hover:text-emerald-400 hover:underline">이용약관</a>
+              <a href="#standard" className="hover:text-emerald-400 hover:underline">한전 인입공사 표준</a>
             </div>
           </div>
         </div>

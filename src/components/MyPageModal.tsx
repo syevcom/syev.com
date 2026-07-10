@@ -72,19 +72,19 @@ export default function MyPageModal({
   const getStatusColor = (status: string) => {
     switch (status) {
       case '접수대기':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case '상담예약완료':
         return 'bg-cyan-50 text-cyan-600 border-cyan-100';
       case '시공설계중':
         return 'bg-indigo-50 text-indigo-600 border-indigo-100';
       case '시공완료':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case '접수완료':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case '기사배정':
         return 'bg-purple-50 text-purple-600 border-purple-100';
       case '처리완료':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       default:
         return 'bg-slate-50 text-slate-600 border-slate-100';
     }
@@ -124,9 +124,9 @@ export default function MyPageModal({
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10">
               {user.type === 'B2B' ? (
-                <Building className="w-8 h-8 text-blue-400" />
+                <Building className="w-8 h-8 text-emerald-400" />
               ) : (
-                <User className="w-8 h-8 text-blue-400" />
+                <User className="w-8 h-8 text-emerald-400" />
               )}
             </div>
             <div>
@@ -135,7 +135,7 @@ export default function MyPageModal({
                 <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
                   user.type === 'B2B' 
                     ? 'bg-indigo-500/10 text-indigo-350 border-indigo-500/30' 
-                    : 'bg-blue-500/10 text-blue-300 border-blue-500/30'
+                    : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                 }`}>
                   {user.type === 'B2B' ? '법인 파트너' : '개인회원'}
                 </span>
@@ -148,11 +148,11 @@ export default function MyPageModal({
           <div className="grid grid-cols-3 gap-2.5 mt-6 pt-5 border-t border-white/10">
             <div className="text-center">
               <span className="text-[10px] text-slate-400 font-bold block">진행 중인 설치 예약</span>
-              <span className="text-lg font-black text-blue-450">{userBookings.length}건</span>
+              <span className="text-lg font-black text-emerald-500">{userBookings.length}건</span>
             </div>
             <div className="text-center border-x border-white/10">
               <span className="text-[10px] text-slate-400 font-bold block">전국 무상 A/S 내역</span>
-              <span className="text-lg font-black text-blue-450">{userASRequests.length}건</span>
+              <span className="text-lg font-black text-emerald-500">{userASRequests.length}건</span>
             </div>
             <div className="text-center">
               <span className="text-[10px] text-slate-400 font-bold block">B2B 맞춤 공급 단가</span>
@@ -170,7 +170,7 @@ export default function MyPageModal({
             id="tab-mypage-status"
             className={`py-3.5 text-xs font-extrabold border-b-2 transition-all mr-6 flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'status'
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -182,7 +182,7 @@ export default function MyPageModal({
             id="tab-mypage-as"
             className={`py-3.5 text-xs font-extrabold border-b-2 transition-all mr-6 flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'as'
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -194,7 +194,7 @@ export default function MyPageModal({
             id="tab-mypage-profile"
             className={`py-3.5 text-xs font-extrabold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'profile'
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-emerald-600 text-emerald-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -240,7 +240,7 @@ export default function MyPageModal({
                             신청 메모: {b.memo || '무상 설치 컨설팅 요청'}
                           </p>
                           {b.estimateCost && (
-                            <p className="text-xs text-blue-600 font-extrabold">
+                            <p className="text-xs text-emerald-600 font-extrabold">
                               자가 부담금 가견적: {b.estimateCost}
                             </p>
                           )}
@@ -276,7 +276,7 @@ export default function MyPageModal({
                     <button
                       onClick={() => setIsAddingAS(true)}
                       id="btn-mypage-as-new"
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       A/S 긴급 접수하기
@@ -285,8 +285,8 @@ export default function MyPageModal({
                 </div>
 
                 {isAddingAS ? (
-                  <form onSubmit={handleASSubmit} className="p-4 rounded-2xl border border-blue-100 bg-blue-50/10 space-y-3.5">
-                    <h5 className="text-xs font-bold text-blue-700 uppercase tracking-wider">A/S 신규 접수 신청</h5>
+                  <form onSubmit={handleASSubmit} className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/10 space-y-3.5">
+                    <h5 className="text-xs font-bold text-emerald-700 uppercase tracking-wider">A/S 신규 접수 신청</h5>
 
                     {asError && (
                       <div className="p-2 text-xs bg-rose-50 border border-rose-100 text-rose-600 rounded-xl font-bold">
@@ -294,7 +294,7 @@ export default function MyPageModal({
                       </div>
                     )}
                     {asSuccess && (
-                      <div className="p-2 text-xs bg-blue-50 border border-blue-100 text-blue-600 rounded-xl font-bold">
+                      <div className="p-2 text-xs bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl font-bold">
                         {asSuccess}
                       </div>
                     )}
@@ -353,7 +353,7 @@ export default function MyPageModal({
                       <button
                         type="submit"
                         id="btn-as-submit"
-                        className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+                        className="px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-xs font-bold cursor-pointer"
                       >
                         A/S 출동 신청 접수
                       </button>
@@ -421,11 +421,11 @@ export default function MyPageModal({
                       <>
                         <div>
                           <span className="font-semibold text-slate-400 block mb-0.5">법인명 / 상호</span>
-                          <span className="font-bold text-blue-700">{user.companyName}</span>
+                          <span className="font-bold text-emerald-700">{user.companyName}</span>
                         </div>
                         <div>
                           <span className="font-semibold text-slate-400 block mb-0.5">사업자등록번호</span>
-                          <span className="font-bold text-blue-700">{user.businessNumber}</span>
+                          <span className="font-bold text-emerald-700">{user.businessNumber}</span>
                         </div>
                       </>
                     )}
@@ -433,42 +433,42 @@ export default function MyPageModal({
                 </div>
 
                 {/* Benefits Section */}
-                <div className="p-4 rounded-2xl border border-blue-100 bg-blue-50/10 space-y-2">
-                  <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider">
+                <div className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/10 space-y-2">
+                  <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
                     {user.type === 'B2B' ? 'VIP 법인 회원 혜택 리스트' : 'SY.com 일반 회원 혜택'}
                   </h4>
                   <ul className="text-xs text-slate-600 space-y-1.5 font-semibold">
                     {user.type === 'B2B' ? (
                       <>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>충전기 B2B 도매 가격 적용 (정가 대비 평균 15% 할인 혜택)</span>
                         </li>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>원격 관제 시스템 (SY-OCS) 월 사용료 평생 무상 면제</span>
                         </li>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>세금계산서 발행 및 현장 설치 적합성 보고서 무상 발급</span>
                         </li>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>무상 품질 보증 2년에서 3년으로 즉시 1년 연장 특전 제공</span>
                         </li>
                       </>
                     ) : (
                       <>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>한전 신청 및 인입 설계 대행 수수료 100% 무상 면제</span>
                         </li>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>설치비 환경부/지자체 보조금 우선 매칭 가이드 제공</span>
                         </li>
                         <li className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>기기 하자 및 안전 이상 발생 시 2년간 무상 수리 출장 보증</span>
                         </li>
                       </>
