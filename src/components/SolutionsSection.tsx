@@ -703,7 +703,7 @@ export default function SolutionsSection({
                   </div>
 
                   {/* Recommended Products & Specifications Grid */}
-                  {sol.recommendedProducts && sol.recommendedProducts.length > 0 && (() => {
+                  {sol.recommendedProducts && sol.recommendedProducts.length > 0 && sol.category !== 'Commercial' && (() => {
                     const activeProdId = selectedProductIds[sol.id] || sol.recommendedProducts[0];
                     const selectedProd = PRODUCTS.find(p => p.id === activeProdId) || PRODUCTS.find(p => p.id === sol.recommendedProducts[0]);
                     const viewerMode = visualViewerMode[sol.id] || 'product';

@@ -174,7 +174,7 @@ export default function Header({
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
           <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">
             {/* 상단 통합 레이블 */}
-            <div className="text-[10px] font-black text-emerald-800 text-center tracking-wider bg-emerald-50/80 border border-emerald-100/50 rounded-md py-0.5 mb-1 select-none">
+            <div className="text-[12px] lg:text-[13px] font-black text-emerald-800 text-center tracking-wider bg-emerald-50 border border-emerald-100/60 rounded-md py-1 mb-1 select-none shadow-xs">
               ⚡ 전기차충전기 설치문의
             </div>
 
@@ -284,7 +284,7 @@ export default function Header({
           
           {/* Direct Installation Inquiry 3 Stacked Buttons */}
           <div className="space-y-2">
-            <span className="text-[10px] font-black text-emerald-800 tracking-wider block uppercase bg-emerald-50 border border-emerald-100/50 rounded-lg px-2.5 py-1.5 text-center select-none">
+            <span className="text-[12px] sm:text-[13px] font-black text-emerald-800 tracking-wider block uppercase bg-emerald-50 border border-emerald-100/60 rounded-xl px-2.5 py-2 text-center select-none shadow-xs">
               ⚡ 전기차충전기 설치문의
             </span>
             <div className="grid grid-cols-1 gap-2">
