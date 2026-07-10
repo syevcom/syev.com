@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Award, ShieldCheck, Network, FileText, CheckCircle } from 'lucide-react';
+import { Award, ShieldCheck, Network } from 'lucide-react';
 
 interface AboutSectionProps {
   aboutConfig: {
@@ -25,24 +25,6 @@ export default function AboutSection({
   isEditMode = false,
   onOpenCms
 }: AboutSectionProps) {
-  const regions = [
-    { name: '서울/수도권 본부', locations: '강남, 영등포, 일산, 판교, 인천', tel: '1588-SY01' },
-    { name: '강원 지사', locations: '춘천, 원주, 강릉', tel: '1588-SY02' },
-    { name: '충청/대전 본부', locations: '대전, 청주, 천안', tel: '1588-SY03' },
-    { name: '호남/광주 본부', locations: '광주, 전주, 목포', tel: '1588-SY04' },
-    { name: '대구/경북 지사', locations: '대구, 구미, 포항', tel: '1588-SY05' },
-    { name: '부산/경남 본부', locations: '부산, 울산, 창원', tel: '1588-SY06' },
-    { name: '제주 특별 지사', locations: '제주, 서귀포', tel: '1588-SY07' }
-  ];
-
-  const patents = [
-    { title: 'PLC 탑재 전기차 과열 차단 회로 설계 특허', agency: '특허청' },
-    { title: '스마트 부하 매칭형 분배 장치 및 제어 알고리즘', agency: '특허청' },
-    { title: '친환경 외함 보호형 전기차 충전 월박스 의장 등록', agency: '특허청' },
-    { title: '환경부 정식 무상 보조금 대행 인가 및 적합성 통과', agency: '환경부' },
-    { title: '기기 시설 안전 배상 책임 보험 10억원 가입', agency: '삼성화재' }
-  ];
-
   return (
     <div className="space-y-16 py-12">
       {/* Intro Hero banner */}
@@ -132,57 +114,6 @@ export default function AboutSection({
               전국 24개 네트워크와 24시간 자가 진단 리셋 서비스. 기기 작동 장애 감지 시 24시간 이내 현장 정비 기사 매칭 약속을 보장합니다.
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* Nationwide Network */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
-        <div className="lg:col-span-5 space-y-4">
-          <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider block">Nationwide Infrastructure</span>
-          <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-tight">전국 24시간 실시간 유지 보수 원스톱 네트워크</h3>
-          <p className="text-slate-600 text-xs leading-relaxed font-medium">
-            SY.com은 대한민국 어느 지역이든 정비 출동이 가능하도록 전국 단위 전담 직영 서비스 망을 운영하고 있습니다. 소프트웨어 원격 제어로 1차 자동 복구 처리를 진행하며, 필요시 정비 차량이 바로 긴급 정비를 출동합니다.
-          </p>
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500 space-y-1 font-semibold">
-            <p>• <strong className="text-slate-700">전국 통합 기술 정비 콜센터:</strong> 1588-SY01</p>
-            <p>• <strong className="text-slate-700">고객 케어 대응율:</strong> 99.8% 달성 완료</p>
-            <p>• <strong className="text-slate-700">A/S 접수 보장:</strong> 당일 접수 시 익일 오전 내 출동 처리 완료</p>
-          </div>
-        </div>
-
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {regions.map((reg) => (
-            <div key={reg.name} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between hover:bg-slate-100/50 transition-colors">
-              <div>
-                <span className="text-xs font-extrabold text-slate-900 block mb-1">{reg.name}</span>
-                <span className="text-[10px] text-slate-400 font-bold block">{reg.locations}</span>
-              </div>
-              <span className="text-xs font-black text-emerald-600 mt-2 block">{reg.tel}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Certifications and Patents */}
-      <section className="space-y-6">
-        <div className="text-center">
-          <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider">Credentials</span>
-          <h3 className="text-2xl font-black text-slate-900 mt-1">인증 및 기술 특허 특전</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-          {patents.map((pat) => (
-            <div key={pat.title} className="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
-                <FileText className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-bold text-slate-800 block truncate">{pat.title}</span>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">{pat.agency} 정식 승인 및 검증 완료</span>
-              </div>
-              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-            </div>
-          ))}
         </div>
       </section>
     </div>
