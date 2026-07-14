@@ -157,70 +157,73 @@ export default function Header({
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/75 backdrop-blur-lg border-b border-slate-200/80 shadow-md shadow-slate-900/5">
       {/* Top Banner (Subtle, professional notification with premium bright emerald theme) */}
-      <div className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white text-[11px] py-2 px-4 text-center font-bold tracking-wide flex justify-center items-center gap-1.5 border-b border-emerald-400/20">
-        <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse shrink-0" />
+      <div className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white text-[13px] sm:text-[14px] md:text-[15px] py-2.5 px-4 text-center font-black tracking-normal flex justify-center items-center gap-2 border-b border-emerald-400/20">
+        <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse shrink-0" />
         <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
 
-      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between relative">
+      <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 py-4 flex items-center justify-between relative">
         
-        {/* 1. Left side: Brand Logo Container (Stacked Vertically, Shifted Left, Left-Aligned) */}
-        <div 
-          onClick={() => handleMenuClick('home')}
-          id="logo-container"
-          className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-1 text-left px-0 -ml-1 sm:-ml-2"
-        >
-          {logoConfig.imageUrl ? (
-            <img 
-              src={logoConfig.imageUrl} 
-              alt={logoConfig.subtitle} 
-              style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
-              className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
-              <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+        {/* Left container: Grouping Logo + Nav to pull them to the left and create comfortable spacing */}
+        <div className="flex items-center gap-x-4 lg:gap-x-6 xl:gap-x-8 shrink-0">
+          {/* 1. Left side: Brand Logo Container (Stacked Vertically, Shifted Left, Left-Aligned) */}
+          <div 
+            onClick={() => handleMenuClick('home')}
+            id="logo-container"
+            className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-1 text-left px-0 -ml-2 sm:-ml-3 lg:-ml-4"
+          >
+            {logoConfig.imageUrl ? (
+              <img 
+                src={logoConfig.imageUrl} 
+                alt={logoConfig.subtitle} 
+                style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
+                className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
+                <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+              </div>
+            )}
+            
+            <div className="flex flex-col leading-none items-start mt-0.5 pl-0.5">
+              {!logoConfig.imageUrl && (
+                <span className="font-black text-[14px] sm:text-[16px] tracking-tight text-stone-900 whitespace-nowrap">
+                  {logoConfig.subtitle || 'SY.com'}
+                </span>
+              )}
+              {logoConfig.showCompanyName && logoConfig.companyNameText && (
+                <span className="tracking-tight whitespace-nowrap text-[9px] sm:text-[10px] text-stone-600 font-bold mt-1">
+                  {logoConfig.companyNameText}
+                </span>
+              )}
             </div>
-          )}
-          
-          <div className="flex flex-col leading-none items-start mt-0.5 pl-0.5">
-            {!logoConfig.imageUrl && (
-              <span className="font-black text-[14px] sm:text-[16px] tracking-tight text-stone-900 whitespace-nowrap">
-                {logoConfig.subtitle || 'SY.com'}
-              </span>
-            )}
-            {logoConfig.showCompanyName && logoConfig.companyNameText && (
-              <span className="tracking-tight whitespace-nowrap text-[9px] sm:text-[10px] text-stone-600 font-bold mt-1">
-                {logoConfig.companyNameText}
-              </span>
-            )}
           </div>
+
+          {/* 2. Navigation Links: Much more compact spacing & slightly smaller padding/size */}
+          <nav className="hidden xl:flex items-center gap-x-1 lg:gap-x-2 xl:gap-x-2.5 shrink-0">
+            {menuItems.map((item) => {
+              const isActive = activePage === item.id || 
+                (item.id === 'sol_residential' && activePage === 'solutions');
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleMenuClick(item.id)}
+                  className={`px-3.5 lg:px-4 py-2 text-[15px] lg:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                    isActive
+                      ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-3.5 after:right-3.5 after:h-[3px] after:bg-emerald-600'
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* 2. Center: Elegant Navigation Links (No background box, elegant under-line) */}
-        <nav className="hidden xl:flex items-center gap-x-6 lg:gap-x-8 xl:gap-x-12 2xl:gap-x-16 shrink-0">
-          {menuItems.map((item) => {
-            const isActive = activePage === item.id || 
-              (item.id === 'sol_residential' && activePage === 'solutions');
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleMenuClick(item.id)}
-                className={`px-5 lg:px-7 py-3 text-[16px] lg:text-[18px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
-                  isActive
-                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-5 after:right-5 after:h-[3px] after:bg-emerald-600'
-                    : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
-                }`}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
-
         {/* 3. Right side: Premium Inquiry CTA + Utility */}
-        <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink">
+        <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink-0">
 
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
           <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">

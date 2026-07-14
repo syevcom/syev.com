@@ -16,6 +16,7 @@ import QuoteModal from './components/QuoteModal';
 import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
+import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig } from './types';
@@ -54,8 +55,26 @@ const DEFAULT_FIELDS = {
 };
 
 export default function App() {
+  const [isSyncing, setIsSyncing] = useState(true);
   const [activePage, setActivePage] = useState<ActivePage>('home');
   const [user, setUser] = useState<User | null>(null);
+
+  // Sync with Firestore on initial boot
+  useEffect(() => {
+    async function initFirebaseSync() {
+      try {
+        // Setup interception of localStorage writes
+        setupFirebaseStorageSync();
+        // Read existing values from Firestore
+        await loadFromFirestore();
+      } catch (err) {
+        console.error('Failed to initialize Firebase Sync:', err);
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+    initFirebaseSync();
+  }, []);
 
   // Modal Open States
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -231,6 +250,7 @@ export default function App() {
 
   // Load from LocalStorage
   useEffect(() => {
+    if (isSyncing) return;
     const savedUser = localStorage.getItem('sy_user');
     if (savedUser) {
       try {
@@ -472,7 +492,7 @@ export default function App() {
         setQuoteConfig(parsed);
       } catch (e) { console.error(e); }
     }
-  }, []);
+  }, [isSyncing]);
 
   // Sync state helpers
   const handleLogin = (newUser: User) => {
@@ -829,6 +849,27 @@ export default function App() {
         return null;
     }
   };
+
+  if (isSyncing) {
+    return (
+      <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center text-white z-[9999]">
+        <div className="flex flex-col items-center max-w-sm px-6 text-center space-y-6">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xl animate-pulse">⚡</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-black tracking-tight text-white">데이터베이스 동기화 중</h3>
+            <p className="text-xs text-slate-400 font-medium leading-relaxed">
+              안전한 클라우드 데이터베이스(Firebase)로부터 최신 홈페이지 설정 정보를 동기화하고 있습니다. 잠시만 기다려 주세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/30 text-slate-900 font-sans flex flex-col justify-between">
