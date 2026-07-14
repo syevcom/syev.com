@@ -162,75 +162,73 @@ export default function Header({
         <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
 
-      <div className="max-w-[1550px] mx-auto px-2 sm:px-4 lg:px-6 py-4 flex items-center justify-between relative">
+      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-x-4 relative">
         
-        {/* Left container: Grouping Logo + Nav to pull them to the left and create comfortable spacing */}
-        <div className="flex items-center gap-x-4 lg:gap-x-6 xl:gap-x-8 shrink-0">
-          {/* 1. Left side: Brand Logo Container (Stacked Vertically, Shifted Left, Left-Aligned) */}
-          <div 
-            onClick={() => handleMenuClick('home')}
-            id="logo-container"
-            className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-1 text-left px-0 -ml-2 sm:-ml-3 lg:-ml-4"
-          >
-            {logoConfig.imageUrl ? (
-              <img 
-                src={logoConfig.imageUrl} 
-                alt={logoConfig.subtitle} 
-                style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
-                className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
-                <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
-              </div>
-            )}
-            
-            <div className="flex flex-col leading-none items-start mt-0.5 pl-0.5">
-              {!logoConfig.imageUrl && (
-                <span className="font-black text-[14px] sm:text-[16px] tracking-tight text-stone-900 whitespace-nowrap">
-                  {logoConfig.subtitle || 'SY.com'}
-                </span>
-              )}
-              {logoConfig.showCompanyName && logoConfig.companyNameText && (
-                <span className="tracking-tight whitespace-nowrap text-[9px] sm:text-[10px] text-stone-600 font-bold mt-1">
-                  {logoConfig.companyNameText}
-                </span>
-              )}
+        {/* 1. Left side: Brand Logo Container (Far Left, anchored, never overflows left) */}
+        <div 
+          onClick={() => handleMenuClick('home')}
+          id="logo-container"
+          className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-1 text-left px-0"
+        >
+          {logoConfig.imageUrl ? (
+            <img 
+              src={logoConfig.imageUrl} 
+              alt={logoConfig.subtitle} 
+              style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
+              className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
+              <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
             </div>
+          )}
+          
+          <div className="flex flex-col leading-none items-start mt-0.5 pl-0.5">
+            {!logoConfig.imageUrl && (
+              <span className="font-black text-[14px] sm:text-[16px] tracking-tight text-stone-900 whitespace-nowrap">
+                {logoConfig.subtitle || 'SY.com'}
+              </span>
+            )}
+            {logoConfig.showCompanyName && logoConfig.companyNameText && (
+              <span className="tracking-tight whitespace-nowrap text-[9px] sm:text-[10px] text-stone-600 font-bold mt-1">
+                {logoConfig.companyNameText}
+              </span>
+            )}
           </div>
-
-          {/* 2. Navigation Links: Much more compact spacing & slightly smaller padding/size */}
-          <nav className="hidden xl:flex items-center gap-x-1 lg:gap-x-2 xl:gap-x-2.5 shrink-0">
-            {menuItems.map((item) => {
-              const isActive = activePage === item.id || 
-                (item.id === 'sol_residential' && activePage === 'solutions');
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleMenuClick(item.id)}
-                  className={`px-3.5 lg:px-4 py-2 text-[15px] lg:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
-                    isActive
-                      ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-3.5 after:right-3.5 after:h-[3px] after:bg-emerald-600'
-                      : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
         </div>
 
-        {/* 3. Right side: Premium Inquiry CTA + Utility */}
-        <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink-0">
+        {/* 2. Center-Left: Navigation Links packed closely, placed right next to Logo */}
+        {/* mr-auto automatically pushes everything on its right to the far-right, creating a comfortable gap in between */}
+        <nav className="hidden xl:flex items-center gap-x-1 lg:gap-x-2 2xl:gap-x-3 shrink-0 mr-auto ml-6 lg:ml-10">
+          {menuItems.map((item) => {
+            const isActive = activePage === item.id || 
+              (item.id === 'sol_residential' && activePage === 'solutions');
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleMenuClick(item.id)}
+                className={`px-3 lg:px-3.5 py-2 text-[14px] lg:text-[15px] 2xl:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                  isActive
+                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-3 after:right-3 after:h-[3px] after:bg-emerald-600'
+                    : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* 3. Right side: Premium Inquiry CTA + Utility (anchored to the far right) */}
+        <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink-0 pl-4">
 
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
-          <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">
+          <div className="flex flex-col gap-1 w-[210px] lg:w-[240px] xl:w-[250px] 2xl:w-[270px] shrink-0">
             {/* 상단 통합 레이블 */}
             <div 
               onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
-              className={`text-[15px] lg:text-[17px] font-black text-emerald-800 hover:text-white text-center tracking-wider bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-md py-1.5 mb-1 select-none shadow-xs cursor-pointer transition-all duration-200 ${
+              className={`text-[13px] lg:text-[14px] xl:text-[15px] 2xl:text-[17px] font-black text-emerald-800 hover:text-white text-center tracking-wider bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-md py-1.5 mb-1 select-none shadow-xs cursor-pointer transition-all duration-200 ${
                 isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
               }`}
               title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
@@ -241,7 +239,7 @@ export default function Header({
             {/* 1. 아파트 전기차 충전기 설치문의 (녹색으로 통일) */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Commercial') : onOpenQuote()}
-              className={`flex items-center justify-center px-3 py-1.5 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink hover:bg-yellow-500 hover:text-white ${
+              className={`flex items-center justify-center px-3 py-1.5 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink hover:bg-yellow-500 hover:text-white ${
                 activePage === 'sol_commercial' 
                   ? 'bg-emerald-500 text-white animate-pulse' 
                   : 'bg-emerald-600 text-white'
@@ -256,7 +254,7 @@ export default function Header({
             {/* 2. 가정용 홈 전기차 충전기 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Residential') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
+              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-home"
             >
               <span className="truncate">{headerConfig.shortcutResidentialPc || '🏠 가정용 · 개인 홈'}</span>
@@ -265,7 +263,7 @@ export default function Header({
             {/* 3. 상업시설 · 수익형 전기차 충전기 설치문의 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('ParkingLot') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
+              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-commercial"
             >
               <span className="truncate">{headerConfig.shortcutParkingPc || '🏢 상업시설 · 수익형'}</span>
