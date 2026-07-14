@@ -22,6 +22,8 @@ interface MainHeroProps {
     calcButton: string;
     imageUrl?: string;
     height?: number;
+    paddingTop?: number;
+    paddingBottom?: number;
     showHeroImage?: boolean;
     titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
     descriptionSize?: 'small' | 'medium' | 'large';
@@ -147,14 +149,20 @@ export default function MainHero({
         </div>
 
         {/* Content Container */}
-        <div className="relative z-10 max-w-3xl px-8 md:px-12 py-12 text-white space-y-6">
+        <div 
+          className="relative z-10 max-w-4xl px-8 md:px-14 text-white space-y-7"
+          style={{ 
+            paddingTop: `${heroConfig.paddingTop !== undefined ? heroConfig.paddingTop : 120}px`, 
+            paddingBottom: `${heroConfig.paddingBottom !== undefined ? heroConfig.paddingBottom : 120}px` 
+          }}
+        >
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider"
+            className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-extrabold uppercase tracking-wider"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
             {heroConfig.badge}
           </motion.div>
 
@@ -163,10 +171,10 @@ export default function MainHero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             className={`${
-              heroConfig.titleSize === 'small' ? 'text-2xl md:text-4xl' :
-              heroConfig.titleSize === 'medium' ? 'text-3xl md:text-5xl' :
-              heroConfig.titleSize === 'xlarge' ? 'text-5xl md:text-7xl' :
-              'text-4xl md:text-6xl'
+              heroConfig.titleSize === 'small' ? 'text-3xl md:text-5xl' :
+              heroConfig.titleSize === 'medium' ? 'text-4xl md:text-6xl' :
+              heroConfig.titleSize === 'xlarge' ? 'text-6xl md:text-8xl' :
+              'text-5xl md:text-7xl'
             } font-black tracking-tight leading-tight md:leading-tight text-white`}
             dangerouslySetInnerHTML={{ __html: heroConfig.title }}
           />
@@ -176,10 +184,10 @@ export default function MainHero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className={`${
-              heroConfig.descriptionSize === 'small' ? 'text-xs md:text-sm' :
-              heroConfig.descriptionSize === 'large' ? 'text-base md:text-lg' :
-              'text-sm md:text-base'
-            } text-slate-200 leading-relaxed font-semibold max-w-xl`}
+              heroConfig.descriptionSize === 'small' ? 'text-sm md:text-base' :
+              heroConfig.descriptionSize === 'large' ? 'text-lg md:text-xl' :
+              'text-base md:text-lg'
+            } text-slate-100 leading-relaxed font-bold max-w-2xl`}
           >
             {heroConfig.description}
           </motion.p>

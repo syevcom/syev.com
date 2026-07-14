@@ -28,22 +28,22 @@ export default function AboutSection({
   return (
     <div className="space-y-16 py-12">
       {/* Intro Hero banner */}
-      <section className="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-8 md:p-12 border border-slate-800 shadow-xl">
+      <section className="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-10 md:p-14 border border-slate-800 shadow-xl">
         <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-emerald-950 to-slate-950" />
-        <div className="relative max-w-3xl space-y-4">
-          <span className="text-emerald-400 font-bold text-xs uppercase tracking-wider">Corporate Profile</span>
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
+        <div className="relative max-w-4xl space-y-5">
+          <span className="text-emerald-400 font-bold text-sm uppercase tracking-wider">Corporate Profile</span>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
             대한민국 전기차 충전 인프라의 기준, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com이 만들어 가고 있습니다.</span>
           </h2>
-          <p className="text-slate-300 text-sm leading-relaxed font-medium">
+          <p className="text-slate-200 text-base md:text-lg leading-relaxed font-semibold">
             SY.com은 충전기 하드웨어 설계부터 정부 무상 보조금 지원 컨설팅, 한전 배선 허가, 정밀 시공 및 전국 실시간 AS망 구축까지 모든 단계를 원스톱으로 제공하는 친환경 모빌리티 솔루션 전문 기업입니다.
           </p>
         </div>
       </section>
 
       {/* CEO Message */}
-      <section className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative group/about">
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center relative group/about">
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('about')}
@@ -53,23 +53,23 @@ export default function AboutSection({
           </button>
         )}
 
-        <div className="md:col-span-5 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-80 md:h-[400px]">
+        <div className="md:col-span-5 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-80 md:h-[420px]">
           <img 
             src={aboutConfig.ceoImage} 
             alt="SY.com CEO" 
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-6 text-white">
-            <p className="font-extrabold text-lg">{aboutConfig.ceoName}</p>
-            <p className="text-xs text-emerald-400 font-bold">{aboutConfig.ceoRole}</p>
+            <p className="font-extrabold text-xl">{aboutConfig.ceoName}</p>
+            <p className="text-sm text-emerald-400 font-bold">{aboutConfig.ceoRole}</p>
           </div>
         </div>
-        <div className="md:col-span-7 space-y-5">
-          <span className="text-emerald-600 font-bold text-xs tracking-wider uppercase block">CEO Greeting</span>
-          <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-snug">
+        <div className="md:col-span-7 space-y-6">
+          <span className="text-emerald-600 font-bold text-sm tracking-wider uppercase block">CEO Greeting</span>
+          <h3 className="text-3xl font-black text-slate-950 tracking-tight leading-snug">
             {aboutConfig.ceoGreeting}
           </h3>
-          <div className="text-slate-600 text-sm leading-relaxed space-y-4 font-medium">
+          <div className="text-slate-700 text-base md:text-lg leading-relaxed space-y-5 font-bold">
             <p>{aboutConfig.ceoMessage1}</p>
             <p>{aboutConfig.ceoMessage2}</p>
             <p>{aboutConfig.ceoMessage3}</p>
@@ -78,40 +78,30 @@ export default function AboutSection({
       </section>
 
       {/* Corporate Vision & Values */}
-      <section className="space-y-6">
+      <section className="space-y-8">
         <div className="text-center">
-          <span className="text-emerald-600 font-bold text-xs tracking-wider uppercase">Our Core Value</span>
-          <h3 className="text-2xl font-black text-slate-900 mt-1">SY.com이 지켜가는 3대 약속</h3>
+          <span className="text-emerald-600 font-bold text-sm tracking-wider uppercase">Our Core Value</span>
+          <h3 className="text-3xl font-black text-slate-900 mt-1">SY.com이 지켜가는 2대 약속</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <ShieldCheck className="w-5.5 h-5.5" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="p-8 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-4">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <ShieldCheck className="w-6.5 h-6.5" />
             </div>
-            <h4 className="text-base font-bold text-slate-900">1. 타협 없는 화재안전 예방</h4>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+            <h4 className="text-lg font-black text-slate-900">1. 타협 없는 화재안전 예방</h4>
+            <p className="text-sm md:text-base text-slate-500 leading-relaxed font-bold">
               화재감지 알람 및 PLC 탑재 충전기로 안심 충전 환경을 실현합니다. 다중 온도 센서와 배상 책임 10억원 보험으로 안심을 보장합니다.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Award className="w-5.5 h-5.5" />
+          <div className="p-8 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-4">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Award className="w-6.5 h-6.5" />
             </div>
-            <h4 className="text-base font-bold text-slate-900">2. 원스톱 고객 행정 면제</h4>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+            <h4 className="text-lg font-black text-slate-900">2. 원스톱 고객 행정 면제</h4>
+            <p className="text-sm md:text-base text-slate-500 leading-relaxed font-bold">
               한전 불입금 조회, 설치 동의서 패키지, 지자체 무상 국고 보조금 신청 대행까지 복잡한 서류 절차는 SY.com 전문가가 전부 대행합니다.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3.5">
-            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Network className="w-5.5 h-5.5" />
-            </div>
-            <h4 className="text-base font-bold text-slate-900">3. 전국 무정지 인프라 약속</h4>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
-              전국 24개 네트워크와 24시간 자가 진단 리셋 서비스. 기기 작동 장애 감지 시 24시간 이내 현장 정비 기사 매칭 약속을 보장합니다.
             </p>
           </div>
         </div>

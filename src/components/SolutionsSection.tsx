@@ -5,9 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Solution, ActivePage } from '../types';
-import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink } from 'lucide-react';
+import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCTS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
+import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 
 const BRAND_METADATA: Record<string, {
   name: string;
@@ -149,6 +151,227 @@ const HOME_POWER_METADATA: Record<string, {
   }
 };
 
+export interface SolutionProduct {
+  id: string;
+  name: string;
+  description: string;
+  regularPrice: number;
+  price: number;
+  discount: number;
+  image: string;
+  tags: string[];
+  hasASBadge?: boolean;
+  hasPromoRibbon?: boolean;
+  summaryInfo?: string;
+  deliveryMethod?: string;
+  shippingFee?: string;
+  paymentMethod?: string;
+  optionLabel?: string;
+  options?: { id: string; label: string; price: number }[];
+}
+
+export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
+  '5kW': [
+    {
+      id: 'res-5kw-spil',
+      name: '스필 5kW 개인용 전기차 충전기 무상AS 4년',
+      description: '[국내최초 무상A/S 4년] 가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+      regularPrice: 543636,
+      price: 460000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT'],
+      hasASBadge: true,
+      hasPromoRibbon: true
+    },
+    {
+      id: 'res-5kw-electree',
+      name: '일렉트리 5kW 개인용 전기차 충전기',
+      description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+      regularPrice: 436364,
+      price: 370000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT']
+    },
+    {
+      id: 'res-5kw-convenient',
+      name: '편리 5kW 개인용 전기차 충전기',
+      description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+      regularPrice: 409091,
+      price: 350000,
+      discount: 14,
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE']
+    },
+    {
+      id: 'res-5kw-chargego',
+      name: '차지고 5kW 개인용 전기차 충전기',
+      description: '[예약충전 기능] 충전본체 분해없이 설치가능, 자가교체 가능한 커플러',
+      regularPrice: 409091,
+      price: 350000,
+      discount: 14,
+      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      tags: ['HIT']
+    },
+    {
+      id: 'res-5kw-safe',
+      name: '안심 5kW 컴팩트 실속형 홈 충전기',
+      description: '한전 승압 불필요, 전기 안전 제어 센서 탑재 초소형 컴팩트 기종',
+      regularPrice: 380000,
+      price: 330000,
+      discount: 13,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['실속형']
+    }
+  ],
+  '7kW': [
+    {
+      id: 'res-7kw-spil',
+      name: '스필 7kW 개인용 전기차 충전기 무상AS 4년',
+      description: '[국내최초 무상A/S 4년] 화재 감지 자동 전력 차단 가정용 완속 충전 베스트셀러',
+      regularPrice: 580000,
+      price: 490000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT'],
+      hasASBadge: true,
+      hasPromoRibbon: true
+    },
+    {
+      id: 'res-7kw-evsis',
+      name: '롯데 이브이시스 7kW 스마트홈 충전기',
+      description: '초소형 세련된 북유럽풍 미니멀 디자인, 블루투스 인증 예약 충전 기능',
+      regularPrice: 980000,
+      price: 850000,
+      discount: 13,
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['PREMIUM', 'BEST']
+    },
+    {
+      id: 'res-7kw-convenient',
+      name: '편리 7kW 스마트 예약 홈충전기',
+      description: '안정적인 출력 제어, 고휘도 직관적 LED 상태 표시 및 과전류 방지 센서',
+      regularPrice: 480000,
+      price: 410000,
+      discount: 14,
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE']
+    },
+    {
+      id: 'res-7kw-chargego',
+      name: '차지고 7kW 콤팩트 완속 충전기',
+      description: '가정 및 빌라 실외 설치용 고강도 방수/방진 IP55 인증 최적화 하드웨어',
+      regularPrice: 470000,
+      price: 400000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      tags: ['HIT']
+    },
+    {
+      id: 'res-7kw-safe',
+      name: '안심 7kW 표준형 실속 홈 충전기',
+      description: '베이직 가성비 홈 충전 솔루션, 5m 난연 실리콘 고품질 케이블 기본 증정',
+      regularPrice: 445000,
+      price: 380000,
+      discount: 14,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['실속형']
+    },
+    {
+      id: 'res-7kw-hyundai',
+      name: '현대 전기차 홈 7kW 슬림형 충전기',
+      description: '현대/기아 공식 협력사 품질 인증, 고감도 자가 진단 및 화재 감지 안심 충전',
+      regularPrice: 520000,
+      price: 440000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['공식인증', 'HIT']
+    },
+    {
+      id: 'res-7kw-pylon',
+      name: '파일런 7kW 컴팩트 고효율 충전기',
+      description: '벽부형 및 스탠드 겸용, 야외 가혹 환경에서도 든든한 IP56 등급 완전 방수 설계',
+      regularPrice: 460000,
+      price: 390000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['가성비', 'IP56방수']
+    }
+  ],
+  '11kW': [
+    {
+      id: 'res-11kw-spil',
+      name: '스필 11kW 프리미엄 개인용 충전기 무상AS 4년',
+      description: '[국내최초 무상A/S 4년] 3상 11kW 초고속 완속 프리미엄 특화 모델',
+      regularPrice: 780000,
+      price: 650000,
+      discount: 16,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT'],
+      hasASBadge: true,
+      hasPromoRibbon: true
+    },
+    {
+      id: 'res-11kw-evsis',
+      name: '롯데 이브이시스 11kW 스마트 프리미엄',
+      description: 'OCPP 1.6 통신 모듈, 스마트 RFID 본인 인증 및 예약 제어 시스템',
+      regularPrice: 1450000,
+      price: 1250000,
+      discount: 13,
+      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      tags: ['PREMIUM', 'BEST']
+    }
+  ]
+};
+
+export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
+  '공용 BIZ 충전기': [
+    {
+      id: 'park-11kw-evsis',
+      name: '롯데 이브이시스 11kW 수익형 완속 충전기',
+      description: 'RFID 및 전용 앱 정산 수수료 정산 관제망 탑재, 사업 수익 정산용 고효율 모델',
+      regularPrice: 1450000,
+      price: 1250000,
+      discount: 13,
+      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      tags: ['BEST', 'HIT'],
+      hasPromoRibbon: true
+    },
+    {
+      id: 'park-11kw-spil',
+      name: '스필 11kW 공용 수익형 완속 충전기',
+      description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
+      regularPrice: 1200000,
+      price: 1020000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT']
+    },
+    {
+      id: 'park-11kw-convenient',
+      name: '편리 11kW 수익형 스마트 완속 충전기',
+      description: '상업용 간편 QR 정산 연동, 소상공인 펜션 식당 주차장 설치 시 최강의 부가수익 창출',
+      regularPrice: 1120000,
+      price: 980000,
+      discount: 12,
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['QR간편정산']
+    },
+    {
+      id: 'park-50kw-sy',
+      name: 'SY-DC50 슬림형 공용 수익형 급속 충전기',
+      description: '30분 초단기 80% 완벽 급속 충전, 대형 터치 모니터 및 회원/비회원 간편 결제',
+      regularPrice: 11500000,
+      price: 9800000,
+      discount: 14,
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT'],
+      hasPromoRibbon: true
+    }
+  ]
+};
+
 interface SolutionsSectionProps {
   key?: React.Key;
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
@@ -161,6 +384,8 @@ interface SolutionsSectionProps {
   onSelectAptBrand?: (brand: string) => void;
   selectedHomePower?: string;
   onSelectHomePower?: (power: string) => void;
+  selectedParkingCapacity?: string;
+  onSelectParkingCapacity?: (capacity: string) => void;
 }
 
 export default function SolutionsSection({ 
@@ -173,7 +398,9 @@ export default function SolutionsSection({
   selectedAptBrand = 'sk일렉링크',
   onSelectAptBrand,
   selectedHomePower = '7kW',
-  onSelectHomePower
+  onSelectHomePower,
+  selectedParkingCapacity = '공용 BIZ 충전기',
+  onSelectParkingCapacity
  }: SolutionsSectionProps) {
   const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>(defaultActiveTab);
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
@@ -181,19 +408,467 @@ export default function SolutionsSection({
   const [solutionTabs, setSolutionTabs] = useState<Record<string, 'specs' | 'infographic'>>({});
   const [localBannerModes, setLocalBannerModes] = useState<Record<string, 'cover' | 'unfold'>>({});
   const [localDetailModes, setLocalDetailModes] = useState<Record<string, 'scroll' | 'unfold'>>({});
+  const [sortBy, setSortBy] = useState<'new' | 'priceAsc' | 'priceDesc' | 'popular'>('new');
+  const [activeDetailProduct, setActiveDetailProduct] = useState<SolutionProduct | null>(null);
+  const [productDetails, setProductDetails] = useState<Record<string, { pdfUrl?: string; pdfName?: string }>>({});
+  
+  const [selectedConnector, setSelectedConnector] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const [isDetailEditing, setIsDetailEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editImage, setEditImage] = useState('');
+  const [editSummary, setEditSummary] = useState('');
+  const [editPrice, setEditPrice] = useState(0);
+  const [editRegularPrice, setEditRegularPrice] = useState(0);
+  const [editDiscount, setEditDiscount] = useState(0);
+  const [editDelivery, setEditDelivery] = useState('');
+  const [editShipping, setEditShipping] = useState('');
+  const [editPayment, setEditPayment] = useState('');
+  const [editOptionLabel, setEditOptionLabel] = useState('');
+  const [editOptions, setEditOptions] = useState<{ id: string; label: string; price: number }[]>([]);
+  const [isDraggingProductImage, setIsDraggingProductImage] = useState(false);
+
+  useEffect(() => {
+    setSelectedConnector('');
+    setQuantity(1);
+    setIsDetailEditing(false);
+  }, [activeDetailProduct]);
+
+  useEffect(() => {
+    if (activeDetailProduct) {
+      setEditName(activeDetailProduct.name || '');
+      setEditImage(activeDetailProduct.image || '');
+      setEditSummary(activeDetailProduct.summaryInfo || activeDetailProduct.description || '');
+      setEditPrice(activeDetailProduct.price || 0);
+      setEditRegularPrice(activeDetailProduct.regularPrice || 0);
+      setEditDiscount(activeDetailProduct.discount || 0);
+      setEditDelivery(activeDetailProduct.deliveryMethod || '택배');
+      setEditShipping(activeDetailProduct.shippingFee || '무료');
+      setEditPayment(activeDetailProduct.paymentMethod || '무통장입금');
+      setEditOptionLabel(activeDetailProduct.optionLabel || '커넥터길이');
+      setEditOptions(activeDetailProduct.options || [
+        { id: '5m', label: '5m 커넥터 일체형 (기본 장착)', price: 0 },
+        { id: '7m', label: '7m 연장형 (+30,000원)', price: 30000 },
+        { id: '10m', label: '10m 최장 전용선 (+50,000원)', price: 50000 }
+      ]);
+    }
+  }, [activeDetailProduct, isDetailEditing]);
+
+  const handleSaveProductDetails = () => {
+    if (!activeDetailProduct) return;
+    updateProductDetails(activeDetailProduct.id, {
+      name: editName,
+      image: editImage,
+      description: editSummary,
+      summaryInfo: editSummary,
+      price: editPrice,
+      regularPrice: editRegularPrice,
+      discount: editDiscount,
+      deliveryMethod: editDelivery,
+      shippingFee: editShipping,
+      paymentMethod: editPayment,
+      optionLabel: editOptionLabel,
+      options: editOptions
+    });
+    setIsDetailEditing(false);
+    setToastMessage('💾 상품 수정 정보와 커넥터 옵션이 성공적으로 저장되었습니다!');
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const [homeProducts, setHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
+    const saved = localStorage.getItem('sy_cms_home_products_v3_fixed');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return HOME_PRODUCTS_DATA;
+      }
+    }
+    return HOME_PRODUCTS_DATA;
+  });
+
+  const [parkingProducts, setParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
+    const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return PARKING_PRODUCTS_DATA;
+      }
+    }
+    return PARKING_PRODUCTS_DATA;
+  });
+
+  // Product CRUD states
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<SolutionProduct | null>(null);
+  const [editingProductType, setEditingProductType] = useState<'home' | 'parking'>('home');
+  const [editingCategory, setEditingCategory] = useState<string>('7kW');
+
+  // Product Form states
+  const [prodFormName, setProdFormName] = useState('');
+  const [prodFormRegularPrice, setProdFormRegularPrice] = useState(0);
+  const [prodFormPrice, setProdFormPrice] = useState(0);
+  const [prodFormDiscount, setProdFormDiscount] = useState(0);
+  const [prodFormImage, setProdFormImage] = useState('');
+  const [prodFormTags, setProdFormTags] = useState('');
+  const [prodFormHasASBadge, setProdFormHasASBadge] = useState(false);
+  const [prodFormHasPromoRibbon, setProdFormHasPromoRibbon] = useState(false);
+
+  // Sync to activeDetailProduct if it changed or was updated in real-time
+  useEffect(() => {
+    if (activeDetailProduct) {
+      // Find up-to-date info if it was edited
+      let found: SolutionProduct | undefined = undefined;
+      if (activeDetailProduct.id.startsWith('res-')) {
+        Object.values(homeProducts).forEach((arr) => {
+          const typedArr = arr as SolutionProduct[];
+          const match = typedArr.find(p => p.id === activeDetailProduct.id);
+          if (match) found = match;
+        });
+      } else {
+        Object.values(parkingProducts).forEach((arr) => {
+          const typedArr = arr as SolutionProduct[];
+          const match = typedArr.find(p => p.id === activeDetailProduct.id);
+          if (match) found = match;
+        });
+      }
+      if (found) {
+        setActiveDetailProduct(found);
+      }
+    }
+  }, [homeProducts, parkingProducts]);
+
+  const saveHomeProducts = (data: Record<string, SolutionProduct[]>) => {
+    setHomeProducts(data);
+    try {
+      localStorage.setItem('sy_cms_home_products_v3_fixed', JSON.stringify(data));
+    } catch (e) {
+      console.error('Failed to save home products to localStorage:', e);
+    }
+  };
+
+  const saveParkingProducts = (data: Record<string, SolutionProduct[]>) => {
+    setParkingProducts(data);
+    try {
+      localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(data));
+    } catch (e) {
+      console.error('Failed to save parking products to localStorage:', e);
+    }
+  };
+
+  const updateProductDetails = (productId: string, updatedFields: Partial<SolutionProduct>) => {
+    if (productId.startsWith('res-')) {
+      const updated = { ...homeProducts };
+      let found = false;
+      Object.keys(updated).forEach((category) => {
+        const arr = [...(updated[category] || [])];
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], ...updatedFields };
+          updated[category] = arr;
+          found = true;
+        }
+      });
+      if (found) {
+        saveHomeProducts(updated);
+        setActiveDetailProduct(prev => prev && prev.id === productId ? { ...prev, ...updatedFields } : prev);
+      }
+    } else {
+      const updated = { ...parkingProducts };
+      let found = false;
+      Object.keys(updated).forEach((category) => {
+        const arr = [...(updated[category] || [])];
+        const index = arr.findIndex(p => p.id === productId);
+        if (index !== -1) {
+          arr[index] = { ...arr[index], ...updatedFields };
+          updated[category] = arr;
+          found = true;
+        }
+      });
+      if (found) {
+        saveParkingProducts(updated);
+        setActiveDetailProduct(prev => prev && prev.id === productId ? { ...prev, ...updatedFields } : prev);
+      }
+    }
+  };
 
   const [brands, setBrands] = useState<Record<string, any>>(() => {
     const saved = localStorage.getItem('sy_cms_brands');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return { ...BRAND_METADATA, ...parsed };
+        // Automatically clean up heavy base64 pdfUrls from localStorage to free up quota
+        let hasHeavy = false;
+        const cleaned: Record<string, any> = {};
+        Object.keys(parsed).forEach(k => {
+          cleaned[k] = { ...parsed[k] };
+          if (cleaned[k].pdfUrl) {
+            cleaned[k].pdfUrl = undefined;
+            hasHeavy = true;
+          }
+        });
+        if (hasHeavy) {
+          try {
+            localStorage.setItem('sy_cms_brands', JSON.stringify(cleaned));
+          } catch (err) {
+            console.error('Failed to save cleaned brands to localStorage:', err);
+          }
+        }
+        return { ...BRAND_METADATA, ...cleaned };
       } catch (e) {
         return BRAND_METADATA;
       }
     }
     return BRAND_METADATA;
   });
+
+  // Load PDFs from IndexedDB on component mount to merge with metadata state
+  useEffect(() => {
+    let isMounted = true;
+    const loadPdfs = async () => {
+      try {
+        const storedPdfs = await loadAllBrandPdfs();
+        if (isMounted && Object.keys(storedPdfs).length > 0) {
+          const brandPdfs: Record<string, any> = {};
+          const prodDetails: Record<string, any> = {};
+          
+          Object.keys(storedPdfs).forEach(key => {
+            if (key.startsWith('product-')) {
+              prodDetails[key] = storedPdfs[key];
+            } else {
+              brandPdfs[key] = storedPdfs[key];
+            }
+          });
+
+          setBrands(prev => {
+            const updated = { ...prev };
+            Object.keys(brandPdfs).forEach(brandKey => {
+              if (updated[brandKey]) {
+                updated[brandKey] = {
+                  ...updated[brandKey],
+                  pdfUrl: brandPdfs[brandKey].pdfUrl,
+                  pdfName: brandPdfs[brandKey].pdfName
+                };
+              }
+            });
+            return updated;
+          });
+
+          setProductDetails(prodDetails);
+        }
+      } catch (err) {
+        console.error('Error loading brand PDFs from IndexedDB:', err);
+      }
+    };
+    loadPdfs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const [isDraggingProductPdf, setIsDraggingProductPdf] = useState<Record<string, boolean>>({});
+
+  const handleProductPdfUpload = (productId: string, file: File) => {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isImage = file.type.startsWith('image/');
+
+    if (!isPdf && !isImage) {
+      alert('PDF 파일 또는 이미지 파일(PNG/JPG/JPEG)만 업로드할 수 있습니다.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const dataUrl = reader.result as string;
+      const key = `product-${productId}`;
+      try {
+        await saveBrandPdf(key, dataUrl, file.name);
+        setProductDetails(prev => ({
+          ...prev,
+          [key]: {
+            pdfUrl: dataUrl,
+            pdfName: file.name
+          }
+        }));
+      } catch (dbError) {
+        console.error('Failed to save product detail to IndexedDB:', dbError);
+        alert('데이터 저장에 실패했습니다. 프라이빗 브라우징 모드를 해제해 주십시오.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteProductPdf = async (productId: string) => {
+    const key = `product-${productId}`;
+    try {
+      await deleteBrandPdf(key);
+      setProductDetails(prev => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
+    } catch (dbError) {
+      console.error('Failed to delete product detail from IndexedDB:', dbError);
+    }
+  };
+
+  const startAddProduct = (type: 'home' | 'parking', category: string) => {
+    setEditingProduct(null);
+    setEditingProductType(type);
+    setEditingCategory(category);
+    
+    setProdFormName('');
+    setProdFormRegularPrice(500000);
+    setProdFormPrice(400000);
+    setProdFormDiscount(20);
+    setProdFormImage('https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600');
+    setProdFormTags(type === 'home' ? 'MD CHOICE, HIT' : 'BEST, HIT');
+    setProdFormHasASBadge(type === 'home');
+    setProdFormHasPromoRibbon(false);
+    
+    setIsProductModalOpen(true);
+  };
+
+  const startEditProduct = (product: SolutionProduct, type: 'home' | 'parking', category: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    setEditingProduct(product);
+    setEditingProductType(type);
+    setEditingCategory(category);
+
+    setProdFormName(product.name);
+    setProdFormRegularPrice(product.regularPrice);
+    setProdFormPrice(product.price);
+    setProdFormDiscount(product.discount);
+    setProdFormImage(product.image);
+    setProdFormTags(product.tags.join(', '));
+    setProdFormHasASBadge(!!product.hasASBadge);
+    setProdFormHasPromoRibbon(!!product.hasPromoRibbon);
+
+    setIsProductModalOpen(true);
+  };
+
+  const deleteProduct = (productId: string, type: 'home' | 'parking', category: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (!window.confirm('정말 이 상품을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    if (type === 'home') {
+      const updated = { ...homeProducts };
+      if (updated[category]) {
+        updated[category] = updated[category].filter(p => p.id !== productId);
+        saveHomeProducts(updated);
+      }
+    } else {
+      const updated = { ...parkingProducts };
+      if (updated[category]) {
+        updated[category] = updated[category].filter(p => p.id !== productId);
+        saveParkingProducts(updated);
+      }
+    }
+  };
+
+  const saveProductForm = () => {
+    if (!prodFormName.trim()) {
+      alert('상품명을 입력해 주세요.');
+      return;
+    }
+
+    const tagsArray = prodFormTags
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+
+    const calculatedDiscount = prodFormRegularPrice > 0 
+      ? Math.round(((prodFormRegularPrice - prodFormPrice) / prodFormRegularPrice) * 100)
+      : prodFormDiscount;
+
+    if (editingProduct) {
+      // Edit mode
+      if (editingProductType === 'home') {
+        const updated = { ...homeProducts };
+        if (updated[editingCategory]) {
+          updated[editingCategory] = updated[editingCategory].map(p => {
+            if (p.id === editingProduct.id) {
+              return {
+                ...p,
+                name: prodFormName,
+                regularPrice: Number(prodFormRegularPrice),
+                price: Number(prodFormPrice),
+                discount: calculatedDiscount,
+                image: prodFormImage,
+                tags: tagsArray,
+                hasASBadge: prodFormHasASBadge,
+                hasPromoRibbon: prodFormHasPromoRibbon
+              };
+            }
+            return p;
+          });
+          saveHomeProducts(updated);
+        }
+      } else {
+        const updated = { ...parkingProducts };
+        if (updated[editingCategory]) {
+          updated[editingCategory] = updated[editingCategory].map(p => {
+            if (p.id === editingProduct.id) {
+              return {
+                ...p,
+                name: prodFormName,
+                regularPrice: Number(prodFormRegularPrice),
+                price: Number(prodFormPrice),
+                discount: calculatedDiscount,
+                image: prodFormImage,
+                tags: tagsArray,
+                hasASBadge: prodFormHasASBadge,
+                hasPromoRibbon: prodFormHasPromoRibbon
+              };
+            }
+            return p;
+          });
+          saveParkingProducts(updated);
+        }
+      }
+    } else {
+      // Add mode
+      const newId = `${editingProductType === 'home' ? 'res' : 'park'}-custom-${Date.now()}`;
+      const newProduct: SolutionProduct = {
+        id: newId,
+        name: prodFormName,
+        description: editingProductType === 'home' ? '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기' : '상업용 간편 QR 정산 연동 부가수익 창출',
+        regularPrice: Number(prodFormRegularPrice),
+        price: Number(prodFormPrice),
+        discount: calculatedDiscount,
+        image: prodFormImage,
+        tags: tagsArray,
+        hasASBadge: prodFormHasASBadge,
+        hasPromoRibbon: prodFormHasPromoRibbon
+      };
+
+      if (editingProductType === 'home') {
+        const updated = { ...homeProducts };
+        if (!updated[editingCategory]) updated[editingCategory] = [];
+        updated[editingCategory] = [...updated[editingCategory], newProduct];
+        saveHomeProducts(updated);
+      } else {
+        const updated = { ...parkingProducts };
+        if (!updated[editingCategory]) updated[editingCategory] = [];
+        updated[editingCategory] = [...updated[editingCategory], newProduct];
+        saveParkingProducts(updated);
+      }
+    }
+
+    setIsProductModalOpen(false);
+    setEditingProduct(null);
+  };
 
   const [isDraggingPdf, setIsDraggingPdf] = useState<Record<string, boolean>>({});
 
@@ -207,32 +882,82 @@ export default function SolutionsSection({
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const updated = {
-        ...brands,
-        [brandKey]: {
-          ...brands[brandKey],
-          pdfUrl: reader.result as string,
-          pdfName: file.name
-        }
-      };
-      setBrands(updated);
-      localStorage.setItem('sy_cms_brands', JSON.stringify(updated));
+    reader.onloadend = async () => {
+      const dataUrl = reader.result as string;
+      try {
+        // 1. Save to IndexedDB (virtually unlimited size)
+        await saveBrandPdf(brandKey, dataUrl, file.name);
+
+        // 2. Update local react state
+        setBrands(prev => {
+          const updated = {
+            ...prev,
+            [brandKey]: {
+              ...prev[brandKey],
+              pdfUrl: dataUrl,
+              pdfName: file.name
+            }
+          };
+
+          // 3. Sync to localStorage, completely stripping heavy pdfUrl values to prevent quota issues
+          try {
+            const lightweight: Record<string, any> = {};
+            Object.keys(updated).forEach(k => {
+              lightweight[k] = {
+                ...updated[k],
+                pdfUrl: undefined, // never store heavy file strings in localStorage
+                pdfName: updated[k].pdfName
+              };
+            });
+            localStorage.setItem('sy_cms_brands', JSON.stringify(lightweight));
+          } catch (storageError) {
+            console.error('Failed to save brand metadata to localStorage:', storageError);
+          }
+          return updated;
+        });
+      } catch (dbError) {
+        console.error('Failed to save to IndexedDB:', dbError);
+        alert('브라우저 데이터베이스(IndexedDB) 저장에 실패했습니다. 프라이빗 브라우징 모드를 해제해 주십시오.');
+      }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleDeletePdf = (brandKey: string) => {
-    const updated = {
-      ...brands,
-      [brandKey]: {
-        ...brands[brandKey],
-        pdfUrl: undefined,
-        pdfName: undefined
-      }
-    };
-    setBrands(updated);
-    localStorage.setItem('sy_cms_brands', JSON.stringify(updated));
+  const handleDeletePdf = async (brandKey: string) => {
+    try {
+      // 1. Delete from IndexedDB
+      await deleteBrandPdf(brandKey);
+
+      // 2. Update react state
+      setBrands(prev => {
+        const updated = {
+          ...prev,
+          [brandKey]: {
+            ...prev[brandKey],
+            pdfUrl: undefined,
+            pdfName: undefined
+          }
+        };
+
+        // 3. Update localStorage
+        try {
+          const lightweight: Record<string, any> = {};
+          Object.keys(updated).forEach(k => {
+            lightweight[k] = {
+              ...updated[k],
+              pdfUrl: undefined,
+              pdfName: undefined
+            };
+          });
+          localStorage.setItem('sy_cms_brands', JSON.stringify(lightweight));
+        } catch (storageError) {
+          console.error('Failed to update localStorage on delete:', storageError);
+        }
+        return updated;
+      });
+    } catch (dbError) {
+      console.error('Failed to delete from IndexedDB:', dbError);
+    }
   };
 
   const filteredSolutions = solutions.filter(sol => {
@@ -253,6 +978,752 @@ export default function SolutionsSection({
     }
   };
 
+  if (activeDetailProduct) {
+    const productPurpose = activeDetailProduct.id.startsWith('res-') ? 'Residential' : 'ParkingLot';
+    const detailKey = `product-${activeDetailProduct.id}`;
+    const detailData = productDetails[detailKey];
+    
+    // Extract power to display correct specs dynamically
+    let powerKey = '7kW';
+    if (activeDetailProduct.name.includes('5kW')) powerKey = '5kW';
+    else if (activeDetailProduct.name.includes('11kW')) powerKey = '11kW';
+    else if (activeDetailProduct.name.includes('50kW')) powerKey = '50kW 급속';
+    else if (activeDetailProduct.name.includes('100kW')) powerKey = '100kW+ 초급속';
+
+    const formatPrice = (val: number) => val.toLocaleString() + '원';
+
+    const defaultOptions = [
+      { id: '5m', label: '5m 커넥터 일체형 (기본 장착)', price: 0 },
+      { id: '7m', label: '7m 연장형', price: 30000 },
+      { id: '10m', label: '10m 최장 전용선', price: 50000 }
+    ];
+
+    const productOptions = activeDetailProduct.options || defaultOptions;
+    const optionLabel = activeDetailProduct.optionLabel || '커넥터길이';
+
+    // Calculate dynamic extra price based on option
+    const selectedOptObj = productOptions.find(o => o.id === selectedConnector);
+    const extraOptionPrice = selectedOptObj ? selectedOptObj.price : 0;
+
+    const totalPrice = (activeDetailProduct.price + extraOptionPrice) * quantity;
+
+    const handleBuyNow = () => {
+      if (!selectedConnector) {
+        setToastMessage('⚠️ [필수] 커넥터 길이 옵션을 선택해 주세요.');
+        return;
+      }
+      setToastMessage('✅ 신청 페이지로 이동합니다. 견적서 정보가 연동됩니다.');
+      setTimeout(() => {
+        onOpenQuoteWithPurpose(productPurpose);
+      }, 500);
+    };
+
+    const handleBulkInquiry = () => {
+      setToastMessage('📋 대량 구매 및 설치 특별 견적 문의서로 이동합니다.');
+      setTimeout(() => {
+        onOpenQuoteWithPurpose(productPurpose === 'Residential' ? 'Residential' : 'Commercial');
+      }, 500);
+    };
+
+    const handleAddToCart = () => {
+      if (!selectedConnector) {
+        setToastMessage('⚠️ [필수] 커넥터 길이 옵션을 선택해 주세요.');
+        return;
+      }
+      setToastMessage(`🛒 장바구니에 ${activeDetailProduct.name} (${selectedConnector}) ${quantity}개가 담겼습니다.`);
+    };
+
+    const handleAddToWishlist = () => {
+      setToastMessage(`❤️ 관심 상품으로 등록되었습니다.`);
+    };
+
+    return (
+      <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 animate-fadeIn relative">
+        {/* Floating Toast Notification */}
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white text-xs font-black px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 border border-slate-700/50 backdrop-blur-md"
+            >
+              <span>{toastMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Back navigation & Category indicator */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <button
+            type="button"
+            onClick={() => setActiveDetailProduct(null)}
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            ← 전체 상품 리스트로 돌아가기
+          </button>
+        </div>
+
+        {/* Admin CMS Product Edit Control Bar */}
+        {isEditMode && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">🛠️</span>
+              <div>
+                <p className="text-xs font-black text-amber-900">관리자 상품 상세 편집 모드</p>
+                <p className="text-[11px] text-amber-700 font-medium">상품명, 가격, 요약설명, 커넥터 옵션, 배송 사양 등을 자유롭게 수정할 수 있습니다.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsDetailEditing(!isDetailEditing)}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-sm border ${
+                isDetailEditing 
+                  ? 'bg-amber-600 text-white border-amber-600 hover:bg-amber-700' 
+                  : 'bg-white text-amber-800 border-amber-200 hover:bg-amber-50'
+              }`}
+            >
+              {isDetailEditing ? '💾 편집 취소 (상세보기 확인)' : '✍️ 상품 정보 및 옵션 편집하기'}
+            </button>
+          </div>
+        )}
+
+        {isDetailEditing ? (
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✍️</span>
+                <h4 className="text-base sm:text-lg font-black text-slate-900">상품 상세 정보 및 커넥터 옵션 직접 수정</h4>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDetailEditing(false)}
+                  className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-all"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveProductDetails}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl cursor-pointer transition-all shadow-md shadow-emerald-500/10"
+                >
+                  저장하기
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Section: Basic product fields */}
+              <div className="space-y-4">
+                <span className="text-xs font-extrabold text-blue-600 tracking-wider uppercase block">
+                  기본 상품 정보 (Basic Info)
+                </span>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">상품명</label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-slate-800"
+                    placeholder="상품명을 입력해 주세요"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-black text-slate-700 font-bold">상품 대표 이미지</label>
+                  
+                  {editImage ? (
+                    <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center p-4">
+                      <img 
+                        src={editImage} 
+                        alt="Preview" 
+                        className="max-h-40 object-contain rounded-lg"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const fileInput = document.getElementById('product-image-file-input');
+                            fileInput?.click();
+                          }}
+                          className="px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-black hover:bg-slate-100 transition-all cursor-pointer shadow-sm"
+                        >
+                          이미지 변경
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditImage('')}
+                          className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-black hover:bg-rose-700 transition-all cursor-pointer shadow-sm"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductImage(true);
+                      }}
+                      onDragLeave={() => {
+                        setIsDraggingProductImage(false);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductImage(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setEditImage(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        } else {
+                          alert('이미지 파일(PNG, JPG, JPEG, GIF 등)만 업로드할 수 있습니다.');
+                        }
+                      }}
+                      onClick={() => document.getElementById('product-image-file-input')?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[140px] ${
+                        isDraggingProductImage
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-slate-300 bg-slate-50 hover:bg-slate-100/50 hover:border-blue-400'
+                      }`}
+                    >
+                      <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                      <p className="text-xs font-extrabold text-slate-700">
+                        클릭하거나 이미지를 드래그하여 드롭하세요
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                        지원형식: PNG, JPG, JPEG, WebP, GIF
+                      </p>
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    id="product-image-file-input"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setEditImage(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+
+                  {/* Optional URL Input field at the bottom */}
+                  <div className="pt-1">
+                    <details className="group">
+                      <summary className="text-[11px] text-slate-500 hover:text-slate-700 cursor-pointer list-none flex items-center gap-1 font-bold">
+                        <span className="transition-transform group-open:rotate-90">▶</span>
+                        이미지 링크(URL) 직접 입력하기
+                      </summary>
+                      <div className="mt-2 pl-3 border-l-2 border-slate-200">
+                        <input
+                          type="text"
+                          value={editImage}
+                          onChange={(e) => setEditImage(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                          placeholder="https://example.com/image.jpg 형식의 URL 직접 입력"
+                        />
+                      </div>
+                    </details>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">상품 요약 정보 (설명)</label>
+                  <textarea
+                    value={editSummary}
+                    onChange={(e) => setEditSummary(e.target.value)}
+                    rows={3}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+                    placeholder="상품에 대한 간단한 설명을 적어주세요"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">정상 가격 (원)</label>
+                    <input
+                      type="number"
+                      value={editRegularPrice}
+                      onChange={(e) => setEditRegularPrice(Number(e.target.value))}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">공급 혜택가 (원)</label>
+                    <input
+                      type="number"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(Number(e.target.value))}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-blue-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">할인율 (%)</label>
+                    <input
+                      type="number"
+                      value={editDiscount}
+                      onChange={(e) => setEditDiscount(Number(e.target.value))}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-rose-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Section: Specs & Custom Options */}
+              <div className="space-y-4">
+                <span className="text-xs font-extrabold text-blue-600 tracking-wider uppercase block">
+                  상세 사양 및 커넥터 옵션 설정
+                </span>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">배송방법</label>
+                    <input
+                      type="text"
+                      value={editDelivery}
+                      onChange={(e) => setEditDelivery(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">배송비</label>
+                    <input
+                      type="text"
+                      value={editShipping}
+                      onChange={(e) => setEditShipping(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">결제수단</label>
+                    <input
+                      type="text"
+                      value={editPayment}
+                      onChange={(e) => setEditPayment(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">옵션 대분류명 (예: 커넥터길이, 충전선 사양)</label>
+                  <input
+                    type="text"
+                    value={editOptionLabel}
+                    onChange={(e) => setEditOptionLabel(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-black text-slate-700 font-bold">옵션 선택 리스트 항목</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newId = `opt-${Date.now()}`;
+                        setEditOptions([...editOptions, { id: newId, label: '새 옵션 항목', price: 0 }]);
+                      }}
+                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[10px] font-black border border-blue-200 transition-colors cursor-pointer"
+                    >
+                      + 항목 추가
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 max-h-[180px] overflow-y-auto border border-slate-200 rounded-xl p-3 bg-white shadow-inner">
+                    {editOptions.length === 0 ? (
+                      <p className="text-[11px] text-slate-400 text-center py-4 font-bold">등록된 옵션 항목이 없습니다.</p>
+                    ) : (
+                      editOptions.map((opt, idx) => (
+                        <div key={opt.id} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={opt.label}
+                            onChange={(e) => {
+                              const updated = [...editOptions];
+                              updated[idx] = { ...updated[idx], label: e.target.value };
+                              setEditOptions(updated);
+                            }}
+                            className="flex-[2] px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white font-medium"
+                            placeholder="옵션 명칭 (예: 7m 연장)"
+                          />
+                          <div className="flex-1 flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={opt.price}
+                              onChange={(e) => {
+                                const updated = [...editOptions];
+                                updated[idx] = { ...updated[idx], price: Number(e.target.value) };
+                                setEditOptions(updated);
+                              }}
+                              className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs text-right bg-slate-50 focus:bg-white font-bold"
+                              placeholder="추가금"
+                            />
+                            <span className="text-[10px] text-slate-400 shrink-0 font-bold">원</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = editOptions.filter((_, i) => i !== idx);
+                              setEditOptions(updated);
+                            }}
+                            className="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-lg border border-transparent hover:border-rose-100 cursor-pointer text-xs font-bold"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setIsDetailEditing(false)}
+                className="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-all"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveProductDetails}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl cursor-pointer transition-all shadow-md shadow-emerald-500/15"
+              >
+                💾 설정 저장하기
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          {/* LEFT: Image & Gallery Thumbnail Strip */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="relative aspect-square bg-[#f3f4f6] rounded-2xl border border-slate-200/50 flex items-center justify-center p-8 overflow-hidden shadow-xs">
+              <img
+                src={activeDetailProduct.image}
+                alt={activeDetailProduct.name}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-contain max-h-[380px] hover:scale-105 transition-transform duration-300"
+              />
+              
+              {/* Overlaid Badges */}
+              <div className="absolute top-4 left-4 flex flex-col gap-1.5">
+                <div className="px-3 py-1.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10px] tracking-wide shadow-sm uppercase border border-emerald-500">
+                  {powerKey} 공식 승인 기기
+                </div>
+                {activeDetailProduct.hasASBadge && (
+                  <div className="px-3 py-1.5 rounded-full bg-rose-600 text-white font-extrabold text-[10px] tracking-wide shadow-sm border border-rose-500">
+                    무상 A/S 4년 보장
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Thumbnail Gallery Row */}
+            <div className="flex items-center gap-2.5 mt-2.5 justify-start">
+              {/* Left Arrow */}
+              <button
+                type="button"
+                className="w-8 h-12 border border-slate-200 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer select-none hover:bg-slate-50 transition-colors rounded-lg font-bold"
+              >
+                &lt;
+              </button>
+              
+              {/* Thumbnail 1 (Active) */}
+              <div className="w-14 h-14 border-2 border-stone-950 flex items-center justify-center p-1 bg-white cursor-pointer rounded-lg shadow-xs">
+                <img src={activeDetailProduct.image} alt="thumbnail active" className="w-full h-full object-contain" />
+              </div>
+
+              {/* Thumbnail 2 (Simulated subview) */}
+              <div className="w-14 h-14 border border-slate-200 flex items-center justify-center p-1 bg-white cursor-pointer hover:border-stone-400 transition-colors rounded-lg shadow-xs">
+                <img src={activeDetailProduct.image} alt="thumbnail secondary" className="w-full h-full object-contain opacity-50 grayscale-20 hover:grayscale-0 hover:opacity-100 transition-all" />
+              </div>
+
+              {/* Right Arrow */}
+              <button
+                type="button"
+                className="w-8 h-12 border border-slate-200 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer select-none hover:bg-slate-50 transition-colors rounded-lg font-bold"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT: Spec Detail Block */}
+          <div className="lg:col-span-6 space-y-6">
+            {/* Top Row: Breadcrumb & Title */}
+            <div className="space-y-2">
+              <div className="flex justify-end text-[11px] text-slate-400 font-extrabold tracking-wider">
+                <span>홈 / {productPurpose === 'Residential' ? '가정용 홈 충전기' : '공용 BIZ 충전기'}</span>
+              </div>
+              
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                  {activeDetailProduct.name}
+                </h3>
+                <div className="w-10 h-10 rounded-full bg-stone-950 text-white font-extrabold text-xs flex items-center justify-center shadow-md shrink-0">
+                  {activeDetailProduct.discount}%
+                </div>
+              </div>
+            </div>
+
+            {/* Bold boundary divider */}
+            <div className="border-t-2 border-slate-900 my-2"></div>
+
+            {/* Specification Grid (Matches styling from user screenshot) */}
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-12 gap-y-3.5 text-xs">
+                <div className="col-span-3 font-extrabold text-slate-600 self-start">상품요약정보</div>
+                <div className="col-span-9 text-slate-700 font-medium leading-relaxed">
+                  {activeDetailProduct.description || `${powerKey} 고안전 초고속 탑재 스마트 전기차 충전 솔루션`}
+                </div>
+
+                <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                <div className="col-span-3 font-extrabold text-slate-600 self-center">B2B공급가</div>
+                <div className="col-span-9 text-blue-600 font-black text-base sm:text-lg">
+                  {formatPrice(activeDetailProduct.price)}
+                </div>
+
+                <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                <div className="col-span-3 font-extrabold text-slate-600 self-center">배송방법</div>
+                <div className="col-span-9 text-slate-700 font-medium">택배</div>
+
+                <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                <div className="col-span-3 font-extrabold text-slate-600 self-center">배송비</div>
+                <div className="col-span-9 text-slate-700 font-medium">무료</div>
+
+                <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                <div className="col-span-3 font-extrabold text-slate-600 self-center">결제수단</div>
+                <div className="col-span-9 text-slate-700 font-medium">무통장입금</div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 my-4"></div>
+
+            {/* Options Interactive Block */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-3 text-xs font-extrabold text-slate-600">커넥터길이</div>
+                <div className="col-span-9">
+                  <select
+                    value={selectedConnector}
+                    onChange={(e) => setSelectedConnector(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer rounded-lg"
+                  >
+                    <option value="">- [필수] 옵션을 선택해 주세요 -</option>
+                    <option value="5m">5m 커넥터 일체형 (기본 장착)</option>
+                    <option value="7m">7m 연장형 (+30,000원)</option>
+                    <option value="10m">10m 최장 전용선 (+50,000원)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 gap-2 items-center pt-2">
+                <div className="col-span-3 text-xs font-extrabold text-slate-600 font-black">수량</div>
+                <div className="col-span-9">
+                  <div className="flex flex-col space-y-1">
+                    <div className="inline-flex items-center border border-slate-300 rounded-lg w-max overflow-hidden bg-white">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-bold select-none text-slate-500 border-r border-slate-300"
+                      >
+                        -
+                      </button>
+                      <span className="w-10 text-center font-bold select-none text-slate-800 text-xs">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(q => q + 1)}
+                        className="px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-bold select-none text-slate-500 border-l border-slate-300"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-bold">
+                      (최소주문수량 1개 이상)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200/80 my-4"></div>
+
+            {/* Dynamic Total Price Block */}
+            <div className="flex items-end justify-between py-1">
+              <span className="text-xs font-extrabold text-slate-500 tracking-wider">TOTAL (QUANTITY)</span>
+              <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {selectedConnector ? (
+                  <>
+                    <span className="text-blue-600">{formatPrice(totalPrice)}</span>
+                    <span className="text-xs text-slate-500 font-bold ml-1.5">({quantity}개)</span>
+                  </>
+                ) : (
+                  '0원 (0개)'
+                )}
+              </span>
+            </div>
+
+            {/* Shopping Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="flex-[2] py-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-black rounded-xl uppercase tracking-wider text-center select-none cursor-pointer transition-all border border-stone-950 shadow-md shadow-stone-900/10 active:scale-99"
+                >
+                  BUY IT NOW
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                >
+                  CART
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddToWishlist}
+                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                >
+                  WISH LIST
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleBulkInquiry}
+                className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-black py-3.5 tracking-wider text-center rounded-xl cursor-pointer select-none transition-all active:scale-99 shadow-xs"
+              >
+                대량구매문의
+              </button>
+            </div>
+          </div>
+        </div>
+        )}
+
+        {/* BOTTOM: Long Catalog Brochure Details */}
+        <div className="border-t border-slate-200/80 pt-10">
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-600" />
+                <h5 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
+                  📄 상세 설명 카탈로그 및 이미지 정보
+                </h5>
+              </div>
+              {detailData?.pdfUrl && isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteProductPdf(activeDetailProduct.id)}
+                  className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border border-rose-200"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  상세페이지 이미지 삭제
+                </button>
+              )}
+            </div>
+
+            {/* Brochure render or upload zone */}
+            {detailData?.pdfUrl ? (
+              <div className="space-y-4">
+                <PdfImageRenderer 
+                  fileUrl={detailData.pdfUrl} 
+                  fileName={detailData.pdfName || 'product-catalog.pdf'} 
+                  brandName={activeDetailProduct.name} 
+                  isAdmin={isEditMode}
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {isEditMode ? (
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: true }));
+                    }}
+                    onDragLeave={() => {
+                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) {
+                        handleProductPdfUpload(activeDetailProduct.id, file);
+                      }
+                    }}
+                    onClick={() => document.getElementById(`product-detail-upload-${activeDetailProduct.id}`)?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[260px] ${
+                      isDraggingProductPdf[activeDetailProduct.id]
+                        ? 'border-blue-500 bg-blue-500/10'
+                        : 'border-slate-300 bg-slate-50 hover:bg-slate-100/50 hover:border-blue-400'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id={`product-detail-upload-${activeDetailProduct.id}`}
+                      accept="application/pdf, image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleProductPdfUpload(activeDetailProduct.id, file);
+                        }
+                      }}
+                    />
+                    <Upload className="w-10 h-10 text-slate-400 mb-3 animate-pulse" />
+                    <p className="text-xs sm:text-sm font-black text-slate-800">
+                      여기에 <span className="text-blue-600">[{activeDetailProduct.name}]</span> 제품의 상세 설명 이미지(PNG, JPG, JPEG) 또는 카탈로그 PDF를 드래그하거나 클릭하여 등록해 주세요.
+                    </p>
+                    <p className="text-[11px] text-slate-400 font-bold mt-2">
+                      권장: 고해상도 상세페이지 길쭉한 통 이미지 등록 시 고화질로 렌더링되어 제품 정보 전달력이 대폭 상승합니다!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="py-16 text-center bg-slate-50 border border-slate-200 rounded-2xl flex flex-col items-center justify-center space-y-3">
+                    <FileText className="w-10 h-10 text-slate-400" />
+                    <p className="text-xs sm:text-sm text-slate-800 font-extrabold">본 제품의 고화질 상세 설명 이미지가 업로드 준비 중입니다.</p>
+                    <p className="text-[11px] text-slate-500 font-bold max-w-sm leading-relaxed mx-auto">
+                      1분 무료 자격 심사 상담 신청을 완료해 주시면, 담당 엔지니어가 카탈로그 사양서 전달 및 지자체 지원금 승인 조회를 신속하게 진행해 드립니다.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => onOpenQuoteWithPurpose(productPurpose)}
+                      className="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-xs mt-2"
+                    >
+                      ⚡ 실시간 무상설치 자격 문의하기
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-12 py-10 relative group/solutions">
       {isEditMode && onOpenCms && (
@@ -267,35 +1738,35 @@ export default function SolutionsSection({
       {/* Modern responsive category menu (목차) - Only show when no specific default tab is defined */}
       {defaultActiveTab === 'ALL' && (
         <div className="space-y-4 text-center">
-          <span className="text-blue-600 font-black text-xs uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+          <span className="text-blue-600 font-black text-sm uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-100">
             SOLUTIONS DIRECTORY
           </span>
-          <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+          <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
             어떤 공간에 충전기를 설치하시겠습니까?
           </h3>
-          <p className="text-xs text-slate-500 max-w-lg mx-auto font-medium">
+          <p className="text-sm text-slate-500 max-w-xl mx-auto font-bold">
             설치 현장 용도에 맞춰 보조금 신청 절차와 권장 기기 라인업을 한눈에 비교해 보세요.
           </p>
 
           {/* Tab Selection Row */}
           <div className="pt-4 flex justify-center">
-            <div className="inline-flex flex-wrap sm:flex-nowrap justify-center gap-1 bg-slate-100 p-1.5 rounded-2xl max-w-full overflow-x-auto scrollbar-none shadow-inner border border-slate-200/50">
+            <div className="inline-flex flex-wrap sm:flex-nowrap justify-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl max-w-full overflow-x-auto scrollbar-none shadow-inner border border-slate-200/50">
               <button
                 onClick={() => setActiveTab('ALL')}
-                className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[40px] ${
+                className={`px-5 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[44px] ${
                   activeTab === 'ALL'
                     ? 'bg-slate-900 text-white shadow-md'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <Layers className="w-4 h-4 shrink-0" />
                 <span>전체 솔루션</span>
               </button>
               {solutions.map((sol) => (
                 <button
                   key={sol.id}
                   onClick={() => setActiveTab(sol.category)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[40px] ${
+                  className={`px-5 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer min-h-[44px] ${
                     activeTab === sol.category
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'text-slate-500 hover:text-slate-800'
@@ -317,39 +1788,43 @@ export default function SolutionsSection({
             <section
               key={sol.id}
               id={`solution-section-${sol.id}`}
-              className="p-6 md:p-8 bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="p-8 md:p-10 bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               <div className="space-y-6">
                 {/* 1. Header Text & Benefits Block (Top) */}
                 <div className="space-y-4">
-                  <div className="space-y-1">
-                    <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">
+                  <div className="space-y-1.5">
+                    <span className="text-blue-600 font-extrabold text-xs tracking-widest uppercase block">
                       {sol.category === 'Commercial' ? '🏢 아파트·공동주택·공용시설 맞춤' : sol.category === 'Residential' ? '🏡 가정용·홈·개인소유지' : '🅿️ 상업시설·수익형 주차장'}
                     </span>
-                    <h3 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight leading-snug">
+                    <h3 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight leading-snug">
                       {sol.title}
                     </h3>
                   </div>
                   
-                  <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium max-w-4xl">
-                    {sol.description}
-                  </p>
+                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                    <p className="text-base text-slate-700 leading-relaxed font-bold max-w-4xl">
+                      {sol.description}
+                    </p>
+                  )}
 
-                  {/* Grid benefits */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                    {sol.benefits.map((b) => (
-                      <div key={b} className="flex items-start gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-200/60 shadow-xs">
-                        <Check className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                        <span className="font-semibold leading-relaxed">{b}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                    /* Grid benefits */
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                      {sol.benefits.map((b) => (
+                        <div key={b} className="flex items-start gap-2.5 text-sm md:text-base text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/60 shadow-xs">
+                          <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                          <span className="font-extrabold leading-relaxed">{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {sol.category === 'Commercial' && (() => {
                   const brandData = brands[selectedAptBrand] || brands['sk일렉링크'];
                   return (
-                    <div className="p-6 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
+                    <div className="p-8 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
                       {/* Decorative Background Glow */}
                       <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
                       
@@ -357,14 +1832,14 @@ export default function SolutionsSection({
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xl sm:text-2xl">{brandData.icon}</span>
-                            <span className="text-[10px] font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                            <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
                               SY.com 아파트 브랜드 공식 파트너
                             </span>
                           </div>
-                          <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                          <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                             {brandData.name}
                           </h4>
-                          <p className="text-xs text-emerald-100 font-bold">
+                          <p className="text-sm text-emerald-100 font-bold">
                             {brandData.slogan}
                           </p>
                         </div>
@@ -376,7 +1851,7 @@ export default function SolutionsSection({
                                 key={b}
                                 type="button"
                                 onClick={() => onSelectAptBrand?.(b)}
-                                className={`px-3 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
+                                className={`px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
                                   isSel
                                     ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/30 scale-103'
                                     : 'bg-emerald-800/80 text-emerald-100 hover:text-white hover:bg-emerald-700/80'
@@ -391,25 +1866,25 @@ export default function SolutionsSection({
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                         <div className="space-y-4">
-                          <p className="text-xs sm:text-sm text-emerald-50 leading-relaxed font-semibold">
+                          <p className="text-sm sm:text-base text-emerald-50 leading-relaxed font-bold">
                             {brandData.description}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {brandData.highlights.map((hl) => (
-                              <span key={hl} className="text-[10px] font-black bg-emerald-800/50 text-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                              <span key={hl} className="text-xs font-black bg-emerald-800/50 text-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
                                 ✓ {hl}
                               </span>
                             ))}
                           </div>
                         </div>
 
-                        <div className="space-y-3 bg-emerald-800/40 p-4 rounded-2xl border border-emerald-500/30">
-                          <span className="text-[10px] font-extrabold text-yellow-300 tracking-wider uppercase block">
+                        <div className="space-y-3 bg-emerald-800/40 p-5 rounded-2xl border border-emerald-500/30">
+                          <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block">
                             🎁 SY.com 무상 설치 공식 혜택
                           </span>
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             {brandData.benefits.map((benefit, bIdx) => (
-                              <div key={bIdx} className="flex items-start gap-2 text-xs text-emerald-50">
+                              <div key={bIdx} className="flex items-start gap-2 text-sm text-emerald-50">
                                 <span className="text-yellow-400 font-bold mt-0.5">•</span>
                                 <span className="font-bold leading-relaxed">{benefit}</span>
                               </div>
@@ -423,7 +1898,7 @@ export default function SolutionsSection({
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/30 pb-3">
                           <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-amber-300 animate-pulse" />
-                            <h5 className="text-xs font-black text-white uppercase tracking-wider">
+                            <h5 className="text-sm font-black text-white uppercase tracking-wider">
                               📄 {brandData.name} 공식 사양서 및 카탈로그
                              </h5>
                           </div>
@@ -529,162 +2004,374 @@ export default function SolutionsSection({
                 })()}
 
                 {sol.category === 'Residential' && (() => {
-                  const powerData = HOME_POWER_METADATA[selectedHomePower] || HOME_POWER_METADATA['7kW'];
+                  const productsList = homeProducts[selectedHomePower] || [];
+                  
+                  // Sort productsList based on sortBy
+                  const sortedProducts = [...productsList].sort((a, b) => {
+                    if (sortBy === 'priceAsc') return a.price - b.price;
+                    if (sortBy === 'priceDesc') return b.price - a.price;
+                    if (sortBy === 'popular') {
+                      const scoreA = (a.tags.includes('MD CHOICE') ? 2 : 0) + (a.tags.includes('HIT') ? 1 : 0);
+                      const scoreB = (b.tags.includes('MD CHOICE') ? 2 : 0) + (b.tags.includes('HIT') ? 1 : 0);
+                      return scoreB - scoreA;
+                    }
+                    return 0; // 'new' keeps default order
+                  });
+
                   return (
-                    <div className="p-6 bg-slate-900 text-white rounded-3xl border border-slate-800/80 space-y-6 shadow-xl relative overflow-hidden group/brand">
-                      {/* Decorative Background Glow */}
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                      
-                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-800 pb-4 relative z-10">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl sm:text-2xl">{powerData.icon}</span>
-                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-900/40">
-                              가정용 홈충전기 상세 스펙 비교
-                            </span>
-                          </div>
-                          <h4 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                            {powerData.name}
+                    <div className="space-y-6 pt-2">
+                      {/* Product Section Header */}
+                      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-xl font-black text-slate-950 tracking-tight">
+                            홈충전기 {selectedHomePower}
                           </h4>
-                          <p className="text-xs text-slate-400 font-bold">
-                            {powerData.slogan}
-                          </p>
+                          <span className="text-xs text-slate-500 font-extrabold bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                            총 {sortedProducts.length}개의 상품이 있습니다.
+                          </span>
+                          
+                          {isEditMode && (
+                            <button
+                              type="button"
+                              onClick={() => startAddProduct('home', selectedHomePower)}
+                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black flex items-center gap-1 transition-all shadow-md shadow-blue-600/10 cursor-pointer ml-2"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              새 {selectedHomePower} 충전기 추가
+                            </button>
+                          )}
                         </div>
                         
-                        {/* Interactive kW selection tabs */}
-                        <div className="flex gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none self-stretch lg:self-auto">
-                          {Object.keys(HOME_POWER_METADATA).map((p) => {
-                            const isSel = selectedHomePower === p;
-                            return (
-                              <button
-                                key={p}
-                                type="button"
-                                onClick={() => onSelectHomePower?.(p)}
-                                className={`px-4 py-2.5 rounded-xl text-[12px] font-black transition-all cursor-pointer whitespace-nowrap ${
-                                  isSel
-                                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 scale-103 font-black'
-                                    : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700/80'
-                                }`}
-                              >
-                                {p} 충전기
-                              </button>
-                            );
-                          })}
+                        {/* Sorting select */}
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                          <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as any)}
+                            className="px-3.5 py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                          >
+                            <option value="new">신상품</option>
+                            <option value="popular">인기상품순</option>
+                            <option value="priceAsc">낮은가격순</option>
+                            <option value="priceDesc">높은가격순</option>
+                          </select>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
-                        {/* Left column (7/12) */}
-                        <div className="lg:col-span-7 space-y-4">
-                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-semibold">
-                            {powerData.description}
-                          </p>
+                      {/* Products Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {sortedProducts.map((p) => {
+                          const formatPrice = (val: number) => val.toLocaleString() + '원';
+                          return (
+                            <div
+                              key={p.id}
+                              onClick={() => setActiveDetailProduct(p)}
+                              className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                            >
+                              <div>
+                                {/* Top Image Area */}
+                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
+                                  {/* Dynamic Image */}
+                                  <img
+                                    src={p.image}
+                                    alt={p.name}
+                                    referrerPolicy="no-referrer"
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                  />
+                                  
+                                  {/* Round Power Badge (Left overlay) */}
+                                  <div className="absolute top-3 left-3 w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-extrabold text-[11px] flex items-center justify-center border border-blue-200 shadow-xs ring-4 ring-blue-500/10">
+                                    {selectedHomePower}
+                                  </div>
+
+                                  {/* Black discount circular badge (Right overlay) */}
+                                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
+                                    {p.discount}%
+                                  </div>
+
+                                  {/* Left visual ribbons/badges */}
+                                  {p.hasASBadge && (
+                                    <div className="absolute top-15 left-3 bg-rose-500 text-white font-black text-[9px] px-2 py-1 rounded shadow-sm z-10 animate-pulse">
+                                      무상A/S 4년
+                                    </div>
+                                  )}
+
+                                  {p.hasPromoRibbon && (
+                                    <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10">
+                                      기획상품
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Body Information */}
+                                <div className="p-4 space-y-2">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                    {p.name}
+                                  </h5>
+                                  
+                                  {/* Price Section */}
+                                  <div className="pt-1">
+                                    <span className="text-[10px] text-slate-400 line-through block leading-none mb-1">
+                                      {formatPrice(p.regularPrice)}
+                                    </span>
+                                    <span className="text-sm sm:text-base font-black text-rose-600">
+                                      {formatPrice(p.price)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Footer Badges and Direct CTA */}
+                              <div className="p-4 pt-0 space-y-3">
+                                {p.tags && p.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-3">
+                                    {p.tags.map((tag) => (
+                                      <span
+                                        key={tag}
+                                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                                          tag === 'MD CHOICE'
+                                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                            : tag === 'HIT'
+                                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                        }`}
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* 상세보기 버튼 제거 (카드 클릭으로 상세페이지 이동 대체) */}
+
+                                {isEditMode && (
+                                  <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">
+                                    <button
+                                      onClick={(e) => startEditProduct(p, 'home', selectedHomePower, e)}
+                                      className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                    >
+                                      <Edit3 className="w-3 h-3" />
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={(e) => deleteProduct(p.id, 'home', selectedHomePower, e)}
+                                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                      삭제
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {sol.category === 'ParkingLot' && (() => {
+                  const productsList = parkingProducts[selectedParkingCapacity] || [];
+                  
+                  // Sort productsList based on sortBy
+                  const sortedProducts = [...productsList].sort((a, b) => {
+                    if (sortBy === 'priceAsc') return a.price - b.price;
+                    if (sortBy === 'priceDesc') return b.price - a.price;
+                    if (sortBy === 'popular') {
+                      const scoreA = (a.tags.includes('BEST') ? 2 : 0) + (a.tags.includes('HIT') ? 1 : 0);
+                      const scoreB = (b.tags.includes('BEST') ? 2 : 0) + (b.tags.includes('HIT') ? 1 : 0);
+                      return scoreB - scoreA;
+                    }
+                    return 0; // 'new' keeps default order
+                  });
+
+                  return (
+                    <div className="space-y-6 pt-2">
+                      {/* Product Section Header */}
+                      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-xl font-black text-slate-950 tracking-tight">
+                            수익형 충전기 {selectedParkingCapacity}
+                          </h4>
+                          <span className="text-xs text-slate-500 font-extrabold bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                            총 {sortedProducts.length}개의 상품이 있습니다.
+                          </span>
                           
-                          {/* Highlights */}
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            {powerData.highlights.map((hl) => (
-                              <span key={hl} className="text-[10px] font-black bg-slate-800/80 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700/40">
-                                ✓ {hl}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Technical specs card */}
-                          <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80 space-y-3">
-                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block">
-                              📊 {selectedHomePower} 기술 세부 사양 (Technical Specifications)
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {powerData.specs.map((spec, sIdx) => (
-                                <div key={sIdx} className="space-y-0.5 border-l border-emerald-500/20 pl-2">
-                                  <span className="text-[10px] text-slate-400 font-extrabold block">{spec.label}</span>
-                                  <span className="text-xs text-slate-200 font-bold">{spec.value}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                          {isEditMode && (
+                            <button
+                              type="button"
+                              onClick={() => startAddProduct('parking', selectedParkingCapacity)}
+                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black flex items-center gap-1 transition-all shadow-md shadow-indigo-600/10 cursor-pointer ml-2"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              새 {selectedParkingCapacity} 수익형 충전기 추가
+                            </button>
+                          )}
                         </div>
-
-                        {/* Right column (5/12) */}
-                        <div className="lg:col-span-5 space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
-                          <div className="space-y-3">
-                            <span className="text-[10px] font-extrabold text-emerald-400 tracking-wider uppercase block">
-                              🎁 SY.com 가정용 무상 설치 공식 특전
-                            </span>
-                            <div className="space-y-2">
-                              {powerData.benefits.map((benefit, bIdx) => (
-                                <div key={bIdx} className="flex items-start gap-2 text-xs text-slate-200">
-                                  <span className="text-emerald-500 font-bold mt-0.5">•</span>
-                                  <span className="font-bold leading-relaxed">{benefit}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="pt-4 border-t border-slate-800/60 text-xs text-slate-400 leading-relaxed font-medium">
-                            💡 <span className="text-slate-300 font-bold">자가 소유지 단독주택</span> 뿐만 아니라, 빌라 주차장 및 아파트 개인 배정 주차면 내 설치 가능 여부를 무료로 사전 분석해 드립니다.
-                          </div>
+                        
+                        {/* Sorting select */}
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                          <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as any)}
+                            className="px-3.5 py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                          >
+                            <option value="new">신상품</option>
+                            <option value="popular">인기상품순</option>
+                            <option value="priceAsc">낮은가격순</option>
+                            <option value="priceDesc">높은가격순</option>
+                          </select>
                         </div>
                       </div>
 
-                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/50 relative z-10">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-                          <p className="text-[11px] sm:text-xs text-slate-300 font-bold">
-                            지금 문의하시면 <span className="text-amber-400 font-black">{powerData.name}</span> 정부 및 지자체 무상 인입 자격을 즉시 심사 매칭해 드립니다.
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => onOpenQuoteWithPurpose('Residential')}
-                          className="w-full md:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0 shadow-md shadow-emerald-500/20"
-                        >
-                          ⚡ {selectedHomePower} 무상설치 문의하기
-                        </button>
+                      {/* Products Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {sortedProducts.map((p) => {
+                          const formatPrice = (val: number) => val.toLocaleString() + '원';
+                          return (
+                            <div
+                              key={p.id}
+                              onClick={() => setActiveDetailProduct(p)}
+                              className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                            >
+                              <div>
+                                {/* Top Image Area */}
+                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
+                                  {/* Dynamic Image */}
+                                  <img
+                                    src={p.image}
+                                    alt={p.name}
+                                    referrerPolicy="no-referrer"
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                  />
+                                  
+                                  {/* Round Power Badge (Left overlay) */}
+                                  <div className="absolute top-3 left-3 px-2.5 h-10 rounded-full bg-blue-50 text-indigo-600 font-extrabold text-[10px] flex items-center justify-center border border-indigo-200 shadow-xs ring-4 ring-indigo-500/10 whitespace-nowrap">
+                                    {selectedParkingCapacity.split(' ')[0]}
+                                  </div>
+
+                                  {/* Black discount circular badge (Right overlay) */}
+                                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
+                                    {p.discount}%
+                                  </div>
+
+                                  {/* Left visual ribbons/badges */}
+                                  {p.hasPromoRibbon && (
+                                    <div className="absolute bottom-2 left-2 bg-indigo-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10">
+                                      수익성 최고
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Body Information */}
+                                <div className="p-4 space-y-2">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                    {p.name}
+                                  </h5>
+                                  
+                                  {/* Price Section */}
+                                  <div className="pt-1">
+                                    <span className="text-[10px] text-slate-400 line-through block leading-none mb-1">
+                                      {formatPrice(p.regularPrice)}
+                                    </span>
+                                    <span className="text-sm sm:text-base font-black text-rose-600">
+                                      {formatPrice(p.price)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Footer Badges and Direct CTA */}
+                              <div className="p-4 pt-0 space-y-3">
+                                {p.tags && p.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-3">
+                                    {p.tags.map((tag) => (
+                                      <span
+                                        key={tag}
+                                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                                          tag === 'BEST'
+                                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                            : tag === 'HIT'
+                                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                        }`}
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* 상세보기 버튼 제거 (카드 클릭으로 상세페이지 이동 대체) */}
+
+                                {isEditMode && (
+                                  <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">
+                                    <button
+                                      onClick={(e) => startEditProduct(p, 'parking', selectedParkingCapacity, e)}
+                                      className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                    >
+                                      <Edit3 className="w-3 h-3" />
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={(e) => deleteProduct(p.id, 'parking', selectedParkingCapacity, e)}
+                                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                      삭제
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
                 })()}
 
                 {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) - 글 아래인 상단으로 이동 */}
-                <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                  <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
-                    정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-600">
-                    {sol.subsidyProcess.map((step, sIdx) => (
-                      <div key={step} className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-xs relative flex flex-col justify-between">
-                        <div>
-                          <span className="text-[10px] font-black text-blue-600 block mb-1">0{sIdx+1}단계</span>
-                          <span className="font-extrabold leading-relaxed block text-slate-800 text-xs sm:text-[11px]">{step.split(': ')[1]}</span>
+                {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                  <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                    <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
+                      정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-600">
+                      {sol.subsidyProcess.map((step, sIdx) => (
+                        <div key={step} className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-xs relative flex flex-col justify-between">
+                          <div>
+                            <span className="text-[10px] font-black text-blue-600 block mb-1">0{sIdx+1}단계</span>
+                            <span className="font-extrabold leading-relaxed block text-slate-800 text-xs sm:text-[11px]">{step.split(': ')[1]}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                 <div className="pt-3 pb-6 flex flex-col items-center justify-center text-center gap-3 py-6 border-b border-slate-100">
-                  <button
-                    onClick={() => onOpenQuoteWithPurpose(sol.category)}
-                    id={`btn-solution-cta-${sol.id}`}
-                    className={`w-full sm:w-auto min-w-[280px] sm:min-w-[420px] py-4 px-10 font-black shadow-md rounded-2xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer text-white ${
-                      sol.category === 'Residential'
-                        ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25'
-                        : sol.category === 'Commercial'
-                        ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25'
-                        : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25'
-                    }`}
-                  >
-                    <span>{sol.subtitle} 맞춤 상담 예약하기</span>
-                    <ArrowRight className="w-4 h-4 ml-1.5 animate-pulse" />
-                  </button>
-                  <span className="text-[11px] text-slate-400 font-bold block">
-                    * 국고 보조금 예산 마감 전 신청을 적극 권장드립니다.
-                  </span>
-                </div>
+                {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                  <div className="pt-3 pb-6 flex flex-col items-center justify-center text-center gap-3 py-6 border-b border-slate-100">
+                    <button
+                      onClick={() => onOpenQuoteWithPurpose(sol.category)}
+                      id={`btn-solution-cta-${sol.id}`}
+                      className={`w-full sm:w-auto min-w-[280px] sm:min-w-[420px] py-4 px-10 font-black shadow-md rounded-2xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer text-white ${
+                        sol.category === 'Commercial'
+                          ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25'
+                          : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25'
+                      }`}
+                    >
+                      <span>{sol.subtitle} 맞춤 상담 예약하기</span>
+                      <ArrowRight className="w-4 h-4 ml-1.5 animate-pulse" />
+                    </button>
+                    <span className="text-[11px] text-slate-400 font-bold block">
+                      * 국고 보조금 예산 마감 전 신청을 적극 권장드립니다.
+                    </span>
+                  </div>
+                )}
 
                 {/* 2. Visuals & Details Block */}
-                <div className="space-y-6 pt-2">
+                <div id={`brochure-view-${sol.id}`} className="space-y-6 pt-2 scroll-mt-20">
                   <div className="space-y-1">
                     <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">SOLUTION DETAIL BROCHURE</span>
                     <h4 className="text-base font-black text-slate-900">{sol.title} 상세안내 카탈로그</h4>
@@ -953,6 +2640,190 @@ export default function SolutionsSection({
           </div>
         </div>
       </section>
+
+      {/* 3. Product Create / Edit Modal */}
+      <AnimatePresence>
+        {isProductModalOpen && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProductModalOpen(false)}
+              className="absolute inset-0 bg-slate-950/75 backdrop-blur-xs"
+            />
+            
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh] z-10 font-sans"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div>
+                  <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-200/50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    {editingProductType === 'home' ? '가정용 홈 충전기' : '수익형 충전기'} ({editingCategory})
+                  </span>
+                  <h3 className="text-lg font-black text-slate-900 mt-1">
+                    {editingProduct ? '상품 정보 수정하기' : '새 상품 등록하기'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsProductModalOpen(false)}
+                  className="p-1.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Form Content */}
+              <div className="p-6 space-y-4 overflow-y-auto flex-1 text-slate-700 text-sm">
+                {/* Product Name */}
+                <div className="space-y-1">
+                  <label className="text-xs font-black text-slate-700">상품명</label>
+                  <input
+                    type="text"
+                    value={prodFormName}
+                    onChange={(e) => setProdFormName(e.target.value)}
+                    placeholder="예: SK일렉링크 7kW 프리미엄 충전기"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-extrabold text-xs"
+                  />
+                </div>
+
+                {/* Regular Price */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-black text-slate-700">정상 소비자 가격 (원)</label>
+                    <input
+                      type="number"
+                      value={prodFormRegularPrice}
+                      onChange={(e) => setProdFormRegularPrice(Number(e.target.value))}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs font-extrabold"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-xs font-black text-slate-700">특가 혜택 가격 (원)</label>
+                    <input
+                      type="number"
+                      value={prodFormPrice}
+                      onChange={(e) => setProdFormPrice(Number(e.target.value))}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs font-extrabold"
+                    />
+                  </div>
+                </div>
+
+                {/* Product Image URL */}
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-black text-slate-700">상품 이미지 URL</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const urls = [
+                          'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+                          'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=600',
+                          'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600',
+                          'https://images.unsplash.com/photo-1558441719-ff34b0524a24?auto=format&fit=crop&q=80&w=600'
+                        ];
+                        const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+                        setProdFormImage(randomUrl);
+                      }}
+                      className="text-[10px] text-blue-600 font-black hover:underline cursor-pointer"
+                    >
+                      랜덤 고화질 이미지 채우기
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={prodFormImage}
+                    onChange={(e) => setProdFormImage(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
+                  />
+                  {prodFormImage && (
+                    <div className="mt-2 w-24 h-24 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50">
+                      <img
+                        src={prodFormImage}
+                        alt="Preview"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.target as any).src = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=240';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Tags */}
+                <div className="space-y-1">
+                  <label className="text-xs font-black text-slate-700">태그 (쉼표로 구분)</label>
+                  <input
+                    type="text"
+                    value={prodFormTags}
+                    onChange={(e) => setProdFormTags(e.target.value)}
+                    placeholder="예: MD CHOICE, HIT, BEST"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-extrabold text-xs"
+                  />
+                </div>
+
+                {/* Checkboxes */}
+                <div className="pt-2 grid grid-cols-2 gap-4">
+                  <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={prodFormHasASBadge}
+                      onChange={(e) => setProdFormHasASBadge(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 cursor-pointer"
+                    />
+                    <div className="text-left">
+                      <span className="text-xs font-black text-slate-800 block">무상 A/S 4년</span>
+                      <span className="text-[10px] text-slate-400 block font-bold">배지 노출 여부</span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={prodFormHasPromoRibbon}
+                      onChange={(e) => setProdFormHasPromoRibbon(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 cursor-pointer"
+                    />
+                    <div className="text-left">
+                      <span className="text-xs font-black text-slate-800 block">기획상품 리본</span>
+                      <span className="text-[10px] text-slate-400 block font-bold">리본 배지 노출 여부</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsProductModalOpen(false)}
+                  className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black rounded-xl cursor-pointer transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={saveProductForm}
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-black rounded-xl cursor-pointer transition-all shadow-md shadow-slate-900/10"
+                >
+                  {editingProduct ? '수정 완료' : '등록 완료'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -49,7 +49,7 @@ export default function Navbar({
   return (
     <nav className="bg-white text-slate-700 py-2 sm:py-0 border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap justify-center gap-1 sm:gap-6 sm:h-12 items-center">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-10 sm:h-14 items-center">
           {menuItems.map((item) => {
             const isActive = activePage === item.id;
             return (
@@ -57,7 +57,7 @@ export default function Navbar({
                 key={item.id}
                 onClick={() => onPageChange(item.id)}
                 id={`btn-nav-${item.id}`}
-                className={`px-3 sm:px-4 py-2 sm:py-0 sm:h-12 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all border-b-2 cursor-pointer ${
+                className={`px-4 sm:px-6 py-2.5 sm:py-0 sm:h-14 text-xs sm:text-[15px] font-bold flex items-center gap-2 transition-all border-b-2 cursor-pointer ${
                   isActive
                     ? 'border-blue-600 text-blue-600 font-black'
                     : 'border-transparent text-slate-600 hover:text-blue-600'

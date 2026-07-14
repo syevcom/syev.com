@@ -93,3 +93,15 @@ export interface ASRequest {
   status: '접수완료' | '기사배정' | '처리완료';
   createdAt: string;
 }
+
+export interface HeaderConfig {
+  inquiryTitlePc: string;
+  shortcutCommercialPc: string;
+  shortcutResidentialPc: string;
+  shortcutParkingPc: string;
+  inquiryTitleMobile: string;
+  shortcutCommercialMobile: string;
+  shortcutResidentialMobile: string;
+  shortcutParkingMobile: string;
+  syncMobileWithPc: boolean;
+}

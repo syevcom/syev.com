@@ -18,7 +18,7 @@ import {
   ChevronDown, 
   BookOpen 
 } from 'lucide-react';
-import { User as UserType, ActivePage } from '../types';
+import { User as UserType, ActivePage, HeaderConfig } from '../types';
 
 interface HeaderProps {
   user: UserType | null;
@@ -57,6 +57,8 @@ interface HeaderProps {
   onSelectAptBrand?: (brand: string) => void;
   selectedHomePower?: string;
   onSelectHomePower?: (power: string) => void;
+  selectedParkingCapacity?: string;
+  onSelectParkingCapacity?: (capacity: string) => void;
   categoryLabels?: {
     home: string;
     about: string;
@@ -68,6 +70,7 @@ interface HeaderProps {
     sol_commercial?: string;
     sol_parking?: string;
   };
+  headerConfig?: HeaderConfig;
 }
 
 export default function Header({
@@ -88,7 +91,20 @@ export default function Header({
   onSelectAptBrand,
   selectedHomePower = '7kW',
   onSelectHomePower,
-  categoryLabels
+  selectedParkingCapacity = '50kW 급속',
+  onSelectParkingCapacity,
+  categoryLabels,
+  headerConfig = {
+    inquiryTitlePc: '⚡ 전기차충전기 설치문의',
+    shortcutCommercialPc: '⚡ 아파트 · 공동주택',
+    shortcutResidentialPc: '🏠 가정용 · 개인 홈',
+    shortcutParkingPc: '🏢 상업시설 · 수익형',
+    inquiryTitleMobile: '⚡ 전기차충전기 설치문의',
+    shortcutCommercialMobile: '⚡ 아파트 · 공동주택',
+    shortcutResidentialMobile: '🏠 가정용 · 개인 홈',
+    shortcutParkingMobile: '🏢 상업시설 · 수익형',
+    syncMobileWithPc: true
+  }
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
@@ -140,8 +156,8 @@ export default function Header({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/75 backdrop-blur-lg border-b border-slate-200/80 shadow-md shadow-slate-900/5">
-      {/* Top Banner (Subtle, professional notification with premium deep blue theme) */}
-      <div className="bg-gradient-to-r from-emerald-600 via-emerald-950 to-slate-900 text-white text-[11px] py-2 px-4 text-center font-bold tracking-wide flex justify-center items-center gap-1.5 border-b border-emerald-500/10">
+      {/* Top Banner (Subtle, professional notification with premium bright emerald theme) */}
+      <div className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white text-[11px] py-2 px-4 text-center font-bold tracking-wide flex justify-center items-center gap-1.5 border-b border-emerald-400/20">
         <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse shrink-0" />
         <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
@@ -183,7 +199,7 @@ export default function Header({
         </div>
 
         {/* 2. Center: Elegant Navigation Links (No background box, elegant under-line) */}
-        <nav className="hidden xl:flex items-center gap-x-3 lg:gap-x-5 xl:gap-x-7 2xl:gap-x-9 shrink-0">
+        <nav className="hidden xl:flex items-center gap-x-6 lg:gap-x-8 xl:gap-x-12 2xl:gap-x-16 shrink-0">
           {menuItems.map((item) => {
             const isActive = activePage === item.id || 
               (item.id === 'sol_residential' && activePage === 'solutions');
@@ -191,9 +207,9 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
-                className={`px-3.5 lg:px-5 py-2.5 text-[15px] lg:text-[17px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                className={`px-5 lg:px-7 py-3 text-[16px] lg:text-[18px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
                   isActive
-                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-3.5 after:right-3.5 after:h-[2.5px] after:bg-emerald-600'
+                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-8px] after:left-5 after:right-5 after:h-[3px] after:bg-emerald-600'
                     : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
                 }`}
               >
@@ -210,13 +226,13 @@ export default function Header({
           <div className="flex flex-col gap-1 w-[240px] lg:w-[270px] shrink">
             {/* 상단 통합 레이블 */}
             <div 
-              onClick={() => isEditMode ? onOpenCms?.('quote') : onOpenQuote()}
+              onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
               className={`text-[15px] lg:text-[17px] font-black text-emerald-800 hover:text-white text-center tracking-wider bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-md py-1.5 mb-1 select-none shadow-xs cursor-pointer transition-all duration-200 ${
-                isEditMode ? 'border-dashed border-2 animate-pulse' : ''
+                isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
               }`}
               title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
             >
-              {isEditMode ? '✏️ 설치문의 실시간 편집' : '⚡ 전기차충전기 설치문의'}
+              {isEditMode ? `✏️ ${headerConfig.inquiryTitlePc || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitlePc || '⚡ 전기차충전기 설치문의')}
             </div>
 
             {/* 1. 아파트 전기차 충전기 설치문의 (녹색으로 통일) */}
@@ -230,7 +246,7 @@ export default function Header({
               id="btn-header-shortcut-apt"
             >
               <span className="truncate">
-                ⚡ 아파트 · 공동주택
+                {headerConfig.shortcutCommercialPc || '⚡ 아파트 · 공동주택'}
               </span>
             </button>
 
@@ -240,7 +256,7 @@ export default function Header({
               className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-home"
             >
-              <span className="truncate">🏠 가정용 · 개인 홈</span>
+              <span className="truncate">{headerConfig.shortcutResidentialPc || '🏠 가정용 · 개인 홈'}</span>
             </button>
 
             {/* 3. 상업시설 · 수익형 전기차 충전기 설치문의 */}
@@ -249,7 +265,7 @@ export default function Header({
               className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11.5px] lg:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
               id="btn-header-shortcut-commercial"
             >
-              <span className="truncate">🏢 상업시설 · 수익형</span>
+              <span className="truncate">{headerConfig.shortcutParkingPc || '🏢 상업시설 · 수익형'}</span>
             </button>
           </div>
 
@@ -326,32 +342,32 @@ export default function Header({
           {/* Direct Installation Inquiry 3 Stacked Buttons */}
           <div className="space-y-2">
             <span 
-              onClick={() => isEditMode ? onOpenCms?.('quote') : onOpenQuote()}
+              onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
               className={`text-[14.5px] sm:text-[15.5px] font-black text-emerald-800 hover:text-white tracking-wider block uppercase bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-xl px-2.5 py-2.5 text-center select-none shadow-xs cursor-pointer transition-all duration-200 ${
-                isEditMode ? 'border-dashed border-2 animate-pulse' : ''
+                isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
               }`}
               title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
             >
-              {isEditMode ? '✏️ 설치문의 실시간 편집' : '⚡ 전기차충전기 설치문의'}
+              {isEditMode ? `✏️ ${headerConfig.inquiryTitleMobile || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitleMobile || '⚡ 전기차충전기 설치문의')}
             </span>
             <div className="grid grid-cols-1 gap-2">
               <button
                 onClick={() => handleInquirySelect('Commercial')}
                 className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>⚡ 아파트 · 공동주택</span>
+                <span>{headerConfig.shortcutCommercialMobile || '⚡ 아파트 · 공동주택'}</span>
               </button>
               <button
                 onClick={() => handleInquirySelect('Residential')}
                 className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>🏠 가정용 · 개인 홈</span>
+                <span>{headerConfig.shortcutResidentialMobile || '🏠 가정용 · 개인 홈'}</span>
               </button>
               <button
                 onClick={() => handleInquirySelect('ParkingLot')}
                 className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
               >
-                <span>🏢 상업시설 · 수익형</span>
+                <span>{headerConfig.shortcutParkingMobile || '🏢 상업시설 · 수익형'}</span>
               </button>
             </div>
           </div>
@@ -485,6 +501,32 @@ export default function Header({
                   }`}
                 >
                   {kw} (가정용 홈충전기)
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sub-navigation bar for ParkingLot (Only visible when 'sol_parking' is active) */}
+      {activePage === 'sol_parking' && (
+        <div className="w-full bg-slate-900 border-t border-slate-800 py-3 shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {[
+              '공용 BIZ 충전기'
+            ].map((cap) => {
+              const isSelected = selectedParkingCapacity === cap;
+              return (
+                <button
+                  key={cap}
+                  onClick={() => onSelectParkingCapacity?.(cap)}
+                  className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-blue-500 text-slate-950 shadow-md shadow-blue-500/35 font-black scale-105'
+                      : 'text-slate-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {cap}
                 </button>
               );
             })}

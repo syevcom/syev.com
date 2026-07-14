@@ -6,11 +6,14 @@
 import React, { useState } from 'react';
 import { X, Save, RotateCcw, Image as ImageIcon, Plus, Trash2, Check, Edit3, Settings, HelpCircle, FileText, Sparkles, Building, User, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, Solution, Review, FAQ } from '../types';
+import { Product, Solution, Review, FAQ, HeaderConfig } from '../types';
 
 interface CmsEditorModalProps {
   isOpen: boolean;
   onClose: () => void;
+  
+  headerConfig: HeaderConfig;
+  onSaveHeaderConfig: (config: HeaderConfig) => void;
   
   // Brand Logo and Menu Category configurations
   logoConfig: {
@@ -75,6 +78,8 @@ interface CmsEditorModalProps {
     calcButton: string;
     imageUrl?: string;
     height?: number;
+    paddingTop?: number;
+    paddingBottom?: number;
     showHeroImage?: boolean;
     titleSize?: 'small' | 'medium' | 'large' | 'xlarge';
     descriptionSize?: 'small' | 'medium' | 'large';
@@ -227,6 +232,8 @@ const DEFAULT_FIELDS: {
 export default function CmsEditorModal({
   isOpen,
   onClose,
+  headerConfig,
+  onSaveHeaderConfig,
   logoConfig,
   onSaveLogoConfig,
   categoryLabels,
@@ -291,6 +298,19 @@ export default function CmsEditorModal({
   const [menuSolResidential, setMenuSolResidential] = useState(categoryLabels.sol_residential || '가정용 홈');
   const [menuSolParking, setMenuSolParking] = useState(categoryLabels.sol_parking || '상업시설 수익형');
 
+  // Header State
+  const [headerInquiryTitlePc, setHeaderInquiryTitlePc] = useState(headerConfig?.inquiryTitlePc || '⚡ 전기차충전기 설치문의');
+  const [headerShortcutCommercialPc, setHeaderShortcutCommercialPc] = useState(headerConfig?.shortcutCommercialPc || '⚡ 아파트 · 공동주택');
+  const [headerShortcutResidentialPc, setHeaderShortcutResidentialPc] = useState(headerConfig?.shortcutResidentialPc || '🏠 가정용 · 개인 홈');
+  const [headerShortcutParkingPc, setHeaderShortcutParkingPc] = useState(headerConfig?.shortcutParkingPc || '🏢 상업시설 · 수익형');
+
+  const [headerInquiryTitleMobile, setHeaderInquiryTitleMobile] = useState(headerConfig?.inquiryTitleMobile || '⚡ 전기차충전기 설치문의');
+  const [headerShortcutCommercialMobile, setHeaderShortcutCommercialMobile] = useState(headerConfig?.shortcutCommercialMobile || '⚡ 아파트 · 공동주택');
+  const [headerShortcutResidentialMobile, setHeaderShortcutResidentialMobile] = useState(headerConfig?.shortcutResidentialMobile || '🏠 가정용 · 개인 홈');
+  const [headerShortcutParkingMobile, setHeaderShortcutParkingMobile] = useState(headerConfig?.shortcutParkingMobile || '🏢 상업시설 · 수익형');
+
+  const [headerSyncMobileWithPc, setHeaderSyncMobileWithPc] = useState(headerConfig?.syncMobileWithPc !== false);
+
   // SNS State
   const [snsKakaoUrl, setSnsKakaoUrl] = useState(snsConfig.kakaoUrl || '');
   const [snsInstagramUrl, setSnsInstagramUrl] = useState(snsConfig.instagramUrl || '');
@@ -319,6 +339,8 @@ export default function CmsEditorModal({
   const [heroCalc, setHeroCalc] = useState(heroConfig.calcButton);
   const [heroImageUrl, setHeroImageUrl] = useState(heroConfig.imageUrl || '');
   const [heroHeight, setHeroHeight] = useState(heroConfig.height || 750);
+  const [heroPaddingTop, setHeroPaddingTop] = useState(heroConfig.paddingTop !== undefined ? heroConfig.paddingTop : 120);
+  const [heroPaddingBottom, setHeroPaddingBottom] = useState(heroConfig.paddingBottom !== undefined ? heroConfig.paddingBottom : 120);
   const [heroTitleSize, setHeroTitleSize] = useState(heroConfig.titleSize || 'large');
   const [heroDescriptionSize, setHeroDescriptionSize] = useState(heroConfig.descriptionSize || 'medium');
   const [heroLiveCountStart, setHeroLiveCountStart] = useState(heroConfig.liveCountStart || 14520);
@@ -385,6 +407,16 @@ export default function CmsEditorModal({
       setMenuSolResidential(categoryLabels.sol_residential || '가정용 홈');
       setMenuSolParking(categoryLabels.sol_parking || '상업시설 수익형');
 
+      setHeaderInquiryTitlePc(headerConfig?.inquiryTitlePc || '⚡ 전기차충전기 설치문의');
+      setHeaderShortcutCommercialPc(headerConfig?.shortcutCommercialPc || '⚡ 아파트 · 공동주택');
+      setHeaderShortcutResidentialPc(headerConfig?.shortcutResidentialPc || '🏠 가정용 · 개인 홈');
+      setHeaderShortcutParkingPc(headerConfig?.shortcutParkingPc || '🏢 상업시설 · 수익형');
+      setHeaderInquiryTitleMobile(headerConfig?.inquiryTitleMobile || '⚡ 전기차충전기 설치문의');
+      setHeaderShortcutCommercialMobile(headerConfig?.shortcutCommercialMobile || '⚡ 아파트 · 공동주택');
+      setHeaderShortcutResidentialMobile(headerConfig?.shortcutResidentialMobile || '🏠 가정용 · 개인 홈');
+      setHeaderShortcutParkingMobile(headerConfig?.shortcutParkingMobile || '🏢 상업시설 · 수익형');
+      setHeaderSyncMobileWithPc(headerConfig?.syncMobileWithPc !== false);
+
       setSnsKakaoUrl(snsConfig.kakaoUrl || '');
       setSnsInstagramUrl(snsConfig.instagramUrl || '');
       setSnsBlogUrl(snsConfig.blogUrl || '');
@@ -409,6 +441,8 @@ export default function CmsEditorModal({
       setHeroCalc(heroConfig.calcButton);
       setHeroImageUrl(heroConfig.imageUrl || '');
       setHeroHeight(heroConfig.height || 750);
+      setHeroPaddingTop(heroConfig.paddingTop !== undefined ? heroConfig.paddingTop : 120);
+      setHeroPaddingBottom(heroConfig.paddingBottom !== undefined ? heroConfig.paddingBottom : 120);
       setHeroTitleSize(heroConfig.titleSize || 'large');
       setHeroDescriptionSize(heroConfig.descriptionSize || 'medium');
       setHeroLiveCountStart(heroConfig.liveCountStart || 14520);
@@ -446,7 +480,7 @@ export default function CmsEditorModal({
       setCeoImg(aboutConfig.ceoImage);
       setActiveTab(initialTab === 'products' ? 'solutions' : initialTab);
     }
-  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig, quoteConfig, initialTab]);
+  }, [isOpen, logoConfig, categoryLabels, footerConfig, snsConfig, quickMenuConfig, heroConfig, aboutConfig, quoteConfig, initialTab, headerConfig]);
 
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -535,6 +569,17 @@ export default function CmsEditorModal({
       sol_residential: menuSolResidential,
       sol_parking: menuSolParking
     });
+    onSaveHeaderConfig({
+      inquiryTitlePc: headerInquiryTitlePc,
+      shortcutCommercialPc: headerShortcutCommercialPc,
+      shortcutResidentialPc: headerShortcutResidentialPc,
+      shortcutParkingPc: headerShortcutParkingPc,
+      inquiryTitleMobile: headerSyncMobileWithPc ? headerInquiryTitlePc : headerInquiryTitleMobile,
+      shortcutCommercialMobile: headerSyncMobileWithPc ? headerShortcutCommercialPc : headerShortcutCommercialMobile,
+      shortcutResidentialMobile: headerSyncMobileWithPc ? headerShortcutResidentialPc : headerShortcutResidentialMobile,
+      shortcutParkingMobile: headerSyncMobileWithPc ? headerShortcutParkingPc : headerShortcutParkingMobile,
+      syncMobileWithPc: headerSyncMobileWithPc
+    });
     onSaveFooterConfig({
       phone: footerPhone,
       email: footerEmail,
@@ -555,7 +600,7 @@ export default function CmsEditorModal({
       showQuickMenu: quickShowMenu,
       items: quickMenuItems
     });
-    showSaveSuccess('⚙️ 브랜드 로고, 카테고리, 푸터 회사 정보 및 SNS, 퀵메뉴 설정이 즉시 저장되었습니다!');
+    showSaveSuccess('⚙️ 브랜드 로고, 카테고리, 헤더 단축문구, 푸터 회사 정보 및 SNS, 퀵메뉴 설정이 즉시 저장되었습니다!');
   };
 
   const handleSaveHero = () => {
@@ -568,6 +613,8 @@ export default function CmsEditorModal({
       calcButton: heroCalc,
       imageUrl: heroImageUrl,
       height: Number(heroHeight),
+      paddingTop: Number(heroPaddingTop),
+      paddingBottom: Number(heroPaddingBottom),
       titleSize: heroTitleSize,
       descriptionSize: heroDescriptionSize,
       liveCountStart: Number(heroLiveCountStart),
@@ -1665,6 +1712,143 @@ export default function CmsEditorModal({
                   </div>
                 </div>
 
+                <div className="pt-2">
+                  <h4 className="text-xs font-black text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-1.5 uppercase">
+                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    상단 헤더 설치문의 및 단축 버튼 문구 제어
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-bold mt-1.5 leading-relaxed">
+                    상단 우측에 고정 노출되는 \'전기차충전기 설치문의\' 통합 레이블 및 아파트, 가정용, 상업시설 단축 이동 버튼들의 문구를 직접 커스터마이징합니다. PC와 모바일 화면 문구를 독립적으로 운영하거나 하나로 동기화(연동)할 수 있습니다.
+                  </p>
+
+                  {/* Sync Option */}
+                  <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl space-y-3 mt-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="block text-xs font-black text-blue-900">모바일 단축 문구 PC와 동일하게 동기화 (연동)</span>
+                        <span className="block text-[10px] text-slate-500 font-bold">활성화 시, 모바일 드로어 메뉴의 문구가 PC용 단축 문구와 동일하게 자동 동기화되어 유지됩니다.</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={headerSyncMobileWithPc} 
+                          onChange={(e) => setHeaderSyncMobileWithPc(e.target.checked)} 
+                          className="sr-only peer" 
+                        />
+                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    {/* PC Section */}
+                    <div className="space-y-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50">
+                      <h5 className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                        PC 화면용 문구 설정
+                      </h5>
+                      
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">PC 설치문의 메인 버튼</label>
+                          <input
+                            type="text"
+                            value={headerInquiryTitlePc}
+                            onChange={(e) => setHeaderInquiryTitlePc(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">PC 단축 1: 아파트 · 공동주택</label>
+                          <input
+                            type="text"
+                            value={headerShortcutCommercialPc}
+                            onChange={(e) => setHeaderShortcutCommercialPc(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">PC 단축 2: 가정용 · 개인 홈</label>
+                          <input
+                            type="text"
+                            value={headerShortcutResidentialPc}
+                            onChange={(e) => setHeaderShortcutResidentialPc(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">PC 단축 3: 상업시설 · 수익형</label>
+                          <input
+                            type="text"
+                            value={headerShortcutParkingPc}
+                            onChange={(e) => setHeaderShortcutParkingPc(e.target.value)}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Section */}
+                    <div className="space-y-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50">
+                      <h5 className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+                        <span className={`w-2 h-2 rounded-full ${headerSyncMobileWithPc ? 'bg-slate-400' : 'bg-emerald-600'}`}></span>
+                        모바일 화면용 문구 설정 {headerSyncMobileWithPc && <span className="text-[10px] text-blue-600 font-bold">(PC 동기화 적용 중)</span>}
+                      </h5>
+
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">모바일 설치문의 메인 버튼</label>
+                          <input
+                            type="text"
+                            value={headerSyncMobileWithPc ? headerInquiryTitlePc : headerInquiryTitleMobile}
+                            onChange={(e) => setHeaderInquiryTitleMobile(e.target.value)}
+                            disabled={headerSyncMobileWithPc}
+                            className={`w-full px-3 py-2 border rounded-xl text-xs font-bold ${
+                              headerSyncMobileWithPc ? 'bg-slate-100 text-slate-400 border-slate-200/60 cursor-not-allowed' : 'bg-white border-slate-200'
+                            }`}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">모바일 단축 1: 아파트 · 공동주택</label>
+                          <input
+                            type="text"
+                            value={headerSyncMobileWithPc ? headerShortcutCommercialPc : headerShortcutCommercialMobile}
+                            onChange={(e) => setHeaderShortcutCommercialMobile(e.target.value)}
+                            disabled={headerSyncMobileWithPc}
+                            className={`w-full px-3 py-2 border rounded-xl text-xs font-bold ${
+                              headerSyncMobileWithPc ? 'bg-slate-100 text-slate-400 border-slate-200/60 cursor-not-allowed' : 'bg-white border-slate-200'
+                            }`}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">모바일 단축 2: 가정용 · 개인 홈</label>
+                          <input
+                            type="text"
+                            value={headerSyncMobileWithPc ? headerShortcutResidentialPc : headerShortcutResidentialMobile}
+                            onChange={(e) => setHeaderShortcutResidentialMobile(e.target.value)}
+                            disabled={headerSyncMobileWithPc}
+                            className={`w-full px-3 py-2 border rounded-xl text-xs font-bold ${
+                              headerSyncMobileWithPc ? 'bg-slate-100 text-slate-400 border-slate-200/60 cursor-not-allowed' : 'bg-white border-slate-200'
+                            }`}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600">모바일 단축 3: 상업시설 · 수익형</label>
+                          <input
+                            type="text"
+                            value={headerSyncMobileWithPc ? headerShortcutParkingPc : headerShortcutParkingMobile}
+                            onChange={(e) => setHeaderShortcutParkingMobile(e.target.value)}
+                            disabled={headerSyncMobileWithPc}
+                            className={`w-full px-3 py-2 border rounded-xl text-xs font-bold ${
+                              headerSyncMobileWithPc ? 'bg-slate-100 text-slate-400 border-slate-200/60 cursor-not-allowed' : 'bg-white border-slate-200'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="pt-4 border-t border-slate-100 flex justify-end">
                   <button
                     onClick={handleSaveBrand}
@@ -1770,6 +1954,49 @@ export default function CmsEditorModal({
                             step="10"
                             value={heroHeight}
                             onChange={(e) => setHeroHeight(parseInt(e.target.value, 10))}
+                            className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Spacing (Padding Top & Bottom) controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-emerald-100">
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="block text-[11px] font-bold text-slate-700">글자 상단(위) 여백 (Padding Top)</label>
+                          <span className="text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                            {heroPaddingTop} px
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="range"
+                            min="20"
+                            max="300"
+                            step="5"
+                            value={heroPaddingTop}
+                            onChange={(e) => setHeroPaddingTop(parseInt(e.target.value, 10))}
+                            className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <label className="block text-[11px] font-bold text-slate-700">글자 하단(아래) 여백 (Padding Bottom)</label>
+                          <span className="text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                            {heroPaddingBottom} px
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="range"
+                            min="20"
+                            max="300"
+                            step="5"
+                            value={heroPaddingBottom}
+                            onChange={(e) => setHeroPaddingBottom(parseInt(e.target.value, 10))}
                             className="flex-1 accent-emerald-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer"
                           />
                         </div>
