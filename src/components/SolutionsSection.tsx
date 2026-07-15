@@ -2372,22 +2372,26 @@ export default function SolutionsSection({
 
                 {/* 2. Visuals & Details Block */}
                 <div id={`brochure-view-${sol.id}`} className="space-y-6 pt-2 scroll-mt-20">
-                  <div className="space-y-1">
-                    <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">SOLUTION DETAIL BROCHURE</span>
-                    <h4 className="text-base font-black text-slate-900">{sol.title} 상세안내 카탈로그</h4>
-                  </div>
+                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                    <>
+                      <div className="space-y-1">
+                        <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">SOLUTION DETAIL BROCHURE</span>
+                        <h4 className="text-base font-black text-slate-900">{sol.title} 상세안내 카탈로그</h4>
+                      </div>
 
-                  {/* Adaptive Detail / Brochure Viewer (Fully expanded single page design - 100% height object-contain) */}
-                  <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-950 w-full group/banner relative">
-                    <div className="w-full h-auto flex flex-col items-center justify-center bg-slate-950 p-1">
-                      <img
-                        src={sol.detailImageUrl || sol.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'}
-                        alt={`${sol.title} 상세페이지 카탈로그`}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-auto object-contain rounded-2xl"
-                      />
-                    </div>
-                  </div>
+                      {/* Adaptive Detail / Brochure Viewer (Fully expanded single page design - 100% height object-contain) */}
+                      <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-950 w-full group/banner relative">
+                        <div className="w-full h-auto flex flex-col items-center justify-center bg-slate-950 p-1">
+                          <img
+                            src={sol.detailImageUrl || sol.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'}
+                            alt={`${sol.title} 상세페이지 카탈로그`}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-auto object-contain rounded-2xl"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   {/* Recommended Products & Specifications Grid */}
                   {sol.recommendedProducts && sol.recommendedProducts.length > 0 && sol.category !== 'Commercial' && (() => {

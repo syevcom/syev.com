@@ -198,9 +198,9 @@ export default function Header({
           </div>
         </div>
 
-        {/* 2. Center-Left: Navigation Links packed closely, placed right next to Logo */}
-        {/* mr-auto automatically pushes everything on its right to the far-right, creating a comfortable gap in between */}
-        <nav className="hidden xl:flex items-center gap-x-1 lg:gap-x-2 2xl:gap-x-3 shrink-0 mr-auto ml-6 lg:ml-10">
+        {/* 2. Right-Center: Navigation Links placed right next to the CTA section (leaving space on the left) */}
+        {/* ml-auto pushes the nav to the right, and mr-2 lg:mr-4 creates a compact, elegant spacing before the CTA section */}
+        <nav className="hidden lg:flex items-center gap-x-1 xl:gap-x-2 shrink-0 ml-auto mr-2 lg:mr-4">
           {menuItems.map((item) => {
             const isActive = activePage === item.id || 
               (item.id === 'sol_residential' && activePage === 'solutions');
@@ -208,9 +208,9 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
-                className={`px-3 lg:px-3.5 py-2 text-[14px] lg:text-[15px] 2xl:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                className={`px-2 lg:px-2.5 py-2 text-[13px] lg:text-[14px] xl:text-[15px] 2xl:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
                   isActive
-                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-3 after:right-3 after:h-[3px] after:bg-emerald-600'
+                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-2 after:right-2 after:h-[3px] after:bg-emerald-600'
                     : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
                 }`}
               >
