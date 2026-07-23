@@ -16,9 +16,11 @@ import {
   Youtube, 
   Phone, 
   ChevronDown, 
-  BookOpen 
+  BookOpen,
+  Search
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig } from '../types';
+import { SearchModal } from './SearchModal';
 
 interface HeaderProps {
   user: UserType | null;
@@ -57,6 +59,8 @@ interface HeaderProps {
   onSelectAptBrand?: (brand: string) => void;
   selectedHomePower?: string;
   onSelectHomePower?: (power: string) => void;
+  selectedHomeServiceType?: string;
+  onSelectHomeServiceType?: (serviceType: string) => void;
   selectedParkingCapacity?: string;
   onSelectParkingCapacity?: (capacity: string) => void;
   categoryLabels?: {
@@ -91,6 +95,8 @@ export default function Header({
   onSelectAptBrand,
   selectedHomePower = '7kW',
   onSelectHomePower,
+  selectedHomeServiceType = '단말기 단품',
+  onSelectHomeServiceType,
   selectedParkingCapacity = '50kW 급속',
   onSelectParkingCapacity,
   categoryLabels,
@@ -108,6 +114,7 @@ export default function Header({
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const getMenuLabel = (id: ActivePage) => {
     switch (id) {
@@ -198,9 +205,8 @@ export default function Header({
           </div>
         </div>
 
-        {/* 2. Right-Center: Navigation Links placed right next to the CTA section (leaving space on the left) */}
-        {/* ml-auto pushes the nav to the right, and mr-2 lg:mr-4 creates a compact, elegant spacing before the CTA section */}
-        <nav className="hidden lg:flex items-center gap-x-1 xl:gap-x-2 shrink-0 ml-auto mr-2 lg:mr-4">
+        {/* 2. Navigation Links (Evenly distributed across middle space) */}
+        <nav className="hidden lg:flex items-center justify-between flex-1 max-w-3xl mx-auto px-4 lg:px-8 xl:px-10 shrink-0">
           {menuItems.map((item) => {
             const isActive = activePage === item.id || 
               (item.id === 'sol_residential' && activePage === 'solutions');
@@ -208,7 +214,7 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
-                className={`px-2 lg:px-2.5 py-2 text-[13px] lg:text-[14px] xl:text-[15px] 2xl:text-[16px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                className={`px-3 lg:px-3.5 xl:px-4 py-2 text-[14px] lg:text-[15px] xl:text-[16px] 2xl:text-[17px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
                   isActive
                     ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-2 after:right-2 after:h-[3px] after:bg-emerald-600'
                     : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
@@ -220,8 +226,19 @@ export default function Header({
           })}
         </nav>
 
-        {/* 3. Right side: Premium Inquiry CTA + Utility (anchored to the far right) */}
-        <div className="hidden md:flex items-center gap-3 lg:gap-4 shrink-0 pl-4">
+        {/* 3. Right side: Search Button + Premium Inquiry CTA + Utility */}
+        <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5 shrink-0 pl-2 ml-auto">
+
+          {/* Quick Charger Search Button */}
+          <button
+            onClick={() => setIsSearchModalOpen(true)}
+            title="충전기 모델 / 용량 검색"
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-yellow-400 text-emerald-900 hover:text-slate-950 border border-emerald-200/80 hover:border-yellow-400 rounded-xl font-black text-xs transition-all cursor-pointer shadow-xs shrink-0 group"
+            id="btn-header-search"
+          >
+            <Search className="w-4 h-4 text-emerald-700 group-hover:text-slate-950 shrink-0 transition-colors" />
+            <span className="hidden xl:inline">충전기 검색</span>
+          </button>
 
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
           <div className="flex flex-col gap-1 w-[210px] lg:w-[240px] xl:w-[250px] 2xl:w-[270px] shrink-0">
@@ -314,8 +331,16 @@ export default function Header({
 
         </div>
 
-        {/* 4. Mobile Hamburger Button */}
+        {/* 4. Mobile Hamburger Button & Search Button */}
         <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Search button */}
+          <button
+            onClick={() => setIsSearchModalOpen(true)}
+            className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-xs cursor-pointer"
+            title="충전기 검색"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           {/* Admin Toggle on Mobile for quick access */}
           <button
             onClick={onToggleEditMode}
@@ -481,30 +506,55 @@ export default function Header({
         </div>
       )}
 
-      {/* Sub-navigation bar for Home Power Capacities (Only visible when 'sol_residential' is active) */}
+      {/* Sub-navigation bar for Home Charger (Price Type & Power Capacities) */}
       {activePage === 'sol_residential' && (
-        <div className="w-full bg-emerald-950 border-t border-emerald-900/40 py-3 shadow-inner">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
-            {[
-              '5kW',
-              '7kW',
-              '11kW'
-            ].map((kw) => {
-              const isSelected = selectedHomePower === kw;
-              return (
-                <button
-                  key={kw}
-                  onClick={() => onSelectHomePower?.(kw)}
-                  className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/35 font-black scale-105'
-                      : 'text-emerald-100 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {kw} (가정용 홈충전기)
-                </button>
-              );
-            })}
+        <div className="w-full bg-emerald-950 border-t border-emerald-900/40 py-2.5 shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3">
+            {/* Price Category Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
+              <span className="text-[11px] font-black text-emerald-400 mr-1 hidden sm:inline">구분:</span>
+              {[
+                { id: '단말기 단품', label: '📦 단말기 단품' },
+                { id: '교체 시공', label: '🛠️ 교체 시공' },
+                { id: '신규 설치 포함', label: '⚡ 설치 포함 (신규)' }
+              ].map((st) => {
+                const isSelected = selectedHomeServiceType === st.id;
+                return (
+                  <button
+                    key={st.id}
+                    onClick={() => onSelectHomeServiceType?.(st.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 font-black scale-105'
+                        : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {st.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Power Capacity Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
+              <span className="text-[11px] font-black text-amber-300 mr-1 hidden sm:inline">용량:</span>
+              {['5kW', '7kW', '11kW'].map((kw) => {
+                const isSelected = selectedHomePower === kw;
+                return (
+                  <button
+                    key={kw}
+                    onClick={() => onSelectHomePower?.(kw)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-yellow-400 text-slate-950 shadow-md shadow-yellow-400/30 font-black scale-105'
+                        : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    ⚡ {kw}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -534,6 +584,15 @@ export default function Header({
           </div>
         </div>
       )}
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onPageChange={onPageChange}
+        onSelectHomePower={onSelectHomePower}
+        onSelectParkingCapacity={onSelectParkingCapacity}
+        onOpenQuoteWithPurpose={onOpenQuoteWithPurpose}
+      />
     </header>
   );
 }

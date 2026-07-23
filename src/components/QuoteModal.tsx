@@ -24,6 +24,7 @@ interface QuoteModalProps {
   initialPurpose?: 'Commercial' | 'Residential' | 'ParkingLot';
   initialBrand?: string;
   initialHomePower?: string;
+  initialHomeServiceType?: string;
   quoteConfig?: {
     badge: string;
     title: string;
@@ -87,6 +88,7 @@ export default function QuoteModal({
   initialPurpose = 'Residential',
   initialBrand = 'sk일렉링크',
   initialHomePower = '7kW',
+  initialHomeServiceType = '단말기 단품',
   quoteConfig = {
     badge: '정부보조금 마감 임박 혜택 우선 선점',
     title: '무료 설치 상담 & 실시간 맞춤 견적',
@@ -113,6 +115,7 @@ export default function QuoteModal({
   const [purpose, setPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>(initialPurpose);
   const [selectedBrand, setSelectedBrand] = useState<string>(initialBrand);
   const [selectedHomePower, setSelectedHomePower] = useState<string>(initialHomePower);
+  const [selectedHomeServiceType, setSelectedHomeServiceType] = useState<string>(initialHomeServiceType);
   const [memo, setMemo] = useState('');
 
   // Dynamic field values
@@ -178,6 +181,7 @@ export default function QuoteModal({
       setPurpose(initialPurpose);
       setSelectedBrand(initialBrand);
       setSelectedHomePower(initialHomePower);
+      setSelectedHomeServiceType(initialHomeServiceType);
     }
   }, [isOpen, initialPurpose, initialBrand, initialHomePower]);
 
@@ -246,6 +250,7 @@ export default function QuoteModal({
       compiledMemo += `• [희망 브랜드] ${selectedBrand}\n`;
     }
     if (purpose === 'Residential') {
+      compiledMemo += `• [희망 구분] ${selectedHomeServiceType}\n`;
       compiledMemo += `• [희망 용량] ${selectedHomePower}\n`;
     }
     activeFields.forEach(field => {
@@ -482,49 +487,92 @@ export default function QuoteModal({
                         </div>
                       )}
 
-                      {/* Home Charger Power Selection Grid */}
+                      {/* Home Charger Service Type & Power Selection Grid */}
                       {purpose === 'Residential' && (
-                        <div className="md:col-span-2 space-y-2 pt-1 pb-1">
-                          <label className="block text-xs font-extrabold text-emerald-600">
-                            🏡 희망하시는 가정용 충전기 용량을 선택해 주세요:
-                          </label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {[
-                              { id: '5kw', name: '5kW', desc: '슬림형 / 계약전력 최소화' },
-                              { id: '7kw', name: '7kW', desc: '표준형 / 가장 보편적 선택' },
-                              { id: '11kw', name: '11kW', desc: '고출력 3상 / 빠른 속도' }
-                            ].map((b) => {
-                              const isSelected = selectedHomePower === b.name;
-                              return (
-                                <button
-                                  key={b.id}
-                                  type="button"
-                                  onClick={() => setSelectedHomePower(b.name)}
-                                  className={`p-3 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between h-[82px] ${
-                                    isSelected
-                                      ? 'border-emerald-600 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-600'
-                                      : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
-                                  }`}
-                                  id={`btn-home-power-${b.id}`}
-                                >
-                                  <div className="w-full">
+                        <div className="md:col-span-2 space-y-4 pt-1 pb-1">
+                          {/* Service Type Selection */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-extrabold text-emerald-700">
+                              📦 희망하시는 시공/구분을 선택해 주세요:
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[
+                                { id: '단말기 단품', name: '단말기 단품', desc: '본체만 구매' },
+                                { id: '교체 시공', name: '교체 시공', desc: '기존 충전기 교체' },
+                                { id: '신규 설치 포함', name: '설치 포함', desc: '한전대행+신규설치' }
+                              ].map((st) => {
+                                const isSelected = selectedHomeServiceType === st.id;
+                                return (
+                                  <button
+                                    key={st.id}
+                                    type="button"
+                                    onClick={() => setSelectedHomeServiceType(st.id)}
+                                    className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between ${
+                                      isSelected
+                                        ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-1 ring-emerald-600'
+                                        : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
+                                    }`}
+                                  >
                                     <div className="flex items-center justify-between w-full">
-                                      <span className={`text-[15px] sm:text-[17px] font-black tracking-tight ${isSelected ? 'text-emerald-700' : 'text-slate-800'}`}>
-                                        {b.name}
+                                      <span className={`text-xs font-black tracking-tight ${isSelected ? 'text-emerald-800' : 'text-slate-800'}`}>
+                                        {st.name}
                                       </span>
                                       {isSelected && (
-                                        <span className="text-[9px] bg-emerald-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-bold shrink-0">
+                                        <span className="text-[9px] bg-emerald-600 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold shrink-0">
                                           ✓
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold mt-1 leading-tight">
+                                    <p className="text-[10px] text-slate-400 font-bold mt-1 leading-tight">
+                                      {st.desc}
+                                    </p>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Power Capacity Selection */}
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-extrabold text-amber-700">
+                              ⚡ 희망하시는 충전 용량을 선택해 주세요:
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[
+                                { id: '5kw', name: '5kW', desc: '슬림형 / 계약전력 최소화' },
+                                { id: '7kw', name: '7kW', desc: '표준형 / 가장 보편적 선택' },
+                                { id: '11kw', name: '11kW', desc: '고출력 3상 / 빠른 속도' }
+                              ].map((b) => {
+                                const isSelected = selectedHomePower === b.name;
+                                return (
+                                  <button
+                                    key={b.id}
+                                    type="button"
+                                    onClick={() => setSelectedHomePower(b.name)}
+                                    className={`p-2.5 rounded-xl border text-left transition-all duration-200 relative cursor-pointer flex flex-col justify-between ${
+                                      isSelected
+                                        ? 'border-amber-500 bg-amber-50/70 shadow-sm ring-1 ring-amber-500'
+                                        : 'border-slate-200 bg-white hover:bg-slate-50/50 hover:border-slate-300'
+                                    }`}
+                                    id={`btn-home-power-${b.id}`}
+                                  >
+                                    <div className="flex items-center justify-between w-full">
+                                      <span className={`text-xs sm:text-sm font-black tracking-tight ${isSelected ? 'text-amber-800' : 'text-slate-800'}`}>
+                                        {b.name}
+                                      </span>
+                                      {isSelected && (
+                                        <span className="text-[9px] bg-amber-500 text-white w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold shrink-0">
+                                          ✓
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-bold mt-1 leading-tight">
                                       {b.desc}
                                     </p>
-                                  </div>
-                                </button>
-                              );
-                            })}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       )}

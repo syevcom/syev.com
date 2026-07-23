@@ -384,6 +384,8 @@ interface SolutionsSectionProps {
   onSelectAptBrand?: (brand: string) => void;
   selectedHomePower?: string;
   onSelectHomePower?: (power: string) => void;
+  selectedHomeServiceType?: string;
+  onSelectHomeServiceType?: (serviceType: string) => void;
   selectedParkingCapacity?: string;
   onSelectParkingCapacity?: (capacity: string) => void;
 }
@@ -399,6 +401,8 @@ export default function SolutionsSection({
   onSelectAptBrand,
   selectedHomePower = '7kW',
   onSelectHomePower,
+  selectedHomeServiceType = '단말기 단품',
+  onSelectHomeServiceType,
   selectedParkingCapacity = '공용 BIZ 충전기',
   onSelectParkingCapacity
  }: SolutionsSectionProps) {
@@ -429,6 +433,22 @@ export default function SolutionsSection({
   const [editOptionLabel, setEditOptionLabel] = useState('');
   const [editOptions, setEditOptions] = useState<{ id: string; label: string; price: number }[]>([]);
   const [isDraggingProductImage, setIsDraggingProductImage] = useState(false);
+
+  // Left side image picker states
+  const [isLeftImagePickerOpen, setIsLeftImagePickerOpen] = useState(false);
+  const [customImageUrlInput, setCustomImageUrlInput] = useState('');
+  const [isLeftImageDragging, setIsLeftImageDragging] = useState(false);
+
+  const handleApplyLeftImageChange = (newImgUrl: string) => {
+    if (!activeDetailProduct || !newImgUrl.trim()) return;
+    const finalUrl = newImgUrl.trim();
+    updateProductDetails(activeDetailProduct.id, { image: finalUrl });
+    setEditImage(finalUrl);
+    setToastMessage('📷 대표 충전기 이미지가 변경되어 저장되었습니다!');
+    setTimeout(() => setToastMessage(null), 3000);
+    setIsLeftImagePickerOpen(false);
+    setCustomImageUrlInput('');
+  };
 
   useEffect(() => {
     setSelectedConnector('');
@@ -1412,7 +1432,31 @@ export default function SolutionsSection({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* LEFT: Image & Gallery Thumbnail Strip */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="relative aspect-square bg-[#f3f4f6] rounded-2xl border border-slate-200/50 flex items-center justify-center p-8 overflow-hidden shadow-xs">
+            {/* Main Product Image Container with Drag&Drop & Change Image Overlay */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsLeftImageDragging(true);
+              }}
+              onDragLeave={() => setIsLeftImageDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsLeftImageDragging(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file && file.type.startsWith('image/')) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    handleApplyLeftImageChange(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                } else {
+                  alert('이미지 파일(PNG, JPG, WebP 등)만 올릴 수 있습니다.');
+                }
+              }}
+              className={`relative aspect-square bg-[#f3f4f6] rounded-2xl border transition-all flex items-center justify-center p-8 overflow-hidden shadow-xs group ${
+                isLeftImageDragging ? 'border-emerald-500 bg-emerald-500/10 scale-[1.01]' : 'border-slate-200/80 hover:border-emerald-300'
+              }`}
+            >
               <img
                 src={activeDetailProduct.image}
                 alt={activeDetailProduct.name}
@@ -1421,7 +1465,7 @@ export default function SolutionsSection({
               />
               
               {/* Overlaid Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-1.5">
+              <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
                 <div className="px-3 py-1.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10px] tracking-wide shadow-sm uppercase border border-emerald-500">
                   {powerKey} 공식 승인 기기
                 </div>
@@ -1431,34 +1475,164 @@ export default function SolutionsSection({
                   </div>
                 )}
               </div>
+
+              {/* Top Right Direct Image Change Button */}
+              <div className="absolute top-4 right-4 z-20">
+                <button
+                  type="button"
+                  onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
+                  className="px-3.5 py-2 bg-slate-900/90 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow-lg border border-white/20 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                  title="대표 충전기 이미지 변경"
+                >
+                  <span>📷 이미지 변경</span>
+                </button>
+              </div>
+
+              {/* Drag & Drop Indicator Overlay */}
+              {isLeftImageDragging && (
+                <div className="absolute inset-0 bg-emerald-900/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-30 p-4 text-center animate-fadeIn">
+                  <Upload className="w-12 h-12 mb-2 text-emerald-300 animate-bounce" />
+                  <p className="font-black text-sm">여기에 이미지를 놓으면 바로 변경됩니다!</p>
+                  <p className="text-xs text-emerald-200 mt-1">PNG, JPG, WebP, GIF 지원</p>
+                </div>
+              )}
             </div>
 
+            {/* Hidden Direct File Input */}
+            <input
+              type="file"
+              id="left-image-direct-file-input"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    handleApplyLeftImageChange(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+
+            {/* Expandable Image Change Editor Drawer */}
+            {isLeftImagePickerOpen && (
+              <div className="bg-slate-900 text-white p-4 sm:p-5 rounded-2xl border border-slate-700 shadow-xl space-y-4 animate-fadeIn">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🖼️</span>
+                    <h4 className="text-xs sm:text-sm font-black text-white">왼쪽 대표 충전기 이미지 변경</h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsLeftImagePickerOpen(false)}
+                    className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Option 1: File Upload */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-emerald-400 block">1. 컴퓨터에서 사진 업로드</label>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('left-image-direct-file-input')?.click()}
+                    className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>내 PC에서 이미지 파일 선택하기</span>
+                  </button>
+                </div>
+
+                {/* Option 2: Image URL Input */}
+                <div className="space-y-2 pt-1">
+                  <label className="text-[11px] font-black text-emerald-400 block">2. 이미지 인터넷 링크 (URL) 직접 입력</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customImageUrlInput}
+                      onChange={(e) => setCustomImageUrlInput(e.target.value)}
+                      placeholder="https://example.com/charger.jpg"
+                      className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleApplyLeftImageChange(customImageUrlInput)}
+                      className="px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs rounded-xl transition-all cursor-pointer shrink-0"
+                    >
+                      적용
+                    </button>
+                  </div>
+                </div>
+
+                {/* Option 3: Preset Sample Gallery */}
+                <div className="space-y-2 pt-1 border-t border-slate-800">
+                  <label className="text-[11px] font-black text-slate-300 block">3. 추천 충전기 샘플 이미지 선택 (1클릭 적용)</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { name: 'SUV/EV 현장', url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&auto=format&fit=crop&q=80' },
+                      { name: '스마트 월박스', url: 'https://images.unsplash.com/photo-1558441719-443b38631ad9?w=800&auto=format&fit=crop&q=80' },
+                      { name: '스탠드 급속기', url: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=80' },
+                      { name: '아파트 충전소', url: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop&q=80' },
+                    ].map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleApplyLeftImageChange(preset.url)}
+                        className="p-1.5 bg-slate-800 hover:bg-emerald-950/80 border border-slate-700 hover:border-emerald-500 rounded-xl transition-all group flex flex-col items-center gap-1 cursor-pointer"
+                      >
+                        <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center p-1">
+                          <img src={preset.url} alt={preset.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-300 truncate w-full text-center">{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Thumbnail Gallery Row */}
-            <div className="flex items-center gap-2.5 mt-2.5 justify-start">
-              {/* Left Arrow */}
-              <button
-                type="button"
-                className="w-8 h-12 border border-slate-200 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer select-none hover:bg-slate-50 transition-colors rounded-lg font-bold"
-              >
-                &lt;
-              </button>
-              
-              {/* Thumbnail 1 (Active) */}
-              <div className="w-14 h-14 border-2 border-stone-950 flex items-center justify-center p-1 bg-white cursor-pointer rounded-lg shadow-xs">
-                <img src={activeDetailProduct.image} alt="thumbnail active" className="w-full h-full object-contain" />
+            <div className="flex items-center gap-2.5 mt-2.5 justify-between">
+              <div className="flex items-center gap-2 overflow-x-auto py-1">
+                {/* Thumbnail 1 (Active) */}
+                <div
+                  onClick={() => setIsLeftImagePickerOpen(true)}
+                  className="w-14 h-14 border-2 border-emerald-600 flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs relative group"
+                  title="현재 메인 대표 이미지"
+                >
+                  <img src={activeDetailProduct.image} alt="thumbnail active" className="w-full h-full object-contain" />
+                  <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[9px] font-black px-1 rounded-full">대표</span>
+                </div>
+
+                {/* Quick Preset Thumbnails for switching */}
+                {[
+                  'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1558441719-443b38631ad9?w=800&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=80',
+                ].map((thumbUrl, tIdx) => (
+                  <div
+                    key={tIdx}
+                    onClick={() => handleApplyLeftImageChange(thumbUrl)}
+                    className={`w-14 h-14 border flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs transition-all ${
+                      activeDetailProduct.image === thumbUrl ? 'border-emerald-600 border-2' : 'border-slate-200 hover:border-emerald-400'
+                    }`}
+                    title="클릭하여 이 이미지로 변경"
+                  >
+                    <img src={thumbUrl} alt={`thumbnail preset ${tIdx}`} className="w-full h-full object-contain" />
+                  </div>
+                ))}
               </div>
 
-              {/* Thumbnail 2 (Simulated subview) */}
-              <div className="w-14 h-14 border border-slate-200 flex items-center justify-center p-1 bg-white cursor-pointer hover:border-stone-400 transition-colors rounded-lg shadow-xs">
-                <img src={activeDetailProduct.image} alt="thumbnail secondary" className="w-full h-full object-contain opacity-50 grayscale-20 hover:grayscale-0 hover:opacity-100 transition-all" />
-              </div>
-
-              {/* Right Arrow */}
+              {/* Image Change Trigger Button in Gallery Row */}
               <button
                 type="button"
-                className="w-8 h-12 border border-slate-200 text-slate-400 hover:text-slate-800 flex items-center justify-center cursor-pointer select-none hover:bg-slate-50 transition-colors rounded-lg font-bold"
+                onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
+                className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-black rounded-xl border border-slate-200 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
               >
-                &gt;
+                <span>📷 사진 변경</span>
               </button>
             </div>
           </div>
@@ -2006,10 +2180,35 @@ export default function SolutionsSection({
                 {sol.category === 'Residential' && (() => {
                   const productsList = homeProducts[selectedHomePower] || [];
                   
+                  // Helper function to calculate price and badge for the active service type
+                  const getProductPricing = (p: SolutionProduct) => {
+                    if (selectedHomeServiceType === '교체 시공') {
+                      const price = (p as any).replacementPrice || p.price + 150000;
+                      const regularPrice = p.regularPrice + 180000;
+                      const discount = Math.round((1 - price / regularPrice) * 100);
+                      return { price, regularPrice, discount, label: '교체 시공 포함' };
+                    }
+                    if (selectedHomeServiceType === '신규 설치 포함') {
+                      const price = (p as any).installIncludedPrice || p.price + 350000;
+                      const regularPrice = p.regularPrice + 400000;
+                      const discount = Math.round((1 - price / regularPrice) * 100);
+                      return { price, regularPrice, discount, label: '신규 설치 포함' };
+                    }
+                    // Default: '단말기 단품'
+                    return {
+                      price: p.price,
+                      regularPrice: p.regularPrice,
+                      discount: p.discount,
+                      label: '단말기 단품'
+                    };
+                  };
+
                   // Sort productsList based on sortBy
                   const sortedProducts = [...productsList].sort((a, b) => {
-                    if (sortBy === 'priceAsc') return a.price - b.price;
-                    if (sortBy === 'priceDesc') return b.price - a.price;
+                    const priceA = getProductPricing(a).price;
+                    const priceB = getProductPricing(b).price;
+                    if (sortBy === 'priceAsc') return priceA - priceB;
+                    if (sortBy === 'priceDesc') return priceB - priceA;
                     if (sortBy === 'popular') {
                       const scoreA = (a.tags.includes('MD CHOICE') ? 2 : 0) + (a.tags.includes('HIT') ? 1 : 0);
                       const scoreB = (b.tags.includes('MD CHOICE') ? 2 : 0) + (b.tags.includes('HIT') ? 1 : 0);
@@ -2020,11 +2219,115 @@ export default function SolutionsSection({
 
                   return (
                     <div className="space-y-6 pt-2">
+                      {/* Step 1 & Step 2 Category Selection Box */}
+                      <div className="bg-slate-900 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-slate-800 space-y-5">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                          <div>
+                            <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                              가정용 홈충전기 맞춤 옵션 선택
+                            </span>
+                            <h4 className="text-lg md:text-xl font-black tracking-tight mt-1 text-white">
+                              원하시는 시공 방식과 충전 용량을 선택하세요
+                            </h4>
+                          </div>
+                          <div className="flex items-center gap-2 bg-slate-800/80 p-2 rounded-2xl border border-slate-700/60 self-start md:self-auto">
+                            <span className="text-xs font-bold text-slate-300 px-1">선택 옵션:</span>
+                            <span className="text-xs font-black text-yellow-300 bg-slate-950 px-3 py-1 rounded-xl border border-yellow-500/30">
+                              {selectedHomeServiceType} • {selectedHomePower}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                          {/* Service / Price Category Selector */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-300 flex items-center gap-1.5">
+                              <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+                              구매 및 시공 구분 선택 (가격 기준)
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[
+                                { id: '단말기 단품', name: '단말기 단품', desc: '기기 본체만 구매', icon: '📦' },
+                                { id: '교체 시공', name: '교체 시공', desc: '기존 충전기 교체', icon: '🛠️' },
+                                { id: '신규 설치 포함', name: '설치 포함 (신규)', desc: '한전대행+전체시공', icon: '⚡' },
+                              ].map((st) => {
+                                const active = selectedHomeServiceType === st.id;
+                                return (
+                                  <button
+                                    key={st.id}
+                                    type="button"
+                                    onClick={() => onSelectHomeServiceType?.(st.id)}
+                                    className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                      active
+                                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20 scale-[1.02]'
+                                        : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm">{st.icon}</span>
+                                      {active && <Check className="w-4 h-4 text-slate-950 shrink-0" />}
+                                    </div>
+                                    <div className="mt-2">
+                                      <span className="text-xs font-black block leading-tight">{st.name}</span>
+                                      <span className={`text-[10px] block mt-0.5 font-medium ${active ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+                                        {st.desc}
+                                      </span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Power Capacity Selector */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-300 flex items-center gap-1.5">
+                              <span className="w-5 h-5 rounded-full bg-yellow-400 text-slate-950 text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+                              충전 용량 선택 (킬로와트)
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[
+                                { kw: '5kW', label: '5kW', desc: '승압 부담 완화 실속형' },
+                                { kw: '7kW', label: '7kW', desc: '가정용 표준 완속 충전' },
+                                { kw: '11kW', label: '11kW', desc: '고성능 3상 초고속 충전' },
+                              ].map((pow) => {
+                                const active = selectedHomePower === pow.kw;
+                                return (
+                                  <button
+                                    key={pow.kw}
+                                    type="button"
+                                    onClick={() => onSelectHomePower?.(pow.kw)}
+                                    className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                      active
+                                        ? 'bg-yellow-400 text-slate-950 border-yellow-300 font-black shadow-lg shadow-yellow-400/20 scale-[1.02]'
+                                        : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs font-black">⚡ {pow.label}</span>
+                                      {active && <Check className="w-4 h-4 text-slate-950 shrink-0" />}
+                                    </div>
+                                    <div className="mt-2">
+                                      <span className={`text-[10px] block font-medium ${active ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+                                        {pow.desc}
+                                      </span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Product Section Header */}
                       <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-xl font-black text-slate-950 tracking-tight">
-                            홈충전기 {selectedHomePower}
+                          <h4 className="text-xl font-black text-slate-950 tracking-tight flex items-center gap-2">
+                            <span>홈충전기 {selectedHomePower}</span>
+                            <span className="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200">
+                              {selectedHomeServiceType}
+                            </span>
                           </h4>
                           <span className="text-xs text-slate-500 font-extrabold bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                             총 {sortedProducts.length}개의 상품이 있습니다.
@@ -2060,11 +2363,18 @@ export default function SolutionsSection({
                       {/* Products Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {sortedProducts.map((p) => {
+                          const pricing = getProductPricing(p);
                           const formatPrice = (val: number) => val.toLocaleString() + '원';
                           return (
                             <div
                               key={p.id}
-                              onClick={() => setActiveDetailProduct(p)}
+                              onClick={() => setActiveDetailProduct({
+                                ...p,
+                                price: pricing.price,
+                                regularPrice: pricing.regularPrice,
+                                discount: pricing.discount,
+                                description: `[${selectedHomeServiceType} • ${selectedHomePower}] ${p.description || ''}`
+                              })}
                               className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
@@ -2085,19 +2395,18 @@ export default function SolutionsSection({
 
                                   {/* Black discount circular badge (Right overlay) */}
                                   <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
-                                    {p.discount}%
+                                    {pricing.discount}%
+                                  </div>
+
+                                  {/* Service Type Ribbon Badge */}
+                                  <div className="absolute bottom-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10 flex items-center gap-1">
+                                    <span>{pricing.label}</span>
                                   </div>
 
                                   {/* Left visual ribbons/badges */}
                                   {p.hasASBadge && (
                                     <div className="absolute top-15 left-3 bg-rose-500 text-white font-black text-[9px] px-2 py-1 rounded shadow-sm z-10 animate-pulse">
                                       무상A/S 4년
-                                    </div>
-                                  )}
-
-                                  {p.hasPromoRibbon && (
-                                    <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10">
-                                      기획상품
                                     </div>
                                   )}
                                 </div>
@@ -2111,11 +2420,16 @@ export default function SolutionsSection({
                                   {/* Price Section */}
                                   <div className="pt-1">
                                     <span className="text-[10px] text-slate-400 line-through block leading-none mb-1">
-                                      {formatPrice(p.regularPrice)}
+                                      {formatPrice(pricing.regularPrice)}
                                     </span>
-                                    <span className="text-sm sm:text-base font-black text-rose-600">
-                                      {formatPrice(p.price)}
-                                    </span>
+                                    <div className="flex items-baseline gap-1.5">
+                                      <span className="text-sm sm:text-base font-black text-rose-600">
+                                        {formatPrice(pricing.price)}
+                                      </span>
+                                      <span className="text-[10px] font-bold text-emerald-600">
+                                        ({selectedHomeServiceType})
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -2140,8 +2454,6 @@ export default function SolutionsSection({
                                     ))}
                                   </div>
                                 )}
-                                
-                                {/* 상세보기 버튼 제거 (카드 클릭으로 상세페이지 이동 대체) */}
 
                                 {isEditMode && (
                                   <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">

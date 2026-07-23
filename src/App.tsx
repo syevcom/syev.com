@@ -95,6 +95,7 @@ export default function App() {
   const [cmsTab, setCmsTab] = useState<'brand' | 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'quote'>('brand');
   const [selectedAptBrand, setSelectedAptBrand] = useState<string>('sk일렉링크');
   const [selectedHomePower, setSelectedHomePower] = useState<string>('7kW');
+  const [selectedHomeServiceType, setSelectedHomeServiceType] = useState<string>('단말기 단품');
   const [selectedParkingCapacity, setSelectedParkingCapacity] = useState<string>('공용 BIZ 충전기');
 
   // Brand Logo & Categories config state
@@ -795,6 +796,8 @@ export default function App() {
             defaultActiveTab="Residential"
             selectedHomePower={selectedHomePower}
             onSelectHomePower={setSelectedHomePower}
+            selectedHomeServiceType={selectedHomeServiceType}
+            onSelectHomeServiceType={setSelectedHomeServiceType}
           />
         );
       case 'sol_commercial':
@@ -904,6 +907,8 @@ export default function App() {
           onSelectAptBrand={setSelectedAptBrand}
           selectedHomePower={selectedHomePower}
           onSelectHomePower={setSelectedHomePower}
+          selectedHomeServiceType={selectedHomeServiceType}
+          onSelectHomeServiceType={setSelectedHomeServiceType}
           selectedParkingCapacity={selectedParkingCapacity}
           onSelectParkingCapacity={setSelectedParkingCapacity}
           headerConfig={headerConfig}
@@ -1119,6 +1124,7 @@ export default function App() {
             initialPurpose={quoteDefaultPurpose}
             initialBrand={selectedAptBrand}
             initialHomePower={selectedHomePower}
+            initialHomeServiceType={selectedHomeServiceType}
             quoteConfig={quoteConfig}
           />
         )}
