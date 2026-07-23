@@ -1968,10 +1968,10 @@ export default function SolutionsSection({
                 {/* 1. Header Text & Benefits Block (Top) */}
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <span className="text-blue-600 font-extrabold text-xs tracking-widest uppercase block">
+                    <span className="text-blue-600 font-black text-sm sm:text-base tracking-widest uppercase block">
                       {sol.category === 'Commercial' ? '🏢 아파트·공동주택·공용시설 맞춤' : sol.category === 'Residential' ? '🏡 가정용·홈·개인소유지' : '🅿️ 상업시설·수익형 주차장'}
                     </span>
-                    <h3 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight leading-snug">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-snug">
                       {sol.title}
                     </h3>
                   </div>
@@ -2223,16 +2223,16 @@ export default function SolutionsSection({
                       <div className="bg-slate-900 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-slate-800 space-y-5">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                           <div>
-                            <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            <span className="text-xs sm:text-sm font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-3 py-1 rounded-full uppercase tracking-wider">
                               가정용 홈충전기 맞춤 옵션 선택
                             </span>
-                            <h4 className="text-lg md:text-xl font-black tracking-tight mt-1 text-white">
+                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mt-1 text-white">
                               원하시는 시공 방식과 충전 용량을 선택하세요
                             </h4>
                           </div>
-                          <div className="flex items-center gap-2 bg-slate-800/80 p-2 rounded-2xl border border-slate-700/60 self-start md:self-auto">
-                            <span className="text-xs font-bold text-slate-300 px-1">선택 옵션:</span>
-                            <span className="text-xs font-black text-yellow-300 bg-slate-950 px-3 py-1 rounded-xl border border-yellow-500/30">
+                          <div className="flex items-center gap-2 bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60 self-start md:self-auto">
+                            <span className="text-sm font-bold text-slate-300 px-1">선택 옵션:</span>
+                            <span className="text-sm font-black text-yellow-300 bg-slate-950 px-3.5 py-1.5 rounded-xl border border-yellow-500/30">
                               {selectedHomeServiceType} • {selectedHomePower}
                             </span>
                           </div>
@@ -2240,12 +2240,12 @@ export default function SolutionsSection({
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                           {/* Service / Price Category Selector */}
-                          <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-300 flex items-center gap-1.5">
-                              <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+                          <div className="space-y-2.5">
+                            <label className="text-sm font-black text-slate-200 flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">1</span>
                               구매 및 시공 구분 선택 (가격 기준)
                             </label>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 gap-2.5">
                               {[
                                 { id: '단말기 단품', name: '단말기 단품', desc: '기기 본체만 구매', icon: '📦' },
                                 { id: '교체 시공', name: '교체 시공', desc: '기존 충전기 교체', icon: '🛠️' },
@@ -2257,19 +2257,19 @@ export default function SolutionsSection({
                                     key={st.id}
                                     type="button"
                                     onClick={() => onSelectHomeServiceType?.(st.id)}
-                                    className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
                                         ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20 scale-[1.02]'
                                         : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
-                                      <span className="text-sm">{st.icon}</span>
-                                      {active && <Check className="w-4 h-4 text-slate-950 shrink-0" />}
+                                      <span className="text-base sm:text-lg">{st.icon}</span>
+                                      {active && <Check className="w-5 h-5 text-slate-950 shrink-0" />}
                                     </div>
                                     <div className="mt-2">
-                                      <span className="text-xs font-black block leading-tight">{st.name}</span>
-                                      <span className={`text-[10px] block mt-0.5 font-medium ${active ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+                                      <span className="text-sm sm:text-base font-black block leading-tight">{st.name}</span>
+                                      <span className={`text-xs block mt-1 font-semibold ${active ? 'text-slate-900 font-extrabold' : 'text-slate-400'}`}>
                                         {st.desc}
                                       </span>
                                     </div>
@@ -2280,12 +2280,12 @@ export default function SolutionsSection({
                           </div>
 
                           {/* Power Capacity Selector */}
-                          <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-300 flex items-center gap-1.5">
-                              <span className="w-5 h-5 rounded-full bg-yellow-400 text-slate-950 text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+                          <div className="space-y-2.5">
+                            <label className="text-sm font-black text-slate-200 flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-yellow-400 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">2</span>
                               충전 용량 선택 (킬로와트)
                             </label>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 gap-2.5">
                               {[
                                 { kw: '5kW', label: '5kW', desc: '승압 부담 완화 실속형' },
                                 { kw: '7kW', label: '7kW', desc: '가정용 표준 완속 충전' },
@@ -2297,18 +2297,18 @@ export default function SolutionsSection({
                                     key={pow.kw}
                                     type="button"
                                     onClick={() => onSelectHomePower?.(pow.kw)}
-                                    className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
                                         ? 'bg-yellow-400 text-slate-950 border-yellow-300 font-black shadow-lg shadow-yellow-400/20 scale-[1.02]'
                                         : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
-                                      <span className="text-xs font-black">⚡ {pow.label}</span>
-                                      {active && <Check className="w-4 h-4 text-slate-950 shrink-0" />}
+                                      <span className="text-sm sm:text-base font-black">⚡ {pow.label}</span>
+                                      {active && <Check className="w-5 h-5 text-slate-950 shrink-0" />}
                                     </div>
                                     <div className="mt-2">
-                                      <span className={`text-[10px] block font-medium ${active ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+                                      <span className={`text-xs block font-semibold ${active ? 'text-slate-900 font-extrabold' : 'text-slate-400'}`}>
                                         {pow.desc}
                                       </span>
                                     </div>
