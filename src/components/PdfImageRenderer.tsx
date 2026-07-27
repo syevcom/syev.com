@@ -407,12 +407,24 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
 
     const render = async () => {
       if (!pdfDoc || !canvasRef.current) return;
-      try {
-        if (renderTaskRef.current) {
-          renderTaskRef.current.cancel();
-        }
 
+      // Cancel previous render task if active and wait for it to settle
+      if (renderTaskRef.current) {
+        try {
+          renderTaskRef.current.cancel();
+          await renderTaskRef.current.promise.catch(() => {});
+        } catch {
+          // ignore
+        }
+        renderTaskRef.current = null;
+      }
+
+      if (!isMounted || !canvasRef.current) return;
+
+      try {
         const page = await pdfDoc.getPage(pageNum);
+        if (!isMounted || !canvasRef.current) return;
+
         const scale = (zoom / 100) * (window.devicePixelRatio || 1) * 0.9; // slightly smaller in list
         const viewport = page.getViewport({ scale: scale });
 
@@ -438,9 +450,11 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
           setRendered(true);
         }
       } catch (err: any) {
-        if (err.name !== 'RenderingCancelledException') {
+        if (err?.name !== 'RenderingCancelledException' && !err?.message?.includes('cancelling')) {
           console.error(`Page ${pageNum} render error:`, err);
         }
+      } finally {
+        renderTaskRef.current = null;
       }
     };
 
@@ -449,7 +463,11 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
     return () => {
       isMounted = false;
       if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
+        try {
+          renderTaskRef.current.cancel();
+        } catch {
+          // ignore
+        }
       }
     };
   }, [pdfDoc, pageNum, zoom]);
@@ -477,10 +495,27 @@ function FullscreenPageItem({ pdfDoc, pageNum }: { pdfDoc: any; pageNum: number 
   const renderTaskRef = useRef<any>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const render = async () => {
       if (!pdfDoc || !canvasRef.current) return;
+
+      if (renderTaskRef.current) {
+        try {
+          renderTaskRef.current.cancel();
+          await renderTaskRef.current.promise.catch(() => {});
+        } catch {
+          // ignore
+        }
+        renderTaskRef.current = null;
+      }
+
+      if (!isMounted || !canvasRef.current) return;
+
       try {
         const page = await pdfDoc.getPage(pageNum);
+        if (!isMounted || !canvasRef.current) return;
+
         const scale = 2.0; // static high resolution for full screen
         const viewport = page.getViewport({ scale: scale });
 
@@ -503,15 +538,24 @@ function FullscreenPageItem({ pdfDoc, pageNum }: { pdfDoc: any; pageNum: number 
 
         await renderTask.promise;
       } catch (err: any) {
-        console.error(`Page ${pageNum} fullscreen render error:`, err);
+        if (err?.name !== 'RenderingCancelledException' && !err?.message?.includes('cancelling')) {
+          console.error(`Page ${pageNum} fullscreen render error:`, err);
+        }
+      } finally {
+        renderTaskRef.current = null;
       }
     };
 
     render();
 
     return () => {
+      isMounted = false;
       if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
+        try {
+          renderTaskRef.current.cancel();
+        } catch {
+          // ignore
+        }
       }
     };
   }, [pdfDoc, pageNum]);

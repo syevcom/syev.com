@@ -11,15 +11,22 @@ interface ReviewSectionProps {
   reviews: Review[];
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
+  onDeleteReview?: (id: string) => void;
 }
 
 export default function ReviewSection({
   reviews,
   isEditMode = false,
-  onOpenCms
+  onOpenCms,
+  onDeleteReview
 }: ReviewSectionProps) {
+  // Filter out any placeholder/test review title
+  const filteredReviews = reviews.filter(
+    (r) => r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장'
+  );
+
   // Sort reviews by date descending (newest first)
-  const sortedReviews = [...reviews].sort((a, b) => {
+  const sortedReviews = [...filteredReviews].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
@@ -60,8 +67,8 @@ export default function ReviewSection({
       {/* Grid of Other review cards list (Chronological - Sorted Newest First with blog Cover Thumbnail) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">전국 생생한 시공후기 목록 (최신순 - 클릭 시 아래 상세 비교 분석 연동)</h4>
-          <span className="text-[11px] text-blue-600 font-bold">💡 후기 카드를 클릭해 보세요</span>
+          <h4 className="text-xs sm:text-sm font-black text-slate-700 uppercase tracking-wider">전국 생생한 시공후기 목록 (카드를 클릭하면 아래에서 상세 사진과 블로그 글을 보실 수 있습니다)</h4>
+          <span className="text-[11px] text-emerald-600 font-bold hidden sm:inline">💡 후기 카드 클릭 시 아래 상세비교 연동</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {sortedReviews.map((rev) => {
@@ -69,12 +76,18 @@ export default function ReviewSection({
             return (
               <div
                 key={rev.id}
-                onClick={() => setActiveReviewId(rev.id)}
+                onClick={() => {
+                  setActiveReviewId(rev.id);
+                  const detailEl = document.getElementById('review-detail-section');
+                  if (detailEl) {
+                    detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
                 id={`card-review-list-${rev.id}`}
-                className={`p-4 bg-white rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group/card hover:shadow-md ${
+                className={`p-4 bg-white rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group/card hover:shadow-lg ${
                   isActive
-                    ? 'border-blue-600 ring-2 ring-blue-600/10 shadow-md bg-blue-50/10'
-                    : 'border-slate-200 hover:border-slate-300 shadow-sm'
+                    ? 'border-emerald-600 ring-2 ring-emerald-600/20 shadow-md bg-emerald-50/10'
+                    : 'border-slate-200 hover:border-emerald-300 shadow-sm'
                 }`}
               >
                 <div className="space-y-3">
@@ -87,38 +100,73 @@ export default function ReviewSection({
                       className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                     />
                     {rev.isBlogImported ? (
-                      <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
+                      <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                         {rev.blogName || '네이버 블로그'}
                       </div>
                     ) : (
-                      <div className="absolute top-2 left-2 bg-blue-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                      <div className="absolute top-2 left-2 bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">
                         시공사례
                       </div>
+                    )}
+                    {isEditMode && onDeleteReview && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`'${rev.title}' 시공 후기를 삭제하시겠습니까?`)) {
+                            onDeleteReview(rev.id);
+                          }
+                        }}
+                        className="absolute top-2 right-2 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-md text-[10px] shadow-md z-10 transition-transform hover:scale-110 cursor-pointer"
+                        title="이 후기 삭제"
+                      >
+                        🗑️
+                      </button>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[9px] text-slate-400 font-extrabold block uppercase">
+                      <span className="text-[10px] text-slate-500 font-extrabold block uppercase">
                         {rev.location.split(' ')[0]} {rev.location.split(' ')[1]}
                       </span>
-                      <span className="text-[9px] text-slate-400 font-bold block">
+                      <span className="text-[10px] text-slate-400 font-bold block">
                         {rev.date}
                       </span>
                     </div>
-                    <span className="text-xs font-black text-slate-950 block line-clamp-2 leading-snug group-hover/card:text-blue-600 transition-colors">
+                    <span className="text-xs sm:text-sm font-black text-slate-950 block line-clamp-2 leading-snug group-hover/card:text-emerald-700 transition-colors">
                       {rev.title}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-500 font-extrabold">{rev.author}</span>
-                  <div className="flex items-center gap-0.5 text-amber-400">
-                    <Star className="w-3 h-3 fill-amber-400" />
-                    <span className="text-[10px] font-bold text-slate-700">{rev.rating}.0</span>
+                <div className="pt-3 mt-3 border-t border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500 font-extrabold">{rev.author}</span>
+                    <div className="flex items-center gap-0.5 text-amber-400">
+                      <Star className="w-3 h-3 fill-amber-400" />
+                      <span className="text-[10px] font-bold text-slate-700">{rev.rating}.0</span>
+                    </div>
                   </div>
+
+                  {/* Direct Blog / Detail Link Button */}
+                  {rev.blogUrl ? (
+                    <a
+                      href={rev.blogUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full py-1.5 px-2 bg-emerald-50 hover:bg-emerald-600 text-emerald-800 hover:text-white text-[11px] font-black rounded-xl border border-emerald-200 hover:border-emerald-600 transition-all flex items-center justify-center gap-1 shadow-xs cursor-pointer group/btn"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover/btn:bg-white" />
+                      <span>네이버 블로그 글 보기 🔗</span>
+                    </a>
+                  ) : (
+                    <div className="w-full py-1 px-2 bg-slate-50 text-slate-500 text-[10px] font-extrabold rounded-xl text-center">
+                      🔍 선택하여 상세 비교
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -127,9 +175,15 @@ export default function ReviewSection({
       </section>
 
       {/* Active Review Card Display - Redesigned into a Beautiful 2-Column Grid (Map Removed) */}
-      <section className="bg-slate-50/50 border border-slate-200/60 rounded-3xl p-6 md:p-8 shadow-xs space-y-4">
-        <div className="border-b border-slate-200 pb-2.5">
-          <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">🎯 선택된 시공 현장 상세 비교 및 인터뷰 분석</h4>
+      <section id="review-detail-section" className="bg-slate-50/80 border-2 border-emerald-500/30 rounded-3xl p-6 md:p-8 shadow-sm space-y-4">
+        <div className="border-b border-slate-200 pb-2.5 flex items-center justify-between">
+          <h4 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <span>🎯</span>
+            <span>선택된 시공 현장 상세 비교 및 인터뷰 분석</span>
+          </h4>
+          <span className="text-[11px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+            {currentActiveReview.title}
+          </span>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           

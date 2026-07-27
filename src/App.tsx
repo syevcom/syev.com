@@ -367,7 +367,15 @@ export default function App() {
 
     const savedReviews = localStorage.getItem('sy_cms_reviews');
     if (savedReviews) {
-      try { setReviews(JSON.parse(savedReviews)); } catch (e) { console.error(e); }
+      try {
+        const parsed: Review[] = JSON.parse(savedReviews);
+        const filtered = parsed.filter((r) => r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장');
+        setReviews(filtered);
+        localStorage.setItem('sy_cms_reviews', JSON.stringify(filtered));
+      } catch (e) {
+        console.error(e);
+        setReviews(REVIEWS);
+      }
     } else {
       setReviews(REVIEWS);
       localStorage.setItem('sy_cms_reviews', JSON.stringify(REVIEWS));
@@ -834,6 +842,7 @@ export default function App() {
             reviews={reviews}
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
+            onDeleteReview={(id) => handleSaveReviews(reviews.filter((r) => r.id !== id))}
           />
         );
       case 'support':

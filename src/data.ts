@@ -294,7 +294,10 @@ export const REVIEWS: Review[] = [
     author: '김태우 관리소장',
     interview: '처음엔 입주민들의 화재 우려와 한도 전력 문제 때문에 고민이 많았습니다. SY.com에서 스마트 전력 부하 관리와 PLC 탑재 화재 안심 충전기를 제안해 주셔서 건물 관리위원회도 쉽게 통과했습니다. 설치 후 매달 충전기 자체에서 발생하는 부가 수익도 짭짤해 아주 만족스럽습니다.',
     details: '급속 100kW 2대, 완속 11kW 6대 시공. 스마트 부하 매칭으로 빌딩 최대 전력을 한전 규제치 이내로 컨트롤.',
-    coordinates: { x: 35, y: 48 }
+    coordinates: { x: 35, y: 48 },
+    blogUrl: 'https://blog.naver.com/sy_car_com/223490181201',
+    isBlogImported: true,
+    blogName: '네이버 블로그'
   },
   {
     id: 'rev-2',
@@ -308,7 +311,10 @@ export const REVIEWS: Review[] = [
     author: '박정훈 인프라본부장',
     interview: '화물 트럭들이 야간에 일제히 충전해야 해서 안정성이 최우선이었습니다. SY.com의 200kW 초급속 수랭식 디스펜서 충전기를 도입한 뒤 배송 출발 지연이 0%로 줄었습니다. 지자체 보조금도 80% 지원받아 대폭적인 설비 절감을 거뒀습니다.',
     details: '초급속 200kW 3대 설치. 대형 전기 트럭 전전류 충전 안정성 테스트 100% 통과.',
-    coordinates: { x: 42, y: 55 }
+    coordinates: { x: 42, y: 55 },
+    blogUrl: 'https://blog.naver.com/sy_car_com/223490181201',
+    isBlogImported: true,
+    blogName: '네이버 블로그'
   },
   {
     id: 'rev-3',
@@ -322,7 +328,10 @@ export const REVIEWS: Review[] = [
     author: '이지은 건축주',
     interview: '단독주택이라 한전에서 전기 신설 신청을 직접 해야 하는 줄 알고 눈앞이 캄캄했는데, SY.com에서 기사님이 현장 견적 내러 오셔서 원스톱으로 서류 신청부터 시공까지 사흘 만에 다 끝내주셨어요. 북유럽풍 벽걸이형 디자인도 집 외관과 찰떡이라 펜션 손님들도 다들 예쁘다고 칭찬해요!',
     details: 'SY-Home07 7kW 월박스 설치. 한전 인입선 신설 및 야간 저렴한 예약 충전 연동 셋업 완료.',
-    coordinates: { x: 25, y: 88 }
+    coordinates: { x: 25, y: 88 },
+    blogUrl: 'https://blog.naver.com/sy_car_com/223490181201',
+    isBlogImported: true,
+    blogName: '네이버 블로그'
   },
   {
     id: 'rev-4',
@@ -336,7 +345,10 @@ export const REVIEWS: Review[] = [
     author: '최현우 건물관리 대표',
     interview: '공실 상가 주차 구역이라 방치되어 있었는데 충전소로 바꾸고 나니 건물을 오가는 통행량 자체가 크게 늘었습니다. 충전하러 온 차량 고객들이 상가 식음료 매장을 추가 이용하는 낙수 효과도 엄청나며, 정산도 완전히 자동화되어 관리비 인건비 부담이 전혀 없습니다.',
     details: '급속 50kW 1대, 완속 7kW 4대 설치. LED 안내 패널 및 충전 주차 도색 완비.',
-    coordinates: { x: 68, y: 72 }
+    coordinates: { x: 68, y: 72 },
+    blogUrl: 'https://blog.naver.com/sy_car_com/223490181201',
+    isBlogImported: true,
+    blogName: '네이버 블로그'
   },
   {
     id: 'rev-blog-seed',
