@@ -1105,7 +1105,7 @@ export default function CmsEditorModal({
                         type="text"
                         value={newAdminIdInput}
                         onChange={(e) => setNewAdminIdInput(e.target.value)}
-                        placeholder={`기본: ${localStorage.getItem('sy_admin_id') || 'admin'}`}
+                        placeholder="변경할 아이디 입력"
                         className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 focus:border-blue-400 rounded-xl text-xs font-bold text-white"
                       />
                     </div>

@@ -132,11 +132,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl text-xs font-semibold text-slate-600 leading-relaxed">
               <span className="block font-black text-blue-700 mb-1">🔒 관리자 전용 보안 로그인</span>
-              일반 방문자에게는 관리자 메뉴가 노출되지 않습니다. 지정된 <strong>관리자 아이디와 비밀번호</strong>로 로그인하면 CMS 관리 및 실시간 수정 기능이 활성화됩니다.
-              <div className="mt-2 text-[10px] bg-blue-500/10 text-blue-900 px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1.5">
-                <span>🔑 초기 계정:</span>
-                <span>아이디 <u className="font-extrabold">{localStorage.getItem('sy_admin_id') || 'admin'}</u> / 비번 <u className="font-extrabold">{localStorage.getItem('sy_admin_password') || '1234'}</u></span>
-              </div>
+              일반 방문자에게는 관리자 메뉴가 노출되지 않습니다. 관리자 권한을 가진 사용자만 부여된 <strong>아이디와 비밀번호</strong>로 로그인하여 시스템을 관리할 수 있습니다.
             </div>
 
             {/* Admin ID Field */}
@@ -150,7 +146,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                   type="text"
                   value={adminId}
                   onChange={(e) => setAdminId(e.target.value)}
-                  placeholder="관리자 아이디 입력 (기본: admin)"
+                  placeholder="관리자 아이디 입력"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl text-sm font-bold transition-all"
                   autoFocus
                 />
@@ -177,7 +173,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="비밀번호 입력 (기본: 1234)"
+                  placeholder="비밀번호 입력"
                   className="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl text-sm font-bold transition-all"
                 />
                 <button
@@ -235,12 +231,12 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">현재 비밀번호 Verification</label>
+                <label className="block text-xs font-bold text-slate-700">현재 비밀번호 확인</label>
                 <input
                   type="password"
                   value={currentPass}
                   onChange={(e) => setCurrentPass(e.target.value)}
-                  placeholder="현재 비밀번호 확인 (초기: 1234)"
+                  placeholder="현재 사용 중인 비밀번호 입력"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
                   required
                 />
@@ -252,7 +248,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                   type="text"
                   value={newAdminId}
                   onChange={(e) => setNewAdminId(e.target.value)}
-                  placeholder={`현재 아이디: ${localStorage.getItem('sy_admin_id') || 'admin'}`}
+                  placeholder="새로 사용할 관리자 아이디 입력"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
                 />
               </div>
