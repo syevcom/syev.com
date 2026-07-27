@@ -331,7 +331,8 @@ export default function CmsEditorModal({
   const [footerTeleSalesNumber, setFooterTeleSalesNumber] = useState(footerConfig.teleSalesNumber);
   const [footerLicenseInfo, setFooterLicenseInfo] = useState(footerConfig.licenseInfo);
 
-  // Admin Password state
+  // Admin Account & Password state
+  const [newAdminIdInput, setNewAdminIdInput] = useState('');
   const [newAdminPassInput, setNewAdminPassInput] = useState('');
   const [confirmAdminPassInput, setConfirmAdminPassInput] = useState('');
   const [adminPassMsg, setAdminPassMsg] = useState('');
@@ -1079,42 +1080,52 @@ export default function CmsEditorModal({
                 exit={{ opacity: 0, y: -4 }}
                 className="space-y-6"
               >
-                {/* 🔑 ADMIN PASSWORD CHANGE CARD */}
+                {/* 🔒 ADMIN ID & PASSWORD CHANGE CARD */}
                 <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl shadow-md border border-slate-700/60 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-700/60 pb-2.5">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 border border-blue-400/30">
-                        🔑
+                        🔒
                       </div>
                       <div>
                         <h4 className="text-xs font-black text-white uppercase tracking-wider">
-                          관리자 로그인 비밀번호 변경
+                          전용 관리자 계정 (아이디/비밀번호) 설정
                         </h4>
                         <p className="text-[10px] text-slate-300 font-medium">
-                          에디터 모드 및 CMS 관리에 사용되는 비밀번호를 설정합니다. (현재: {localStorage.getItem('sy_admin_password') ? '사용자 설정 완료' : '초기 1234'})
+                          일반 방문자에게는 숨겨진 관리자 전용 계정 정보입니다. (현재 아이디: <strong className="text-blue-300">{localStorage.getItem('sy_admin_id') || 'admin'}</strong>)
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <label className="block text-[10.5px] font-bold text-slate-300">새 아이디</label>
+                      <input
+                        type="text"
+                        value={newAdminIdInput}
+                        onChange={(e) => setNewAdminIdInput(e.target.value)}
+                        placeholder={`기본: ${localStorage.getItem('sy_admin_id') || 'admin'}`}
+                        className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 focus:border-blue-400 rounded-xl text-xs font-bold text-white"
+                      />
+                    </div>
                     <div className="space-y-1">
                       <label className="block text-[10.5px] font-bold text-slate-300">새 비밀번호</label>
                       <input
                         type="password"
                         value={newAdminPassInput}
                         onChange={(e) => setNewAdminPassInput(e.target.value)}
-                        placeholder="변경할 새 비밀번호 입력"
+                        placeholder="변경 시 입력"
                         className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 focus:border-blue-400 rounded-xl text-xs font-bold text-white"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[10.5px] font-bold text-slate-300">새 비밀번호 확인</label>
+                      <label className="block text-[10.5px] font-bold text-slate-300">비밀번호 확인</label>
                       <input
                         type="password"
                         value={confirmAdminPassInput}
                         onChange={(e) => setConfirmAdminPassInput(e.target.value)}
-                        placeholder="비밀번호 다시 입력"
+                        placeholder="비밀번호 확인"
                         className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 focus:border-blue-400 rounded-xl text-xs font-bold text-white"
                       />
                     </div>
@@ -1123,22 +1134,35 @@ export default function CmsEditorModal({
                         type="button"
                         onClick={() => {
                           setAdminPassMsg('');
-                          if (!newAdminPassInput.trim()) {
-                            setAdminPassMsg('❌ 새 비밀번호를 입력해 주세요.');
+                          let updated = false;
+
+                          if (newAdminIdInput.trim()) {
+                            localStorage.setItem('sy_admin_id', newAdminIdInput.trim());
+                            updated = true;
+                          }
+
+                          if (newAdminPassInput.trim()) {
+                            if (newAdminPassInput.trim() !== confirmAdminPassInput.trim()) {
+                              setAdminPassMsg('❌ 비밀번호 확인이 서로 일치하지 않습니다.');
+                              return;
+                            }
+                            localStorage.setItem('sy_admin_password', newAdminPassInput.trim());
+                            updated = true;
+                          }
+
+                          if (!updated) {
+                            setAdminPassMsg('❌ 변경할 아이디 또는 비밀번호를 입력해 주세요.');
                             return;
                           }
-                          if (newAdminPassInput.trim() !== confirmAdminPassInput.trim()) {
-                            setAdminPassMsg('❌ 새 비밀번호가 서로 일치하지 않습니다.');
-                            return;
-                          }
-                          localStorage.setItem('sy_admin_password', newAdminPassInput.trim());
-                          setAdminPassMsg('✅ 관리자 비밀번호가 새로 저장되었습니다!');
+
+                          setAdminPassMsg('✅ 관리자 전용 계정 정보가 새로 저장되었습니다!');
+                          setNewAdminIdInput('');
                           setNewAdminPassInput('');
                           setConfirmAdminPassInput('');
                         }}
                         className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-black rounded-xl transition-all shadow-md cursor-pointer h-[38px] flex items-center justify-center gap-1"
                       >
-                        🔒 비밀번호 변경 적용
+                        🔒 계정 설정 적용
                       </button>
                     </div>
                   </div>

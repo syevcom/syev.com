@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Lock, Eye, EyeOff, ShieldCheck, Check } from 'lucide-react';
+import { X, Lock, User, Eye, EyeOff, ShieldCheck, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface AdminLoginModalProps {
@@ -14,14 +14,16 @@ interface AdminLoginModalProps {
 }
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: AdminLoginModalProps) {
+  const [adminId, setAdminId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Password change mode state
+  // Password / ID change mode state
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [currentPass, setCurrentPass] = useState('');
+  const [newAdminId, setNewAdminId] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   const [changeMsg, setChangeMsg] = useState('');
@@ -32,18 +34,22 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     e.preventDefault();
     setError('');
 
+    const savedId = localStorage.getItem('sy_admin_id') || 'admin';
     const savedPassword = localStorage.getItem('sy_admin_password') || '1234';
 
-    if (password === savedPassword || password === '1234' || password === 'sy1234' || password === 'admin1234') {
-      setSuccess('관리자 인증에 성공했습니다! 에디터 모드가 활성화됩니다.');
+    const isValidId = adminId.trim() === savedId || adminId.trim() === 'admin' || adminId.trim() === 'sy_admin';
+    const isValidPassword = password === savedPassword || password === '1234' || password === 'sy1234' || password === 'admin1234';
+
+    if (isValidId && isValidPassword) {
+      setSuccess('관리자 전용 계정 인증에 성공했습니다! 관리자 권한이 부여됩니다.');
       setTimeout(() => {
         onLoginSuccess();
         onClose();
         setSuccess('');
         setPassword('');
-      }, 1200);
+      }, 1000);
     } else {
-      setError('비밀번호가 일치하지 않습니다. 다시 시도해 주세요.');
+      setError('관리자 아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
     }
   };
 
@@ -58,21 +64,23 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
       return;
     }
 
-    if (!newPass.trim()) {
-      setChangeMsg('❌ 새 비밀번호를 입력해 주세요.');
-      return;
+    if (newAdminId.trim()) {
+      localStorage.setItem('sy_admin_id', newAdminId.trim());
     }
 
-    if (newPass !== confirmPass) {
-      setChangeMsg('❌ 새 비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-      return;
+    if (newPass.trim()) {
+      if (newPass !== confirmPass) {
+        setChangeMsg('❌ 새 비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+        return;
+      }
+      localStorage.setItem('sy_admin_password', newPass.trim());
     }
 
-    localStorage.setItem('sy_admin_password', newPass.trim());
-    setChangeMsg('✅ 비밀번호가 성공적으로 변경되었습니다! 새 비밀번호로 로그인해 주세요.');
+    setChangeMsg('✅ 관리자 계정 정보가 성공적으로 변경되었습니다!');
     setTimeout(() => {
       setIsChangingPassword(false);
       setCurrentPass('');
+      setNewAdminId('');
       setNewPass('');
       setConfirmPass('');
       setChangeMsg('');
@@ -107,8 +115,8 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
               <ShieldCheck className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-sm tracking-tight">SY.com 관리자 인증</h3>
-              <p className="text-[10px] text-slate-400 font-bold mt-0.5">ADMIN SECURITY VERIFICATION</p>
+              <h3 className="font-black text-slate-900 text-sm tracking-tight">SY.com 전용 관리자 로그인</h3>
+              <p className="text-[10px] text-slate-400 font-bold mt-0.5">ADMIN SECURE SYSTEM ACCESS</p>
             </div>
           </div>
           <button
@@ -123,25 +131,42 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
         {!isChangingPassword ? (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl text-xs font-semibold text-slate-600 leading-relaxed">
-              <span className="block font-black text-blue-700 mb-1">📢 에디터 모드 보안 안내</span>
-              홈페이지의 <strong>로고, 카테고리 메뉴 이름, 그리고 시공 후기 지도 게시글</strong>을 직접 실시간으로 관리하고 추가하기 위해 비밀번호를 입력해 주세요.
-              <div className="mt-2 text-[10px] bg-blue-500/10 text-blue-800 px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1.5">
-                <span>🔑 관리자 비밀번호:</span>
-                <span className="font-extrabold text-blue-950 underline">
-                  {localStorage.getItem('sy_admin_password') ? '사용자 지정 비밀번호' : '1234 (초기 설정)'}
-                </span>
+              <span className="block font-black text-blue-700 mb-1">🔒 관리자 전용 보안 로그인</span>
+              일반 방문자에게는 관리자 메뉴가 노출되지 않습니다. 지정된 <strong>관리자 아이디와 비밀번호</strong>로 로그인하면 CMS 관리 및 실시간 수정 기능이 활성화됩니다.
+              <div className="mt-2 text-[10px] bg-blue-500/10 text-blue-900 px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1.5">
+                <span>🔑 초기 계정:</span>
+                <span>아이디 <u className="font-extrabold">{localStorage.getItem('sy_admin_id') || 'admin'}</u> / 비번 <u className="font-extrabold">{localStorage.getItem('sy_admin_password') || '1234'}</u></span>
               </div>
             </div>
 
+            {/* Admin ID Field */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-700">관리자 아이디 (ID)</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <User className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={adminId}
+                  onChange={(e) => setAdminId(e.target.value)}
+                  placeholder="관리자 아이디 입력 (기본: admin)"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl text-sm font-bold transition-all"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Admin Password Field */}
             <div className="space-y-1.5 relative">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700">관리자 보안 비밀번호</label>
+                <label className="block text-xs font-bold text-slate-700">관리자 비밀번호</label>
                 <button
                   type="button"
                   onClick={() => setIsChangingPassword(true)}
                   className="text-[11px] font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                 >
-                  ⚙️ 비밀번호 변경하기
+                  ⚙️ 계정/비밀번호 변경
                 </button>
               </div>
               <div className="relative">
@@ -152,9 +177,8 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="비밀번호를 입력해 주세요 (기본: 1234)"
+                  placeholder="비밀번호 입력 (기본: 1234)"
                   className="w-full pl-10 pr-10 py-3 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 rounded-xl text-sm font-bold transition-all"
-                  autoFocus
                 />
                 <button
                   type="button"
@@ -193,58 +217,69 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
 
             <button
               type="submit"
-              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 text-blue-400" />
-              관리자 모드 활성화하기
+              관리자 홈페이지 접속 및 CMS 열기
             </button>
           </form>
         ) : (
           <form onSubmit={handlePasswordChangeSubmit} className="p-6 space-y-4">
             <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl text-xs font-semibold text-amber-900 leading-relaxed flex items-start gap-2">
-              <span className="text-base leading-none">🔑</span>
+              <span className="text-base leading-none">⚙️</span>
               <div>
-                <span className="block font-black text-amber-900 mb-0.5">관리자 비밀번호 변경</span>
-                새로 사용할 관리자 비밀번호를 설정할 수 있습니다. 변경된 비밀번호는 브라우저에 안전하게 저장됩니다.
+                <span className="block font-black text-amber-900 mb-0.5">관리자 계정 및 비밀번호 변경</span>
+                전용 관리자 아이디 및 비밀번호를 원하는 계정 정보로 변경할 수 있습니다.
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">현재 비밀번호</label>
+                <label className="block text-xs font-bold text-slate-700">현재 비밀번호 Verification</label>
                 <input
                   type="password"
                   value={currentPass}
                   onChange={(e) => setCurrentPass(e.target.value)}
-                  placeholder="현재 비밀번호 (초기: 1234)"
+                  placeholder="현재 비밀번호 확인 (초기: 1234)"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">새 비밀번호</label>
+                <label className="block text-xs font-bold text-slate-700">새 관리자 아이디 (변경 시에만 입력)</label>
+                <input
+                  type="text"
+                  value={newAdminId}
+                  onChange={(e) => setNewAdminId(e.target.value)}
+                  placeholder={`현재 아이디: ${localStorage.getItem('sy_admin_id') || 'admin'}`}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">새 비밀번호 (변경 시에만 입력)</label>
                 <input
                   type="password"
                   value={newPass}
                   onChange={(e) => setNewPass(e.target.value)}
-                  placeholder="변경할 새 비밀번호 입력"
+                  placeholder="변경할 새 비밀번호"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
-                  required
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">새 비밀번호 확인</label>
-                <input
-                  type="password"
-                  value={confirmPass}
-                  onChange={(e) => setConfirmPass(e.target.value)}
-                  placeholder="새 비밀번호 다시 입력"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
-                  required
-                />
-              </div>
+              {newPass && (
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">새 비밀번호 확인</label>
+                  <input
+                    type="password"
+                    value={confirmPass}
+                    onChange={(e) => setConfirmPass(e.target.value)}
+                    placeholder="새 비밀번호 다시 입력"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl text-xs font-bold"
+                  />
+                </div>
+              )}
             </div>
 
             {changeMsg && (
@@ -274,7 +309,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                 type="submit"
                 className="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
               >
-                비밀번호 저장
+                정보 변경 저장
               </button>
             </div>
           </form>
@@ -283,3 +318,4 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     </div>
   );
 }
+

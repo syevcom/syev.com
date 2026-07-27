@@ -307,25 +307,25 @@ export default function Header({
               </button>
             )}
 
-            {/* Admin toggle directly visible */}
-            <button
-              onClick={onToggleEditMode}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${
-                isEditMode 
-                  ? 'bg-emerald-500 text-white shadow-md animate-pulse' 
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              }`}
-              title={isEditMode ? "수정모드 켜짐" : "관리자 에디터 열기"}
-            >
-              <Settings className={`w-3.5 h-3.5 ${isEditMode ? 'animate-spin' : ''}`} />
-            </button>
-            {isEditMode && onOpenCms && (
-              <button
-                onClick={onOpenCms}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-black text-[9px] px-2 py-1 cursor-pointer transition-all shrink-0 animate-bounce"
-              >
-                CMS
-              </button>
+            {/* Admin control buttons (Visible ONLY when logged in as Admin with isEditMode=true) */}
+            {isEditMode && (
+              <>
+                <button
+                  onClick={onToggleEditMode}
+                  className="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md animate-pulse"
+                  title="관리자 수정모드 (클릭시 비활성화)"
+                >
+                  <Settings className="w-3.5 h-3.5 animate-spin" />
+                </button>
+                {onOpenCms && (
+                  <button
+                    onClick={() => onOpenCms()}
+                    className="bg-indigo-900 hover:bg-indigo-950 text-white border border-indigo-700 rounded-full font-black text-[10px] px-2.5 py-1 cursor-pointer transition-all shrink-0 shadow-md flex items-center gap-1"
+                  >
+                    <span>📁 CMS 관리자</span>
+                  </button>
+                )}
+              </>
             )}
           </div>
 
@@ -341,15 +341,17 @@ export default function Header({
           >
             <Search className="w-4 h-4" />
           </button>
-          {/* Admin Toggle on Mobile for quick access */}
-          <button
-            onClick={onToggleEditMode}
-            className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              isEditMode ? 'bg-emerald-500 text-white shadow-md' : 'bg-stone-100 text-stone-600 border border-stone-200 shadow-sm'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-          </button>
+
+          {/* Admin Toggle on Mobile (Visible ONLY when isEditMode is true) */}
+          {isEditMode && (
+            <button
+              onClick={onToggleEditMode}
+              className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-md cursor-pointer animate-pulse"
+              title="관리자 모드 활성화됨"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

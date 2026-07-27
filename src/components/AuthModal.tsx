@@ -12,9 +12,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (user: UserType) => void;
+  onOpenAdminLogin?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdminLogin }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [userType, setUserType] = useState<'B2C' | 'B2B'>('B2C');
   const [email, setEmail] = useState('');
@@ -430,6 +431,20 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
                 <Sparkles className="h-3 w-3 text-indigo-500" />
               </button>
             </div>
+            {onOpenAdminLogin && (
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenAdminLogin();
+                  }}
+                  className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors cursor-pointer inline-flex items-center gap-1"
+                >
+                  <span>🔒 관리자 전용 계정 로그인</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

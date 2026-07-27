@@ -885,8 +885,39 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50/30 text-slate-900 font-sans flex flex-col justify-between">
+      {/* Admin Top Control Banner (Visible ONLY when logged in as Admin) */}
+      {isEditMode && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-slate-900/95 backdrop-blur-md text-white px-4 py-2 flex flex-wrap items-center justify-between gap-2 shadow-xl border-b border-indigo-500/50 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+            <span className="font-extrabold text-blue-300">⚡ SY.com 관리자 모드 접속됨</span>
+            <span className="text-slate-400 text-[11px] hidden sm:inline border-l border-slate-700 pl-2">
+              관리자 계정: <strong>{localStorage.getItem('sy_admin_id') || 'admin'}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleOpenCmsTab('brand')}
+              className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+            >
+              <span>📁 CMS 에디터 열기</span>
+            </button>
+            <button
+              onClick={() => {
+                setIsEditMode(false);
+              }}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold rounded-lg text-[11px] transition-all cursor-pointer flex items-center gap-1 border border-slate-700"
+            >
+              <span>🔒 관리자 로그아웃</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Spacer container to match the fixed Header height and prevent page content overlap */}
       <div className={`w-full shrink-0 ${
+        isEditMode ? 'pt-8' : ''
+      } ${
         activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking'
           ? 'h-[165px] sm:h-[180px] md:h-[190px] xl:h-[210px]'
           : 'h-[120px] sm:h-[135px] md:h-[145px] xl:h-[155px]'
@@ -1106,10 +1137,17 @@ export default function App() {
 
           <div className="pt-8 border-t border-emerald-500/20 text-center text-xs text-emerald-200/85 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
               <a href="#privacy" className="hover:text-white hover:underline">개인정보처리방침</a>
               <a href="#terms" className="hover:text-white hover:underline">이용약관</a>
               <a href="#standard" className="hover:text-white hover:underline">한전 인입공사 표준</a>
+              <button
+                onClick={() => setIsAdminLoginOpen(true)}
+                className="hover:text-white hover:underline cursor-pointer text-emerald-200/60 hover:text-white flex items-center gap-1 text-[11px]"
+                title="관리자 전용 아이디/비밀번호 로그인"
+              >
+                <span>🔒 관리자 로그인</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1122,6 +1160,7 @@ export default function App() {
             isOpen={isAuthOpen}
             onClose={() => setIsAuthOpen(false)}
             onLoginSuccess={handleLogin}
+            onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
           />
         )}
         
