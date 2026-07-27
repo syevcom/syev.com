@@ -552,7 +552,7 @@ export default function Header({
               '이엘일렉트릭',
               '나이스차져',
               '에버온',
-              '현대엔지니어링',
+              'nice인프라',
               '아이파킹',
               'LG유플러스볼트업'
             ].map((brand) => {

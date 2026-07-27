@@ -136,16 +136,16 @@ export default function MainHero({
         )}
 
         {/* Cinematic Background Image with Gradient Overlay */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
             src={heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"} 
             alt="Eco-friendly EV Charging Cinematic Background" 
-            className="w-full h-full object-cover brightness-[0.72] contrast-[1.02] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
+            className="w-full h-full object-cover brightness-[1.02] contrast-[1.12] saturate-[1.12] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
             referrerPolicy="no-referrer"
           />
-          {/* Subtle Ambient Vignette & Gradient for High Text Contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-transparent/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+          {/* Focused Left Gradient overlay to protect left text readability while keeping the right side bright & crystal clear */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/65 via-40% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
         </div>
 
         {/* Content Container */}
