@@ -1998,7 +1998,7 @@ export default function SolutionsSection({
                 {sol.category === 'Commercial' && (() => {
                   const brandData = brands[selectedAptBrand] || brands['sk일렉링크'];
                   return (
-                    <div className="p-8 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
+                    <div id="apt-brand-section" className="p-8 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
                       {/* Decorative Background Glow */}
                       <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
                       
@@ -2024,7 +2024,17 @@ export default function SolutionsSection({
                               <button
                                 key={b}
                                 type="button"
-                                onClick={() => onSelectAptBrand?.(b)}
+                                onClick={() => {
+                                  onSelectAptBrand?.(b);
+                                  setTimeout(() => {
+                                    const el = document.getElementById('apt-brand-section');
+                                    if (el) {
+                                      const yOffset = -110;
+                                      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                      window.scrollTo({ top: y, behavior: 'smooth' });
+                                    }
+                                  }, 50);
+                                }}
                                 className={`px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
                                   isSel
                                     ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/30 scale-103'
@@ -2220,7 +2230,7 @@ export default function SolutionsSection({
                   return (
                     <div className="space-y-6 pt-2">
                       {/* Step 1 & Step 2 Category Selection Box */}
-                      <div className="bg-slate-900 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-slate-800 space-y-5">
+                      <div id="home-options-section" className="bg-slate-900 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-slate-800 space-y-5">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                           <div>
                             <span className="text-xs sm:text-sm font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-3 py-1 rounded-full uppercase tracking-wider">
@@ -2256,7 +2266,17 @@ export default function SolutionsSection({
                                   <button
                                     key={st.id}
                                     type="button"
-                                    onClick={() => onSelectHomeServiceType?.(st.id)}
+                                    onClick={() => {
+                                      onSelectHomeServiceType?.(st.id);
+                                      setTimeout(() => {
+                                        const el = document.getElementById('home-options-section');
+                                        if (el) {
+                                          const yOffset = -110;
+                                          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                          window.scrollTo({ top: y, behavior: 'smooth' });
+                                        }
+                                      }, 50);
+                                    }}
                                     className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
                                         ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20 scale-[1.02]'
@@ -2296,7 +2316,17 @@ export default function SolutionsSection({
                                   <button
                                     key={pow.kw}
                                     type="button"
-                                    onClick={() => onSelectHomePower?.(pow.kw)}
+                                    onClick={() => {
+                                      onSelectHomePower?.(pow.kw);
+                                      setTimeout(() => {
+                                        const el = document.getElementById('home-options-section');
+                                        if (el) {
+                                          const yOffset = -110;
+                                          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                          window.scrollTo({ top: y, behavior: 'smooth' });
+                                        }
+                                      }, 50);
+                                    }}
                                     className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
                                         ? 'bg-yellow-400 text-slate-950 border-yellow-300 font-black shadow-lg shadow-yellow-400/20 scale-[1.02]'

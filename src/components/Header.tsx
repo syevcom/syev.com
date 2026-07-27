@@ -17,7 +17,8 @@ import {
   Phone, 
   ChevronDown, 
   BookOpen,
-  Search
+  Search,
+  ShoppingBag
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig } from '../types';
 import { SearchModal } from './SearchModal';
@@ -75,6 +76,8 @@ interface HeaderProps {
     sol_parking?: string;
   };
   headerConfig?: HeaderConfig;
+  cartCount?: number;
+  onOpenCartModal?: () => void;
 }
 
 export default function Header({
@@ -110,7 +113,9 @@ export default function Header({
     shortcutResidentialMobile: '🏠 가정용 · 개인 홈',
     shortcutParkingMobile: '🏢 상업시설 · 수익형',
     syncMobileWithPc: true
-  }
+  },
+  cartCount = 0,
+  onOpenCartModal,
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
@@ -287,23 +292,39 @@ export default function Header({
             </button>
           </div>
 
-          {/* User Profile / Admin Quick links */}
+          {/* User Profile / Cart / Admin Quick links */}
           <div className="flex items-center gap-2 pl-2 border-l border-stone-200 shrink-0">
+            {/* Cart Button with Count Badge */}
+            <button
+              onClick={onOpenCartModal}
+              title="관심 충전기 장바구니"
+              className="relative p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-all cursor-pointer border border-slate-200"
+            >
+              <ShoppingBag className="w-4 h-4 text-slate-700" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
             {user ? (
               <button
                 onClick={onOpenMyPage}
                 title="마이페이지"
-                className="w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black cursor-pointer shadow-sm transition-all"
               >
-                <User className="w-3.5 h-3.5" />
+                <User className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="truncate max-w-[80px]">{user.name} 님</span>
               </button>
             ) : (
               <button
                 onClick={onOpenAuth}
                 title="로그인 / 회원가입"
-                className="w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-xs cursor-pointer shadow-sm"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer shadow-sm transition-all"
               >
                 <LogIn className="w-3.5 h-3.5" />
+                <span>로그인</span>
               </button>
             )}
 
@@ -332,7 +353,21 @@ export default function Header({
         </div>
 
         {/* 4. Mobile Hamburger Button & Search Button */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-1.5">
+          {/* Mobile Cart button */}
+          <button
+            onClick={onOpenCartModal}
+            className="relative w-8 h-8 rounded-full bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center shadow-xs cursor-pointer"
+            title="장바구니"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-emerald-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+
           {/* Mobile Search button */}
           <button
             onClick={() => setIsSearchModalOpen(true)}
@@ -367,6 +402,38 @@ export default function Header({
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-x-0 top-[115px] bottom-0 z-40 bg-white/85 backdrop-blur-lg flex flex-col p-5 space-y-6 overflow-y-auto border-t border-slate-200/80">
           
+          {/* Mobile User Profile & Cart Header Bar */}
+          <div className="p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-md">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white">{user.name} 님</div>
+                  <div className="text-[10px] text-slate-300">{user.email}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-xs font-bold text-slate-300">
+                로그인하고 나만의 견적내역과 장바구니를 확인하세요.
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  if (user) onOpenMyPage();
+                  else onOpenAuth();
+                }}
+                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm cursor-pointer"
+              >
+                {user ? '마이페이지' : '로그인'}
+              </button>
+            </div>
+          </div>
+
           {/* Direct Installation Inquiry 3 Stacked Buttons */}
           <div className="space-y-2">
             <span 

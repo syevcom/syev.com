@@ -140,12 +140,12 @@ export default function MainHero({
           <img 
             src={heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"} 
             alt="Eco-friendly EV Charging Cinematic Background" 
-            className="w-full h-full object-cover brightness-[0.45] contrast-[1.05] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
+            className="w-full h-full object-cover brightness-[0.72] contrast-[1.02] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
             referrerPolicy="no-referrer"
           />
-          {/* Subtle Ambient Vignette & Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
+          {/* Subtle Ambient Vignette & Gradient for High Text Contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/45 to-transparent/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
         </div>
 
         {/* Content Container */}
@@ -175,7 +175,7 @@ export default function MainHero({
               heroConfig.titleSize === 'medium' ? 'text-4xl md:text-6xl' :
               heroConfig.titleSize === 'xlarge' ? 'text-6xl md:text-8xl' :
               'text-5xl md:text-7xl'
-            } font-black tracking-tight leading-tight md:leading-tight text-white`}
+            } font-black tracking-tight leading-tight md:leading-tight text-white drop-shadow-md`}
             dangerouslySetInnerHTML={{ __html: heroConfig.title }}
           />
 
@@ -187,7 +187,7 @@ export default function MainHero({
               heroConfig.descriptionSize === 'small' ? 'text-sm md:text-base' :
               heroConfig.descriptionSize === 'large' ? 'text-lg md:text-xl' :
               'text-base md:text-lg'
-            } text-slate-100 leading-relaxed font-bold max-w-2xl`}
+            } text-slate-100 leading-relaxed font-bold max-w-2xl drop-shadow-sm`}
           >
             {heroConfig.description}
           </motion.p>

@@ -5,20 +5,22 @@
 
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { Check, ShieldCheck, Cpu, Activity, FileDown } from 'lucide-react';
+import { Check, ShieldCheck, Cpu, Activity, FileDown, ShoppingBag } from 'lucide-react';
 
 interface ProductsSectionProps {
   onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
   products: Product[];
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
+  onAddToCart?: (product: Product) => void;
 }
 
 export default function ProductsSection({ 
   onOpenQuoteWithPurpose,
   products,
   isEditMode = false,
-  onOpenCms
+  onOpenCms,
+  onAddToCart
 }: ProductsSectionProps) {
   const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -189,14 +191,27 @@ export default function ProductsSection({
             </div>
 
             {/* Actions Footer */}
-            <div className="p-5 pt-0 mt-1 flex gap-1.5">
+            <div className="p-5 pt-0 mt-1 flex gap-2">
+              {onAddToCart && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToCart(p);
+                  }}
+                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
+                  title="장바구니 담기"
+                >
+                  <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                  <span>담기</span>
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
                 }}
                 id={`btn-product-quote-${p.id}`}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
               >
                 무료 설치 견적 요청
               </button>

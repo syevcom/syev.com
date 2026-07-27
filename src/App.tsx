@@ -16,10 +16,11 @@ import QuoteModal from './components/QuoteModal';
 import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
+import CartModal from './components/CartModal';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
-import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig } from './types';
+import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem } from './types';
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -80,7 +81,12 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+  
+  // Cart items state
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartToastMsg, setCartToastMsg] = useState<string>('');
   
   // Custom default purpose for Quote Modal
   const [quoteDefaultPurpose, setQuoteDefaultPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>('Residential');
@@ -310,6 +316,16 @@ export default function App() {
       localStorage.setItem('sy_as', JSON.stringify(initialAS));
     }
 
+    // Load Cart Items
+    const savedCart = localStorage.getItem('sy_cart_items');
+    if (savedCart) {
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart items', e);
+      }
+    }
+
     // CMS Configurations
     const savedLogo = localStorage.getItem('sy_cms_logo');
     if (savedLogo) {
@@ -513,6 +529,63 @@ export default function App() {
     setUser(null);
     localStorage.removeItem('sy_user');
     setIsMyPageOpen(false);
+  };
+
+  // Cart management handlers
+  const handleAddToCart = (product: Product) => {
+    let updatedCart: CartItem[];
+    const existingIndex = cartItems.findIndex((item) => item.productId === product.id);
+
+    if (existingIndex > -1) {
+      updatedCart = cartItems.map((item, idx) =>
+        idx === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+      );
+    } else {
+      const newItem: CartItem = {
+        id: `cart-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        power: product.power,
+        type: product.type,
+        image: product.image,
+        quantity: 1,
+        price: product.price,
+        addedAt: new Date().toISOString()
+      };
+      updatedCart = [newItem, ...cartItems];
+    }
+
+    setCartItems(updatedCart);
+    localStorage.setItem('sy_cart_items', JSON.stringify(updatedCart));
+
+    setCartToastMsg(`🛒 [${product.name}] 장바구니에 담겼습니다!`);
+    setTimeout(() => setCartToastMsg(''), 3000);
+  };
+
+  const handleUpdateCartQuantity = (id: string, delta: number) => {
+    const updated = cartItems
+      .map((item) => {
+        if (item.id === id) {
+          const newQty = item.quantity + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : null;
+        }
+        return item;
+      })
+      .filter(Boolean) as CartItem[];
+
+    setCartItems(updated);
+    localStorage.setItem('sy_cart_items', JSON.stringify(updated));
+  };
+
+  const handleRemoveCartItem = (id: string) => {
+    const updated = cartItems.filter((item) => item.id !== id);
+    setCartItems(updated);
+    localStorage.setItem('sy_cart_items', JSON.stringify(updated));
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem('sy_cart_items');
   };
 
   const handleAddBooking = (newBookingData: Omit<Booking, 'id' | 'createdAt' | 'status'>) => {
@@ -766,6 +839,23 @@ export default function App() {
     // Note: We pre-select tab as 'as' inside the modal or let it boot cleanly
   };
 
+  const handlePageChange = (page: ActivePage) => {
+    setActivePage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectAptBrand = (brand: string) => {
+    setSelectedAptBrand(brand);
+    setTimeout(() => {
+      const el = document.getElementById('apt-brand-section');
+      if (el) {
+        const yOffset = -110;
+        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
   const renderContent = () => {
     switch (activePage) {
       case 'home':
@@ -773,7 +863,7 @@ export default function App() {
           <MainHero
             heroConfig={heroConfig}
             quickMenuConfig={quickMenuConfig}
-            onPageChange={setActivePage}
+            onPageChange={handlePageChange}
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
@@ -791,6 +881,16 @@ export default function App() {
             onOpenCms={handleOpenCmsTab} 
           />
         );
+      case 'products':
+        return (
+          <ProductsSection
+            products={products}
+            isEditMode={isEditMode}
+            onOpenCms={handleOpenCmsTab}
+            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
+            onAddToCart={handleAddToCart}
+          />
+        );
       case 'solutions':
       case 'sol_residential':
         return (
@@ -800,7 +900,7 @@ export default function App() {
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
-            onPageChange={setActivePage}
+            onPageChange={handlePageChange}
             defaultActiveTab="Residential"
             selectedHomePower={selectedHomePower}
             onSelectHomePower={setSelectedHomePower}
@@ -816,10 +916,10 @@ export default function App() {
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
-            onPageChange={setActivePage}
+            onPageChange={handlePageChange}
             defaultActiveTab="Commercial"
             selectedAptBrand={selectedAptBrand}
-            onSelectAptBrand={setSelectedAptBrand}
+            onSelectAptBrand={handleSelectAptBrand}
           />
         );
       case 'sol_parking':
@@ -830,7 +930,7 @@ export default function App() {
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
-            onPageChange={setActivePage}
+            onPageChange={handlePageChange}
             defaultActiveTab="ParkingLot"
             selectedParkingCapacity={selectedParkingCapacity}
             onSelectParkingCapacity={setSelectedParkingCapacity}
@@ -925,7 +1025,7 @@ export default function App() {
         <Header
           user={user}
           activePage={activePage}
-          onPageChange={setActivePage}
+          onPageChange={handlePageChange}
           onOpenAuth={() => setIsAuthOpen(true)}
           onOpenMyPage={() => setIsMyPageOpen(true)}
           onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
@@ -944,7 +1044,7 @@ export default function App() {
           snsConfig={snsConfig}
           footerConfig={footerConfig}
           selectedAptBrand={selectedAptBrand}
-          onSelectAptBrand={setSelectedAptBrand}
+          onSelectAptBrand={handleSelectAptBrand}
           selectedHomePower={selectedHomePower}
           onSelectHomePower={setSelectedHomePower}
           selectedHomeServiceType={selectedHomeServiceType}
@@ -952,6 +1052,8 @@ export default function App() {
           selectedParkingCapacity={selectedParkingCapacity}
           onSelectParkingCapacity={setSelectedParkingCapacity}
           headerConfig={headerConfig}
+          cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+          onOpenCartModal={() => setIsCartOpen(true)}
         />
 
 
@@ -1177,15 +1279,32 @@ export default function App() {
           />
         )}
 
-        {user && isMyPageOpen && (
+        {isCartOpen && (
+          <CartModal
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cartItems={cartItems}
+            onUpdateQuantity={handleUpdateCartQuantity}
+            onRemoveItem={handleRemoveCartItem}
+            onClearCart={handleClearCart}
+            onOpenQuoteWithItems={(items) => {
+              setIsCartOpen(false);
+              setIsQuoteOpen(true);
+            }}
+          />
+        )}
+
+        {isMyPageOpen && user && (
           <MyPageModal
             isOpen={isMyPageOpen}
             onClose={() => setIsMyPageOpen(false)}
             user={user}
+            onLogout={handleLogout}
+            cartItems={cartItems}
             bookings={bookings}
             asRequests={asRequests}
-            onAddASRequest={handleAddASRequest}
-            onLogout={handleLogout}
+            onOpenCartModal={() => setIsCartOpen(true)}
+            onOpenQuoteModal={() => setIsQuoteOpen(true)}
           />
         )}
 
@@ -1236,6 +1355,24 @@ export default function App() {
               setIsCmsOpen(true);
             }}
           />
+        )}
+
+        {/* Floating Cart Toast Notification */}
+        {cartToastMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white font-black text-xs px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3"
+          >
+            <span>{cartToastMsg}</span>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-2.5 py-1 rounded-lg font-bold text-[11px] cursor-pointer"
+            >
+              장바구니 보기
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

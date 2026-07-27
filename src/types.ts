@@ -94,6 +94,18 @@ export interface ASRequest {
   createdAt: string;
 }
 
+export interface CartItem {
+  id: string;
+  productId: string;
+  name: string;
+  power: string;
+  type: string;
+  image: string;
+  quantity: number;
+  price?: number;
+  addedAt: string;
+}
+
 export interface HeaderConfig {
   inquiryTitlePc: string;
   shortcutCommercialPc: string;
