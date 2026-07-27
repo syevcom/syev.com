@@ -337,7 +337,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
 
         {/* All Pages Continuous Scroll View */}
         {!loading && !error && pdfDoc && (
-          <div className="space-y-6 w-full max-w-2xl py-4 flex flex-col items-center">
+          <div className="space-y-8 w-full max-w-4xl py-4 flex flex-col items-center">
             {Array.from({ length: numPages }).map((_, i) => (
               <ScrollPageItem
                 key={i}
@@ -401,6 +401,7 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderTaskRef = useRef<any>(null);
   const [rendered, setRendered] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -425,8 +426,13 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
         const page = await pdfDoc.getPage(pageNum);
         if (!isMounted || !canvasRef.current) return;
 
-        const scale = (zoom / 100) * (window.devicePixelRatio || 1) * 0.9; // slightly smaller in list
-        const viewport = page.getViewport({ scale: scale });
+        // Render at high resolution (2.0x scale) so text stays crystal clear
+        const baseViewport = page.getViewport({ scale: 1.0 });
+        const pageRatio = baseViewport.width / baseViewport.height;
+        setAspectRatio(pageRatio);
+
+        const renderScale = 2.0 * (zoom / 100);
+        const viewport = page.getViewport({ scale: renderScale });
 
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
@@ -434,8 +440,10 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
 
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        canvas.style.width = `${viewport.width / (window.devicePixelRatio || 1)}px`;
-        canvas.style.height = `${viewport.height / (window.devicePixelRatio || 1)}px`;
+        
+        // CSS responsive styling - MUST be width 100% and height auto to preserve aspect ratio without distortion!
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
 
         const renderContext = {
           canvasContext: context,
@@ -473,18 +481,23 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
   }, [pdfDoc, pageNum, zoom]);
 
   return (
-    <div className="flex flex-col items-center space-y-1.5 w-full">
-      <div className="shadow-lg rounded-lg bg-white overflow-hidden border border-slate-800 select-none relative">
-        <canvas ref={canvasRef} className="block max-w-full" />
+    <div className="flex flex-col items-center space-y-2 w-full">
+      <div 
+        className="w-full shadow-2xl rounded-xl bg-white overflow-hidden border border-slate-800/80 select-none relative"
+        style={aspectRatio ? { aspectRatio: `${aspectRatio}` } : undefined}
+      >
+        <canvas ref={canvasRef} className="block w-full h-auto object-contain" />
         {!rendered && (
           <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
-            <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
+            <RefreshCw className="w-6 h-6 text-amber-400 animate-spin" />
           </div>
         )}
       </div>
-      <span className="text-[9px] font-mono font-bold text-slate-500">
-        {isAdmin ? `${brandName} Catalog - Page ${pageNum}` : `페이지 ${pageNum}`}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-900/80 px-2.5 py-0.5 rounded-full border border-slate-800">
+          {isAdmin ? `${brandName} Catalog - Page ${pageNum}` : `페이지 ${pageNum}`}
+        </span>
+      </div>
     </div>
   );
 }
@@ -516,7 +529,7 @@ function FullscreenPageItem({ pdfDoc, pageNum }: { pdfDoc: any; pageNum: number 
         const page = await pdfDoc.getPage(pageNum);
         if (!isMounted || !canvasRef.current) return;
 
-        const scale = 2.0; // static high resolution for full screen
+        const scale = 2.5; // static high resolution for full screen
         const viewport = page.getViewport({ scale: scale });
 
         const canvas = canvasRef.current;
@@ -526,7 +539,7 @@ function FullscreenPageItem({ pdfDoc, pageNum }: { pdfDoc: any; pageNum: number 
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         canvas.style.width = '100%';
-        canvas.style.maxHeight = '80vh';
+        canvas.style.height = 'auto';
 
         const renderContext = {
           canvasContext: context,
@@ -561,8 +574,8 @@ function FullscreenPageItem({ pdfDoc, pageNum }: { pdfDoc: any; pageNum: number 
   }, [pdfDoc, pageNum]);
 
   return (
-    <div className="shadow-2xl rounded-lg bg-white overflow-hidden select-none max-w-full max-h-[80vh]">
-      <canvas ref={canvasRef} className="block object-contain max-h-[80vh]" />
+    <div className="shadow-2xl rounded-xl bg-white overflow-hidden select-none w-full max-w-4xl border border-slate-800">
+      <canvas ref={canvasRef} className="block w-full h-auto object-contain" />
     </div>
   );
 }
