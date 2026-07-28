@@ -5,14 +5,15 @@
 
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { Check, ShieldCheck, Cpu, Activity, FileDown, ShoppingBag } from 'lucide-react';
+import { Check, ShieldCheck, Cpu, Activity, FileDown, ShoppingBag, Eye, Percent } from 'lucide-react';
+import ProductDetailModal from './ProductDetailModal';
 
 interface ProductsSectionProps {
-  onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot') => void;
+  onOpenQuoteWithPurpose: (purpose: 'Commercial' | 'Residential' | 'ParkingLot', memoText?: string) => void;
   products: Product[];
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
-  onAddToCart?: (product: Product) => void;
+  onAddToCart?: (product: Product, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], totalPrice?: number) => void;
 }
 
 export default function ProductsSection({ 
@@ -24,6 +25,7 @@ export default function ProductsSection({
 }: ProductsSectionProps) {
   const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [detailModalProduct, setDetailModalProduct] = useState<Product | null>(null);
 
   const currentSelected = products.find(p => p.id === selectedProductId) || products[0];
 
@@ -164,10 +166,22 @@ export default function ProductsSection({
                   {p.name}
                 </h4>
                 
-                {/* Price Label matching Korean EVMoA styling */}
-                <div className="pt-1 pb-1">
-                  <div className="text-xs text-slate-400 font-bold">판매 단가</div>
-                  <div className="text-base sm:text-lg font-black text-rose-600 flex items-baseline gap-1">
+                {/* Price Label displaying Original Strikethrough & Discounted Price */}
+                <div className="pt-1 pb-1 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    {p.originalPrice && (
+                      <span className="text-xs text-slate-400 font-bold line-through">
+                        ₩{p.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                    {p.discountRate && (
+                      <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full">
+                        {p.discountRate}% OFF
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
                     <span>{formatPrice(p.price)}</span>
                     {p.price && <span className="text-xs text-slate-400 font-normal">(설치 포함)</span>}
                   </div>
@@ -177,6 +191,14 @@ export default function ProductsSection({
                 <p className="text-xs sm:text-sm text-slate-500 leading-relaxed line-clamp-2 font-medium">
                   {p.description}
                 </p>
+
+                {/* Option Groups count indicator if available */}
+                {p.optionGroups && p.optionGroups.length > 0 && (
+                  <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center justify-between">
+                    <span>🛠️ 선택 가능 옵션: {p.optionGroups.length}개 항목</span>
+                    <span className="text-[10px] text-emerald-600 font-black">자세히보기 &gt;</span>
+                  </div>
+                )}
 
                 {/* Features short-bullets */}
                 <div className="pt-2 border-t border-slate-100 space-y-1.5">
@@ -191,30 +213,43 @@ export default function ProductsSection({
             </div>
 
             {/* Actions Footer */}
-            <div className="p-5 pt-0 mt-1 flex gap-2">
-              {onAddToCart && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddToCart(p);
-                  }}
-                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
-                  title="장바구니 담기"
-                >
-                  <ShoppingBag className="w-4 h-4 text-emerald-600" />
-                  <span>담기</span>
-                </button>
-              )}
+            <div className="p-5 pt-0 mt-1 space-y-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
+                  setDetailModalProduct(p);
                 }}
-                id={`btn-product-quote-${p.id}`}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer border border-blue-200 flex items-center justify-center gap-1.5"
               >
-                무료 설치 견적 요청
+                <Eye className="w-4 h-4 text-blue-600" />
+                <span>옵션선택 / 상세정보 보기</span>
               </button>
+
+              <div className="flex gap-2">
+                {onAddToCart && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDetailModalProduct(p);
+                    }}
+                    className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
+                    title="옵션선택 및 담기"
+                  >
+                    <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                    <span>담기</span>
+                  </button>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
+                  }}
+                  id={`btn-product-quote-${p.id}`}
+                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                >
+                  무료 견적 요청
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -255,6 +290,15 @@ export default function ProductsSection({
           </table>
         </div>
       </section>
+
+      {/* Product Detail & Option Selector Modal */}
+      <ProductDetailModal
+        product={detailModalProduct}
+        isOpen={!!detailModalProduct}
+        onClose={() => setDetailModalProduct(null)}
+        onAddToCart={onAddToCart}
+        onOpenQuoteWithPurpose={onOpenQuoteWithPurpose}
+      />
     </div>
   );
 }

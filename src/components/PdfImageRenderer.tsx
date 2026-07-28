@@ -139,7 +139,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
   const [error, setError] = useState<string | null>(null);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [numPages, setNumPages] = useState(0);
-  const [zoom, setZoom] = useState(120); // crisp high-quality standard zoom
+  const [zoom, setZoom] = useState(160); // crisp high-quality larger standard zoom
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -337,7 +337,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
 
         {/* All Pages Continuous Scroll View */}
         {!loading && !error && pdfDoc && (
-          <div className="space-y-8 w-full max-w-4xl py-4 flex flex-col items-center">
+          <div className="space-y-8 w-full max-w-6xl py-4 flex flex-col items-center">
             {Array.from({ length: numPages }).map((_, i) => (
               <ScrollPageItem
                 key={i}

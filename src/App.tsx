@@ -849,9 +849,11 @@ export default function App() {
     setTimeout(() => {
       const el = document.getElementById('apt-brand-section');
       if (el) {
-        const yOffset = -110;
+        const yOffset = -120;
         const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }, 50);
   };

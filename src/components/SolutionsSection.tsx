@@ -65,10 +65,10 @@ const BRAND_METADATA: Record<string, {
     icon: '🌟',
     benefits: ['24시간 원격 복구 솔루션 무상 제공', '최첨단 슬림형 LED 디스플레이', '입주민 대상 100% 무상 설치 지원']
   },
-  'nice인프라': {
-    name: 'nice인프라 (NICE Infra)',
+  'NICE인프라': {
+    name: 'NICE인프라 (NICE Infra)',
     slogan: 'NICE 그룹의 최첨단 인프라 기반 전기차 충전 솔루션',
-    description: 'nice인프라는 금융 및 IT 인프라 전문 NICE 그룹의 인프라 구축 노하우를 바탕으로 안정적이고 효율적인 아파트 완속/급속 전기차 충전 인프라 및 운영 서비스를 제공합니다.',
+    description: 'NICE인프라는 금융 및 IT 인프라 전문 NICE 그룹의 인프라 구축 노하우를 바탕으로 안정적이고 효율적인 아파트 완속/급속 전기차 충전 인프라 및 운영 서비스를 제공합니다.',
     highlights: ['NICE 그룹 신뢰 인프라', '안정적인 24시간 관제', '아파트 맞춤 무상 설치 지원'],
     logoBg: 'bg-blue-50 text-blue-700 border-blue-100',
     icon: '🚙',

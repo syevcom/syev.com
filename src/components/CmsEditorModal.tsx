@@ -6,7 +6,8 @@
 import React, { useState } from 'react';
 import { X, Save, RotateCcw, Image as ImageIcon, Plus, Trash2, Check, Edit3, Settings, HelpCircle, FileText, Sparkles, Building, User, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, Solution, Review, FAQ, HeaderConfig } from '../types';
+import { Product, Solution, Review, FAQ, HeaderConfig, ProductOptionGroup, ProductOptionItem } from '../types';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 
 interface CmsEditorModalProps {
   isOpen: boolean;
@@ -499,6 +500,42 @@ export default function CmsEditorModal({
   const [prodFeatures, setProdFeatures] = useState<string[]>([]);
   const [prodSpecs, setProdSpecs] = useState<{ [key: string]: string }>({});
 
+  // Extended pricing, metadata & option groups state
+  const [prodPrice, setProdPrice] = useState<number>(598000);
+  const [prodOriginalPrice, setProdOriginalPrice] = useState<number>(660000);
+  const [prodDiscountRate, setProdDiscountRate] = useState<number>(10);
+  const [prodBrand, setProdBrand] = useState('스필');
+  const [prodManufacturer, setProdManufacturer] = useState('스필일렉트릭');
+  const [prodOrigin, setProdOrigin] = useState('대한민국');
+  const [prodModelName, setProdModelName] = useState('DO-EVC-SEC7-C/K');
+  const [prodCertNumber, setProdCertNumber] = useState('XD070158-25001A');
+  const [prodDeliveryInfo, setProdDeliveryInfo] = useState('택배(주문 시 결제) / 무료배송');
+  const [prodComponentsInfo, setProdComponentsInfo] = useState('제조사 별도 발송 / 설치비 미포함 상품');
+  const [prodOptionGroups, setProdOptionGroups] = useState<ProductOptionGroup[]>([]);
+
+  // Helper for pasting image from clipboard (Requirement: "캡처해서 붙여넣기로 넣게 못만드나?")
+  const handlePasteImageFromClipboard = (e: React.ClipboardEvent, setImageFn: (url: string) => void) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          e.preventDefault();
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (reader.result) {
+              setImageFn(reader.result as string);
+              alert('📋 클립보드 캡처 이미지가 성공적으로 붙여넣어졌습니다!');
+            }
+          };
+          reader.readAsDataURL(blob);
+          break;
+        }
+      }
+    }
+  };
+
   // 4. Solutions Form State
   const [editingSolutionId, setEditingSolutionId] = useState<string | null>(null);
   const [solTitle, setSolTitle] = useState('');
@@ -680,6 +717,17 @@ export default function CmsEditorModal({
     setProdPlc(p.plcSupported);
     setProdFeatures([...p.features]);
     setProdSpecs({ ...p.specs });
+    setProdPrice(p.price || 598000);
+    setProdOriginalPrice(p.originalPrice || 660000);
+    setProdDiscountRate(p.discountRate || 10);
+    setProdBrand(p.brand || '스필');
+    setProdManufacturer(p.manufacturer || '스필일렉트릭');
+    setProdOrigin(p.origin || '대한민국');
+    setProdModelName(p.modelName || 'DO-EVC-SEC7-C/K');
+    setProdCertNumber(p.certNumber || 'XD070158-25001A');
+    setProdDeliveryInfo(p.deliveryInfo || '택배(주문 시 결제) / 무료배송');
+    setProdComponentsInfo(p.componentsInfo || '제조사 별도 발송 / 설치비 미포함 상품');
+    setProdOptionGroups(p.optionGroups && p.optionGroups.length > 0 ? JSON.parse(JSON.stringify(p.optionGroups)) : JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS)));
   };
 
   const handleUpdateProduct = () => {
@@ -694,14 +742,25 @@ export default function CmsEditorModal({
           image: prodImage,
           plcSupported: prodPlc,
           features: prodFeatures,
-          specs: prodSpecs
+          specs: prodSpecs,
+          price: Number(prodPrice),
+          originalPrice: Number(prodOriginalPrice),
+          discountRate: Number(prodDiscountRate),
+          brand: prodBrand,
+          manufacturer: prodManufacturer,
+          origin: prodOrigin,
+          modelName: prodModelName,
+          certNumber: prodCertNumber,
+          deliveryInfo: prodDeliveryInfo,
+          componentsInfo: prodComponentsInfo,
+          optionGroups: prodOptionGroups
         };
       }
       return p;
     });
     onSaveProducts(updated);
     setEditingProductId(null);
-    showSaveSuccess('⚡ 신제품 제품 정보가 완벽히 갱신되었습니다!');
+    showSaveSuccess('⚡ 신제품 정보, 할인가격 및 옵션 설정이 모두 저장되었습니다!');
   };
 
   // Solution actions
@@ -2636,9 +2695,89 @@ export default function CmsEditorModal({
                       </div>
                     </div>
 
+                    {/* Price & Discount Settings matching user prompt */}
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                      <label className="block text-[11px] font-black text-slate-800">
+                        💰 정가 및 할인가격 / 할인율 설정
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <span className="block text-[10px] font-bold text-slate-500">기존 정가 (취소선 표시)</span>
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={prodOriginalPrice}
+                              onChange={(e) => setProdOriginalPrice(Number(e.target.value) || 0)}
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 line-through"
+                            />
+                            <span className="text-xs font-bold text-slate-400">원</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] font-bold text-slate-500">실제 판매가 (할인가)</span>
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={prodPrice}
+                              onChange={(e) => setProdPrice(Number(e.target.value) || 0)}
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
+                            />
+                            <span className="text-xs font-bold text-slate-700">원</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] font-bold text-slate-500">할인율 뱃지 (%)</span>
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={prodDiscountRate}
+                              onChange={(e) => setProdDiscountRate(Number(e.target.value) || 0)}
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
+                            />
+                            <span className="text-xs font-bold text-slate-700">%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Product Image & Clipboard Paste Section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
-                        <label className="block text-[11px] font-bold text-slate-700">충전기 사진 설정 (업로드 또는 URL 링크)</label>
+                        <div className="flex items-center justify-between">
+                          <label className="block text-[11px] font-bold text-slate-700">충전기 사진 설정 (업로드, 붙여넣기, URL)</label>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const clipboardItems = await navigator.clipboard.read();
+                                for (const item of clipboardItems) {
+                                  for (const type of item.types) {
+                                    if (type.startsWith('image/')) {
+                                      const blob = await item.getType(type);
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        if (reader.result) {
+                                          setProdImage(reader.result as string);
+                                          alert('📋 캡처한 이미지가 성공적으로 붙여넣어졌습니다!');
+                                        }
+                                      };
+                                      reader.readAsDataURL(blob);
+                                      return;
+                                    }
+                                  }
+                                }
+                                alert('클립보드에 이미지 파일이 없습니다. 캡처(PrtScn / Ctrl+Shift+S) 후 다시 눌러주세요.');
+                              } catch (err) {
+                                alert('아래 입력란을 클릭하고 keyboard Ctrl+V 키를 직접 누르면 캡처 이미지가 즉시 붙여넣어집니다!');
+                              }
+                            }}
+                            className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[10px] font-black cursor-pointer flex items-center gap-1"
+                          >
+                            📋 캡처 이미지 붙여넣기
+                          </button>
+                        </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
                           {/* Drag & Drop Area */}
@@ -2689,8 +2828,8 @@ export default function CmsEditorModal({
                                 }}
                               />
                               <Upload className="w-5 h-5 text-slate-400 mb-1" />
-                              <p className="text-[11px] font-black text-slate-700">충전기 사진 드래그 또는 클릭 업로드</p>
-                              <p className="text-[9px] text-slate-400 font-bold mt-0.5">PNG, JPG, JPEG 지원</p>
+                              <p className="text-[11px] font-black text-slate-700">사진 드래그, 클릭 또는 Ctrl+V 붙여넣기</p>
+                              <p className="text-[9px] text-slate-400 font-bold mt-0.5">캡처 사진 직접 붙여넣기 지원</p>
                             </div>
                           </div>
 
@@ -2723,11 +2862,13 @@ export default function CmsEditorModal({
                         </div>
 
                         <div className="space-y-1">
-                          <label className="block text-[10px] font-bold text-slate-500">URL 직접 입력 / Unsplash 프리셋 선택</label>
+                          <label className="block text-[10px] font-bold text-slate-500">URL 직접 입력 / 캡처한 이미지 Ctrl+V 붙여넣기</label>
                           <input
                             type="text"
                             value={prodImage}
                             onChange={(e) => setProdImage(e.target.value)}
+                            onPaste={(e) => handlePasteImageFromClipboard(e, setProdImage)}
+                            placeholder="이미지 URL 입력 또는 캡처 사진 붙여넣기 (Ctrl+V)"
                             className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-blue-600 font-mono"
                           />
                           <div className="grid grid-cols-4 gap-1.5 pt-1">
@@ -2748,8 +2889,50 @@ export default function CmsEditorModal({
                         </div>
                       </div>
 
-                      <div className="space-y-3.5 pt-3">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-3 pt-1">
+                        <div className="space-y-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                          <label className="block text-[10px] font-black text-slate-700">상세 메타데이터 (브랜드/제조사/모델명)</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="block text-[9px] text-slate-400 font-bold">브랜드</span>
+                              <input
+                                type="text"
+                                value={prodBrand}
+                                onChange={(e) => setProdBrand(e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[9px] text-slate-400 font-bold">제조사</span>
+                              <input
+                                type="text"
+                                value={prodManufacturer}
+                                onChange={(e) => setProdManufacturer(e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[9px] text-slate-400 font-bold">모델명</span>
+                              <input
+                                type="text"
+                                value={prodModelName}
+                                onChange={(e) => setProdModelName(e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[9px] text-slate-400 font-bold">인증번호</span>
+                              <input
+                                type="text"
+                                value={prodCertNumber}
+                                onChange={(e) => setProdCertNumber(e.target.value)}
+                                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
                           <input
                             type="checkbox"
                             checked={prodPlc}
@@ -2761,10 +2944,141 @@ export default function CmsEditorModal({
                             환경부 화재 감지용 핵심 PLC 모뎀 탑재 모델 여부
                           </label>
                         </div>
-                        
-                        <p className="text-[10.5px] text-slate-400 leading-normal font-medium">
-                          * PLC 모뎀 탑재 충전기는 충전 중인 전기차 내부의 BMS 데이터와 실시간 온도 통신을 수행하여 만충 전 전력을 자동 차단하는 최신 화재 예방 시스템입니다.
-                        </p>
+                      </div>
+                    </div>
+
+                    {/* Product Options & Additional Items Manager */}
+                    <div className="space-y-3 pt-3 border-t border-slate-200">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <div>
+                          <h6 className="text-xs font-black text-slate-800 uppercase flex items-center gap-1.5">
+                            <Settings className="w-4 h-4 text-emerald-600" />
+                            상품 옵션 및 추가구성 그룹 관리자
+                          </h6>
+                          <p className="text-[10.5px] text-slate-500 font-bold mt-0.5">
+                            사용자가 구매 시 선택할 수 있는 케이블 길이, 하이박스, 캐노피, 스탠드, 볼라드, 스토퍼, 표지판 등 옵션들을 직접 수정 및 추가합니다.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newGroup: ProductOptionGroup = {
+                              id: `grp-${Date.now()}`,
+                              title: '새 추가옵션 그룹 선택',
+                              required: false,
+                              options: [
+                                { id: `opt-${Date.now()}-1`, name: '선택 안함', price: 0 },
+                                { id: `opt-${Date.now()}-2`, name: '추가 옵션 항목 (+10,000원)', price: 10000 }
+                              ]
+                            };
+                            setProdOptionGroups([...prodOptionGroups, newGroup]);
+                          }}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center gap-1 cursor-pointer shrink-0 shadow-xs"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>옵션/추가구성 그룹 추가</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {prodOptionGroups.map((grp, grpIdx) => (
+                          <div key={grp.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                              <div className="flex items-center gap-2 flex-1">
+                                <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+                                  그룹 {grpIdx + 1}
+                                </span>
+                                <input
+                                  type="text"
+                                  value={grp.title}
+                                  onChange={(e) => {
+                                    const next = [...prodOptionGroups];
+                                    next[grpIdx].title = e.target.value;
+                                    setProdOptionGroups(next);
+                                  }}
+                                  placeholder="예: 충전선 길이 선택, 캐노피 선택..."
+                                  className="flex-1 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-black text-slate-900"
+                                />
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = prodOptionGroups.filter((_, idx) => idx !== grpIdx);
+                                  setProdOptionGroups(next);
+                                }}
+                                className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                title="그룹 삭제"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Options List */}
+                            <div className="space-y-1.5 pl-2">
+                              <div className="text-[10px] font-black text-slate-500">옵션 세부 선택 항목 (항목 명칭 / 추가 금액):</div>
+                              {grp.options.map((opt, optIdx) => (
+                                <div key={opt.id} className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={opt.name}
+                                    onChange={(e) => {
+                                      const next = [...prodOptionGroups];
+                                      next[grpIdx].options[optIdx].name = e.target.value;
+                                      setProdOptionGroups(next);
+                                    }}
+                                    placeholder="항목 명칭 (예: 7m 케이블)"
+                                    className="flex-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800"
+                                  />
+                                  <div className="flex items-center gap-1 w-32 shrink-0">
+                                    <span className="text-xs font-bold text-slate-400">+</span>
+                                    <input
+                                      type="number"
+                                      value={opt.price}
+                                      onChange={(e) => {
+                                        const next = [...prodOptionGroups];
+                                        next[grpIdx].options[optIdx].price = Number(e.target.value) || 0;
+                                        setProdOptionGroups(next);
+                                      }}
+                                      placeholder="추가금액"
+                                      className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900"
+                                    />
+                                    <span className="text-xs font-bold text-slate-500">원</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const next = [...prodOptionGroups];
+                                      next[grpIdx].options = next[grpIdx].options.filter((_, idx) => idx !== optIdx);
+                                      setProdOptionGroups(next);
+                                    }}
+                                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                                    title="항목 삭제"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = [...prodOptionGroups];
+                                  next[grpIdx].options.push({
+                                    id: `opt-${Date.now()}-${Math.random()}`,
+                                    name: '새 옵션 항목',
+                                    price: 0
+                                  });
+                                  setProdOptionGroups(next);
+                                }}
+                                className="mt-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
+                              >
+                                <Plus className="w-3 h-3" />
+                                <span>세부 옵션 항목 추가</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
 

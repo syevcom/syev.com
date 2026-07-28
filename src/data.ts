@@ -5,20 +5,97 @@
 
 import { Product, Solution, Review, FAQ } from './types';
 
+export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'grp-cable-length',
+    title: '충전선 길이 선택',
+    required: false,
+    options: [
+      { id: 'cable-5m', name: '5m (기본)', price: 0 },
+      { id: 'cable-7m', name: '7m (+30,000원)', price: 30000 },
+      { id: 'cable-10m', name: '10m (+60,000원)', price: 60000 }
+    ]
+  },
+  {
+    id: 'grp-hibox',
+    title: '하이박스 선택',
+    required: false,
+    options: [
+      { id: 'hibox-none', name: '선택 안함', price: 0 },
+      { id: 'hibox-standard', name: '계량기용 보호 하이박스 (+50,000원)', price: 50000 }
+    ]
+  },
+  {
+    id: 'grp-canopy',
+    title: '캐노피 선택',
+    required: false,
+    options: [
+      { id: 'canopy-none', name: '선택 안함', price: 0 },
+      { id: 'canopy-acrylic', name: '빗물/자외선 차단 아크릴 캐노피 (+80,000원)', price: 80000 }
+    ]
+  },
+  {
+    id: 'grp-stand',
+    title: '스탠드 선택',
+    required: false,
+    options: [
+      { id: 'stand-none', name: '선택 안함', price: 0 },
+      { id: 'stand-steel', name: '앙카식 스틸 고급 스탠드 (+150,000원)', price: 150000 }
+    ]
+  },
+  {
+    id: 'grp-bollard',
+    title: '스텐 304 앙카식 I형 볼라드 선택',
+    required: false,
+    options: [
+      { id: 'bollard-none', name: '선택 안함', price: 0 },
+      { id: 'bollard-i', name: '스텐 304 앙카식 I형 볼라드 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'grp-stopper',
+    title: '스토퍼 선택',
+    required: false,
+    options: [
+      { id: 'stopper-none', name: '선택 안함', price: 0 },
+      { id: 'stopper-rubber', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+    ]
+  },
+  {
+    id: 'grp-signboard',
+    title: '충전구역 표지판 선택',
+    required: false,
+    options: [
+      { id: 'sign-none', name: '선택 안함', price: 0 },
+      { id: 'sign-aluminum', name: '충전구역 알루미늄 표지판 (+35,000원)', price: 35000 }
+    ]
+  }
+];
+
 export const PRODUCTS: Product[] = [
   {
     id: 'sy-ac07',
-    name: '스필SE 7kW 비공용 완속 충전기',
+    name: '스필 7kW 개인용 전기차 충전기 무상AS 4년',
     type: '완속',
     power: '7kW',
-    price: 490000,
+    price: 598000,
+    originalPrice: 660000,
+    discountRate: 10,
+    brand: '스필',
+    manufacturer: '스필일렉트릭',
+    origin: '대한민국',
+    modelName: 'DO-EVC-SEC7-C/K',
+    certNumber: 'XD070158-25001A',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    rewardPointsInfo: '구매 ₩0',
     detailCategory: '비공용완속',
     features: [
+      '국내최초 무상 A/S 4년 보장',
       '화재 감지 자동 전력 차단',
       'PLC 모뎀 탑재 (화재 예방 충전)',
       '스마트 부하 분배 (Dynamic Load Balancing)',
-      'IP55 방수/방진 등급',
-      '벽걸이 및 스탠드형 지원'
+      'IP55 방수/방진 등급'
     ],
     specs: {
       '정격 입력': 'Single Phase AC 220V ± 10%, 50/60Hz',
@@ -28,8 +105,9 @@ export const PRODUCTS: Product[] = [
       '인증': 'KC 안전인증 및 계량 형식 승인 완료'
     },
     image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
-    description: '공동주택 및 개인주택에 최적화된 스마트 완속 충전기입니다. 특허받은 실시간 온도 센서와 PLC 모뎀으로 화재 위험을 원천 차단합니다.',
-    plcSupported: true
+    description: '[국내최초 무상A/S 4년] 가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기에 최적화된 스마트 완속 충전기입니다.',
+    plcSupported: true,
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
     id: 'sy-home07',
@@ -37,6 +115,16 @@ export const PRODUCTS: Product[] = [
     type: '스마트홈',
     power: '7kW',
     price: 850000,
+    originalPrice: 980000,
+    discountRate: 13,
+    brand: '롯데 이브이시스',
+    manufacturer: 'EVSIS(주)',
+    origin: '대한민국',
+    modelName: 'EVSIS-HOME-07',
+    certNumber: 'KC-EVSIS-2025-07',
+    deliveryInfo: '무료배송 (전문 기사 방문)',
+    componentsInfo: '스마트 월박스 본체 + 정품 커넥터',
+    rewardPointsInfo: '구매 ₩0',
     detailCategory: '비공용완속',
     features: [
       '단독주택/빌라 개인 전용',
@@ -54,7 +142,8 @@ export const PRODUCTS: Product[] = [
     },
     image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
     description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다. 심야 전력 요금 스케줄링이 탑재되어 매달 전기차 충전 비용을 최대로 절감합니다.',
-    plcSupported: true
+    plcSupported: true,
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
     id: 'sy-ac11-bi',
@@ -62,6 +151,16 @@ export const PRODUCTS: Product[] = [
     type: '완속',
     power: '11kW',
     price: 650000,
+    originalPrice: 750000,
+    discountRate: 13,
+    brand: '스필',
+    manufacturer: '스필일렉트릭',
+    origin: '대한민국',
+    modelName: 'DO-EVC-SEC11-C/K',
+    certNumber: 'XD070158-25002B',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    rewardPointsInfo: '구매 ₩0',
     detailCategory: '비공용중속',
     features: [
       '속도가 빠른 11kW 중속 사양',
@@ -79,7 +178,8 @@ export const PRODUCTS: Product[] = [
     },
     image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
     description: '개인용 중속 사양에 충실한 11kW 충전 모델입니다. 단시간 내에 7kW 보다 약 1.5배 빠른 충전을 경제적인 단가로 시공할 수 있습니다.',
-    plcSupported: true
+    plcSupported: true,
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
     id: 'sy-ac11',
@@ -87,6 +187,16 @@ export const PRODUCTS: Product[] = [
     type: '완속',
     power: '11kW',
     price: 1250000,
+    originalPrice: 1450000,
+    discountRate: 14,
+    brand: '롯데 이브이시스',
+    manufacturer: 'EVSIS(주)',
+    origin: '대한민국',
+    modelName: 'EVSIS-COM-11',
+    certNumber: 'KC-EVSIS-2025-11',
+    deliveryInfo: '무료배송 (전문 시공팀 방문)',
+    componentsInfo: '공용 완속 스탠드 / 벽걸이 호환',
+    rewardPointsInfo: '구매 ₩0',
     detailCategory: '공용완속',
     features: [
       '속도가 빠른 11kW 화재감지형',
@@ -104,7 +214,8 @@ export const PRODUCTS: Product[] = [
     },
     image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
     description: '오피스 빌딩, 상업 주차장에 적합한 고성능 11kW 충전기입니다. 스마트 부하 매칭으로 빌딩 계약 전력 한도 내에서 효율적으로 운영됩니다.',
-    plcSupported: true
+    plcSupported: true,
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
     id: 'sy-dc50',

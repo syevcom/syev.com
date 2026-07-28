@@ -14,6 +14,19 @@ export interface User {
   companyName?: string;
 }
 
+export interface ProductOptionItem {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface ProductOptionGroup {
+  id: string;
+  title: string;
+  required?: boolean;
+  options: ProductOptionItem[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -25,7 +38,18 @@ export interface Product {
   description: string;
   plcSupported: boolean;
   price?: number;
+  originalPrice?: number;
+  discountRate?: number;
+  brand?: string;
+  manufacturer?: string;
+  origin?: string;
+  modelName?: string;
+  certNumber?: string;
+  deliveryInfo?: string;
+  componentsInfo?: string;
+  rewardPointsInfo?: string;
   detailCategory?: '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드';
+  optionGroups?: ProductOptionGroup[];
 }
 
 export interface Solution {
@@ -103,6 +127,7 @@ export interface CartItem {
   image: string;
   quantity: number;
   price?: number;
+  selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[];
   addedAt: string;
 }
 

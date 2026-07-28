@@ -231,19 +231,8 @@ export default function Header({
           })}
         </nav>
 
-        {/* 3. Right side: Search Button + Premium Inquiry CTA + Utility */}
+        {/* 3. Right side: Premium Inquiry CTA + Utility */}
         <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5 shrink-0 pl-2 ml-auto">
-
-          {/* Quick Charger Search Button */}
-          <button
-            onClick={() => setIsSearchModalOpen(true)}
-            title="충전기 모델 / 용량 검색"
-            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-yellow-400 text-emerald-900 hover:text-slate-950 border border-emerald-200/80 hover:border-yellow-400 rounded-xl font-black text-xs transition-all cursor-pointer shadow-xs shrink-0 group"
-            id="btn-header-search"
-          >
-            <Search className="w-4 h-4 text-emerald-700 group-hover:text-slate-950 shrink-0 transition-colors" />
-            <span className="hidden xl:inline">충전기 검색</span>
-          </button>
 
           {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
           <div className="flex flex-col gap-1 w-[210px] lg:w-[240px] xl:w-[250px] 2xl:w-[270px] shrink-0">
@@ -544,33 +533,59 @@ export default function Header({
 
       {/* Sub-navigation bar for Brands (Only visible when 'sol_commercial' / Apartment Charger page is active) */}
       {activePage === 'sol_commercial' && (
-        <div className="w-full bg-slate-900 border-t border-slate-800/80 py-3 shadow-inner">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
-            {[
-              'sk일렉링크',
-              '플러그링크',
-              '이엘일렉트릭',
-              '나이스차져',
-              '에버온',
-              'nice인프라',
-              '아이파킹',
-              'LG유플러스볼트업'
-            ].map((brand) => {
-              const isSelected = selectedAptBrand === brand;
-              return (
-                <button
-                  key={brand}
-                  onClick={() => onSelectAptBrand?.(brand)}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-black scale-105'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {brand}
-                </button>
-              );
-            })}
+        <div className="w-full bg-slate-900 border-t border-slate-800/80 py-2.5 shadow-inner">
+          <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none whitespace-nowrap py-0.5 flex-1">
+              <span className="text-xs font-black text-emerald-400 shrink-0 hidden md:inline">아파트 브랜드:</span>
+              {[
+                'sk일렉링크',
+                '플러그링크',
+                '이엘일렉트릭',
+                '나이스차져',
+                '에버온',
+                'NICE인프라',
+                '아이파킹',
+                'LG유플러스볼트업'
+              ].map((brand) => {
+                const isSelected = selectedAptBrand === brand;
+                return (
+                  <button
+                    key={brand}
+                    onClick={() => {
+                      onSelectAptBrand?.(brand);
+                      setTimeout(() => {
+                        const el = document.getElementById('apt-brand-section');
+                        if (el) {
+                          const yOffset = -120;
+                          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+                        } else {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }, 50);
+                    }}
+                    className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-black scale-105'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {brand}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              title="충전기 모델 / 용량 검색"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              id="btn-header-search"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+              <span className="whitespace-nowrap">🔍 충전기 검색</span>
+            </button>
           </div>
         </div>
       )}
@@ -578,78 +593,127 @@ export default function Header({
       {/* Sub-navigation bar for Home Charger (Price Type & Power Capacities) */}
       {activePage === 'sol_residential' && (
         <div className="w-full bg-emerald-950 border-t border-emerald-900/40 py-2.5 shadow-inner">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3">
-            {/* Price Category Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
-              <span className="text-[11px] font-black text-emerald-400 mr-1 hidden sm:inline">구분:</span>
-              {[
-                { id: '단말기 단품', label: '📦 단말기 단품' },
-                { id: '교체 시공', label: '🛠️ 교체 시공' },
-                { id: '신규 설치 포함', label: '⚡ 설치 포함 (신규)' }
-              ].map((st) => {
-                const isSelected = selectedHomeServiceType === st.id;
-                return (
-                  <button
-                    key={st.id}
-                    onClick={() => onSelectHomeServiceType?.(st.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                      isSelected
-                        ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 font-black scale-105'
-                        : 'text-emerald-100 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {st.label}
-                  </button>
-                );
-              })}
+          <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 overflow-x-auto scrollbar-none whitespace-nowrap flex-1">
+              {/* Price Category Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
+                <span className="text-[11px] font-black text-emerald-400 mr-1 hidden sm:inline">구분:</span>
+                {[
+                  { id: '단말기 단품', label: '📦 단말기 단품' },
+                  { id: '교체 시공', label: '🛠️ 교체 시공' },
+                  { id: '신규 설치 포함', label: '⚡ 설치 포함 (신규)' }
+                ].map((st) => {
+                  const isSelected = selectedHomeServiceType === st.id;
+                  return (
+                    <button
+                      key={st.id}
+                      onClick={() => onSelectHomeServiceType?.(st.id)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                        isSelected
+                          ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 font-black scale-105'
+                          : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Power Capacity Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap border-l border-emerald-800/60 pl-3">
+                <span className="text-[11px] font-black text-amber-300 mr-1 hidden sm:inline">용량:</span>
+                {['5kW', '7kW', '11kW'].map((kw) => {
+                  const isSelected = selectedHomePower === kw;
+                  return (
+                    <button
+                      key={kw}
+                      onClick={() => onSelectHomePower?.(kw)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                        isSelected
+                          ? 'bg-yellow-400 text-slate-950 shadow-md shadow-yellow-400/30 font-black scale-105'
+                          : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      ⚡ {kw}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Power Capacity Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
-              <span className="text-[11px] font-black text-amber-300 mr-1 hidden sm:inline">용량:</span>
-              {['5kW', '7kW', '11kW'].map((kw) => {
-                const isSelected = selectedHomePower === kw;
-                return (
-                  <button
-                    key={kw}
-                    onClick={() => onSelectHomePower?.(kw)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                      isSelected
-                        ? 'bg-yellow-400 text-slate-950 shadow-md shadow-yellow-400/30 font-black scale-105'
-                        : 'text-emerald-100 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    ⚡ {kw}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              title="충전기 모델 / 용량 검색"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              id="btn-header-search"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+              <span className="whitespace-nowrap">🔍 충전기 검색</span>
+            </button>
           </div>
         </div>
       )}
 
       {/* Sub-navigation bar for ParkingLot (Only visible when 'sol_parking' is active) */}
       {activePage === 'sol_parking' && (
-        <div className="w-full bg-slate-900 border-t border-slate-800 py-3 shadow-inner">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap">
-            {[
-              '공용 BIZ 충전기'
-            ].map((cap) => {
-              const isSelected = selectedParkingCapacity === cap;
-              return (
-                <button
-                  key={cap}
-                  onClick={() => onSelectParkingCapacity?.(cap)}
-                  className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-blue-500 text-slate-950 shadow-md shadow-blue-500/35 font-black scale-105'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {cap}
-                </button>
-              );
-            })}
+        <div className="w-full bg-slate-900 border-t border-slate-800 py-2.5 shadow-inner">
+          <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap flex-1">
+              {[
+                '공용 BIZ 충전기'
+              ].map((cap) => {
+                const isSelected = selectedParkingCapacity === cap;
+                return (
+                  <button
+                    key={cap}
+                    onClick={() => onSelectParkingCapacity?.(cap)}
+                    className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-blue-500 text-slate-950 shadow-md shadow-blue-500/35 font-black scale-105'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {cap}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              title="충전기 모델 / 용량 검색"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              id="btn-header-search"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+              <span className="whitespace-nowrap">🔍 충전기 검색</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sub-bar for Home, About, Review (Moves search button 1 line down cleanly) */}
+      {(activePage === 'home' || activePage === 'about' || activePage === 'review') && (
+        <div className="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 py-2 shadow-sm">
+          <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-300 font-bold">
+              <span className="bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-md border border-emerald-500/30 font-black">원스톱 서비스</span>
+              <span className="hidden sm:inline text-slate-300">전국 최대 네트워크! 원하는 전기차 충전기 모델과 용량을 원클릭으로 검색해보세요.</span>
+            </div>
+
+            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              title="충전기 모델 / 용량 검색"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              id="btn-header-search"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+              <span className="whitespace-nowrap">🔍 충전기 검색</span>
+            </button>
           </div>
         </div>
       )}

@@ -449,7 +449,7 @@ export default function QuoteModal({
                               { id: 'el-electric', name: '이엘일렉트릭', desc: '화재 예방 특화 차단' },
                               { id: 'nice-charger', name: '나이스차져', desc: '금융급 완벽 과금 관리' },
                               { id: 'everon', name: '에버온', desc: '전국 최다 시공 실적' },
-                              { id: 'hyundai-eng', name: '현대엔지니어링', desc: '현대자동차 공식 파트너' },
+                              { id: 'nice-infra', name: 'NICE인프라', desc: 'NICE 그룹 신뢰 인프라' },
                               { id: 'iparking', name: '아이파킹', desc: '무인 주차 1위 연동 제어' },
                               { id: 'lg-voltup', name: 'LG유플러스볼트업', desc: 'LG 신뢰성 망 프리미엄' }
                             ].map((b) => {
