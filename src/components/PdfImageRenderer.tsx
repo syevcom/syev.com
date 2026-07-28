@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, FileText, LayoutGrid, List, Sparkles, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, FileText, LayoutGrid, List, Sparkles, RefreshCw, Lock, Unlock, Check } from 'lucide-react';
 
 interface PdfImageRendererProps {
   fileUrl: string;
@@ -19,66 +19,141 @@ export default function PdfImageRenderer({ fileUrl, fileName = 'document.pdf', b
   return <PdfCatalogViewer pdfUrl={fileUrl} fileName={fileName} brandName={brandName} isAdmin={isAdmin} />;
 }
 
+const PRESET_ZOOM_LEVELS = [50, 75, 100, 125, 150, 180, 200, 250, 300];
+
 // 1. Native Image Viewer (for JPG, PNG uploads)
 function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageUrl: string; fileName: string; brandName: string; isAdmin: boolean }) {
-  const [zoom, setZoom] = useState(100);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoom, setZoom] = useState<number>(() => {
+    const saved = localStorage.getItem('sy_catalog_zoom_percent');
+    return saved ? Math.min(Math.max(Number(saved), 30), 400) : 100;
+  });
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 200));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 50));
-  const handleResetZoom = () => setZoom(100);
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    return localStorage.getItem('sy_catalog_zoom_locked') === 'true';
+  });
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const applyZoom = (newZoom: number) => {
+    const clamped = Math.min(Math.max(newZoom, 30), 400);
+    setZoom(clamped);
+    if (isLocked) {
+      localStorage.setItem('sy_catalog_zoom_percent', String(clamped));
+    }
+  };
+
+  const handleZoomIn = () => applyZoom(zoom + 25);
+  const handleZoomOut = () => applyZoom(zoom - 25);
+
+  const handleToggleLock = () => {
+    const nextLock = !isLocked;
+    setIsLocked(nextLock);
+    localStorage.setItem('sy_catalog_zoom_locked', String(nextLock));
+    if (nextLock) {
+      localStorage.setItem('sy_catalog_zoom_percent', String(zoom));
+      showToast(`🔒 카탈로그 배율이 ${zoom}%로 고정되었습니다. 다른 상품을 볼 때도 유지됩니다.`);
+    } else {
+      showToast('🔓 배율 고정이 해제되었습니다.');
+    }
+  };
 
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
 
   return (
     <div className="relative border border-slate-800 bg-slate-950/60 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-xl border border-emerald-300 flex items-center gap-1.5 animate-fadeIn">
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
       {/* Header Controls */}
       <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-[9px] font-black uppercase">
             IMAGE
           </span>
-          <span className="text-xs font-bold text-slate-200 truncate max-w-[200px]" title={displayName}>
+          <span className="text-xs font-bold text-slate-200 truncate max-w-[180px]" title={displayName}>
             {displayName}
           </span>
         </div>
 
-        {/* Zoom Controls */}
-        <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-xl">
+        {/* Zoom Controls Bar */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2 py-1 rounded-xl">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              title="축소"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Direct Percent Select Dropdown */}
+            <select
+              value={zoom}
+              onChange={(e) => applyZoom(Number(e.target.value))}
+              className="bg-slate-900 text-emerald-400 text-xs font-mono font-black border border-slate-700 rounded-lg px-2 py-0.5 focus:outline-none cursor-pointer"
+            >
+              {PRESET_ZOOM_LEVELS.map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  {lvl}%
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              title="확대"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Lock / Fix Percentage Button */}
           <button
             type="button"
-            onClick={handleZoomOut}
-            className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-            title="축소"
+            onClick={handleToggleLock}
+            className={`px-3 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer border ${
+              isLocked
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+            }`}
+            title={isLocked ? '배율 고정됨 (클릭 시 해제)' : '현재 퍼센트 배율 고정하기'}
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            {isLocked ? (
+              <>
+                <Lock className="w-3.5 h-3.5" />
+                <span>배율 고정 ({zoom}%)</span>
+              </>
+            ) : (
+              <>
+                <Unlock className="w-3.5 h-3.5 text-slate-400" />
+                <span>배율 고정하기</span>
+              </>
+            )}
           </button>
-          <span 
-            onClick={handleResetZoom}
-            className="text-[10px] font-mono text-slate-300 font-bold min-w-[36px] text-center cursor-pointer hover:text-emerald-400 select-none"
-            title="줌 초기화"
-          >
-            {zoom}%
-          </span>
+
+          {/* Fullscreen Button */}
           <button
             type="button"
-            onClick={handleZoomIn}
-            className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-            title="확대"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1.5 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold border border-slate-800"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>전체화면</span>
           </button>
         </div>
-
-        {/* Action Button */}
-        <button
-          type="button"
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-1.5 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-        >
-          <Maximize2 className="w-3.5 h-3.5" />
-          <span>전체화면</span>
-        </button>
       </div>
 
       {/* Main Image Stage - Unlimited height for natural vertical scrolling */}
@@ -101,7 +176,7 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
         <span>이미지 카탈로그 뷰어</span>
         <span className="text-emerald-500 flex items-center gap-1">
           <Sparkles className="w-3 h-3 animate-pulse" />
-          100% 모바일/웹 최적화 렌더링 완료
+          {isLocked ? `배율 ${zoom}% 고정 모드` : '100% 모바일/웹 최적화 렌더링 완료'}
         </span>
       </div>
 
@@ -139,8 +214,46 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
   const [error, setError] = useState<string | null>(null);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [numPages, setNumPages] = useState(0);
-  const [zoom, setZoom] = useState(160); // crisp high-quality larger standard zoom
+
+  const [zoom, setZoom] = useState<number>(() => {
+    const saved = localStorage.getItem('sy_catalog_zoom_percent');
+    return saved ? Math.min(Math.max(Number(saved), 40), 400) : 150;
+  });
+
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    return localStorage.getItem('sy_catalog_zoom_locked') === 'true';
+  });
+
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  const applyZoom = (newZoom: number) => {
+    const clamped = Math.min(Math.max(newZoom, 40), 400);
+    setZoom(clamped);
+    if (isLocked) {
+      localStorage.setItem('sy_catalog_zoom_percent', String(clamped));
+    }
+  };
+
+  const handleZoomIn = () => applyZoom(zoom + 20);
+  const handleZoomOut = () => applyZoom(zoom - 20);
+
+  const handleToggleLock = () => {
+    const nextLock = !isLocked;
+    setIsLocked(nextLock);
+    localStorage.setItem('sy_catalog_zoom_locked', String(nextLock));
+    if (nextLock) {
+      localStorage.setItem('sy_catalog_zoom_percent', String(zoom));
+      showToast(`🔒 PDF 사양서 배율이 ${zoom}%로 고정되었습니다.`);
+    } else {
+      showToast('🔓 배율 고정이 해제되었습니다.');
+    }
+  };
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -226,14 +339,17 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
     };
   }, [pdfLibLoaded, pdfUrl]);
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 20, 240));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 20, 60));
-  const handleResetZoom = () => setZoom(120);
-
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
 
   return (
     <div className="relative border border-slate-800 bg-slate-950/60 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-xl border border-amber-300 flex items-center gap-1.5 animate-fadeIn">
+          <span>{toastMsg}</span>
+        </div>
+      )}
+
       {/* Top Controller Bar */}
       <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-2">
@@ -245,55 +361,84 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
           </span>
         </div>
 
-        {/* Info Label instead of Toggles */}
+        {/* Info Label */}
         <div className="text-[10px] text-slate-400 font-bold bg-slate-950 border border-slate-800 px-3 py-1 rounded-xl flex items-center gap-1.5">
           <LayoutGrid className="w-3.5 h-3.5 text-amber-400" />
-          <span>모든 페이지 스크롤 뷰 ({numPages} Pages)</span>
+          <span>전체 스크롤 ({numPages} Pages)</span>
         </div>
 
-        {/* Zoom Controls */}
+        {/* Zoom & Lock Controls */}
         {!loading && !error && (
-          <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-xl">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-xl">
+              <button
+                type="button"
+                onClick={handleZoomOut}
+                className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                title="축소"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+
+              <select
+                value={zoom}
+                onChange={(e) => applyZoom(Number(e.target.value))}
+                className="bg-slate-900 text-amber-400 text-xs font-mono font-black border border-slate-700 rounded-lg px-2 py-0.5 focus:outline-none cursor-pointer"
+              >
+                {PRESET_ZOOM_LEVELS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {lvl}%
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handleZoomIn}
+                className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                title="확대"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={handleZoomOut}
-              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-              title="축소"
+              onClick={handleToggleLock}
+              className={`px-3 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer border ${
+                isLocked
+                  ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-400/20'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+              title={isLocked ? '배율 고정됨 (클릭 시 해제)' : '현재 퍼센트 배율 고정하기'}
             >
-              <ZoomOut className="w-3.5 h-3.5" />
+              {isLocked ? (
+                <>
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>배율 고정 ({zoom}%)</span>
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>배율 고정하기</span>
+                </>
+              )}
             </button>
-            <span
-              onClick={handleResetZoom}
-              className="text-[10px] font-mono text-slate-300 font-bold min-w-[36px] text-center cursor-pointer hover:text-amber-400 select-none"
-              title="줌 초기화"
-            >
-              {zoom}%
-            </span>
+
+            {/* Fullscreen Button */}
             <button
               type="button"
-              onClick={handleZoomIn}
-              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-              title="확대"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-1.5 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold border border-slate-800"
             >
-              <ZoomIn className="w-3.5 h-3.5" />
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span>전체화면</span>
             </button>
           </div>
         )}
-
-        {/* Fullscreen Button */}
-        {!loading && !error && (
-          <button
-            type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1.5 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-            <span>전체화면</span>
-          </button>
-        )}
       </div>
 
-      {/* Main Content Render Area - Unlimited height for natural vertical scrolling down the page */}
+      {/* Main Content Render Area */}
       <div 
         ref={containerRef}
         className="bg-slate-900/40 p-4 overflow-visible flex flex-col items-center min-h-[420px] h-auto relative scroll-smooth"
@@ -363,7 +508,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
         </div>
         <span className="text-amber-400 flex items-center gap-1">
           <Sparkles className="w-3 h-3 animate-pulse" />
-          고선명 스마트 이미지 컨버팅 완료 (PDF.js Engine)
+          {isLocked ? `배율 ${zoom}% 고정 모드` : '고선명 스마트 이미지 컨버팅 완료 (PDF.js Engine)'}
         </span>
       </div>
 

@@ -2719,30 +2719,24 @@ export default function SolutionsSection({
                   </div>
                 )}
 
-                {/* 2. Visuals & Details Block */}
-                <div id={`brochure-view-${sol.id}`} className="space-y-6 pt-2 scroll-mt-20">
-                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
-                    <>
-                      <div className="space-y-1">
-                        <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">SOLUTION DETAIL BROCHURE</span>
-                        <h4 className="text-base font-black text-slate-900">{sol.title} 상세안내 카탈로그</h4>
-                      </div>
+                {/* 2. Visuals & Details Block - Official Specification Sheet & Catalog for all solution categories */}
+                <div id={`brochure-view-${sol.id}`} className="space-y-4 pt-4 border-t border-slate-200/80 scroll-mt-20">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-blue-600 font-extrabold text-[10px] tracking-widest uppercase block">SOLUTION DETAIL BROCHURE & SPECIFICATION</span>
+                      <h4 className="text-base sm:text-lg font-black text-slate-900">{sol.title} 공식 사양서 및 상세 카탈로그</h4>
+                    </div>
+                    <span className="text-[11px] font-extrabold text-slate-600 bg-slate-100 px-3 py-1 rounded-full w-max border border-slate-200">
+                      💡 상단 컨트롤바에서 카탈로그 퍼센트(배율)를 직접 조절 및 고정할 수 있습니다
+                    </span>
+                  </div>
 
-                      {/* Adaptive Detail / Brochure Viewer (Fully expanded single page design - 100% height object-contain) */}
-                      <div className="flex flex-col rounded-3xl overflow-hidden shadow-lg border border-slate-200 bg-slate-950 w-full group/banner relative">
-                        <div className="w-full h-auto flex flex-col items-center justify-center bg-slate-950 p-1">
-                          <img
-                            src={sol.detailImageUrl || sol.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'}
-                            alt={`${sol.title} 상세페이지 카탈로그`}
-                            referrerPolicy="no-referrer"
-                            className="w-full h-auto object-contain rounded-2xl"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Recommended Products & Specifications Grid removed per user request */}
+                  <PdfImageRenderer 
+                    fileUrl={sol.detailImageUrl || sol.image || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'}
+                    fileName={`${sol.title}_공식사양서_카탈로그.pdf`}
+                    brandName={sol.title}
+                    isAdmin={isEditMode}
+                  />
                 </div>
               </div>
             </section>
