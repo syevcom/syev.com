@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Mail, Lock, User, Building, Landmark, Check, Sparkles } from 'lucide-react';
+import { X, Mail, Lock, User, Building, Landmark, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { User as UserType } from '../types';
 
@@ -113,18 +113,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
         setSuccess('');
       }, 1200);
     }
-  };
-
-  const autoFillB2B = () => {
-    setEmail('b2b_partner@corp.com');
-    setPassword('password123');
-    setIsLogin(true);
-  };
-
-  const autoFillB2C = () => {
-    setEmail('sy.car.com@gmail.com');
-    setPassword('password123');
-    setIsLogin(true);
   };
 
   return (
@@ -406,46 +394,21 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
             )}
           </div>
 
-          {/* Quick Account Fill (For easy user assessment) */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-2 text-center">
-              평가를 위한 빠른 계정 자동 입력
-            </p>
-            <div className="grid grid-cols-2 gap-2">
+          {/* Admin Login Link */}
+          {onOpenAdminLogin && (
+            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
               <button
                 type="button"
-                onClick={autoFillB2C}
-                id="btn-autofill-b2c"
-                className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 text-[10px] font-bold text-slate-600 text-left flex justify-between items-center cursor-pointer"
+                onClick={() => {
+                  onClose();
+                  onOpenAdminLogin();
+                }}
+                className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors cursor-pointer inline-flex items-center gap-1"
               >
-                <span>B2C 개인고객 체험</span>
-                <Sparkles className="h-3 w-3 text-blue-500" />
-              </button>
-              <button
-                type="button"
-                onClick={autoFillB2B}
-                id="btn-autofill-b2b"
-                className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 text-[10px] font-bold text-slate-600 text-left flex justify-between items-center cursor-pointer"
-              >
-                <span>B2B 법인고객 체험</span>
-                <Sparkles className="h-3 w-3 text-indigo-500" />
+                <span>🔒 관리자 전용 계정 로그인</span>
               </button>
             </div>
-            {onOpenAdminLogin && (
-              <div className="mt-3 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenAdminLogin();
-                  }}
-                  className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors cursor-pointer inline-flex items-center gap-1"
-                >
-                  <span>🔒 관리자 전용 계정 로그인</span>
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </motion.div>
     </div>

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Solution, ActivePage } from '../types';
-import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3 } from 'lucide-react';
+import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCTS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
@@ -1442,11 +1442,16 @@ export default function SolutionsSection({
             {/* Main Product Image Container with Drag&Drop & Change Image Overlay */}
             <div
               onDragOver={(e) => {
+                if (!isEditMode) return;
                 e.preventDefault();
                 setIsLeftImageDragging(true);
               }}
-              onDragLeave={() => setIsLeftImageDragging(false)}
+              onDragLeave={() => {
+                if (!isEditMode) return;
+                setIsLeftImageDragging(false);
+              }}
               onDrop={(e) => {
+                if (!isEditMode) return;
                 e.preventDefault();
                 setIsLeftImageDragging(false);
                 const file = e.dataTransfer.files?.[0];
@@ -1483,20 +1488,22 @@ export default function SolutionsSection({
                 )}
               </div>
 
-              {/* Top Right Direct Image Change Button */}
-              <div className="absolute top-4 right-4 z-20">
-                <button
-                  type="button"
-                  onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
-                  className="px-3.5 py-2 bg-slate-900/90 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow-lg border border-white/20 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
-                  title="대표 충전기 이미지 변경"
-                >
-                  <span>📷 이미지 변경</span>
-                </button>
-              </div>
+              {/* Top Right Direct Image Change Button (Admin Only) */}
+              {isEditMode && (
+                <div className="absolute top-4 right-4 z-20">
+                  <button
+                    type="button"
+                    onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
+                    className="px-3.5 py-2 bg-slate-900/90 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow-lg border border-white/20 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                    title="대표 충전기 이미지 변경 (관리자 전용)"
+                  >
+                    <span>📷 이미지 변경</span>
+                  </button>
+                </div>
+              )}
 
-              {/* Drag & Drop Indicator Overlay */}
-              {isLeftImageDragging && (
+              {/* Drag & Drop Indicator Overlay (Admin Only) */}
+              {isEditMode && isLeftImageDragging && (
                 <div className="absolute inset-0 bg-emerald-900/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-30 p-4 text-center animate-fadeIn">
                   <Upload className="w-12 h-12 mb-2 text-emerald-300 animate-bounce" />
                   <p className="font-black text-sm">여기에 이미지를 놓으면 바로 변경됩니다!</p>
@@ -1606,9 +1613,11 @@ export default function SolutionsSection({
               <div className="flex items-center gap-2 overflow-x-auto py-1">
                 {/* Thumbnail 1 (Active) */}
                 <div
-                  onClick={() => setIsLeftImagePickerOpen(true)}
+                  onClick={() => {
+                    if (isEditMode) setIsLeftImagePickerOpen(true);
+                  }}
                   className="w-14 h-14 border-2 border-emerald-600 flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs relative group"
-                  title="현재 메인 대표 이미지"
+                  title={isEditMode ? "현재 메인 대표 이미지 (클릭하여 변경)" : "현재 메인 대표 이미지"}
                 >
                   <img src={activeDetailProduct.image} alt="thumbnail active" className="w-full h-full object-contain" />
                   <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[9px] font-black px-1 rounded-full">대표</span>
@@ -1622,25 +1631,29 @@ export default function SolutionsSection({
                 ].map((thumbUrl, tIdx) => (
                   <div
                     key={tIdx}
-                    onClick={() => handleApplyLeftImageChange(thumbUrl)}
+                    onClick={() => {
+                      if (isEditMode) handleApplyLeftImageChange(thumbUrl);
+                    }}
                     className={`w-14 h-14 border flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs transition-all ${
                       activeDetailProduct.image === thumbUrl ? 'border-emerald-600 border-2' : 'border-slate-200 hover:border-emerald-400'
                     }`}
-                    title="클릭하여 이 이미지로 변경"
+                    title={isEditMode ? "클릭하여 이 이미지로 변경" : "샘플 이미지"}
                   >
                     <img src={thumbUrl} alt={`thumbnail preset ${tIdx}`} className="w-full h-full object-contain" />
                   </div>
                 ))}
               </div>
 
-              {/* Image Change Trigger Button in Gallery Row */}
-              <button
-                type="button"
-                onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
-                className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-black rounded-xl border border-slate-200 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
-              >
-                <span>📷 사진 변경</span>
-              </button>
+              {/* Image Change Trigger Button in Gallery Row (Admin Only) */}
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
+                  className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-black rounded-xl border border-slate-200 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                >
+                  <span>📷 사진 변경</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -2009,49 +2022,90 @@ export default function SolutionsSection({
                       {/* Decorative Background Glow */}
                       <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
                       
-                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-emerald-500/30 pb-4 relative z-10">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl sm:text-2xl">{brandData.icon}</span>
-                            <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
-                              SY.com 아파트 브랜드 공식 파트너
-                            </span>
+                      <div className="space-y-4 border-b border-emerald-500/30 pb-5 relative z-10">
+                        {/* Top Info Row */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl sm:text-2xl">{brandData.icon}</span>
+                              <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                                SY.com 아파트 브랜드 공식 파트너
+                              </span>
+                            </div>
+                            <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                              {brandData.name}
+                            </h4>
+                            <p className="text-sm text-emerald-100 font-bold">
+                              {brandData.slogan}
+                            </p>
                           </div>
-                          <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                            {brandData.name}
-                          </h4>
-                          <p className="text-sm text-emerald-100 font-bold">
-                            {brandData.slogan}
-                          </p>
+
+                          <div className="flex items-center gap-2 bg-emerald-900/60 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold text-amber-300 self-start sm:self-auto shrink-0 shadow-sm">
+                            <span>🏢 아파트 브랜드 선택 ({Object.keys(brands).length}개)</span>
+                          </div>
                         </div>
-                        <div className="flex gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none self-stretch lg:self-auto">
-                          {Object.keys(brands).map((b) => {
-                            const isSel = selectedAptBrand === b;
-                            return (
-                              <button
-                                key={b}
-                                type="button"
-                                onClick={() => {
-                                  onSelectAptBrand?.(b);
-                                  setTimeout(() => {
-                                    const el = document.getElementById('apt-brand-section');
-                                    if (el) {
-                                      const yOffset = -110;
-                                      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                                      window.scrollTo({ top: y, behavior: 'smooth' });
-                                    }
-                                  }, 50);
-                                }}
-                                className={`px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                                  isSel
-                                    ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/30 scale-103'
-                                    : 'bg-emerald-800/80 text-emerald-100 hover:text-white hover:bg-emerald-700/80'
-                                }`}
-                              >
-                                {b}
-                              </button>
-                            );
-                          })}
+
+                        {/* Full-Width Horizontal Brand Selector with Scroll Buttons & Visible Yellow Scrollbar */}
+                        <div className="relative flex items-center gap-2 bg-emerald-950/40 p-2.5 rounded-2xl border border-emerald-500/30 shadow-inner">
+                          {/* Left Navigation Arrow */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const el = document.getElementById('apt-brand-scroll-container');
+                              if (el) el.scrollBy({ left: -240, behavior: 'smooth' });
+                            }}
+                            className="p-2.5 bg-emerald-800 hover:bg-yellow-400 hover:text-slate-950 text-white rounded-xl transition-all shadow-md shrink-0 border border-emerald-500/40 cursor-pointer active:scale-95"
+                            title="왼쪽 브랜드 보기"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+
+                          {/* Scrollable Container with Custom High-Contrast Scrollbar */}
+                          <div
+                            id="apt-brand-scroll-container"
+                            className="flex gap-2 overflow-x-auto py-1.5 scroll-smooth w-full [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-track]:bg-emerald-950/80 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-amber-400 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-amber-300 cursor-grab active:cursor-grabbing"
+                          >
+                            {Object.keys(brands).map((b) => {
+                              const isSel = selectedAptBrand === b;
+                              return (
+                                <button
+                                  key={b}
+                                  type="button"
+                                  onClick={() => {
+                                    onSelectAptBrand?.(b);
+                                    setTimeout(() => {
+                                      const el = document.getElementById('apt-brand-section');
+                                      if (el) {
+                                        const yOffset = -110;
+                                        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                        window.scrollTo({ top: y, behavior: 'smooth' });
+                                      }
+                                    }, 50);
+                                  }}
+                                  className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                                    isSel
+                                      ? 'bg-yellow-400 text-slate-950 shadow-lg shadow-yellow-400/30 scale-102 ring-2 ring-yellow-200'
+                                      : 'bg-emerald-800/90 text-emerald-100 hover:text-white hover:bg-emerald-700 border border-emerald-500/30'
+                                  }`}
+                                >
+                                  {b}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Right Navigation Arrow */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const el = document.getElementById('apt-brand-scroll-container');
+                              if (el) el.scrollBy({ left: 240, behavior: 'smooth' });
+                            }}
+                            className="p-2.5 bg-emerald-800 hover:bg-yellow-400 hover:text-slate-950 text-white rounded-xl transition-all shadow-md shrink-0 border border-emerald-500/40 cursor-pointer active:scale-95"
+                            title="오른쪽 브랜드 보기"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
 
