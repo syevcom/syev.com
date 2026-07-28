@@ -11,6 +11,7 @@ import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 
 interface CmsEditorModalProps {
   isOpen: boolean;
+  isEditMode?: boolean;
   onClose: () => void;
   
   headerConfig: HeaderConfig;
@@ -232,6 +233,7 @@ const DEFAULT_FIELDS: {
 
 export default function CmsEditorModal({
   isOpen,
+  isEditMode,
   onClose,
   headerConfig,
   onSaveHeaderConfig,
@@ -970,6 +972,8 @@ export default function CmsEditorModal({
       }, 1000);
     }
   };
+
+  if (!isOpen || (isEditMode !== undefined && !isEditMode)) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

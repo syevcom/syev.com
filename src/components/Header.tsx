@@ -607,7 +607,20 @@ export default function Header({
                   return (
                     <button
                       key={st.id}
-                      onClick={() => onSelectHomeServiceType?.(st.id)}
+                      onClick={() => {
+                        if (activePage !== 'sol_residential') {
+                          onPageChange('sol_residential');
+                        }
+                        onSelectHomeServiceType?.(st.id);
+                        setTimeout(() => {
+                          const el = document.getElementById('home-options-section');
+                          if (el) {
+                            const yOffset = -110;
+                            const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+                          }
+                        }, 60);
+                      }}
                       className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
                         isSelected
                           ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 font-black scale-105'
@@ -628,7 +641,20 @@ export default function Header({
                   return (
                     <button
                       key={kw}
-                      onClick={() => onSelectHomePower?.(kw)}
+                      onClick={() => {
+                        if (activePage !== 'sol_residential') {
+                          onPageChange('sol_residential');
+                        }
+                        onSelectHomePower?.(kw);
+                        setTimeout(() => {
+                          const el = document.getElementById('home-options-section');
+                          if (el) {
+                            const yOffset = -110;
+                            const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                            window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+                          }
+                        }, 60);
+                      }}
                       className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
                         isSelected
                           ? 'bg-yellow-400 text-slate-950 shadow-md shadow-yellow-400/30 font-black scale-105'

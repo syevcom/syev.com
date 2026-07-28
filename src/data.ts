@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Product, Solution, Review, FAQ } from './types';
+import { Product, Solution, Review, FAQ, ProductOptionGroup } from './types';
 
 export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
   {

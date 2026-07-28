@@ -13,6 +13,8 @@ interface MyPageModalProps {
   asRequests?: ASRequest[];
   onOpenCartModal: () => void;
   onOpenQuoteModal: () => void;
+  isEditMode?: boolean;
+  onUpdateUserProfileImage?: (newImage: string) => void;
 }
 
 export default function MyPageModal({
@@ -25,16 +27,80 @@ export default function MyPageModal({
   asRequests = [],
   onOpenCartModal,
   onOpenQuoteModal,
+  isEditMode = false,
+  onUpdateUserProfileImage,
 }: MyPageModalProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'cart'>('profile');
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
 
   if (!isOpen || !user) return null;
 
   // Filter bookings for current user (matched by email/phone or all if not matched)
   const myBookings = bookings.filter((b) => b.userId === user.id || b.name === user.name);
 
+  const handleProfileImageChangeClick = () => {
+    if (!isEditMode) {
+      setProfileMessage('🔒 프로필 이미지 변경은 관리자(Admin) 권한이 필요합니다. 상단 관리자 아이콘을 통해 관리자로 로그인해 주세요.');
+      setTimeout(() => setProfileMessage(null), 4000);
+      return;
+    }
+
+    // Trigger file picker if admin
+    const fileInput = document.getElementById('mypage-profile-image-input');
+    if (fileInput) fileInput.click();
+  };
+
+  const handleImageFileSelected = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일(PNG, JPG, JPEG)만 선택해 주세요.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      onUpdateUserProfileImage?.(dataUrl);
+      setProfileMessage('✅ 프로필 이미지가 성공적으로 변경되었습니다!');
+      setTimeout(() => setProfileMessage(null), 3000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Clipboard Paste Handler for Profile Picture (Ctrl+V / Cmd+V)
+  const handlePasteImage = (e: React.ClipboardEvent) => {
+    if (!isEditMode) {
+      setProfileMessage('🔒 프로필 이미지 변경은 관리자(Admin) 권한이 필요합니다.');
+      setTimeout(() => setProfileMessage(null), 3000);
+      return;
+    }
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          handleImageFileSelected(file);
+          break;
+        }
+      }
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onPaste={handlePasteImage}
+    >
+      <input
+        type="file"
+        id="mypage-profile-image-input"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImageFileSelected(file);
+        }}
+      />
+
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -54,8 +120,21 @@ export default function MyPageModal({
         {/* Header */}
         <div className="p-5 border-b border-slate-100 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-lg">
-              <UserIcon className="w-6 h-6" />
+            <div 
+              onClick={handleProfileImageChangeClick}
+              className={`relative w-12 h-12 rounded-2xl overflow-hidden border border-emerald-500/30 flex items-center justify-center font-bold text-lg cursor-pointer group ${
+                user.profileImage ? 'bg-slate-800' : 'bg-emerald-500/20 text-emerald-400'
+              }`}
+              title={isEditMode ? '클릭하여 프로필 이미지 변경 (또는 Ctrl+V 캡처 이미지 붙여넣기)' : '프로필 이미지 (관리자 전용 변경)'}
+            >
+              {user.profileImage ? (
+                <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-6 h-6" />
+              )}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] font-black text-white text-center leading-tight">
+                {isEditMode ? '사진 변경' : '🔒 관리자 전용'}
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -63,6 +142,11 @@ export default function MyPageModal({
                 <span className="bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
                   {user.type === 'B2B' ? '기업/사업자 B2B' : '개인 B2C'}
                 </span>
+                {isEditMode && (
+                  <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
+                    Admin 관리자
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-300">{user.email}</p>
             </div>
@@ -128,6 +212,11 @@ export default function MyPageModal({
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {activeTab === 'profile' && (
             <div className="space-y-5">
+              {profileMessage && (
+                <div className={`p-3 rounded-2xl text-xs font-black shadow-sm ${profileMessage.includes('🔒') || profileMessage.includes('⚠️') ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-emerald-50 text-emerald-900 border border-emerald-200'}`}>
+                  {profileMessage}
+                </div>
+              )}
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
                 <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />

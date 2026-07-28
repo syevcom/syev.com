@@ -824,6 +824,11 @@ export default function App() {
   };
 
   const handleOpenCmsTab = (tab: typeof cmsTab) => {
+    if (!isEditMode) {
+      alert('대표자 프로필 사진 및 콘텐츠 편집은 관리자 전용 기능입니다. 관리자로 로그인해 주세요.');
+      setIsAdminLoginOpen(true);
+      return;
+    }
     setCmsTab(tab);
     setIsCmsOpen(true);
   };
@@ -1307,12 +1312,18 @@ export default function App() {
             asRequests={asRequests}
             onOpenCartModal={() => setIsCartOpen(true)}
             onOpenQuoteModal={() => setIsQuoteOpen(true)}
+            isEditMode={isEditMode}
+            onUpdateUserProfileImage={(imgUrl) => {
+              setUser(prev => prev ? { ...prev, profileImage: imgUrl } : null);
+              localStorage.setItem('sy_user', JSON.stringify({ ...user, profileImage: imgUrl }));
+            }}
           />
         )}
 
-        {isCmsOpen && (
+        {isCmsOpen && isEditMode && (
           <CmsEditorModal
-            isOpen={isCmsOpen}
+            isOpen={isCmsOpen && isEditMode}
+            isEditMode={isEditMode}
             onClose={() => setIsCmsOpen(false)}
             logoConfig={logoConfig}
             onSaveLogoConfig={handleSaveLogoConfig}

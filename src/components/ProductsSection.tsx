@@ -14,6 +14,7 @@ interface ProductsSectionProps {
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
   onAddToCart?: (product: Product, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], totalPrice?: number) => void;
+  onPageChange?: (page: any) => void;
 }
 
 export default function ProductsSection({ 
@@ -21,7 +22,8 @@ export default function ProductsSection({
   products,
   isEditMode = false,
   onOpenCms,
-  onAddToCart
+  onAddToCart,
+  onPageChange
 }: ProductsSectionProps) {
   const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);

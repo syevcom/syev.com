@@ -561,6 +561,13 @@ export default function SolutionsSection({
     }
   }, [homeProducts, parkingProducts]);
 
+  // Automatically exit detail view when sub-nav filters or tabs change
+  useEffect(() => {
+    if (activeDetailProduct) {
+      setActiveDetailProduct(null);
+    }
+  }, [selectedHomeServiceType, selectedHomePower, selectedAptBrand, selectedParkingCapacity]);
+
   const saveHomeProducts = (data: Record<string, SolutionProduct[]>) => {
     setHomeProducts(data);
     try {

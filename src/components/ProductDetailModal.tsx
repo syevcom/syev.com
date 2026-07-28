@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight } from 'lucide-react';
-import { Product, CartItem } from '../types';
+import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, Plus } from 'lucide-react';
+import { Product, CartItem, ProductOptionGroup } from '../types';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -13,6 +14,7 @@ interface ProductDetailModalProps {
   onClose: () => void;
   onAddToCart?: (product: Product, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], totalPrice?: number) => void;
   onOpenQuoteWithPurpose?: (purpose: 'Commercial' | 'Residential' | 'ParkingLot', memoText?: string) => void;
+  onSelectCategoryQuick?: (typeOrKw: string) => void;
 }
 
 export default function ProductDetailModal({
@@ -20,14 +22,60 @@ export default function ProductDetailModal({
   isOpen,
   onClose,
   onAddToCart,
-  onOpenQuoteWithPurpose
+  onOpenQuoteWithPurpose,
+  onSelectCategoryQuick
 }: ProductDetailModalProps) {
   if (!isOpen || !product) return null;
 
   // Selected option state: map of optionGroupId -> optionItemId
   const [selectedOptionsMap, setSelectedOptionsMap] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState<number>(1);
   const [isLiked, setIsLiked] = useState(false);
   const [addedSuccessMsg, setAddedSuccessMsg] = useState(false);
+
+  // Dynamic additional option groups state
+  const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
+    return product.optionGroups && product.optionGroups.length > 0
+      ? product.optionGroups
+      : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+  });
+
+  // State for adding a new custom option group
+  const [isAddingGroup, setIsAddingGroup] = useState(false);
+  const [newGroupTitle, setNewGroupTitle] = useState('');
+  const [newOpt1Name, setNewOpt1Name] = useState('');
+  const [newOpt1Price, setNewOpt1Price] = useState(0);
+
+  const handleAddNewOptionGroup = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGroupTitle.trim()) return;
+
+    const newGrp: ProductOptionGroup = {
+      id: `custom-grp-${Date.now()}`,
+      title: newGroupTitle.trim(),
+      required: false,
+      options: [
+        { id: `opt-none-${Date.now()}`, name: '선택 안함', price: 0 }
+      ]
+    };
+
+    if (newOpt1Name.trim()) {
+      newGrp.options.push({
+        id: `opt-1-${Date.now()}`,
+        name: `${newOpt1Name.trim()}${newOpt1Price > 0 ? ` (+${newOpt1Price.toLocaleString()}원)` : ''}`,
+        price: Number(newOpt1Price)
+      });
+    }
+
+    setActiveOptionGroups((prev) => [...prev, newGrp]);
+    setIsAddingGroup(false);
+    setNewGroupTitle('');
+    setNewOpt1Name('');
+    setNewOpt1Price(0);
+  };
+
+  const primaryOptionGroup = activeOptionGroups[0];
+  const secondaryOptionGroups = activeOptionGroups.slice(1);
 
   // Default value fallbacks matching user screenshots
   const brandName = product.brand || '스필';
@@ -46,10 +94,10 @@ export default function ProductDetailModal({
 
   // Calculate sum of selected option prices
   const selectedOptionDetails = useMemo(() => {
-    if (!product.optionGroups) return [];
+    if (!activeOptionGroups) return [];
     const result: { groupTitle: string; optionName: string; optionPrice: number; groupId: string }[] = [];
 
-    product.optionGroups.forEach((grp) => {
+    activeOptionGroups.forEach((grp) => {
       const selectedItemId = selectedOptionsMap[grp.id];
       if (selectedItemId) {
         const item = grp.options.find((o) => o.id === selectedItemId);
@@ -65,13 +113,14 @@ export default function ProductDetailModal({
     });
 
     return result;
-  }, [product.optionGroups, selectedOptionsMap]);
+  }, [activeOptionGroups, selectedOptionsMap]);
 
   const optionsTotalPrice = useMemo(() => {
     return selectedOptionDetails.reduce((sum, opt) => sum + opt.optionPrice, 0);
   }, [selectedOptionDetails]);
 
-  const totalPrice = basePrice + optionsTotalPrice;
+  const singleUnitPrice = basePrice + optionsTotalPrice;
+  const totalPrice = singleUnitPrice * quantity;
 
   const handleOptionChange = (groupId: string, optionItemId: string) => {
     setSelectedOptionsMap((prev) => ({
@@ -102,7 +151,7 @@ export default function ProductDetailModal({
 
   const handleRequestQuote = () => {
     const purpose = product.type === '스마트홈' || product.type === '완속' ? 'Residential' : 'Commercial';
-    let memo = `[상품] ${product.name}\n[기본금액] ${totalPrice.toLocaleString()}원`;
+    let memo = `[상품] ${product.name}\n[수량] ${quantity}개\n[총금액] ${totalPrice.toLocaleString()}원`;
     if (selectedOptionDetails.length > 0) {
       memo += `\n[선택 옵션]:\n` + selectedOptionDetails.map(o => `- ${o.groupTitle}: ${o.optionName}`).join('\n');
     }
@@ -112,10 +161,12 @@ export default function ProductDetailModal({
     onClose();
   };
 
-  // Divide option groups into "상품옵션" (first option group if present) and "추가구성" (remaining option groups)
-  const optionGroups = product.optionGroups || [];
-  const primaryOptionGroup = optionGroups.length > 0 ? optionGroups[0] : null;
-  const secondaryOptionGroups = optionGroups.length > 1 ? optionGroups.slice(1) : [];
+  const handleQuickNav = (catOrKw: string) => {
+    onClose();
+    if (onSelectCategoryQuick) {
+      onSelectCategoryQuick(catOrKw);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto bg-slate-950/80 backdrop-blur-sm animate-fade-in">
@@ -132,6 +183,39 @@ export default function ProductDetailModal({
 
         <div className="p-5 sm:p-7 md:p-8 space-y-6 max-h-[88vh] overflow-y-auto">
           
+          {/* Top Breadcrumb & Category Quick Bar (Screenshot 1 top right: 홈 / 가정용 홈 충전기) */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 pr-10">
+            <button
+              onClick={() => handleQuickNav('sol_residential')}
+              className="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <span>홈</span>
+              <span className="text-slate-300">/</span>
+              <span className="font-extrabold text-slate-800 underline underline-offset-2">가정용 홈 충전기</span>
+            </button>
+
+            {/* Quick Filter Buttons to switch back directly */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+              <span className="text-[11px] font-bold text-slate-400 shrink-0">빠른이동:</span>
+              {[
+                { id: '교체 시공', label: '🛠️ 교체시공' },
+                { id: '11kW', label: '⚡ 11kW' },
+                { id: '7kW', label: '⚡ 7kW' },
+                { id: '5kW', label: '⚡ 5kW' },
+                { id: '단말기 단품', label: '📦 단품' }
+              ].map((btn) => (
+                <button
+                  key={btn.id}
+                  onClick={() => handleQuickNav(btn.id)}
+                  className="px-2.5 py-1 bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap"
+                  title={`${btn.label} (으)로 이동`}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Top Title & Subtitle matching Screenshot 1 */}
           <div className="space-y-2 border-b border-slate-100 pb-4 pr-10">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug">
@@ -307,31 +391,88 @@ export default function ProductDetailModal({
             )}
 
             {/* 2. 추가구성 (Secondary Option Groups) */}
-            {secondaryOptionGroups.length > 0 && (
-              <div className="space-y-3 pt-1">
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between">
                 <label className="block text-xs font-black text-slate-900 tracking-wide">
-                  추가구성
+                  추가구성 ({secondaryOptionGroups.length}개 항목)
                 </label>
-                <div className="space-y-2.5">
-                  {secondaryOptionGroups.map((grp) => (
-                    <div key={grp.id}>
-                      <select
-                        value={selectedOptionsMap[grp.id] || ''}
-                        onChange={(e) => handleOptionChange(grp.id, e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
-                      >
-                        <option value="">- {grp.title} -</option>
-                        {grp.options.map((opt) => (
-                          <option key={opt.id} value={opt.id}>
-                            {opt.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingGroup(!isAddingGroup)}
+                  className="text-[11px] font-black text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-200 transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>옵션 추가하기</span>
+                </button>
               </div>
-            )}
+
+              {/* Add New Option Group Inline Form */}
+              {isAddingGroup && (
+                <form onSubmit={handleAddNewOptionGroup} className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-2.5 animate-fadeIn">
+                  <span className="text-xs font-black text-emerald-950 block">➕ 새 추가구성 옵션 그룹 만들기</span>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="예: 보조케이블 5M / 스탠드높이 연장 / 접지봉"
+                      value={newGroupTitle}
+                      onChange={(e) => setNewGroupTitle(e.target.value)}
+                      required
+                      className="w-full px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="옵션명 (예: 연장케이블 포함)"
+                      value={newOpt1Name}
+                      onChange={(e) => setNewOpt1Name(e.target.value)}
+                      className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-bold"
+                    />
+                    <input
+                      type="number"
+                      placeholder="추가금액 (원)"
+                      value={newOpt1Price || ''}
+                      onChange={(e) => setNewOpt1Price(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-bold"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingGroup(false)}
+                      className="px-2.5 py-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700 cursor-pointer"
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-3 py-1 text-xs font-black bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white cursor-pointer shadow-xs"
+                    >
+                      옵션 저장하기
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              <div className="space-y-2.5">
+                {secondaryOptionGroups.map((grp) => (
+                  <div key={grp.id}>
+                    <select
+                      value={selectedOptionsMap[grp.id] || ''}
+                      onChange={(e) => handleOptionChange(grp.id, e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
+                    >
+                      <option value="">- {grp.title} -</option>
+                      {grp.options.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Selected Options Summary List */}
             {selectedOptionDetails.length > 0 && (
@@ -354,10 +495,39 @@ export default function ProductDetailModal({
               </div>
             )}
 
+            {/* Quantity Selector matching Screenshot 1 */}
+            <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <span className="text-xs sm:text-sm font-black text-slate-900">수량</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
+                  >
+                    -
+                  </button>
+                  <span className="px-5 py-1.5 font-black text-slate-950 text-sm sm:text-base min-w-[40px] text-center">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((prev) => prev + 1)}
+                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="text-xs font-bold text-slate-400">
+                  (최소주문수량 1개 이상)
+                </span>
+              </div>
+            </div>
+
             {/* Total Price Section matching Screenshot 2 bottom right */}
             <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-end sm:items-center justify-between gap-3">
               <div className="text-xs font-bold text-slate-500">
-                기본 상품가: {basePrice.toLocaleString()}원 {optionsTotalPrice > 0 && `+ 옵션 ${optionsTotalPrice.toLocaleString()}원`}
+                개당 {singleUnitPrice.toLocaleString()}원 × {quantity}개
               </div>
 
               <div className="flex items-baseline gap-2">

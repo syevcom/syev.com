@@ -10,6 +10,7 @@ export interface User {
   email: string;
   name: string;
   type: 'B2C' | 'B2B';
+  profileImage?: string;
   businessNumber?: string;
   companyName?: string;
 }
