@@ -7,11 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { Solution, ActivePage } from '../types';
 import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PRODUCTS } from '../data';
+import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 
-const BRAND_METADATA: Record<string, {
+export const BRAND_METADATA: Record<string, {
   name: string;
   slogan: string;
   description: string;
@@ -179,7 +179,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 543636,
       price: 460000,
       discount: 15,
-      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      image: SPEEL_5KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT'],
       hasASBadge: true,
       hasPromoRibbon: true
@@ -307,7 +307,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 780000,
       price: 650000,
       discount: 16,
-      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT'],
       hasASBadge: true,
       hasPromoRibbon: true
@@ -345,7 +345,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 1200000,
       price: 1020000,
       discount: 15,
-      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT']
     },
     {
@@ -501,7 +501,24 @@ export default function SolutionsSection({
     const saved = localStorage.getItem('sy_cms_home_products_v3_fixed');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed['5kW']) {
+          parsed['5kW'] = parsed['5kW'].map((p: SolutionProduct) => {
+            if (p.id === 'res-5kw-spil' || p.name.includes('스필 5kW')) {
+              return { ...p, image: SPEEL_5KW_REPRESENTATIVE_IMAGE };
+            }
+            return p;
+          });
+        }
+        if (parsed['11kW']) {
+          parsed['11kW'] = parsed['11kW'].map((p: SolutionProduct) => {
+            if (p.id === 'res-11kw-spil' || p.name.includes('스필 11kW') || p.name.includes('스필')) {
+              return { ...p, image: SPEEL_11KW_REPRESENTATIVE_IMAGE };
+            }
+            return p;
+          });
+        }
+        return parsed;
       } catch (e) {
         return HOME_PRODUCTS_DATA;
       }
@@ -513,7 +530,16 @@ export default function SolutionsSection({
     const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed['공용 BIZ 충전기']) {
+          parsed['공용 BIZ 충전기'] = parsed['공용 BIZ 충전기'].map((p: SolutionProduct) => {
+            if (p.id === 'park-11kw-spil' || (p.name.includes('스필') && p.name.includes('11kW'))) {
+              return { ...p, image: SPEEL_11KW_REPRESENTATIVE_IMAGE };
+            }
+            return p;
+          });
+        }
+        return parsed;
       } catch (e) {
         return PARKING_PRODUCTS_DATA;
       }
@@ -627,24 +653,25 @@ export default function SolutionsSection({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Automatically clean up heavy base64 pdfUrls from localStorage to free up quota
-        let hasHeavy = false;
+        // Automatically clean up heavy base64 pdfUrls and remove deprecated/duplicate brands
         const cleaned: Record<string, any> = {};
         Object.keys(parsed).forEach(k => {
+          if (k === 'nice인프라' || k.includes('현대엔지니어링')) return;
           cleaned[k] = { ...parsed[k] };
           if (cleaned[k].pdfUrl) {
             cleaned[k].pdfUrl = undefined;
-            hasHeavy = true;
           }
         });
-        if (hasHeavy) {
-          try {
-            localStorage.setItem('sy_cms_brands', JSON.stringify(cleaned));
-          } catch (err) {
-            console.error('Failed to save cleaned brands to localStorage:', err);
-          }
+        try {
+          localStorage.setItem('sy_cms_brands', JSON.stringify(cleaned));
+        } catch (err) {
+          console.error('Failed to save cleaned brands to localStorage:', err);
         }
-        return { ...BRAND_METADATA, ...cleaned };
+        const merged = { ...BRAND_METADATA, ...cleaned };
+        delete merged['nice인프라'];
+        delete merged['현대엔지니어링'];
+        delete merged['현대엔지니어링(E-pit)'];
+        return merged;
       } catch (e) {
         return BRAND_METADATA;
       }

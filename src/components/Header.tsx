@@ -50,6 +50,7 @@ interface HeaderProps {
     kakaoUrl: string;
     instagramUrl: string;
     blogUrl: string;
+    youtubeUrl?: string;
     showFloatingSns: boolean;
   };
   footerConfig?: {
@@ -92,7 +93,7 @@ export default function Header({
   onToggleEditMode,
   onOpenCms,
   logoConfig = { text: 'SY', subtitle: 'SY.com', showCompanyName: true, companyNameText: '주식회사 에스와이코리아' },
-  snsConfig = { kakaoUrl: 'https://pf.kakao.com/', instagramUrl: 'https://www.instagram.com/', blogUrl: 'https://section.blog.naver.com/', showFloatingSns: true },
+  snsConfig = { kakaoUrl: 'https://pf.kakao.com/', instagramUrl: 'https://www.instagram.com/', blogUrl: 'https://section.blog.naver.com/', youtubeUrl: 'https://www.youtube.com/', showFloatingSns: true },
   footerConfig = { phone: '1588-SY01', email: 'sy.car.com@gmail.com' },
   selectedAptBrand = 'sk일렉링크',
   onSelectAptBrand,
@@ -317,9 +318,9 @@ export default function Header({
               </button>
             )}
 
-            {/* Admin control buttons (Visible ONLY when logged in as Admin with isEditMode=true) */}
-            {isEditMode && (
-              <>
+            {/* Admin control buttons */}
+            {isEditMode ? (
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={onToggleEditMode}
                   className="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md animate-pulse"
@@ -327,15 +328,23 @@ export default function Header({
                 >
                   <Settings className="w-3.5 h-3.5 animate-spin" />
                 </button>
-                {onOpenCms && (
-                  <button
-                    onClick={() => onOpenCms()}
-                    className="bg-indigo-900 hover:bg-indigo-950 text-white border border-indigo-700 rounded-full font-black text-[10px] px-2.5 py-1 cursor-pointer transition-all shrink-0 shadow-md flex items-center gap-1"
-                  >
-                    <span>📁 CMS 관리자</span>
-                  </button>
-                )}
-              </>
+                <button
+                  onClick={() => onPageChange('admin')}
+                  className="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 rounded-xl font-black text-[11px] px-3 py-1.5 cursor-pointer transition-all shrink-0 shadow-md flex items-center gap-1"
+                  title="전체 상품 및 이미지 일괄 편집 관리자 센터"
+                >
+                  <span>🔧 관리자 센터</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onToggleEditMode}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl font-extrabold text-[11px] px-2.5 py-1.5 cursor-pointer transition-all shrink-0 flex items-center gap-1"
+                title="관리자 로그인 / 편집 모드"
+              >
+                <Settings className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden lg:inline">관리자</span>
+              </button>
             )}
           </div>
 
@@ -510,7 +519,7 @@ export default function Header({
                 네이버 블로그
               </a>
               <a 
-                href="https://www.youtube.com"
+                href={snsConfig.youtubeUrl || 'https://www.youtube.com'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-stone-600 hover:text-red-500 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 shadow-sm"

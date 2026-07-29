@@ -61,6 +61,7 @@ interface CmsEditorModalProps {
     kakaoUrl: string;
     instagramUrl: string;
     blogUrl: string;
+    youtubeUrl?: string;
     showFloatingSns: boolean;
   };
   onSaveSnsConfig: (config: any) => void;
@@ -318,6 +319,7 @@ export default function CmsEditorModal({
   const [snsKakaoUrl, setSnsKakaoUrl] = useState(snsConfig.kakaoUrl || '');
   const [snsInstagramUrl, setSnsInstagramUrl] = useState(snsConfig.instagramUrl || '');
   const [snsBlogUrl, setSnsBlogUrl] = useState(snsConfig.blogUrl || '');
+  const [snsYoutubeUrl, setSnsYoutubeUrl] = useState(snsConfig.youtubeUrl || '');
   const [snsShowFloating, setSnsShowFloating] = useState(snsConfig.showFloatingSns !== false);
 
   // Quick Menu State
@@ -429,6 +431,7 @@ export default function CmsEditorModal({
       setSnsKakaoUrl(snsConfig.kakaoUrl || '');
       setSnsInstagramUrl(snsConfig.instagramUrl || '');
       setSnsBlogUrl(snsConfig.blogUrl || '');
+      setSnsYoutubeUrl(snsConfig.youtubeUrl || '');
       setSnsShowFloating(snsConfig.showFloatingSns !== false);
 
       setQuickShowMenu(quickMenuConfig.showQuickMenu !== false);
@@ -642,6 +645,7 @@ export default function CmsEditorModal({
       kakaoUrl: snsKakaoUrl,
       instagramUrl: snsInstagramUrl,
       blogUrl: snsBlogUrl,
+      youtubeUrl: snsYoutubeUrl,
       showFloatingSns: snsShowFloating
     });
     onSaveQuickMenuConfig({
@@ -1759,6 +1763,19 @@ export default function CmsEditorModal({
                             value={snsInstagramUrl}
                             onChange={(e) => setSnsInstagramUrl(e.target.value)}
                             placeholder="https://www.instagram.com/..."
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                            유튜브 채널 링크 URL
+                          </label>
+                          <input
+                            type="text"
+                            value={snsYoutubeUrl}
+                            onChange={(e) => setSnsYoutubeUrl(e.target.value)}
+                            placeholder="https://www.youtube.com/..."
                             className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700"
                           />
                         </div>

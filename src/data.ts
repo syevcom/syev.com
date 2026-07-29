@@ -72,7 +72,46 @@ export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
   }
 ];
 
+export const SPEEL_5KW_REPRESENTATIVE_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%"><defs><linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%23ebebeb"/><stop offset="100%" stop-color="%23e5e5e5"/></linearGradient><linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%233a3d43"/><stop offset="35%" stop-color="%23232529"/><stop offset="100%" stop-color="%23131416"/></linearGradient><linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%231e2024"/><stop offset="100%" stop-color="%230f1012"/></linearGradient><filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="%23000000" flood-opacity="0.18"/></filter><filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="%23000000" flood-opacity="0.08"/></filter><filter id="blueGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="800" height="800" fill="url(%23bgGrad)"/><g transform="translate(140, 130)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23ecebff"/><circle cx="0" cy="0" r="54" fill="%236862f6"/><text x="0" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="%23ffffff" text-anchor="middle">5kW</text></g><g transform="translate(140, 310)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23fde8ea"/><circle cx="0" cy="0" r="54" fill="%23f75466"/><text x="0" y="-6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" fill="%23ffffff" text-anchor="middle">무상A/S</text><text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" fill="%23ffffff" text-anchor="middle">4년</text></g><g transform="translate(35, 755)" opacity="0.45"><circle cx="0" cy="0" r="11" fill="none" stroke="%23333333" stroke-width="2.5"/><line x1="8" y1="8" x2="16" y2="16" stroke="%23333333" stroke-width="3" stroke-linecap="round"/></g><rect x="425" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><rect x="495" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><g filter="url(%23dropShadow)"><path d="M 330,200 Q 480,140 630,200 Q 660,215 660,250 L 660,600 Q 660,670 595,695 L 480,725 L 365,695 Q 300,670 300,600 L 300,250 Q 300,215 330,200 Z" fill="url(%23bodyGrad)" stroke="%23454850" stroke-width="1.5"/><path d="M 330,200 Q 480,140 630,200" fill="none" stroke="%23606470" stroke-width="2" opacity="0.6"/><path d="M 335,225 Q 480,175 625,225 Q 640,240 640,270 L 640,580 Q 640,645 580,675 L 480,700 L 380,675 Q 320,645 320,580 L 320,270 Q 320,240 335,225 Z" fill="url(%23faceGrad)" stroke="%2318191c" stroke-width="2"/><path d="M 340,240 Q 480,190 620,240 L 620,380 Q 480,540 480,540 Q 480,540 340,380 Z" fill="%23151619" stroke="%2326282d" stroke-width="1.5" opacity="0.8"/><g transform="translate(480, 310)"><rect x="-44" y="-28" width="88" height="56" rx="10" fill="none" stroke="%23ffffff" stroke-width="4.5"/><text x="18" y="-4" font-family="Arial, sans-serif" font-size="12" font-weight="900" fill="%23ffffff" text-anchor="middle" letter-spacing="0.5">CARD</text><path d="M -22,14 Q -12,4 -2,14" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -27,20 Q -12,6 3,20" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -32,26 Q -12,8 8,26" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/></g><g transform="translate(480, 440)"><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%230075ff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" filter="url(%23blueGlow)"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%2300b0ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%23e0f4ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(605, 620)"><path d="M -28,-14 L -18,-14 L -23,-3 L -15,-3 L -26,14 L -21,3 L -29,3 Z" fill="%23ffffff"/><text x="-5" y="4" font-family="'Arial Black', sans-serif" font-size="28" font-style="italic" font-weight="900" fill="%23ffffff" text-anchor="start">e</text><text x="-20" y="20" font-family="sans-serif" font-size="10" font-weight="800" fill="%23b0b5c0" text-anchor="start" letter-spacing="2">CHARGER</text></g></g></svg>`;
+export const SPEEL_11KW_REPRESENTATIVE_IMAGE = 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800';
+
 export const PRODUCTS: Product[] = [
+  {
+    id: 'sy-ac05',
+    name: '스필 5kW 개인용 전기차 충전기 무상AS 4년',
+    type: '완속',
+    power: '5kW',
+    price: 460000,
+    originalPrice: 543636,
+    discountRate: 15,
+    brand: '스필',
+    manufacturer: '스필일렉트릭',
+    origin: '대한민국',
+    modelName: 'DO-EVC-SEC5-C/K',
+    certNumber: 'XD070158-25000A',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    rewardPointsInfo: '구매 ₩0',
+    detailCategory: '비공용완속',
+    features: [
+      '국내최초 무상 A/S 4년 보장',
+      '화재 감지 자동 전력 차단',
+      '승압 비용 부담 최소화 5kW 세팅',
+      '스마트 부하 분배 (Dynamic Load Balancing)',
+      'IP55 방수/방진 등급'
+    ],
+    specs: {
+      '정격 입력': 'Single Phase AC 220V ± 10%, 50/60Hz',
+      '충전 커넥터': 'Type 5핀 (국내 표준)',
+      '통신 방식': 'LTE / Wi-Fi / Ethernet',
+      '크기': '280 x 420 x 140 mm',
+      '인증': 'KC 안전인증 및 계량 형식 승인 완료'
+    },
+    image: SPEEL_5KW_REPRESENTATIVE_IMAGE,
+    description: '[국내최초 무상A/S 4년] 가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기에 최적화된 5kW 스마트 완속 충전기입니다.',
+    plcSupported: true,
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+  },
   {
     id: 'sy-ac07',
     name: '스필 7kW 개인용 전기차 충전기 무상AS 4년',
@@ -176,7 +215,7 @@ export const PRODUCTS: Product[] = [
       '크기': '280 x 420 x 140 mm',
       '인증': 'KC 안전인증 및 전자기 적합성 인증 완료'
     },
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
     description: '개인용 중속 사양에 충실한 11kW 충전 모델입니다. 단시간 내에 7kW 보다 약 1.5배 빠른 충전을 경제적인 단가로 시공할 수 있습니다.',
     plcSupported: true,
     optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS

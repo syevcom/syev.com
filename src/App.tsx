@@ -17,11 +17,13 @@ import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import CartModal from './components/CartModal';
+import { AdminPage } from './components/AdminPage';
+import { BRAND_METADATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem } from './types';
-import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
+import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 const DEFAULT_FIELDS = {
@@ -153,6 +155,23 @@ export default function App() {
     licenseInfo: '모든 전기공사는 국가 정식 전기공사업 면허(제 OO-12345호) 보유 유자격 전담 시공팀이 직접 배정되어 법을 준수합니다.'
   });
 
+  const [brands, setBrands] = useState<Record<string, any>>(() => {
+    const saved = localStorage.getItem('sy_cms_brands');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return BRAND_METADATA;
+  });
+
+  const handleSaveBrands = (newBrands: Record<string, any>) => {
+    setBrands(newBrands);
+    localStorage.setItem('sy_cms_brands', JSON.stringify(newBrands));
+  };
+
   const [heroConfig, setHeroConfig] = useState({
     badge: '전국 최대 원스톱 설치 네트워크',
     title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com</span>',
@@ -222,6 +241,7 @@ export default function App() {
     kakaoUrl: 'https://pf.kakao.com/',
     instagramUrl: 'https://www.instagram.com/',
     blogUrl: 'https://section.blog.naver.com/',
+    youtubeUrl: 'https://www.youtube.com/',
     showFloatingSns: true
   });
 
@@ -789,6 +809,7 @@ export default function App() {
       kakaoUrl: 'https://pf.kakao.com/',
       instagramUrl: 'https://www.instagram.com/',
       blogUrl: 'https://section.blog.naver.com/',
+      youtubeUrl: 'https://www.youtube.com/',
       showFloatingSns: true
     });
 
@@ -964,6 +985,22 @@ export default function App() {
             isLoggedIn={!!user}
           />
         );
+      case 'admin':
+        return (
+          <AdminPage
+            products={products}
+            onSaveProducts={handleSaveProducts}
+            brands={brands}
+            onSaveBrands={handleSaveBrands}
+            bookings={bookings}
+            asRequests={asRequests}
+            snsConfig={snsConfig}
+            onSaveSnsConfig={handleSaveSnsConfig}
+            footerConfig={footerConfig}
+            onSaveFooterConfig={handleSaveFooterConfig}
+            onNavigateHome={() => handlePageChange('home')}
+          />
+        );
       default:
         return null;
     }
@@ -1112,6 +1149,17 @@ export default function App() {
               className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
             >
               <Instagram className="w-5 h-5" />
+            </a>
+
+            {/* YouTube URL */}
+            <a
+              href={snsConfig.youtubeUrl || 'https://www.youtube.com/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="유튜브 채널 방문"
+              className="w-10 h-10 rounded-full bg-[#FF0000] hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+            >
+              <Youtube className="w-5 h-5" />
             </a>
 
             {/* Naver Blog URL */}
