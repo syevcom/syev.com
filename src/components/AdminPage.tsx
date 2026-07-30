@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage } from '../types';
+import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
 import { 
   Package, 
   Building2, 
@@ -20,7 +20,10 @@ import {
   Youtube,
   Instagram,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  X
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -82,6 +85,132 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleProductChange = (index: number, field: keyof Product, value: any) => {
     const updated = [...productList];
     updated[index] = { ...updated[index], [field]: value };
+    setProductList(updated);
+  };
+
+  // Track expanded option sections per product ID
+  const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
+
+  const toggleExpandOption = (id: string) => {
+    setExpandedOptions(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const expandAllOptions = () => {
+    const next: Record<string, boolean> = {};
+    productList.forEach(p => { next[p.id] = true; });
+    setExpandedOptions(next);
+  };
+
+  const collapseAllOptions = () => {
+    setExpandedOptions({});
+  };
+
+  // Add Option Group
+  const handleAddOptionGroup = (productIndex: number) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = target.optionGroups || [];
+    const grpCount = currentGroups.length;
+
+    let defaultTitle = '커넥터길이';
+    let defaultOptions: ProductOptionItem[] = [
+      { id: `opt-${Date.now()}-1`, name: '5m 커넥터 일체형 (기본 장착)', price: 0 },
+      { id: `opt-${Date.now()}-2`, name: '7m 연장형 (+30,000원)', price: 30000 },
+      { id: `opt-${Date.now()}-3`, name: '10m 최장 전용선 (+50,000원)', price: 50000 }
+    ];
+
+    if (grpCount === 1) {
+      defaultTitle = '거치대 및 스탠드 사양';
+      defaultOptions = [
+        { id: `opt-${Date.now()}-1`, name: '선택 안 함 (벽부형 기본)', price: 0 },
+        { id: `opt-${Date.now()}-2`, name: '자립형 독립 스탠드 (+120,000원)', price: 120000 }
+      ];
+    } else if (grpCount >= 2) {
+      defaultTitle = `추가 옵션 그룹 ${grpCount + 1}`;
+      defaultOptions = [
+        { id: `opt-${Date.now()}-1`, name: '선택 안 함 (기본)', price: 0 },
+        { id: `opt-${Date.now()}-2`, name: '추가 구성품 포함', price: 20000 }
+      ];
+    }
+
+    const newGroup: ProductOptionGroup = {
+      id: `grp-${Date.now()}`,
+      title: defaultTitle,
+      required: false,
+      options: defaultOptions
+    };
+    updated[productIndex] = {
+      ...target,
+      optionGroups: [...currentGroups, newGroup]
+    };
+    setProductList(updated);
+    setExpandedOptions(prev => ({ ...prev, [target.id]: true }));
+  };
+
+  // Delete Option Group
+  const handleDeleteOptionGroup = (productIndex: number, groupIdx: number) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = [...(target.optionGroups || [])];
+    currentGroups.splice(groupIdx, 1);
+    updated[productIndex] = { ...target, optionGroups: currentGroups };
+    setProductList(updated);
+  };
+
+  // Update Option Group Title
+  const handleUpdateOptionGroupTitle = (productIndex: number, groupIdx: number, title: string) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = [...(target.optionGroups || [])];
+    currentGroups[groupIdx] = { ...currentGroups[groupIdx], title };
+    updated[productIndex] = { ...target, optionGroups: currentGroups };
+    setProductList(updated);
+  };
+
+  // Add Option Choice Item
+  const handleAddOptionItem = (productIndex: number, groupIdx: number) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = [...(target.optionGroups || [])];
+    const grp = currentGroups[groupIdx];
+    const newOpt: ProductOptionItem = {
+      id: `opt-${Date.now()}`,
+      name: '새 추가 옵션 항목',
+      price: 10000
+    };
+    currentGroups[groupIdx] = { ...grp, options: [...grp.options, newOpt] };
+    updated[productIndex] = { ...target, optionGroups: currentGroups };
+    setProductList(updated);
+  };
+
+  // Delete Option Choice Item
+  const handleDeleteOptionItem = (productIndex: number, groupIdx: number, optIdx: number) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = [...(target.optionGroups || [])];
+    const grp = currentGroups[groupIdx];
+    const nextOpts = grp.options.filter((_, idx) => idx !== optIdx);
+    currentGroups[groupIdx] = { ...grp, options: nextOpts };
+    updated[productIndex] = { ...target, optionGroups: currentGroups };
+    setProductList(updated);
+  };
+
+  // Update Option Choice Item
+  const handleUpdateOptionItem = (
+    productIndex: number, 
+    groupIdx: number, 
+    optIdx: number, 
+    field: 'name' | 'price', 
+    val: any
+  ) => {
+    const updated = [...productList];
+    const target = updated[productIndex];
+    const currentGroups = [...(target.optionGroups || [])];
+    const grp = currentGroups[groupIdx];
+    const nextOpts = [...grp.options];
+    nextOpts[optIdx] = { ...nextOpts[optIdx], [field]: val };
+    currentGroups[groupIdx] = { ...grp, options: nextOpts };
+    updated[productIndex] = { ...target, optionGroups: currentGroups };
     setProductList(updated);
   };
 
@@ -300,8 +429,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="relative w-full sm:w-80">
+            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+              <div className="relative w-full md:w-80">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -312,13 +441,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 />
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={expandAllOptions}
+                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0"
+                  >
+                    📂 모든 옵션 펼치기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={collapseAllOptions}
+                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0"
+                  >
+                    📁 모두 접기
+                  </button>
+                </div>
+
+                <div className="h-4 w-[1px] bg-slate-200 hidden sm:block mx-1" />
+
                 <span className="text-xs font-black text-slate-500 shrink-0">출력 필터:</span>
                 {['all', '5kW', '7kW', '11kW', '14kW', 'BIZ'].map((p) => (
                   <button
                     key={p}
                     onClick={() => setPowerFilter(p)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0 ${
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0 ${
                       powerFilter === p
                         ? 'bg-blue-600 text-white shadow-xs'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -509,6 +657,206 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         </button>
                       </div>
 
+                    </div>
+
+                    {/* Expandable Options & Delivery Settings Section */}
+                    <div className="pt-3 border-t border-slate-100 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleExpandOption(product.id)}
+                            className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                          >
+                            <Settings className="w-3.5 h-3.5 text-amber-400" />
+                            <span>상세 사양 및 커넥터 옵션 설정</span>
+                            <span className="bg-amber-400/20 text-amber-300 px-1.5 py-0.2 rounded text-[10px] font-bold">
+                              {(product.optionGroups || []).length}개 그룹
+                            </span>
+                            {expandedOptions[product.id] ? (
+                              <ChevronUp className="w-3.5 h-3.5 text-slate-300" />
+                            ) : (
+                              <ChevronDown className="w-3.5 h-3.5 text-slate-300" />
+                            )}
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddOptionGroup(realIndex)}
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-extrabold flex items-center gap-1 cursor-pointer transition-all"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ 새 옵션 대분류 추가</span>
+                        </button>
+                      </div>
+
+                      {/* Expanded Options Panel */}
+                      {expandedOptions[product.id] && (
+                        <div className="p-4 bg-blue-50/40 border border-blue-200/80 rounded-2xl space-y-4">
+                          
+                          {/* 1. Delivery & Payment Information */}
+                          <div className="space-y-2">
+                            <h6 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                              <span>🚚 배송 방법 및 결제/구성품 정보</span>
+                            </h6>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500">배송방법 / 배송비</label>
+                                <input
+                                  type="text"
+                                  value={product.deliveryInfo || '택배(주문 시 결제) / 무료배송'}
+                                  onChange={(e) => handleProductChange(realIndex, 'deliveryInfo', e.target.value)}
+                                  placeholder="예: 택배 / 무료배송"
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500">구성품 및 설치비 안내</label>
+                                <input
+                                  type="text"
+                                  value={product.componentsInfo || '제조사 별도 발송 / 설치비 미포함 상품'}
+                                  onChange={(e) => handleProductChange(realIndex, 'componentsInfo', e.target.value)}
+                                  placeholder="예: 설치비 미포함 상품"
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500">포인트 / 적립금 안내</label>
+                                <input
+                                  type="text"
+                                  value={product.rewardPointsInfo || '구매 ₩0'}
+                                  onChange={(e) => handleProductChange(realIndex, 'rewardPointsInfo', e.target.value)}
+                                  placeholder="예: 구매 ₩0"
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 2. Option Groups & Option Choice List */}
+                          <div className="space-y-3 pt-2 border-t border-blue-100">
+                            <div className="flex items-center justify-between">
+                              <h6 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                                <Settings className="w-3.5 h-3.5 text-blue-600" />
+                                <span>옵션 대분류 및 선택 리스트 (커넥터 길이, 거치대 사양 등)</span>
+                              </h6>
+                              <button
+                                type="button"
+                                onClick={() => handleAddOptionGroup(realIndex)}
+                                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-extrabold flex items-center gap-1 cursor-pointer shadow-xs transition-all"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>+ 대분류 추가</span>
+                              </button>
+                            </div>
+
+                            {(!product.optionGroups || product.optionGroups.length === 0) ? (
+                              <div className="p-3 bg-white border border-slate-200 rounded-xl text-center space-y-2">
+                                <p className="text-xs font-bold text-slate-500">등록된 옵션 대분류가 없습니다.</p>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddOptionGroup(realIndex)}
+                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-extrabold cursor-pointer"
+                                >
+                                  + 커넥터 길이 등 기본 옵션 그룹 자동 생성
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {product.optionGroups.map((grp, grpIdx) => (
+                                  <div
+                                    key={grp.id || grpIdx}
+                                    className="p-3 bg-white border border-slate-200 rounded-xl space-y-2.5 shadow-2xs"
+                                  >
+                                    <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                                      <div className="flex-1 flex items-center gap-2">
+                                        <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded shrink-0">
+                                          대분류 {grpIdx + 1}
+                                        </span>
+                                        <input
+                                          type="text"
+                                          value={grp.title}
+                                          onChange={(e) => handleUpdateOptionGroupTitle(realIndex, grpIdx, e.target.value)}
+                                          placeholder="옵션 대분류명 (예: 커넥터길이, 거치대/스탠드)"
+                                          className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-900 focus:bg-white"
+                                        />
+                                      </div>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteOptionGroup(realIndex, grpIdx)}
+                                        className="p-1 text-red-500 hover:bg-red-50 rounded transition-all cursor-pointer"
+                                        title="옵션 대분류 삭제"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+
+                                    {/* Option Choices Items */}
+                                    <div className="space-y-2 pl-1">
+                                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                                        <span>옵션 선택 리스트 항목</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleAddOptionItem(realIndex, grpIdx)}
+                                          className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded border border-blue-100 text-[10px] font-extrabold hover:bg-blue-100 cursor-pointer"
+                                        >
+                                          + 항목 추가
+                                        </button>
+                                      </div>
+
+                                      <div className="space-y-1.5">
+                                        {grp.options.map((opt, optIdx) => (
+                                          <div key={opt.id || optIdx} className="flex items-center gap-2">
+                                            <input
+                                              type="text"
+                                              value={opt.name}
+                                              onChange={(e) => handleUpdateOptionItem(realIndex, grpIdx, optIdx, 'name', e.target.value)}
+                                              placeholder="옵션 항목명 (예: 5m 커넥터 일체형)"
+                                              className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:bg-white"
+                                            />
+                                            <div className="w-32 flex items-center gap-1 shrink-0">
+                                              <input
+                                                type="number"
+                                                value={opt.price}
+                                                onChange={(e) => handleUpdateOptionItem(realIndex, grpIdx, optIdx, 'price', Number(e.target.value) || 0)}
+                                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-right text-slate-900 focus:bg-white"
+                                              />
+                                              <span className="text-[10px] font-bold text-slate-500 shrink-0">원</span>
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDeleteOptionItem(realIndex, grpIdx, optIdx)}
+                                              className="p-1 text-slate-400 hover:text-red-500 rounded transition-all cursor-pointer"
+                                              title="항목 삭제"
+                                            >
+                                              <X className="w-3.5 h-3.5" />
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                {/* Add Another Option Group Button at the bottom of groups list */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddOptionGroup(realIndex)}
+                                  className="w-full py-2.5 bg-white hover:bg-blue-50/60 border border-dashed border-blue-300 text-blue-700 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <Plus className="w-4 h-4 text-blue-600" />
+                                  <span>+ 옵션 대분류 추가하기 (예: 대분류 2: 거치대/스탠드, 대분류 3: 케이블/어댑터)</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
