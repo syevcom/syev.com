@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 import { 
   Package, 
   Building2, 
@@ -110,6 +111,38 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }));
       setProductList(updated);
       alert(`모든 상품(${updated.length}개)의 대분류(판매/시공 구분)가 [${labelMap[targetType]}](으)로 변경되었습니다! 하단 [전체 변경사항 저장] 버튼을 누르시면 적용이 완료됩니다.`);
+    }
+  };
+
+  // Batch copy option groups from a specific product to ALL products
+  const handleBatchCopyOptionsFromProduct = (sourceIndex: number) => {
+    const sourceProduct = productList[sourceIndex];
+    const sourceGroups = sourceProduct.optionGroups || [];
+
+    if (sourceGroups.length === 0) {
+      alert('복사할 세부 옵션 그룹이 없습니다. 먼저 대분류 및 옵션을 추가해 주세요.');
+      return;
+    }
+
+    if (window.confirm(`[${sourceProduct.name}]의 세부 옵션 (${sourceGroups.length}개 그룹)을 전체 ${productList.length}개 상품에 일괄 적용하시겠습니까?`)) {
+      const updated = productList.map(p => ({
+        ...p,
+        optionGroups: JSON.parse(JSON.stringify(sourceGroups))
+      }));
+      setProductList(updated);
+      alert(`모든 상품(${updated.length}개)에 [${sourceProduct.name}]의 세부 옵션이 완벽하게 일괄 복사되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 누르면 저장이 완료됩니다.`);
+    }
+  };
+
+  // Batch apply default 6 option groups to ALL products
+  const handleBatchApplyDefaultOptionsToAll = () => {
+    if (window.confirm(`모든 상품(${productList.length}개)에 표준 세부 옵션(충전선 길이, 하이박스, 캐노피, 스탠드, 볼라드, 스토퍼 6종)을 일괄 적용하시겠습니까?`)) {
+      const updated = productList.map(p => ({
+        ...p,
+        optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+      }));
+      setProductList(updated);
+      alert(`모든 상품(${updated.length}개)에 표준 세부 옵션 6종이 일괄 적용되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 누르면 저장이 완료됩니다.`);
     }
   };
 
@@ -570,38 +603,65 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
               </div>
 
-              {/* Row 3: Quick Batch Apply for Service Type */}
-              <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200/80">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-black text-amber-950 flex items-center gap-1">
-                    ⚡ 대분류(구분) 전체 일괄 지정:
-                  </span>
-                  <span className="text-[11px] font-bold text-amber-800 hidden md:inline">
-                    (한 번만 클릭하면 모든 {productList.length}개 상품의 대분류가 한꺼번에 변경됩니다)
-                  </span>
+              {/* Row 3: Quick Batch Apply for Service Type & Options */}
+              <div className="pt-3 border-t border-slate-100 space-y-2.5 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200/80">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-amber-950 flex items-center gap-1">
+                      ⚡ 대분류(구분) 전체 일괄 지정:
+                    </span>
+                    <span className="text-[11px] font-bold text-amber-800 hidden md:inline">
+                      (한 번만 클릭하면 모든 {productList.length}개 상품의 대분류가 한꺼번에 변경됩니다)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={() => handleBatchServiceType('device')}
+                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                    >
+                      📦 전체 [단말기]로 일괄 변경
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleBatchServiceType('replace')}
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                    >
+                      🔄 전체 [교체시공]으로 일괄 변경
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleBatchServiceType('install')}
+                      className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                    >
+                      ⚡ 전체 [신규설치]로 일괄 변경
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleBatchServiceType('device')}
-                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
-                  >
-                    📦 전체 [단말기]로 일괄 변경
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleBatchServiceType('replace')}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
-                  >
-                    🔄 전체 [교체시공]으로 일괄 변경
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleBatchServiceType('install')}
-                    className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
-                  >
-                    ⚡ 전체 [신규설치]로 일괄 변경
-                  </button>
+
+                <div className="pt-2 border-t border-amber-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black text-blue-950 flex items-center gap-1">
+                      🛠️ 세부 옵션(케이블, 스탠드 등) 일괄 적용:
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={handleBatchApplyDefaultOptionsToAll}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>⚡ 표준 세부옵션 6종 전체상품 일괄적용</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={expandAllOptions}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    >
+                      📂 모든 상품 옵션창 펼치기
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -922,6 +982,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                           {/* 2. Option Groups & Option Choice List */}
                           <div className="space-y-3 pt-2 border-t border-blue-100">
+                            {/* Copy Options to All Products Banner */}
+                            <div className="bg-amber-100/90 border border-amber-300 p-2.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                              <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                                <span>💡 세부 옵션을 일일이 작성하실 필요 없습니다!</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleBatchCopyOptionsFromProduct(realIndex)}
+                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0 flex items-center gap-1"
+                              >
+                                <Zap className="w-3.5 h-3.5 fill-current text-amber-200" />
+                                <span>⚡ 이 상품의 세부 옵션({(product.optionGroups || []).length}개 그룹) 전체 상품에 일괄 복사</span>
+                              </button>
+                            </div>
+
                             <div className="flex items-center justify-between">
                               <h6 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                                 <Settings className="w-3.5 h-3.5 text-blue-600" />
