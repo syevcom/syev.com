@@ -96,6 +96,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setExpandedOptions(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Batch update serviceType for ALL products at once
+  const handleBatchServiceType = (targetType: 'device' | 'replace' | 'install') => {
+    const labelMap = {
+      device: '📦 단말기 (기기 단품)',
+      replace: '🔄 교체 (기기 교체시공)',
+      install: '⚡ 설치 (신규 설치포함)'
+    };
+    if (window.confirm(`정말 모든 상품(${productList.length}개)의 대분류(판매/시공 구분)를 [${labelMap[targetType]}](으)로 일괄 변경하시겠습니까?`)) {
+      const updated = productList.map(p => ({
+        ...p,
+        serviceType: targetType
+      }));
+      setProductList(updated);
+      alert(`모든 상품(${updated.length}개)의 대분류(판매/시공 구분)가 [${labelMap[targetType]}](으)로 변경되었습니다! 하단 [전체 변경사항 저장] 버튼을 누르시면 적용이 완료됩니다.`);
+    }
+  };
+
   const expandAllOptions = () => {
     const next: Record<string, boolean> = {};
     productList.forEach(p => { next[p.id] = true; });
@@ -552,6 +569,41 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
 
               </div>
+
+              {/* Row 3: Quick Batch Apply for Service Type */}
+              <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200/80">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-amber-950 flex items-center gap-1">
+                    ⚡ 대분류(구분) 전체 일괄 지정:
+                  </span>
+                  <span className="text-[11px] font-bold text-amber-800 hidden md:inline">
+                    (한 번만 클릭하면 모든 {productList.length}개 상품의 대분류가 한꺼번에 변경됩니다)
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleBatchServiceType('device')}
+                    className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                  >
+                    📦 전체 [단말기]로 일괄 변경
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleBatchServiceType('replace')}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                  >
+                    🔄 전체 [교체시공]으로 일괄 변경
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleBatchServiceType('install')}
+                    className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                  >
+                    ⚡ 전체 [신규설치]로 일괄 변경
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Products Table Card List */}
@@ -672,7 +724,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <div>
-                            <label className="block text-[10px] font-bold text-amber-700">판매/시공 구분</label>
+                            <div className="flex items-center justify-between mb-0.5">
+                              <label className="block text-[10px] font-bold text-amber-800">판매/시공 구분</label>
+                              <button
+                                type="button"
+                                onClick={() => handleBatchServiceType(getProductServiceType(product) as any)}
+                                className="text-[9px] font-black text-amber-800 hover:text-amber-950 underline bg-amber-200/70 hover:bg-amber-300 px-1 py-0.2 rounded cursor-pointer shrink-0"
+                                title="이 구분을 전체 상품에 일괄 적용"
+                              >
+                                ⚡전체적용
+                              </button>
+                            </div>
                             <select
                               value={getProductServiceType(product)}
                               onChange={(e) => handleProductChange(realIndex, 'serviceType', e.target.value)}
