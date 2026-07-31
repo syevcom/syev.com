@@ -98,8 +98,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   // Batch update serviceType for ALL products at once
-  const handleBatchServiceType = (targetType: 'device' | 'replace' | 'install') => {
+  const handleBatchServiceType = (targetType: 'all' | 'device' | 'replace' | 'install') => {
     const labelMap = {
+      all: '⚡ 전체 호환 (단말기/교체/설치 모두)',
       device: '📦 단말기 (기기 단품)',
       replace: '🔄 교체 (기기 교체시공)',
       install: '⚡ 설치 (신규 설치포함)'
@@ -333,14 +334,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
-  // Helper to get service category (단말기, 교체, 설치)
-  const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' => {
-    if (p.serviceType) return p.serviceType;
-    const text = `${p.name || ''} ${p.componentsInfo || ''} ${p.deliveryInfo || ''} ${p.description || ''}`;
-    if (text.includes('교체')) return 'replace';
-    if (text.includes('설치비 미포함') || text.includes('설치 미포함') || text.includes('단품') || text.includes('기기 본체') || text.includes('개인용')) return 'device';
-    if (text.includes('신규') || text.includes('설치 포함') || text.includes('시공 포함') || text.includes('설치비 포함') || text.includes('무료배송 (전문')) return 'install';
-    return 'device';
+  // Helper to get service category (단말기, 교체, 설치, 전체)
+  const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' | 'all' => {
+    if (p.serviceType) return p.serviceType as any;
+    if (p.detailCategory === '공용완속' || p.detailCategory === '급속') return 'install';
+    return 'all';
   };
 
   // Filter products by search, service category (단말기/교체/설치), & power
@@ -354,7 +352,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
     // Service category filter (단말기, 교체, 설치)
     const st = getProductServiceType(p);
-    const matchesService = serviceFilter === 'all' || st === serviceFilter;
+    let matchesService = true;
+    if (serviceFilter !== 'all') {
+      if (st === 'all') {
+        matchesService = true; // 'all' (호환) matches device, replace, and install
+      } else if (st === 'device') {
+        matchesService = (serviceFilter === 'device') || (serviceFilter === 'replace' && (p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow))));
+      } else {
+        matchesService = (st === serviceFilter);
+      }
+    }
 
     // Power filter (5kW, 7kW, 11kW, 14kW, BIZ)
     let matchesPower = true;
@@ -617,6 +624,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto justify-end">
                     <button
                       type="button"
+                      onClick={() => handleBatchServiceType('all')}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                    >
+                      ⚡ 전체 [모두 호환(단말기/교체/설치)]으로 일괄 변경
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleBatchServiceType('device')}
                       className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
                     >
@@ -800,6 +814,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               onChange={(e) => handleProductChange(realIndex, 'serviceType', e.target.value)}
                               className="w-full px-2 py-1.5 bg-amber-50 border border-amber-300 rounded-xl text-xs font-black text-amber-900 focus:bg-white"
                             >
+                              <option value="all">⚡ 전체 (단말기/교체/설치 호환)</option>
                               <option value="device">📦 단말기 (기기 단품)</option>
                               <option value="replace">🔄 교체 (기기 교체시공)</option>
                               <option value="install">⚡ 설치 (신규 설치포함)</option>
