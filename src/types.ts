@@ -34,10 +34,10 @@ export interface Product {
   type: '완속' | '급속' | '초급속' | '스마트홈' | '스탠드';
   power: string;
   features: string[];
-  specs: { [key: string]: string };
+  specs?: { [key: string]: string };
   image: string;
   description: string;
-  plcSupported: boolean;
+  plcSupported?: boolean;
   price?: number;
   originalPrice?: number;
   discountRate?: number;

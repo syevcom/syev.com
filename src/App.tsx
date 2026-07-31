@@ -387,7 +387,22 @@ export default function App() {
 
     const savedProducts = localStorage.getItem('sy_cms_products');
     if (savedProducts) {
-      try { setProducts(JSON.parse(savedProducts)); } catch (e) { console.error(e); }
+      try {
+        const parsed: Product[] = JSON.parse(savedProducts);
+        const existingIds = new Set(parsed.map(p => p.id));
+        const merged = [...parsed];
+        PRODUCTS.forEach(p => {
+          if (!existingIds.has(p.id)) {
+            merged.push(p);
+          }
+        });
+        setProducts(merged);
+        localStorage.setItem('sy_cms_products', JSON.stringify(merged));
+      } catch (e) {
+        console.error(e);
+        setProducts(PRODUCTS);
+        localStorage.setItem('sy_cms_products', JSON.stringify(PRODUCTS));
+      }
     } else {
       setProducts(PRODUCTS);
       localStorage.setItem('sy_cms_products', JSON.stringify(PRODUCTS));
@@ -684,6 +699,35 @@ export default function App() {
   const handleSaveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
     localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
+
+    // Also sync homeProducts & parkingProducts in localStorage so SolutionsSection is updated instantly
+    try {
+      const savedHome = localStorage.getItem('sy_cms_home_products_v3_fixed');
+      if (savedHome) {
+        const parsedHome = JSON.parse(savedHome);
+        newProducts.forEach((np) => {
+          Object.keys(parsedHome).forEach((powerKey) => {
+            parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
+              if (item.id === np.id || item.name === np.name) {
+                return {
+                  ...item,
+                  name: np.name,
+                  price: np.price,
+                  regularPrice: np.originalPrice || item.regularPrice,
+                  discount: np.discountRate || item.discount,
+                  image: np.image || item.image,
+                  description: np.description || item.description
+                };
+              }
+              return item;
+            });
+          });
+        });
+        localStorage.setItem('sy_cms_home_products_v3_fixed', JSON.stringify(parsedHome));
+      }
+    } catch (e) {
+      console.error('Failed to sync home products', e);
+    }
   };
 
   const handleSaveSolutions = (newSolutions: Solution[]) => {

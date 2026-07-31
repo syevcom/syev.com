@@ -288,7 +288,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (p.serviceType) return p.serviceType;
     const text = `${p.name || ''} ${p.componentsInfo || ''} ${p.deliveryInfo || ''} ${p.description || ''}`;
     if (text.includes('교체')) return 'replace';
-    if (text.includes('설치') || text.includes('시공') || text.includes('무료배송 (전문')) return 'install';
+    if (text.includes('설치비 미포함') || text.includes('설치 미포함') || text.includes('단품') || text.includes('기기 본체') || text.includes('개인용')) return 'device';
+    if (text.includes('신규') || text.includes('설치 포함') || text.includes('시공 포함') || text.includes('설치비 포함') || text.includes('무료배송 (전문')) return 'install';
     return 'device';
   };
 
