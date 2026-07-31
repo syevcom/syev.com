@@ -72,6 +72,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [productList, setProductList] = useState<Product[]>(products);
   const [productSearch, setProductSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState('all');
+  const [serviceFilter, setServiceFilter] = useState<'all' | 'device' | 'replace' | 'install'>('all');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
   // Local working copy of brands
@@ -282,13 +283,53 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
-  // Filter products by search & power
+  // Helper to get service category (단말기, 교체, 설치)
+  const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' => {
+    if (p.serviceType) return p.serviceType;
+    const text = `${p.name || ''} ${p.componentsInfo || ''} ${p.deliveryInfo || ''} ${p.description || ''}`;
+    if (text.includes('교체')) return 'replace';
+    if (text.includes('설치') || text.includes('시공') || text.includes('무료배송 (전문')) return 'install';
+    return 'device';
+  };
+
+  // Filter products by search, service category (단말기/교체/설치), & power
   const filteredProducts = productList.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || 
-                          (p.modelName && p.modelName.toLowerCase().includes(productSearch.toLowerCase())) ||
-                          (p.brand && p.brand.toLowerCase().includes(productSearch.toLowerCase()));
-    const matchesPower = powerFilter === 'all' || p.power.includes(powerFilter);
-    return matchesSearch && matchesPower;
+    const searchLower = productSearch.trim().toLowerCase();
+    const matchesSearch = !searchLower || 
+      (p.name && p.name.toLowerCase().includes(searchLower)) || 
+      (p.modelName && p.modelName.toLowerCase().includes(searchLower)) ||
+      (p.brand && p.brand.toLowerCase().includes(searchLower)) ||
+      (p.description && p.description.toLowerCase().includes(searchLower));
+
+    // Service category filter (단말기, 교체, 설치)
+    const st = getProductServiceType(p);
+    const matchesService = serviceFilter === 'all' || st === serviceFilter;
+
+    // Power filter (5kW, 7kW, 11kW, 14kW, BIZ)
+    let matchesPower = true;
+    if (powerFilter !== 'all') {
+      const pPower = (p.power || '').toLowerCase().replace(/\s+/g, '');
+      const pName = (p.name || '').toLowerCase().replace(/\s+/g, '');
+      const pfLower = powerFilter.toLowerCase().replace(/\s+/g, '');
+
+      if (pfLower === '5kw') {
+        matchesPower = pPower.includes('5kw') || pName.includes('5kw') || pName.includes('5킬로');
+      } else if (pfLower === '7kw') {
+        matchesPower = pPower.includes('7kw') || pName.includes('7kw') || pName.includes('7킬로');
+      } else if (pfLower === '11kw') {
+        matchesPower = pPower.includes('11kw') || pName.includes('11kw') || pName.includes('11킬로');
+      } else if (pfLower === '14kw') {
+        matchesPower = pPower.includes('14kw') || pName.includes('14kw') || pName.includes('14킬로');
+      } else if (pfLower === 'biz') {
+        matchesPower = pPower.includes('biz') || pPower.includes('50kw') || pPower.includes('200kw') || 
+                       (p.type && (p.type.includes('급속') || p.type.includes('초급속'))) || 
+                       (p.detailCategory && p.detailCategory.includes('급속'));
+      } else {
+        matchesPower = pPower.includes(pfLower) || pName.includes(pfLower);
+      }
+    }
+
+    return matchesSearch && matchesService && matchesPower;
   });
 
   return (
@@ -429,60 +470,126 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
-              <div className="relative w-full md:w-80">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="상품명, 모델명 또는 브랜드 검색..."
-                  value={productSearch}
-                  onChange={(e) => setProductSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+              {/* Row 1: Search & Option Controls */}
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="relative w-full md:w-96">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="상품명, 모델명 또는 브랜드 검색..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
 
-              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                   <button
                     type="button"
                     onClick={expandAllOptions}
-                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-extrabold transition-all cursor-pointer"
                   >
                     📂 모든 옵션 펼치기
                   </button>
                   <button
                     type="button"
                     onClick={collapseAllOptions}
-                    className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-extrabold transition-all cursor-pointer"
                   >
                     📁 모두 접기
                   </button>
                 </div>
+              </div>
 
-                <div className="h-4 w-[1px] bg-slate-200 hidden sm:block mx-1" />
+              {/* Row 2: Service Classification & Power Output Filters */}
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                
+                {/* 1. Service Type Filter (단말기 / 교체 / 설치) */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-black text-slate-700 mr-1 shrink-0 flex items-center gap-1">
+                    🏷️ 구분 필터:
+                  </span>
+                  {[
+                    { id: 'all', label: '전체 구분' },
+                    { id: 'device', label: '📦 단말기 (기기 단품)' },
+                    { id: 'replace', label: '🔄 교체 (기기 교체시공)' },
+                    { id: 'install', label: '⚡ 설치 (신규 설치포함)' },
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => setServiceFilter(st.id as any)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
+                        serviceFilter === st.id
+                          ? 'bg-slate-900 text-amber-400 border border-slate-800 shadow-xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
+                </div>
 
-                <span className="text-xs font-black text-slate-500 shrink-0">출력 필터:</span>
-                {['all', '5kW', '7kW', '11kW', '14kW', 'BIZ'].map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPowerFilter(p)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer shrink-0 ${
-                      powerFilter === p
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {p === 'all' ? '전체 보기' : p}
-                  </button>
-                ))}
+                {/* 2. Power Output Filter */}
+                <div className="flex items-center gap-1 flex-wrap">
+                  <span className="text-xs font-black text-slate-500 mr-1 shrink-0">⚡ 용량 필터:</span>
+                  {['all', '5kW', '7kW', '11kW', '14kW', 'BIZ'].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPowerFilter(p)}
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
+                        powerFilter === p
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {p === 'all' ? '전체 용량' : p}
+                    </button>
+                  ))}
+                </div>
+
               </div>
             </div>
 
             {/* Products Table Card List */}
             <div className="space-y-4">
-              {filteredProducts.map((product) => {
-                const realIndex = productList.findIndex(p => p.id === product.id);
-                return (
+              <div className="flex items-center justify-between px-1">
+                <p className="text-xs font-black text-slate-700">
+                  총 <span className="text-blue-600 font-extrabold">{filteredProducts.length}개</span> 상품 표시 중 (전체 {productList.length}개)
+                </p>
+                {(powerFilter !== 'all' || serviceFilter !== 'all' || productSearch) && (
+                  <button
+                    type="button"
+                    onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
+                    className="text-xs font-bold text-slate-500 hover:text-blue-600 underline cursor-pointer"
+                  >
+                    필터 전체 해제
+                  </button>
+                )}
+              </div>
+
+              {filteredProducts.length === 0 ? (
+                <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
+                  <p className="text-sm font-extrabold text-slate-700">
+                    선택하신 조건에 검색되는 충전기 상품이 없습니다.
+                  </p>
+                  <p className="text-xs font-medium text-slate-500">
+                    필터(용량: {powerFilter}, 구분: {serviceFilter}) 또는 검색어를 변경해 보세요.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                  >
+                    전체 상품 보기 (필터 초기화)
+                  </button>
+                </div>
+              ) : (
+                filteredProducts.map((product) => {
+                  const realIndex = productList.findIndex(p => p.id === product.id);
+                  return (
                   <div
                     key={product.id}
                     className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all space-y-4"
@@ -562,7 +669,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          <div>
+                            <label className="block text-[10px] font-bold text-amber-700">판매/시공 구분</label>
+                            <select
+                              value={getProductServiceType(product)}
+                              onChange={(e) => handleProductChange(realIndex, 'serviceType', e.target.value)}
+                              className="w-full px-2 py-1.5 bg-amber-50 border border-amber-300 rounded-xl text-xs font-black text-amber-900 focus:bg-white"
+                            >
+                              <option value="device">📦 단말기 (기기 단품)</option>
+                              <option value="replace">🔄 교체 (기기 교체시공)</option>
+                              <option value="install">⚡ 설치 (신규 설치포함)</option>
+                            </select>
+                          </div>
+
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500">충전 타입</label>
                             <select
@@ -574,6 +694,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               <option value="급속">급속</option>
                               <option value="초급속">초급속</option>
                               <option value="스마트홈">스마트홈</option>
+                              <option value="스탠드">스탠드/보호부스</option>
                             </select>
                           </div>
 
@@ -581,7 +702,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             <label className="block text-[10px] font-bold text-slate-500">출력 용량</label>
                             <input
                               type="text"
-                              value={product.power}
+                              value={product.power || ''}
                               onChange={(e) => handleProductChange(realIndex, 'power', e.target.value)}
                               placeholder="예: 5kW, 7kW"
                               className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold text-blue-700"
@@ -860,7 +981,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                   </div>
                 );
-              })}
+              }))}
             </div>
 
             {/* Bottom Save Bar */}

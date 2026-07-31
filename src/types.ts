@@ -50,6 +50,7 @@ export interface Product {
   componentsInfo?: string;
   rewardPointsInfo?: string;
   detailCategory?: '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드';
+  serviceType?: 'device' | 'replace' | 'install';
   optionGroups?: ProductOptionGroup[];
 }
 
