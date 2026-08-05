@@ -17,11 +17,12 @@ import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import CartModal from './components/CartModal';
+import AIChatBot from './components/AIChatBot';
 import { AdminPage } from './components/AdminPage';
 import { BRAND_METADATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
-import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES } from './data';
+import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem } from './types';
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -385,27 +386,65 @@ export default function App() {
       try { setAboutConfig(JSON.parse(savedAbout)); } catch (e) { console.error(e); }
     }
 
-    const savedProducts = localStorage.getItem('sy_cms_products');
+    const REMOVED_PRODUCT_IDS = new Set([
+      'res-7kw-convenient',
+      'res-7kw-safe',
+      'res-7kw-hyundai',
+      'res-7kw-pylon',
+      'res-5kw-convenient',
+      'res-5kw-safe'
+    ]);
+
+    // Use v12 to keep user edits preserved while ensuring option groups work
+    const savedProducts = localStorage.getItem('sy_cms_products_v12');
+    const applyBrandOptions = (pList: Product[]) => {
+      return pList.map(p => {
+        if (p.optionGroups && p.optionGroups.length > 0) {
+          return p;
+        }
+        const b = (p.brand || '').toLowerCase();
+        const n = (p.name || '').toLowerCase();
+        if (b.includes('롯데') || b.includes('evsis') || n.includes('롯데') || n.includes('evsis')) {
+          return { ...p, optionGroups: LOTTE_EVSIS_OPTION_GROUPS };
+        }
+        if (b.includes('일렉트리') || n.includes('일렉트리') || b.includes('electree') || n.includes('electree')) {
+          return { ...p, optionGroups: ELECTREE_OPTION_GROUPS };
+        }
+        if (b.includes('차지고') || n.includes('차지고') || b.includes('chargego') || n.includes('chargego')) {
+          return { ...p, optionGroups: CHARGEGO_OPTION_GROUPS };
+        }
+        if (b.includes('쿨차지') || n.includes('쿨차지') || b.includes('coolcharge') || n.includes('coolcharge') || b.includes('cool charge')) {
+          return { ...p, optionGroups: COOLCHARGE_OPTION_GROUPS };
+        }
+        return { ...p, optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS };
+      });
+    };
+
     if (savedProducts) {
       try {
         const parsed: Product[] = JSON.parse(savedProducts);
-        const existingIds = new Set(parsed.map(p => p.id));
-        const merged = [...parsed];
+        let merged = parsed.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
+        
+        // Add any missing default products from PRODUCTS that aren't in merged
         PRODUCTS.forEach(p => {
-          if (!existingIds.has(p.id)) {
+          if (!merged.some(m => m.id === p.id)) {
             merged.push(p);
           }
         });
+
+        merged = applyBrandOptions(merged);
         setProducts(merged);
-        localStorage.setItem('sy_cms_products', JSON.stringify(merged));
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(merged));
       } catch (e) {
         console.error(e);
-        setProducts(PRODUCTS);
-        localStorage.setItem('sy_cms_products', JSON.stringify(PRODUCTS));
+        const updated = applyBrandOptions(PRODUCTS);
+        setProducts(updated);
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(updated));
       }
     } else {
-      setProducts(PRODUCTS);
-      localStorage.setItem('sy_cms_products', JSON.stringify(PRODUCTS));
+      const updated = applyBrandOptions(PRODUCTS);
+      setProducts(updated);
+      localStorage.setItem('sy_cms_products_v12', JSON.stringify(updated));
     }
 
     const savedSolutions = localStorage.getItem('sy_cms_solutions');
@@ -698,11 +737,16 @@ export default function App() {
 
   const handleSaveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
+    localStorage.setItem('sy_cms_products_v12', JSON.stringify(newProducts));
+    localStorage.setItem('sy_cms_products_v11', JSON.stringify(newProducts));
+    localStorage.setItem('sy_cms_products_v10', JSON.stringify(newProducts));
+    localStorage.setItem('sy_cms_products_v7', JSON.stringify(newProducts));
+    localStorage.setItem('sy_cms_products_v6', JSON.stringify(newProducts));
     localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
 
     // Also sync homeProducts & parkingProducts in localStorage so SolutionsSection is updated instantly
     try {
-      const savedHome = localStorage.getItem('sy_cms_home_products_v3_fixed');
+      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
       if (savedHome) {
         const parsedHome = JSON.parse(savedHome);
         newProducts.forEach((np) => {
@@ -723,7 +767,7 @@ export default function App() {
             });
           });
         });
-        localStorage.setItem('sy_cms_home_products_v3_fixed', JSON.stringify(parsedHome));
+        localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
       }
     } catch (e) {
       console.error('Failed to sync home products', e);
@@ -1479,6 +1523,13 @@ export default function App() {
             </button>
           </motion.div>
         )}
+
+        {/* 24/7 AI 1:1 Live Support Chatbot */}
+        <AIChatBot
+          onOpenQuote={() => setIsQuoteOpen(true)}
+          onNavigateToSol={(sol) => setActivePage(sol === 'residential' ? 'sol_residential' : sol === 'commercial' ? 'sol_commercial' : 'sol_parking')}
+          onNavigateToProducts={() => setActivePage('products')}
+        />
       </AnimatePresence>
     </div>
   );

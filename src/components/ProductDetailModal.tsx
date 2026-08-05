@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, Plus } from 'lucide-react';
 import { Product, CartItem, ProductOptionGroup } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
@@ -35,10 +35,20 @@ export default function ProductDetailModal({
 
   // Dynamic additional option groups state
   const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
-    return product.optionGroups && product.optionGroups.length > 0
+    return product?.optionGroups && product.optionGroups.length > 0
       ? product.optionGroups
       : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
   });
+
+  useEffect(() => {
+    if (product) {
+      setActiveOptionGroups(
+        product.optionGroups && product.optionGroups.length > 0
+          ? product.optionGroups
+          : DEFAULT_RESIDENTIAL_OPTION_GROUPS
+      );
+    }
+  }, [product]);
 
   // State for adding a new custom option group
   const [isAddingGroup, setIsAddingGroup] = useState(false);

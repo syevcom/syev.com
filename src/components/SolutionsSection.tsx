@@ -185,6 +185,16 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       hasPromoRibbon: true
     },
     {
+      id: 'res-5kw-coolcharge',
+      name: '쿨차지 5kW 스마트 홈 충전기',
+      description: '스마트 앱 연동, 야외 가혹 환경 방수/방진, 5kW 저전력 안심 충전',
+      regularPrice: 450000,
+      price: 380000,
+      discount: 15,
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'NEW']
+    },
+    {
       id: 'res-5kw-electree',
       name: '일렉트리 5kW 개인용 전기차 충전기',
       description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
@@ -195,14 +205,14 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       tags: ['MD CHOICE', 'HIT']
     },
     {
-      id: 'res-5kw-convenient',
-      name: '편리 5kW 개인용 전기차 충전기',
-      description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
-      regularPrice: 409091,
-      price: 350000,
+      id: 'res-5kw-evsis',
+      name: '롯데 이브이시스 5kW 스마트홈 충전기',
+      description: '초소형 세련된 북유럽풍 미니멀 디자인, 롯데 EVSIS 5kW 프리미엄 충전기',
+      regularPrice: 920000,
+      price: 790000,
       discount: 14,
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['MD CHOICE']
+      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      tags: ['PREMIUM', 'BEST']
     },
     {
       id: 'res-5kw-chargego',
@@ -211,18 +221,8 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 409091,
       price: 350000,
       discount: 14,
-      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['HIT']
-    },
-    {
-      id: 'res-5kw-safe',
-      name: '안심 5kW 컴팩트 실속형 홈 충전기',
-      description: '한전 승압 불필요, 전기 안전 제어 센서 탑재 초소형 컴팩트 기종',
-      regularPrice: 380000,
-      price: 330000,
-      discount: 13,
       image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
-      tags: ['실속형']
+      tags: ['HIT']
     }
   ],
   '7kW': [
@@ -498,26 +498,13 @@ export default function SolutionsSection({
   };
 
   const [homeProducts, setHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_home_products_v3_fixed');
+    const saved = localStorage.getItem('sy_cms_home_products_v5_fixed');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed['5kW']) {
-          parsed['5kW'] = parsed['5kW'].map((p: SolutionProduct) => {
-            if (p.id === 'res-5kw-spil' || p.name.includes('스필 5kW')) {
-              return { ...p, image: SPEEL_5KW_REPRESENTATIVE_IMAGE };
-            }
-            return p;
-          });
-        }
-        if (parsed['11kW']) {
-          parsed['11kW'] = parsed['11kW'].map((p: SolutionProduct) => {
-            if (p.id === 'res-11kw-spil' || p.name.includes('스필 11kW') || p.name.includes('스필')) {
-              return { ...p, image: SPEEL_11KW_REPRESENTATIVE_IMAGE };
-            }
-            return p;
-          });
-        }
+        parsed['5kW'] = HOME_PRODUCTS_DATA['5kW'];
+        parsed['7kW'] = HOME_PRODUCTS_DATA['7kW'];
+        parsed['11kW'] = HOME_PRODUCTS_DATA['11kW'];
         return parsed;
       } catch (e) {
         return HOME_PRODUCTS_DATA;
@@ -597,7 +584,7 @@ export default function SolutionsSection({
   const saveHomeProducts = (data: Record<string, SolutionProduct[]>) => {
     setHomeProducts(data);
     try {
-      localStorage.setItem('sy_cms_home_products_v3_fixed', JSON.stringify(data));
+      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(data));
     } catch (e) {
       console.error('Failed to save home products to localStorage:', e);
     }
@@ -1341,7 +1328,7 @@ export default function SolutionsSection({
                   상세 사양 및 커넥터 옵션 설정
                 </span>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">배송방법</label>
                     <input
@@ -1357,15 +1344,6 @@ export default function SolutionsSection({
                       type="text"
                       value={editShipping}
                       onChange={(e) => setEditShipping(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">결제수단</label>
-                    <input
-                      type="text"
-                      value={editPayment}
-                      onChange={(e) => setEditPayment(e.target.value)}
                       className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
                     />
                   </div>
@@ -1729,11 +1707,6 @@ export default function SolutionsSection({
 
                 <div className="col-span-3 font-extrabold text-slate-600 self-center">배송비</div>
                 <div className="col-span-9 text-slate-700 font-medium">무료</div>
-
-                <div className="col-span-12 border-t border-slate-100 my-1"></div>
-
-                <div className="col-span-3 font-extrabold text-slate-600 self-center">결제수단</div>
-                <div className="col-span-9 text-slate-700 font-medium">무통장입금</div>
               </div>
             </div>
 

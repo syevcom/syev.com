@@ -72,6 +72,292 @@ export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
   }
 ];
 
+export const ELECTREE_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'ele-grp-cable',
+    title: '충전선 길이 선택',
+    required: false,
+    options: [
+      { id: 'ecable-5m', name: '5m 표준 커넥터 (기본)', price: 0 },
+      { id: 'ecable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'ecable-10m', name: '10m 롱타입 커넥터 (+55,000원)', price: 55000 }
+    ]
+  },
+  {
+    id: 'ele-grp-hibox',
+    title: '하이박스 선택',
+    required: false,
+    options: [
+      { id: 'ehibox-none', name: '선택 안함', price: 0 },
+      { id: 'ehibox-ip56', name: '일렉트리 IP56 전용 하이박스 (+45,000원)', price: 45000 }
+    ]
+  },
+  {
+    id: 'ele-grp-canopy',
+    title: '캐노피 선택',
+    required: false,
+    options: [
+      { id: 'ecanopy-none', name: '선택 안함', price: 0 },
+      { id: 'ecanopy-std', name: '일렉트리 아크릴/차양 캐노피 (+80,000원)', price: 80000 }
+    ]
+  },
+  {
+    id: 'ele-grp-stand',
+    title: '스탠드 선택',
+    required: false,
+    options: [
+      { id: 'estand-none', name: '선택 안함 (벽걸이)', price: 0 },
+      { id: 'estand-base', name: '일렉트리 전용 세이프티 스탠드 (+130,000원)', price: 130000 }
+    ]
+  },
+  {
+    id: 'ele-grp-bollard',
+    title: '스텐 304 앙카식 I형 볼라드 선택',
+    required: false,
+    options: [
+      { id: 'ebollard-none', name: '선택 안함', price: 0 },
+      { id: 'ebollard-i', name: '스텐 304 앙카식 I형 볼라드 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'ele-grp-stopper',
+    title: '스토퍼 선택',
+    required: false,
+    options: [
+      { id: 'estopper-none', name: '선택 안함', price: 0 },
+      { id: 'estopper-pair', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+    ]
+  },
+  {
+    id: 'ele-grp-signboard',
+    title: '충전구역 표지판 선택',
+    required: false,
+    options: [
+      { id: 'esign-none', name: '선택 안함', price: 0 },
+      { id: 'esign-al', name: '알루미늄 충전구역 표지판 (+35,000원)', price: 35000 }
+    ]
+  }
+];
+
+export const COOLCHARGE_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'cool-grp-cable',
+    title: '충전선 길이 선택',
+    required: false,
+    options: [
+      { id: 'coolcable-5m', name: '5m 표준 커넥터 (기본)', price: 0 },
+      { id: 'coolcable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'coolcable-10m', name: '10m 롱타입 커넥터 (+55,000원)', price: 55000 }
+    ]
+  },
+  {
+    id: 'cool-grp-hibox',
+    title: '하이박스 선택',
+    required: false,
+    options: [
+      { id: 'coolhibox-none', name: '선택 안함', price: 0 },
+      { id: 'coolhibox-std', name: '쿨차지 방수 하이박스 (+45,000원)', price: 45000 }
+    ]
+  },
+  {
+    id: 'cool-grp-canopy',
+    title: '캐노피 선택',
+    required: false,
+    options: [
+      { id: 'coolcanopy-none', name: '선택 안함', price: 0 },
+      { id: 'coolcanopy-std', name: '쿨차지 전용 아크릴 캐노피 (+80,000원)', price: 80000 }
+    ]
+  },
+  {
+    id: 'cool-grp-stand',
+    title: '스탠드 선택',
+    required: false,
+    options: [
+      { id: 'coolstand-none', name: '선택 안함 (벽걸이)', price: 0 },
+      { id: 'coolstand-std', name: '쿨차지 자립형 스탠드 (+130,000원)', price: 130000 }
+    ]
+  },
+  {
+    id: 'cool-grp-bollard',
+    title: '스텐 304 앙카식 I형 볼라드 선택',
+    required: false,
+    options: [
+      { id: 'coolbollard-none', name: '선택 안함', price: 0 },
+      { id: 'coolbollard-i', name: '스텐 304 앙카식 I형 볼라드 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'cool-grp-stopper',
+    title: '스토퍼 선택',
+    required: false,
+    options: [
+      { id: 'coolstopper-none', name: '선택 안함', price: 0 },
+      { id: 'coolstopper-pair', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+    ]
+  },
+  {
+    id: 'cool-grp-signboard',
+    title: '충전구역 표지판 선택',
+    required: false,
+    options: [
+      { id: 'coolsign-none', name: '선택 안함', price: 0 },
+      { id: 'coolsign-al', name: '알루미늄 충전구역 표지판 (+35,000원)', price: 35000 }
+    ]
+  }
+];
+
+export const CHARGEGO_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'chg-grp-cable',
+    title: '충전선 길이 선택',
+    required: false,
+    options: [
+      { id: 'chgcable-5m', name: '5m 표준 커넥터 (기본)', price: 0 },
+      { id: 'chgcable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'chgcable-10m', name: '10m 롱타입 커넥터 (+55,000원)', price: 55000 }
+    ]
+  },
+  {
+    id: 'chg-grp-hibox',
+    title: '하이박스 선택',
+    required: false,
+    options: [
+      { id: 'chghibox-none', name: '선택 안함', price: 0 },
+      { id: 'chghibox-std', name: '차지고 방수 하이박스 (+45,000원)', price: 45000 }
+    ]
+  },
+  {
+    id: 'chg-grp-canopy',
+    title: '캐노피 선택',
+    required: false,
+    options: [
+      { id: 'chgcanopy-none', name: '선택 안함', price: 0 },
+      { id: 'chgcanopy-std', name: '차지고 전용 아크릴 캐노피 (+80,000원)', price: 80000 }
+    ]
+  },
+  {
+    id: 'chg-grp-stand',
+    title: '스탠드 선택',
+    required: false,
+    options: [
+      { id: 'chgstand-none', name: '선택 안함 (벽걸이)', price: 0 },
+      { id: 'chgstand-std', name: '차지고 자립형 스탠드 (+130,000원)', price: 130000 }
+    ]
+  },
+  {
+    id: 'chg-grp-bollard',
+    title: '스텐 304 앙카식 I형 볼라드 선택',
+    required: false,
+    options: [
+      { id: 'chgbollard-none', name: '선택 안함', price: 0 },
+      { id: 'chgbollard-i', name: '스텐 304 앙카식 I형 볼라드 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'chg-grp-stopper',
+    title: '스토퍼 선택',
+    required: false,
+    options: [
+      { id: 'chgstopper-none', name: '선택 안함', price: 0 },
+      { id: 'chgstopper-pair', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+    ]
+  },
+  {
+    id: 'chg-grp-signboard',
+    title: '충전구역 표지판 선택',
+    required: false,
+    options: [
+      { id: 'chgsign-none', name: '선택 안함', price: 0 },
+      { id: 'chgsign-al', name: '알루미늄 충전구역 표지판 (+35,000원)', price: 35000 }
+    ]
+  }
+];
+
+export const LOTTE_EVSIS_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'lotte-grp-cable',
+    title: '충전선 길이 선택',
+    required: false,
+    options: [
+      { id: 'lotte-cable-5m', name: '5m 정품 케이블 (기본)', price: 0 },
+      { id: 'lotte-cable-7m', name: '7m 연장 케이블 (+35,000원)', price: 35000 },
+      { id: 'lotte-cable-10m', name: '10m 최고급 롱 케이블 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-hibox',
+    title: '하이박스(시공포함) 선택',
+    required: false,
+    options: [
+      { id: 'lotte-hibox-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-hibox-std', name: '롯데 이브이시스 정품 방수/방진 하이박스 (+50,000원)', price: 50000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-canopy',
+    title: '캐노피(시공포함) 선택',
+    required: false,
+    options: [
+      { id: 'lotte-canopy-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-canopy-std', name: '롯데 이브이시스 차양/아크릴 캐노피 (+80,000원)', price: 80000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-stand',
+    title: '스탠드(시공포함) 선택',
+    required: false,
+    options: [
+      { id: 'lotte-stand-none', name: '선택 안함 (벽부형 기본)', price: 0 },
+      { id: 'lotte-stand-std', name: '롯데 자립형 프리미엄 스탠드 (+180,000원)', price: 180000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-bollard',
+    title: 'I형 볼라드(시공포함) 선택',
+    required: false,
+    options: [
+      { id: 'lotte-bollard-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-bollard-i', name: '스텐 304 I형 안전 볼라드 (+70,000원)', price: 70000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-stopper',
+    title: '스토퍼(시공포함) 선택',
+    required: false,
+    options: [
+      { id: 'lotte-stopper-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-stopper-rubber', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-signboard',
+    title: '충전구역 표지판 선택',
+    required: false,
+    options: [
+      { id: 'lotte-sign-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-sign-al', name: '알루미늄 충전구역 표지판 (+35,000원)', price: 35000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-distance',
+    title: '추가거리공사 선택',
+    required: false,
+    options: [
+      { id: 'lotte-dist-none', name: '선택 안함 (기본 10m 이내)', price: 0 },
+      { id: 'lotte-dist-add', name: '추가거리공사 (m당 +20,000원)', price: 20000 }
+    ]
+  },
+  {
+    id: 'lotte-grp-meter',
+    title: '사설계량기 선택',
+    required: false,
+    options: [
+      { id: 'lotte-meter-none', name: '선택 안함', price: 0 },
+      { id: 'lotte-meter-std', name: '사설 계량기 설치(시공포함) (+150,000원)', price: 150000 }
+    ]
+  }
+];
+
 export const SPEEL_5KW_REPRESENTATIVE_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%"><defs><linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%23ebebeb"/><stop offset="100%" stop-color="%23e5e5e5"/></linearGradient><linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%233a3d43"/><stop offset="35%" stop-color="%23232529"/><stop offset="100%" stop-color="%23131416"/></linearGradient><linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%231e2024"/><stop offset="100%" stop-color="%230f1012"/></linearGradient><filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="%23000000" flood-opacity="0.18"/></filter><filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="%23000000" flood-opacity="0.08"/></filter><filter id="blueGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="800" height="800" fill="url(%23bgGrad)"/><g transform="translate(140, 130)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23ecebff"/><circle cx="0" cy="0" r="54" fill="%236862f6"/><text x="0" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="%23ffffff" text-anchor="middle">5kW</text></g><g transform="translate(140, 310)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23fde8ea"/><circle cx="0" cy="0" r="54" fill="%23f75466"/><text x="0" y="-6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" fill="%23ffffff" text-anchor="middle">무상A/S</text><text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" fill="%23ffffff" text-anchor="middle">4년</text></g><g transform="translate(35, 755)" opacity="0.45"><circle cx="0" cy="0" r="11" fill="none" stroke="%23333333" stroke-width="2.5"/><line x1="8" y1="8" x2="16" y2="16" stroke="%23333333" stroke-width="3" stroke-linecap="round"/></g><rect x="425" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><rect x="495" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><g filter="url(%23dropShadow)"><path d="M 330,200 Q 480,140 630,200 Q 660,215 660,250 L 660,600 Q 660,670 595,695 L 480,725 L 365,695 Q 300,670 300,600 L 300,250 Q 300,215 330,200 Z" fill="url(%23bodyGrad)" stroke="%23454850" stroke-width="1.5"/><path d="M 330,200 Q 480,140 630,200" fill="none" stroke="%23606470" stroke-width="2" opacity="0.6"/><path d="M 335,225 Q 480,175 625,225 Q 640,240 640,270 L 640,580 Q 640,645 580,675 L 480,700 L 380,675 Q 320,645 320,580 L 320,270 Q 320,240 335,225 Z" fill="url(%23faceGrad)" stroke="%2318191c" stroke-width="2"/><path d="M 340,240 Q 480,190 620,240 L 620,380 Q 480,540 480,540 Q 480,540 340,380 Z" fill="%23151619" stroke="%2326282d" stroke-width="1.5" opacity="0.8"/><g transform="translate(480, 310)"><rect x="-44" y="-28" width="88" height="56" rx="10" fill="none" stroke="%23ffffff" stroke-width="4.5"/><text x="18" y="-4" font-family="Arial, sans-serif" font-size="12" font-weight="900" fill="%23ffffff" text-anchor="middle" letter-spacing="0.5">CARD</text><path d="M -22,14 Q -12,4 -2,14" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -27,20 Q -12,6 3,20" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -32,26 Q -12,8 8,26" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/></g><g transform="translate(480, 440)"><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%230075ff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" filter="url(%23blueGlow)"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%2300b0ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%23e0f4ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(605, 620)"><path d="M -28,-14 L -18,-14 L -23,-3 L -15,-3 L -26,14 L -21,3 L -29,3 Z" fill="%23ffffff"/><text x="-5" y="4" font-family="'Arial Black', sans-serif" font-size="28" font-style="italic" font-weight="900" fill="%23ffffff" text-anchor="start">e</text><text x="-20" y="20" font-family="sans-serif" font-size="10" font-weight="800" fill="%23b0b5c0" text-anchor="start" letter-spacing="2">CHARGER</text></g></g></svg>`;
 export const SPEEL_11KW_REPRESENTATIVE_IMAGE = 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800';
 
@@ -115,6 +401,27 @@ export const PRODUCTS: Product[] = [
     optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
+    id: 'res-5kw-coolcharge',
+    name: '쿨차지 5kW 스마트 홈 충전기',
+    type: '완속',
+    power: '5kW',
+    price: 380000,
+    originalPrice: 450000,
+    discountRate: 15,
+    brand: '쿨차지',
+    manufacturer: '쿨차지',
+    origin: '대한민국',
+    modelName: 'COOL-5KW-SMART',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용완속',
+    serviceType: 'device',
+    features: ['스마트 앱 연동 충전', '야외 가혹 환경 방수/방진', '5kW 저전력 안심 충전'],
+    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    description: '스마트 앱 연동, 야외 가혹 환경 방수/방진, 5kW 저전력 안심 충전',
+    optionGroups: COOLCHARGE_OPTION_GROUPS
+  },
+  {
     id: 'res-5kw-electree',
     name: '일렉트리 5kW 개인용 전기차 충전기',
     type: '완속',
@@ -133,28 +440,28 @@ export const PRODUCTS: Product[] = [
     features: ['승압 부담 적은 5kW 출력', '실내외 설치 우수한 방수/방진', '직관적 LED 충전 표시'],
     image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
     description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: ELECTREE_OPTION_GROUPS
   },
   {
-    id: 'res-5kw-convenient',
-    name: '편리 5kW 개인용 전기차 충전기',
+    id: 'res-5kw-evsis',
+    name: '롯데 이브이시스 5kW 스마트홈 충전기',
     type: '완속',
     power: '5kW',
-    price: 350000,
-    originalPrice: 409091,
+    price: 790000,
+    originalPrice: 920000,
     discountRate: 14,
-    brand: '편리',
-    manufacturer: '편리전기',
+    brand: '롯데 이브이시스',
+    manufacturer: '롯데 EVSIS',
     origin: '대한민국',
-    modelName: 'PNL-5KW-STD',
+    modelName: 'EVSIS-5KW-HOME',
     deliveryInfo: '택배(주문 시 결제) / 무료배송',
     componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
     detailCategory: '비공용완속',
     serviceType: 'device',
-    features: ['가성비 5kW 충전기', '안전 과전류 방지 센서', '컴팩트 벽부형'],
-    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-    description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    features: ['초소형 세련된 미니멀 디자인', '블루투스 인증 예약 충전', '롯데 EVSIS 프리미엄 라인'],
+    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+    description: '초소형 세련된 북유럽풍 미니멀 디자인, 롯데 EVSIS 5kW 프리미엄 충전기',
+    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
   },
   {
     id: 'res-5kw-chargego',
@@ -173,30 +480,9 @@ export const PRODUCTS: Product[] = [
     detailCategory: '비공용완속',
     serviceType: 'device',
     features: ['예약충전 기능', '충전본체 분해없이 설치가능', '자가교체 가능한 커플러'],
-    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-    description: '[예약충전 기능] 충전본체 분해없이 설치가능, 자가교체 가능한 커플러',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-5kw-safe',
-    name: '안심 5kW 컴팩트 실속형 홈 충전기',
-    type: '완속',
-    power: '5kW',
-    price: 330000,
-    originalPrice: 380000,
-    discountRate: 13,
-    brand: '안심',
-    manufacturer: '안심에너지',
-    origin: '대한민국',
-    modelName: 'ANSIM-5KW-MINI',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['한전 승압 불필요', '전기 안전 제어 센서 탑재', '초소형 컴팩트 기종'],
     image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
-    description: '한전 승압 불필요, 전기 안전 제어 센서 탑재 초소형 컴팩트 기종',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    description: '[예약충전 기능] 충전본체 분해없이 설치가능, 자가교체 가능한 커플러',
+    optionGroups: CHARGEGO_OPTION_GROUPS
   },
 
   // --- 7kW Products ---
@@ -205,9 +491,9 @@ export const PRODUCTS: Product[] = [
     name: '스필 7kW 개인용 전기차 충전기 무상AS 4년',
     type: '완속',
     power: '7kW',
-    price: 490000,
-    originalPrice: 580000,
-    discountRate: 15,
+    price: 598000,
+    originalPrice: 660000,
+    discountRate: 10,
     brand: '스필',
     manufacturer: '스필일렉트릭',
     origin: '대한민국',
@@ -238,14 +524,77 @@ export const PRODUCTS: Product[] = [
     optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
+    id: 'res-7kw-electree',
+    name: '일렉트리 7kW 개인용 전기차 충전기',
+    type: '완속',
+    power: '7kW',
+    price: 480000,
+    originalPrice: 480000,
+    discountRate: 0,
+    brand: '일렉트리',
+    manufacturer: '일렉트리',
+    origin: '대한민국',
+    modelName: 'ELE-7KW-HOME',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용완속',
+    serviceType: 'device',
+    features: ['승압 부담 적은 7kW 출력', '실내외 설치 우수한 방수/방진', '직관적 LED 충전 표시'],
+    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+    optionGroups: ELECTREE_OPTION_GROUPS
+  },
+  {
+    id: 'res-7kw-chargego',
+    name: '차지고 7kW 개인용 전기차 충전기',
+    type: '완속',
+    power: '7kW',
+    price: 450000,
+    originalPrice: 450000,
+    discountRate: 0,
+    brand: '차지고',
+    manufacturer: '차지고',
+    origin: '대한민국',
+    modelName: 'CHG-7KW-CPT',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용완속',
+    serviceType: 'device',
+    features: ['가정 및 빌라 실외 설치용', '고강도 방수/방진 IP55 인증', '최적화 하드웨어'],
+    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+    description: '가정 및 빌라 실외 설치용 고강도 방수/방진 IP55 인증 최적화 하드웨어',
+    optionGroups: CHARGEGO_OPTION_GROUPS
+  },
+  {
+    id: 'res-7kw-coolcharge',
+    name: '쿨차지 7kW 개인용 전기차 충전기',
+    type: '완속',
+    power: '7kW',
+    price: 650000,
+    originalPrice: 660000,
+    discountRate: 2,
+    brand: '쿨차지',
+    manufacturer: '쿨차지',
+    origin: '대한민국',
+    modelName: 'COOL-7KW-HOME',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용완속',
+    serviceType: 'device',
+    features: ['스마트 쿨링 시스템', '스마트폰 어플 연동 지원', 'IP65 높은 고방수 설계'],
+    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    description: '쿨차지 7kW 개인용 전기차 충전기 단말기 전용 모델',
+    optionGroups: COOLCHARGE_OPTION_GROUPS
+  },
+  {
     id: 'sy-home07',
-    name: '롯데 이브이시스 7kW 비공용 완속 충전기',
+    name: '롯데 EVSIS 7kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
     type: '스마트홈',
     power: '7kW',
-    price: 850000,
-    originalPrice: 980000,
-    discountRate: 13,
-    brand: '롯데 이브이시스',
+    price: 840000,
+    originalPrice: 1100000,
+    discountRate: 24,
+    brand: '롯데EVSIS',
     manufacturer: 'EVSIS(주)',
     origin: '대한민국',
     modelName: 'EVSIS-HOME-07',
@@ -272,123 +621,18 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
     description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다.',
     plcSupported: true,
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-7kw-convenient',
-    name: '편리 7kW 스마트 예약 홈충전기',
-    type: '완속',
-    power: '7kW',
-    price: 410000,
-    originalPrice: 480000,
-    discountRate: 14,
-    brand: '편리',
-    manufacturer: '편리전기',
-    origin: '대한민국',
-    modelName: 'PNL-7KW-SMART',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['안정적인 출력 제어', '고휘도 직관적 LED 상태 표시', '과전류 방지 센서'],
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-    description: '안정적인 출력 제어, 고휘도 직관적 LED 상태 표시 및 과전류 방지 센서',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-7kw-chargego',
-    name: '차지고 7kW 콤팩트 완속 충전기',
-    type: '완속',
-    power: '7kW',
-    price: 400000,
-    originalPrice: 470000,
-    discountRate: 15,
-    brand: '차지고',
-    manufacturer: '차지고',
-    origin: '대한민국',
-    modelName: 'CHG-7KW-CPT',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['가정 및 빌라 실외 설치용', '고강도 방수/방진 IP55 인증', '최적화 하드웨어'],
-    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-    description: '가정 및 빌라 실외 설치용 고강도 방수/방진 IP55 인증 최적화 하드웨어',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-7kw-safe',
-    name: '안심 7kW 표준형 실속 홈 충전기',
-    type: '완속',
-    power: '7kW',
-    price: 380000,
-    originalPrice: 445000,
-    discountRate: 14,
-    brand: '안심',
-    manufacturer: '안심에너지',
-    origin: '대한민국',
-    modelName: 'ANSIM-7KW-STD',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['베이직 가성비 홈 충전 솔루션', '5m 난연 실리콘 고품질 케이블 기본 증정'],
-    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
-    description: '베이직 가성비 홈 충전 솔루션, 5m 난연 실리콘 고품질 케이블 기본 증정',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-7kw-hyundai',
-    name: '현대 전기차 홈 7kW 슬림형 충전기',
-    type: '완속',
-    power: '7kW',
-    price: 440000,
-    originalPrice: 520000,
-    discountRate: 15,
-    brand: '현대',
-    manufacturer: '현대자동차 협력사',
-    origin: '대한민국',
-    modelName: 'HYU-7KW-SLIM',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['현대/기아 공식 협력사 품질 인증', '고감도 자가 진단 및 화재 감지 안심 충전'],
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-    description: '현대/기아 공식 협력사 품질 인증, 고감도 자가 진단 및 화재 감지 안심 충전',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
-  },
-  {
-    id: 'res-7kw-pylon',
-    name: '파일런 7kW 컴팩트 고효율 충전기',
-    type: '완속',
-    power: '7kW',
-    price: 390000,
-    originalPrice: 460000,
-    discountRate: 15,
-    brand: '파일런',
-    manufacturer: '파일런테크',
-    origin: '대한민국',
-    modelName: 'PYL-7KW-EFF',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['벽부형 및 스탠드 겸용', 'IP56 등급 완전 방수 설계'],
-    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-    description: '벽부형 및 스탠드 겸용, 야외 가혹 환경에서도 든든한 IP56 등급 완전 방수 설계',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
   },
 
   // --- 11kW Products ---
   {
     id: 'sy-ac11-bi',
-    name: '스필 11kW 프리미엄 개인용 충전기 무상AS 4년',
+    name: '스필 11kW 개인용 전기차 충전기 무상AS 4년',
     type: '완속',
     power: '11kW',
-    price: 650000,
-    originalPrice: 780000,
-    discountRate: 16,
+    price: 779000,
+    originalPrice: 829000,
+    discountRate: 7,
     brand: '스필',
     manufacturer: '스필일렉트릭',
     origin: '대한민국',
@@ -406,14 +650,56 @@ export const PRODUCTS: Product[] = [
     optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
-    id: 'res-11kw-evsis',
-    name: '롯데 이브이시스 11kW 스마트 프리미엄',
+    id: 'res-11kw-coolcharge',
+    name: '쿨차지 11kW 개인용 전기차 충전기',
     type: '완속',
     power: '11kW',
-    price: 1250000,
-    originalPrice: 1450000,
-    discountRate: 13,
-    brand: '롯데 이브이시스',
+    price: 800000,
+    originalPrice: 800000,
+    discountRate: 0,
+    brand: '쿨차지',
+    manufacturer: '쿨차지',
+    origin: '대한민국',
+    modelName: 'COOL-11KW-HOME',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용중속',
+    serviceType: 'device',
+    features: ['스마트 쿨링 시스템', '스마트폰 어플 연동 지원', 'IP65 높은 고방수 설계'],
+    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+    description: '쿨차지 11kW 개인용 전기차 충전기 단말기 전용 모델',
+    optionGroups: COOLCHARGE_OPTION_GROUPS
+  },
+  {
+    id: 'res-11kw-electree',
+    name: '일렉트리 11kW 개인용 전기차 충전기',
+    type: '완속',
+    power: '11kW',
+    price: 750000,
+    originalPrice: 850000,
+    discountRate: 12,
+    brand: '일렉트리',
+    manufacturer: '일렉트리',
+    origin: '대한민국',
+    modelName: 'ELE-11KW-HOME',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용중속',
+    serviceType: 'device',
+    features: ['3상 11kW 완속 충전기', '실내외 설치 우수한 방수/방진', '직관적 LED 충전 표시'],
+    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+    description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+    optionGroups: ELECTREE_OPTION_GROUPS
+  },
+  {
+    id: 'res-11kw-evsis',
+    name: '롯데 EVSIS 11kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
+    type: '스마트홈',
+    power: '11kW',
+    price: 1200000,
+    originalPrice: 1390000,
+    discountRate: 14,
+    brand: '롯데EVSIS',
     manufacturer: 'EVSIS(주)',
     origin: '대한민국',
     modelName: 'EVSIS-HOME-11',
@@ -424,7 +710,7 @@ export const PRODUCTS: Product[] = [
     features: ['OCPP 1.6 통신 모듈', '스마트 RFID 본인 인증 및 예약 제어'],
     image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
     description: 'OCPP 1.6 통신 모듈, 스마트 RFID 본인 인증 및 예약 제어 시스템',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
   },
 
   // --- 14kW & BIZ / 급속 Products ---
@@ -448,7 +734,7 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
     description: '오피스 빌딩, 상업 주차장에 적합한 고성능 11kW 충전기입니다.',
     plcSupported: true,
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
   },
   {
     id: 'park-11kw-spil',

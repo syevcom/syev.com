@@ -42,7 +42,7 @@ export default function SupportSection({
 }: SupportSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFaq, setSelectedFaq] = useState<string | null>(null);
-  const [faqCategory, setFaqCategory] = useState<'전체' | '보조금/비용' | '화재안전' | '설치과정' | '전기안전' | '사후관리(A/S)'>('전체');
+  const [faqCategory, setFaqCategory] = useState<'전체' | '보조금/비용' | '화재안전' | '설치과정' | '전기안전'>('전체');
 
   // 1:1 online inquiry form state
   const [title, setTitle] = useState('');
@@ -149,7 +149,7 @@ export default function SupportSection({
           </div>
 
           <div className="flex flex-wrap gap-2 justify-center">
-            {(['전체', '보조금/비용', '화재안전', '설치과정', '전기안전', '사후관리(A/S)'] as const).map((cat) => (
+            {(['전체', '보조금/비용', '화재안전', '설치과정', '전기안전'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setFaqCategory(cat)}
@@ -217,34 +217,8 @@ export default function SupportSection({
         </div>
       </section>
 
-      {/* Online 1:1 Query and A/S dispatch cards (Double block) */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* A/S Dispatch guidance */}
-        <div className="p-8 rounded-3xl bg-slate-900 text-white flex flex-col justify-between border border-slate-800 shadow-xl space-y-6">
-          <div className="space-y-4">
-            <span className="text-blue-400 font-bold text-sm uppercase tracking-wider block">Instant A/S Service</span>
-            <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">
-              기기 고장 및 충전 트러러블 발생 시 <br />
-              <span className="text-blue-400">전국 통합 긴급 사후관리(A/S) 접수</span>
-            </h3>
-            <p className="text-slate-300 text-sm leading-relaxed font-semibold">
-              SY.com은 24시간 실시간 전기안전 모니터링 관제 센터를 운영 중입니다. 기기의 동작 정지 또는 물리적 파손, 입주민 충전 정산 카드 미인식 등 긴급 상황 발생 시 아래 버튼을 클릭하여 즉시 긴급 출동을 신청해 주세요.
-            </p>
-            <div className="p-5 bg-white/5 border border-white/10 rounded-2xl text-xs sm:text-sm text-slate-200 space-y-2 font-bold">
-              <p>• <span className="text-slate-400">무상 보증 기간:</span> 정식 설치 완료 후 2년간 (소모품/외벽 파손 제외)</p>
-              <p>• <span className="text-slate-400">정비 출동 지침:</span> 당일 오후 4시 전 접수 시 익일 오전 내 기사님 현장 밀착 조치 완료</p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleASButton}
-            id="btn-support-as-cta"
-            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/10"
-          >
-            🚨 실시간 전국 A/S 긴급 신청하기 (로그인 필수)
-          </button>
-        </div>
-
+      {/* Online 1:1 Query card */}
+      <section className="max-w-3xl mx-auto w-full">
         {/* 1:1 Inquiry Form */}
         <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6">
           <div className="space-y-2">

@@ -217,7 +217,7 @@ export default function MainHero({
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-stretch">
             
-            {/* Column 1: 주택비공용 */}
+            {/* Column 1: 가정용 홈 */}
             <div className="flex flex-col items-center text-center space-y-4 group">
               {/* Custom Vector Illustration */}
               <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
@@ -275,15 +275,15 @@ export default function MainHero({
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-emerald-950 tracking-tight">아파트</h4>
+                <h4 className="text-xl font-black text-emerald-950 tracking-tight">가정용 홈</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  아파트 단지, 입주민 공용{"\n"}환경부 무상 보조금 최적 설계
+                  단독주택, 빌라, 개인용 주차장{"\n"}7kW 개인 완속 스마트홈 홈충전기
                 </p>
               </div>
               
               <div className="pt-2">
                 <button
-                  onClick={() => onPageChange?.('sol_commercial')}
+                  onClick={() => onPageChange?.('sol_residential')}
                   className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기
@@ -291,7 +291,7 @@ export default function MainHero({
               </div>
             </div>
 
-            {/* Column 2: 기업용 */}
+            {/* Column 2: 아파트 */}
             <div className="flex flex-col items-center text-center space-y-4 group">
               {/* Custom Vector Illustration */}
               <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
@@ -352,7 +352,7 @@ export default function MainHero({
                   <line x1="93" y1="210" x2="93" y2="230" stroke="#64748b" strokeWidth="1" />
 
                   {/* Charger Right 1 */}
-                  <rect x="252" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" />
+                  <rect x="252" y="195" width="10" height="35" fill="#f8fafc" stroke="#059669" strokeWidth="2" rx="1" strokeLinecap="round" />
                   <circle cx="257" cy="203" r="2" fill="#10b981" />
                   <line x1="257" y1="210" x2="257" y2="230" stroke="#64748b" strokeWidth="1" />
 
@@ -364,15 +364,15 @@ export default function MainHero({
               </div>
               
               <div className="space-y-2">
-                <h4 className="text-xl font-black text-emerald-950 tracking-tight">가정용 홈</h4>
+                <h4 className="text-xl font-black text-emerald-950 tracking-tight">아파트</h4>
                 <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  단독주택, 빌라, 개인용 주차장{"\n"}7kW 개인 완속 스마트홈 홈충전기
+                  아파트 단지, 입주민 공용{"\n"}환경부 무상 보조금 최적 설계
                 </p>
               </div>
               
               <div className="pt-2">
                 <button
-                  onClick={() => onPageChange?.('sol_residential')}
+                  onClick={() => onPageChange?.('sol_commercial')}
                   className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
                 >
                   자세히 보기

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
-import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
 import { 
   Package, 
   Building2, 
@@ -24,9 +24,184 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  X
+  X,
+  Bookmark,
+  Copy,
+  Sliders,
+  Edit3,
+  FolderPlus
 } from 'lucide-react';
 import { motion } from 'motion/react';
+
+export interface OptionPreset {
+  id: string;
+  name: string;
+  brand: string;
+  description?: string;
+  optionGroups: ProductOptionGroup[];
+}
+
+export const INITIAL_OPTION_PRESETS: OptionPreset[] = [
+  {
+    id: 'preset-speel',
+    name: '스필(SPEEL) 4년 무상A/S 전용 세부옵션 (7종)',
+    brand: '스필',
+    description: '스필 브랜드 특화: 5m/7m/10m 충전선, 계량기 하이박스, 스필 아크릴 캐노피, 고급 스탠드, 볼라드, 주차스토퍼, 표지판',
+    optionGroups: [
+      {
+        id: 'speel-cable',
+        title: '스필 커넥터 케이블 길이 선택',
+        required: false,
+        options: [
+          { id: 'scable-5m', name: '5m 정품 케이블 (기본)', price: 0 },
+          { id: 'scable-7m', name: '7m 연장 케이블 (+30,000원)', price: 30000 },
+          { id: 'scable-10m', name: '10m 최장 전용선 (+60,000원)', price: 60000 }
+        ]
+      },
+      {
+        id: 'speel-hibox',
+        title: '계량기 보호 방수 하이박스',
+        required: false,
+        options: [
+          { id: 'shibox-none', name: '선택 안함', price: 0 },
+          { id: 'shibox-std', name: '스필 투명 방수/방진 하이박스 (+50,000원)', price: 50000 }
+        ]
+      },
+      {
+        id: 'speel-canopy',
+        title: '스필 빗물/자외선 차단 캐노피',
+        required: false,
+        options: [
+          { id: 'scanopy-none', name: '선택 안함', price: 0 },
+          { id: 'scanopy-acrylic', name: '스필 아크릴/선루프 캐노피 (+80,000원)', price: 80000 }
+        ]
+      },
+      {
+        id: 'speel-stand',
+        title: '스필 앙카식 고급 스틸 스탠드',
+        required: false,
+        options: [
+          { id: 'sstand-none', name: '선택 안함 (벽부형 기본)', price: 0 },
+          { id: 'sstand-steel', name: '스필 자립형 스틸 고급 스탠드 (+150,000원)', price: 150000 }
+        ]
+      },
+      {
+        id: 'speel-bollard',
+        title: '스텐 304 앙카식 볼라드',
+        required: false,
+        options: [
+          { id: 'sbollard-none', name: '선택 안함', price: 0 },
+          { id: 'sbollard-i', name: '스텐 304 앙카식 I형 볼라드 (+70,000원)', price: 70000 }
+        ]
+      },
+      {
+        id: 'speel-stopper',
+        title: '고무 주차 스토퍼',
+        required: false,
+        options: [
+          { id: 'sstopper-none', name: '선택 안함', price: 0 },
+          { id: 'sstopper-rubber', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+        ]
+      },
+      {
+        id: 'speel-sign',
+        title: '전기차 충전구역 표지판',
+        required: false,
+        options: [
+          { id: 'ssign-none', name: '선택 안함', price: 0 },
+          { id: 'ssign-al', name: '알루미늄 충전구역 표지판 (+35,000원)', price: 35000 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'preset-electree',
+    name: '일렉트리(ELECTREE) 전용 세부옵션 (7종 대분류 세트)',
+    brand: '일렉트리',
+    description: '충전선 길이, 하이박스, 캐노피, 스탠드, I형 볼라드, 스토퍼, 표지판 선택 7종',
+    optionGroups: ELECTREE_OPTION_GROUPS
+  },
+  {
+    id: 'preset-convenient',
+    name: '편리(PNL)전기 전용 세부옵션',
+    brand: '편리',
+    description: '편리 브랜드: 케이블 사양, 편리 스마트 차양 캐노피, I형 스텐 볼라드, 주차 스토퍼',
+    optionGroups: [
+      {
+        id: 'pnl-cable',
+        title: '편리 충전선 길이',
+        required: false,
+        options: [
+          { id: 'pcable-5m', name: '5m 커넥터 (기본)', price: 0 },
+          { id: 'pcable-7m', name: '7m 케이블 (+28,000원)', price: 28000 },
+          { id: 'pcable-10m', name: '10m 케이블 (+50,000원)', price: 50000 }
+        ]
+      },
+      {
+        id: 'pnl-canopy',
+        title: '편리 스마트 차양 캐노피',
+        required: false,
+        options: [
+          { id: 'pcanopy-none', name: '선택 안함', price: 0 },
+          { id: 'pcanopy-std', name: '편리 스마트 차양 캐노피 (+75,000원)', price: 75000 }
+        ]
+      },
+      {
+        id: 'pnl-bollard',
+        title: 'I형 스텐 안전 볼라드',
+        required: false,
+        options: [
+          { id: 'pbollard-none', name: '선택 안함', price: 0 },
+          { id: 'pbollard-std', name: 'I형 스텐 안전 볼라드 (+65,000원)', price: 65000 }
+        ]
+      },
+      {
+        id: 'pnl-stopper',
+        title: '고무 주차 스토퍼',
+        required: false,
+        options: [
+          { id: 'pstopper-none', name: '선택 안함', price: 0 },
+          { id: 'pstopper-std', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'preset-chargego',
+    name: '차지고(CHARGEGO) 전용 세부옵션 (7종 대분류 세트)',
+    brand: '차지고',
+    description: '충전선 길이, 하이박스, 캐노피, 스탠드, I형 볼라드, 스토퍼, 표지판 선택 7종',
+    optionGroups: CHARGEGO_OPTION_GROUPS
+  },
+  {
+    id: 'preset-coolcharge',
+    name: '쿨차지(COOLCHARGE) 전용 세부옵션 (7종 대분류 세트)',
+    brand: '쿨차지',
+    description: '충전선 길이, 하이박스, 캐노피, 스탠드, I형 볼라드, 스토퍼, 표지판 선택 7종',
+    optionGroups: COOLCHARGE_OPTION_GROUPS
+  },
+  {
+    id: 'preset-evsis',
+    name: '롯데 이브이시스(EVSIS) 전용 세부옵션 (9종 대분류 세트)',
+    brand: '롯데 이브이시스',
+    description: '충전선 길이, 하이박스, 캐노피, 스탠드, I형 볼라드, 스토퍼, 표지판, 추가거리공사, 사설계량기 선택 9종',
+    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
+  },
+  {
+    id: 'preset-standard',
+    name: '표준 가정용/홈충전기 세부옵션 (7종 풀세트)',
+    brand: '공통',
+    description: '표준 7종: 충전선, 하이박스, 캐노피, 스탠드, 볼라드, 주차스토퍼, 표지판',
+    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+  },
+  {
+    id: 'preset-empty',
+    name: '단품/스탠드 전용 (옵션없음)',
+    brand: '공통',
+    description: '옵션 없이 단품으로 판매되는 상품에 적용',
+    optionGroups: []
+  }
+];
 
 interface AdminPageProps {
   products: Product[];
@@ -82,6 +257,134 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Local SNS & Footer config
   const [snsState, setSnsState] = useState(snsConfig);
   const [footerState, setFooterState] = useState(footerConfig);
+
+  // Option Presets State
+  const [optionPresets, setOptionPresets] = useState<OptionPreset[]>(() => {
+    try {
+      const saved = localStorage.getItem('sy_cms_option_presets_v2');
+      if (saved) {
+        const parsed: OptionPreset[] = JSON.parse(saved);
+        ['preset-evsis', 'preset-electree', 'preset-chargego', 'preset-coolcharge'].forEach(presetId => {
+          const freshPreset = INITIAL_OPTION_PRESETS.find(i => i.id === presetId);
+          if (freshPreset) {
+            const idx = parsed.findIndex(p => p.id === presetId);
+            if (idx !== -1) {
+              parsed[idx] = freshPreset;
+            } else {
+              parsed.push(freshPreset);
+            }
+          }
+        });
+        return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to parse option presets', e);
+    }
+    return INITIAL_OPTION_PRESETS;
+  });
+
+  const [batchSelectedBrand, setBatchSelectedBrand] = useState<string>('스필');
+  const [batchSelectedPresetId, setBatchSelectedPresetId] = useState<string>('preset-speel');
+  const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
+
+  // Save optionPresets to localStorage
+  const updateOptionPresets = (newList: OptionPreset[]) => {
+    setOptionPresets(newList);
+    try {
+      localStorage.setItem('sy_cms_option_presets_v2', JSON.stringify(newList));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Apply a preset to a single product
+  const handleApplyPresetToProduct = (productIndex: number, presetId: string) => {
+    const preset = optionPresets.find(p => p.id === presetId);
+    if (!preset) return;
+
+    const updated = [...productList];
+    updated[productIndex] = {
+      ...updated[productIndex],
+      optionGroups: JSON.parse(JSON.stringify(preset.optionGroups))
+    };
+    setProductList(updated);
+    setExpandedOptions(prev => ({ ...prev, [updated[productIndex].id]: true }));
+    alert(`[${updated[productIndex].name}] 상품에 [${preset.name}] 세부 옵션이 적용되었습니다!`);
+  };
+
+  // Apply a preset to ALL products matching a brand (or all)
+  const handleApplyPresetToBrand = (targetBrand: string, presetId: string) => {
+    const preset = optionPresets.find(p => p.id === presetId);
+    if (!preset) {
+      alert('선택된 옵션 템플릿을 찾을 수 없습니다.');
+      return;
+    }
+
+    const brandLabel = targetBrand === 'all' ? '전체' : targetBrand;
+
+    if (!window.confirm(`[${brandLabel}] 브랜드 관련 상품들에 [${preset.name}] 세부 옵션 템플릿(${preset.optionGroups.length}개 그룹)을 일괄 적용하시겠습니까?`)) {
+      return;
+    }
+
+    let affectedCount = 0;
+    const updated = productList.map(p => {
+      const pBrand = p.brand || '';
+      const pName = p.name || '';
+      const matches = targetBrand === 'all' || 
+                      pBrand.toLowerCase().includes(targetBrand.toLowerCase()) || 
+                      pName.toLowerCase().includes(targetBrand.toLowerCase());
+
+      if (matches) {
+        affectedCount++;
+        return {
+          ...p,
+          optionGroups: JSON.parse(JSON.stringify(preset.optionGroups))
+        };
+      }
+      return p;
+    });
+
+    setProductList(updated);
+    alert(`성공! [${brandLabel}] 관련 상품 총 ${affectedCount}개에 [${preset.name}] 세부 옵션이 일괄 적용되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 꼭 클릭해 주세요.`);
+  };
+
+  // Save current product's options as a new Preset
+  const handleSaveCurrentOptionsAsPreset = (productIndex: number) => {
+    const sourceProduct = productList[productIndex];
+    const sourceGroups = sourceProduct.optionGroups || [];
+
+    if (sourceGroups.length === 0) {
+      alert('저장할 세부 옵션 그룹이 없습니다. 먼저 옵션을 구성해주세요.');
+      return;
+    }
+
+    const defaultPresetName = `${sourceProduct.brand || '커스텀'} ${sourceProduct.name} 전용 옵션`;
+    const presetName = prompt(`현재 상품 [${sourceProduct.name}]의 옵션(${sourceGroups.length}개 그룹)을 새 템플릿으로 저장합니다.\n템플릿 이름을 입력해 주세요:`, defaultPresetName);
+
+    if (!presetName || !presetName.trim()) return;
+
+    const newPreset: OptionPreset = {
+      id: `preset-custom-${Date.now()}`,
+      name: presetName.trim(),
+      brand: sourceProduct.brand || '커스텀',
+      description: `${sourceProduct.name}에서 직접 추출한 옵션 세트`,
+      optionGroups: JSON.parse(JSON.stringify(sourceGroups))
+    };
+
+    const nextPresets = [...optionPresets, newPreset];
+    updateOptionPresets(nextPresets);
+    alert(`'${presetName}' 템플릿이 성공적으로 저장되었습니다!\n이제 브랜드별 일괄 적용이나 다른 상품 옵션 설정에서 언제든지 불러와 사용할 수 있습니다.`);
+  };
+
+  // Delete Custom Preset
+  const handleDeletePreset = (presetId: string) => {
+    const preset = optionPresets.find(p => p.id === presetId);
+    if (!preset) return;
+    if (window.confirm(`정말 '${preset.name}' 템플릿을 삭제하시겠습니까?`)) {
+      const nextPresets = optionPresets.filter(p => p.id !== presetId);
+      updateOptionPresets(nextPresets);
+    }
+  };
 
   // Handle Product Field Edit
   const handleProductChange = (index: number, field: keyof Product, value: any) => {
@@ -653,27 +956,80 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-amber-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
+                <div className="pt-2.5 border-t border-amber-200/80 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-xs font-black text-blue-950 flex items-center gap-1">
-                      🛠️ 세부 옵션(케이블, 스탠드 등) 일괄 적용:
+                      🏷️ 브랜드별 세부 옵션 템플릿 일괄 지정:
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+
+                  <div className="flex items-center gap-2 flex-wrap w-full xl:w-auto justify-end">
+                    {/* Select Target Brand */}
+                    <div className="flex items-center gap-1 bg-white border border-blue-200 px-2 py-1 rounded-lg">
+                      <span className="text-[11px] font-bold text-slate-500 shrink-0">대상 브랜드:</span>
+                      <select
+                        value={batchSelectedBrand}
+                        onChange={(e) => setBatchSelectedBrand(e.target.value)}
+                        className="text-xs font-black text-blue-950 bg-transparent focus:outline-hidden cursor-pointer"
+                      >
+                        <option value="all">🌐 전체 브랜드 상품</option>
+                        <option value="스필">스필 (SPEEL)</option>
+                        <option value="일렉트리">일렉트리 (ELECTREE)</option>
+                        <option value="편리">편리 (PNL)전기</option>
+                        <option value="차지고">차지고 (CHARGEGO)</option>
+                        <option value="롯데 이브이시스">롯데 이브이시스 (EVSIS)</option>
+                      </select>
+                    </div>
+
+                    {/* Select Option Preset */}
+                    <div className="flex items-center gap-1 bg-white border border-blue-200 px-2 py-1 rounded-lg">
+                      <span className="text-[11px] font-bold text-slate-500 shrink-0">적용할 템플릿:</span>
+                      <select
+                        value={batchSelectedPresetId}
+                        onChange={(e) => setBatchSelectedPresetId(e.target.value)}
+                        className="text-xs font-black text-slate-800 bg-transparent focus:outline-hidden cursor-pointer max-w-[210px] truncate"
+                      >
+                        {optionPresets.map(preset => (
+                          <option key={preset.id} value={preset.id}>
+                            [{preset.brand}] {preset.name} ({preset.optionGroups.length}개 그룹)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPresetToBrand(batchSelectedBrand, batchSelectedPresetId)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
+                    >
+                      <Zap className="w-3.5 h-3.5 fill-current text-blue-200" />
+                      <span>⚡ 브랜드에 템플릿 일괄 적용</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsPresetManagerOpen(true)}
+                      className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
+                    >
+                      <Bookmark className="w-3.5 h-3.5" />
+                      <span>⚙️ 템플릿 미리작성/관리</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={handleBatchApplyDefaultOptionsToAll}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      <span>⚡ 표준 세부옵션 6종 전체상품 일괄적용</span>
+                      <span>⚡ 표준 7종 전체적용</span>
                     </button>
+
                     <button
                       type="button"
                       onClick={expandAllOptions}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
                     >
-                      📂 모든 상품 옵션창 펼치기
+                      📂 펼치기
                     </button>
                   </div>
                 </div>
@@ -997,19 +1353,77 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                           {/* 2. Option Groups & Option Choice List */}
                           <div className="space-y-3 pt-2 border-t border-blue-100">
-                            {/* Copy Options to All Products Banner */}
-                            <div className="bg-amber-100/90 border border-amber-300 p-2.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                              <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
-                                <span>💡 세부 옵션을 일일이 작성하실 필요 없습니다!</span>
+                            {/* Option Presets Quick Bar for Product Card */}
+                            <div className="bg-gradient-to-r from-blue-50 to-amber-50 border border-blue-200 p-3 rounded-xl space-y-2 shadow-xs">
+                              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5">
+                                <div className="text-xs font-black text-blue-950 flex items-center gap-1.5 shrink-0">
+                                  <Bookmark className="w-4 h-4 text-blue-600" />
+                                  <span>📋 브랜드 세부 옵션 템플릿 간편 선택</span>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto justify-end">
+                                  {/* Select Preset Dropdown */}
+                                  <select
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        handleApplyPresetToProduct(realIndex, e.target.value);
+                                        e.target.value = '';
+                                      }
+                                    }}
+                                    defaultValue=""
+                                    className="px-2.5 py-1.5 bg-white border border-blue-300 rounded-lg text-xs font-black text-slate-800 shadow-xs focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                  >
+                                    <option value="" disabled>-- 미리 작성된 옵션 템플릿 불러오기 --</option>
+                                    {optionPresets.map(preset => (
+                                      <option key={preset.id} value={preset.id}>
+                                        [{preset.brand}] {preset.name} (대분류 {preset.optionGroups.length}개)
+                                      </option>
+                                    ))}
+                                  </select>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSaveCurrentOptionsAsPreset(realIndex)}
+                                    className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs flex items-center gap-1 shrink-0"
+                                    title="현재 설정된 옵션 그룹을 템플릿으로 저장"
+                                  >
+                                    <Save className="w-3.5 h-3.5" />
+                                    <span>💾 템플릿으로 저장</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const brandName = product.brand || '';
+                                      const sourceGroups = product.optionGroups || [];
+                                      if (sourceGroups.length === 0) {
+                                        alert('복사할 옵션 대분류가 없습니다. 먼저 옵션을 구성해주세요.');
+                                        return;
+                                      }
+                                      if (window.confirm(`[${product.name}]의 세부 옵션(${sourceGroups.length}개 대분류)을 [${brandName || '전체'}] 브랜드 모든 상품에 일괄 복사하시겠습니까?`)) {
+                                        let count = 0;
+                                        const updated = productList.map(p => {
+                                          const matches = !brandName || (p.brand || '').toLowerCase().includes(brandName.toLowerCase());
+                                          if (matches) {
+                                            count++;
+                                            return {
+                                              ...p,
+                                              optionGroups: JSON.parse(JSON.stringify(sourceGroups))
+                                            };
+                                          }
+                                          return p;
+                                        });
+                                        setProductList(updated);
+                                        alert(`[${brandName || '전체'}] 브랜드 상품 총 ${count}개에 옵션이 성공적으로 일괄 복사되었습니다!`);
+                                      }
+                                    }}
+                                    className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs flex items-center gap-1 shrink-0"
+                                  >
+                                    <Zap className="w-3.5 h-3.5 fill-current text-amber-200" />
+                                    <span>⚡ [{product.brand || '이 브랜드'}] 전체 일괄복사</span>
+                                  </button>
+                                </div>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => handleBatchCopyOptionsFromProduct(realIndex)}
-                                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all cursor-pointer shadow-xs shrink-0 flex items-center gap-1"
-                              >
-                                <Zap className="w-3.5 h-3.5 fill-current text-amber-200" />
-                                <span>⚡ 이 상품의 세부 옵션({(product.optionGroups || []).length}개 그룹) 전체 상품에 일괄 복사</span>
-                              </button>
                             </div>
 
                             <div className="flex items-center justify-between">
@@ -1454,6 +1868,117 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         )}
 
       </main>
+
+      {/* Option Preset Manager Modal */}
+      {isPresetManagerOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]"
+          >
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base font-black">브랜드별 세부 옵션 템플릿 미리작성 & 관리자</h3>
+              </div>
+              <button
+                onClick={() => setIsPresetManagerOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Subtitle / Help */}
+            <div className="bg-amber-50 p-4 border-b border-amber-200/80 text-xs text-amber-900 space-y-1">
+              <p className="font-bold flex items-center gap-1">
+                💡 미리 브랜드별 대분류/세부 옵션을 작성해 두고 필요할 때 일괄 적용하세요!
+              </p>
+              <p className="text-amber-800 text-[11px]">
+                스필, 일렉트리, 편리전기, 차지고, 롯데 이브이시스 등 브랜드별 전용 옵션을 클릭 한번으로 개별 상품 또는 해당 브랜드 전 상품에 일괄 적용할 수 있습니다.
+              </p>
+            </div>
+
+            {/* Preset List Body */}
+            <div className="p-5 overflow-y-auto space-y-4 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {optionPresets.map((preset) => (
+                  <div key={preset.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 flex flex-col justify-between hover:border-blue-300 transition-all">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-black rounded-md">
+                          {preset.brand}
+                        </span>
+                        <span className="text-[11px] font-bold text-slate-500">
+                          옵션 대분류 {preset.optionGroups.length}개
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-black text-slate-900">{preset.name}</h4>
+                      {preset.description && (
+                        <p className="text-xs text-slate-500 font-semibold mt-1">{preset.description}</p>
+                      )}
+
+                      {/* Preview of Option Groups */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-200/70 space-y-1">
+                        {preset.optionGroups.length === 0 ? (
+                          <span className="text-xs text-slate-400 italic">옵션 없음 (단품)</span>
+                        ) : (
+                          preset.optionGroups.map((grp, i) => (
+                            <div key={i} className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                              <span className="text-blue-600 font-black">•</span>
+                              <span className="truncate">{grp.title} ({grp.options.length}개 선택지)</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleApplyPresetToBrand(preset.brand, preset.id);
+                        }}
+                        className="flex-1 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>[{preset.brand}] 전 상품 일괄 적용</span>
+                      </button>
+
+                      {preset.id.startsWith('preset-custom-') && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePreset(preset.id)}
+                          className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all cursor-pointer"
+                          title="템플릿 삭제"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500">
+                총 {optionPresets.length}개의 세부옵션 템플릿 등록됨
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsPresetManagerOpen(false)}
+                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black cursor-pointer"
+              >
+                닫기
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
