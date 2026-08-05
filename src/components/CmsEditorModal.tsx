@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save, RotateCcw, Image as ImageIcon, Plus, Trash2, Check, Edit3, Settings, HelpCircle, FileText, Sparkles, Building, User, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, Solution, Review, FAQ, HeaderConfig, ProductOptionGroup, ProductOptionItem } from '../types';
+import { Product, Solution, Review, FAQ, HeaderConfig, ProductOptionGroup, ProductOptionItem, SolutionProduct } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
+import { PARKING_PRODUCTS_DATA, HOME_PRODUCTS_DATA } from './SolutionsSection';
 
 interface CmsEditorModalProps {
   isOpen: boolean;
@@ -542,6 +543,7 @@ export default function CmsEditorModal({
   };
 
   // 4. Solutions Form State
+  const [solSubTab, setSolSubTab] = useState<'parking' | 'home' | 'cards'>('parking');
   const [editingSolutionId, setEditingSolutionId] = useState<string | null>(null);
   const [solTitle, setSolTitle] = useState('');
   const [solSubtitle, setSolSubtitle] = useState('');
@@ -554,6 +556,171 @@ export default function CmsEditorModal({
   const [solBenefits, setSolBenefits] = useState<string[]>([]);
   const [solBannerMode, setSolBannerMode] = useState<'cover' | 'unfold'>('cover');
   const [solDetailMode, setSolDetailMode] = useState<'scroll' | 'unfold'>('scroll');
+
+  // Commercial / Parking Lot & Home Chargers states for CMS
+  const [cmsParkingProducts, setCmsParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
+    const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return PARKING_PRODUCTS_DATA;
+  });
+
+  const [cmsHomeProducts, setCmsHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
+    const saved = localStorage.getItem('sy_cms_home_products_v5_fixed');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return HOME_PRODUCTS_DATA;
+  });
+
+  useEffect(() => {
+    const handleProductsUpdate = () => {
+      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+      if (savedHome) {
+        try { setCmsHomeProducts(JSON.parse(savedHome)); } catch (e) {}
+      }
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+      if (savedParking) {
+        try { setCmsParkingProducts(JSON.parse(savedParking)); } catch (e) {}
+      }
+    };
+
+    window.addEventListener('sy_cms_products_update', handleProductsUpdate);
+    window.addEventListener('storage', handleProductsUpdate);
+    return () => {
+      window.removeEventListener('sy_cms_products_update', handleProductsUpdate);
+      window.removeEventListener('storage', handleProductsUpdate);
+    };
+  }, []);
+
+  const [editingSolProd, setEditingSolProd] = useState<SolutionProduct | null>(null);
+  const [isNewSolProd, setIsNewSolProd] = useState(false);
+  const [solProdType, setSolProdType] = useState<'parking' | 'home'>('parking');
+  const [solProdCategory, setSolProdCategory] = useState<string>('공용 BIZ 충전기');
+
+  // SolutionProduct Form states
+  const [solProdName, setSolProdName] = useState('');
+  const [solProdRegularPrice, setSolProdRegularPrice] = useState(0);
+  const [solProdPrice, setSolProdPrice] = useState(0);
+  const [solProdDiscount, setSolProdDiscount] = useState(0);
+  const [solProdImage, setSolProdImage] = useState('');
+  const [solProdTags, setSolProdTags] = useState('');
+  const [solProdHasASBadge, setSolProdHasASBadge] = useState(false);
+  const [solProdHasPromoRibbon, setSolProdHasPromoRibbon] = useState(false);
+  const [solProdDescription, setSolProdDescription] = useState('');
+  const [solProdDeliveryMethod, setSolProdDeliveryMethod] = useState('');
+  const [solProdShippingFee, setSolProdShippingFee] = useState('');
+  const [solProdPaymentMethod, setSolProdPaymentMethod] = useState('');
+  const [isDraggingSolProdImg, setIsDraggingSolProdImg] = useState(false);
+
+  const handleStartEditSolProd = (p: SolutionProduct | null, type: 'parking' | 'home', category: string) => {
+    setSolProdType(type);
+    setSolProdCategory(category);
+    if (p) {
+      setEditingSolProd(p);
+      setIsNewSolProd(false);
+      setSolProdName(p.name);
+      setSolProdRegularPrice(p.regularPrice || 0);
+      setSolProdPrice(p.price || 0);
+      setSolProdDiscount(p.discount || 0);
+      setSolProdImage(p.image || '');
+      setSolProdTags(p.tags ? p.tags.join(', ') : '');
+      setSolProdHasASBadge(!!p.hasASBadge);
+      setSolProdHasPromoRibbon(!!p.hasPromoRibbon);
+      setSolProdDescription(p.description || '');
+      setSolProdDeliveryMethod(p.deliveryMethod || '택배');
+      setSolProdShippingFee(p.shippingFee || '무료');
+      setSolProdPaymentMethod(p.paymentMethod || '무통장입금');
+    } else {
+      setEditingSolProd(null);
+      setIsNewSolProd(true);
+      setSolProdName('');
+      setSolProdRegularPrice(1200000);
+      setSolProdPrice(1020000);
+      setSolProdDiscount(15);
+      setSolProdImage('https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600');
+      setSolProdTags('BEST, HIT');
+      setSolProdHasASBadge(type === 'home');
+      setSolProdHasPromoRibbon(true);
+      setSolProdDescription('');
+      setSolProdDeliveryMethod('택배');
+      setSolProdShippingFee('무료');
+      setSolProdPaymentMethod('무통장입금');
+    }
+  };
+
+  const handleSaveSolProd = () => {
+    const newProduct: SolutionProduct = {
+      id: editingSolProd ? editingSolProd.id : `${solProdType === 'parking' ? 'park' : 'res'}-${Date.now()}`,
+      name: solProdName || '새 충전기',
+      regularPrice: Number(solProdRegularPrice) || 0,
+      price: Number(solProdPrice) || 0,
+      discount: Number(solProdDiscount) || 0,
+      image: solProdImage || 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: solProdTags ? solProdTags.split(',').map(s => s.trim()).filter(Boolean) : ['BEST'],
+      hasASBadge: solProdHasASBadge,
+      hasPromoRibbon: solProdHasPromoRibbon,
+      description: solProdDescription,
+      deliveryMethod: solProdDeliveryMethod,
+      shippingFee: solProdShippingFee,
+      paymentMethod: solProdPaymentMethod
+    };
+
+    if (solProdType === 'parking') {
+      const updated = { ...cmsParkingProducts };
+      const list = updated[solProdCategory] ? [...updated[solProdCategory]] : [];
+      if (editingSolProd) {
+        const idx = list.findIndex(item => item.id === editingSolProd.id);
+        if (idx !== -1) list[idx] = newProduct;
+        else list.push(newProduct);
+      } else {
+        list.push(newProduct);
+      }
+      updated[solProdCategory] = list;
+      setCmsParkingProducts(updated);
+      localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(updated));
+    } else {
+      const updated = { ...cmsHomeProducts };
+      const list = updated[solProdCategory] ? [...updated[solProdCategory]] : [];
+      if (editingSolProd) {
+        const idx = list.findIndex(item => item.id === editingSolProd.id);
+        if (idx !== -1) list[idx] = newProduct;
+        else list.push(newProduct);
+      } else {
+        list.push(newProduct);
+      }
+      updated[solProdCategory] = list;
+      setCmsHomeProducts(updated);
+      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(updated));
+    }
+
+    window.dispatchEvent(new Event('sy_cms_products_update'));
+    setEditingSolProd(null);
+    setIsNewSolProd(false);
+    showSaveSuccess('💾 충전기 상품 정보가 저장되어 홈페이지에 즉시 반영되었습니다!');
+  };
+
+  const handleDeleteSolProd = (id: string, type: 'parking' | 'home', category: string) => {
+    if (!confirm('이 충전기 상품을 정말 삭제하시겠습니까?')) return;
+    if (type === 'parking') {
+      const updated = { ...cmsParkingProducts };
+      if (updated[category]) {
+        updated[category] = updated[category].filter(item => item.id !== id);
+        setCmsParkingProducts(updated);
+        localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(updated));
+      }
+    } else {
+      const updated = { ...cmsHomeProducts };
+      if (updated[category]) {
+        updated[category] = updated[category].filter(item => item.id !== id);
+        setCmsHomeProducts(updated);
+        localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(updated));
+      }
+    }
+    window.dispatchEvent(new Event('sy_cms_products_update'));
+    showSaveSuccess('🗑️ 충전기 상품이 삭제되었습니다.');
+  };
 
   const editingSol = solutions.find(s => s.id === editingSolutionId);
   const isCommercial = editingSol?.category === 'Commercial';
@@ -3143,6 +3310,638 @@ export default function CmsEditorModal({
                 exit={{ opacity: 0, y: -4 }}
                 className="space-y-4"
               >
+                {/* Sub-tab Navigation */}
+                <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80">
+                  <button
+                    type="button"
+                    onClick={() => { setSolSubTab('parking'); setEditingSolProd(null); setIsNewSolProd(false); setEditingSolutionId(null); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      solSubTab === 'parking'
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    }`}
+                  >
+                    <span>🏢 상업시설 수익형 충전기 관리</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSolSubTab('home'); setEditingSolProd(null); setIsNewSolProd(false); setEditingSolutionId(null); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      solSubTab === 'home'
+                        ? 'bg-emerald-600 text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    }`}
+                  >
+                    <span>🏠 가정용 홈 충전기 관리</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSolSubTab('cards'); setEditingSolProd(null); setIsNewSolProd(false); setEditingSolutionId(null); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      solSubTab === 'cards'
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    }`}
+                  >
+                    <span>🛠️ 용도별 메인 카드 & 브로셔</span>
+                  </button>
+                </div>
+
+                {/* TAB 1: PARKING / COMMERCIAL REVENUE CHARGERS */}
+                {solSubTab === 'parking' && (
+                  <div className="space-y-4">
+                    {editingSolProd || isNewSolProd ? (
+                      <div className="space-y-4 p-4 border border-indigo-100 bg-indigo-50/10 rounded-2xl">
+                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                          <h5 className="text-xs font-black text-indigo-800 uppercase flex items-center gap-1.5">
+                            ⚡ {isNewSolProd ? '새 상업시설 수익형 충전기 등록' : '상업시설 수익형 충전기 상세 수정'}
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={() => { setEditingSolProd(null); setIsNewSolProd(false); }}
+                            className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            목록으로 돌아가기
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">충전기 명칭 (모델명)</label>
+                            <input
+                              type="text"
+                              value={solProdName}
+                              onChange={(e) => setSolProdName(e.target.value)}
+                              placeholder="예: 롯데 이브이시스 11kW 수익형 완속 충전기"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">카테고리 / 구분</label>
+                            <input
+                              type="text"
+                              value={solProdCategory}
+                              onChange={(e) => setSolProdCategory(e.target.value)}
+                              placeholder="예: 공용 BIZ 충전기, 50kW 급속 충전기"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Prices */}
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                          <label className="block text-[11px] font-black text-slate-800">💰 가격 및 할인율 설정</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">기존 정가 (원)</span>
+                              <input
+                                type="number"
+                                value={solProdRegularPrice}
+                                onChange={(e) => {
+                                  const reg = Number(e.target.value) || 0;
+                                  setSolProdRegularPrice(reg);
+                                  if (reg > 0 && solProdPrice > 0) {
+                                    setSolProdDiscount(Math.round(((reg - solProdPrice) / reg) * 100));
+                                  }
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 line-through"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">실제 판매가 (원)</span>
+                              <input
+                                type="number"
+                                value={solProdPrice}
+                                onChange={(e) => {
+                                  const pr = Number(e.target.value) || 0;
+                                  setSolProdPrice(pr);
+                                  if (solProdRegularPrice > 0 && pr > 0) {
+                                    setSolProdDiscount(Math.round(((solProdRegularPrice - pr) / solProdRegularPrice) * 100));
+                                  }
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-indigo-600"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">할인율 (%)</span>
+                              <input
+                                type="number"
+                                value={solProdDiscount}
+                                onChange={(e) => setSolProdDiscount(Number(e.target.value) || 0)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Image upload */}
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-700">충전기 대표 이미지</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={solProdImage}
+                              onChange={(e) => setSolProdImage(e.target.value)}
+                              placeholder="이미지 URL 또는 파일 드래그앤드롭"
+                              className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono"
+                            />
+                            <div
+                              onDragOver={(e) => { e.preventDefault(); setIsDraggingSolProdImg(true); }}
+                              onDragLeave={() => setIsDraggingSolProdImg(false)}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                setIsDraggingSolProdImg(false);
+                                const file = e.dataTransfer.files?.[0];
+                                if (file && file.type.startsWith('image/')) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    if (ev.target?.result) setSolProdImage(ev.target.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className={`px-4 py-2 border-2 border-dashed rounded-xl text-xs font-black cursor-pointer flex items-center justify-center transition-all ${
+                                isDraggingSolProdImg ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:border-indigo-400'
+                              }`}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.onchange = (e: any) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      if (ev.target?.result) setSolProdImage(ev.target.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                };
+                                input.click();
+                              }}
+                            >
+                              📁 파일 업로드
+                            </div>
+                          </div>
+                          {solProdImage && (
+                            <img src={solProdImage} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-slate-200 mt-2" />
+                          )}
+                        </div>
+
+                        {/* Tags and Badges */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">태그 목록 (쉼표 분리)</label>
+                            <input
+                              type="text"
+                              value={solProdTags}
+                              onChange={(e) => setSolProdTags(e.target.value)}
+                              placeholder="예: BEST, HIT, MD CHOICE"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-4 pt-4">
+                            <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={solProdHasASBadge}
+                                onChange={(e) => setSolProdHasASBadge(e.target.checked)}
+                                className="w-4 h-4 rounded text-indigo-600"
+                              />
+                              <span>🛡️ 무상 A/S 4년 뱃지</span>
+                            </label>
+
+                            <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={solProdHasPromoRibbon}
+                                onChange={(e) => setSolProdHasPromoRibbon(e.target.checked)}
+                                className="w-4 h-4 rounded text-rose-600"
+                              />
+                              <span>🔥 특가 리본 뱃지</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-700">기기 상세 홍보 문구 / 스펙</label>
+                          <textarea
+                            value={solProdDescription}
+                            onChange={(e) => setSolProdDescription(e.target.value)}
+                            rows={2.5}
+                            placeholder="예: RFID 및 전용 앱 정산 수수료 정산 관제망 탑재, 사업 수익 정산용 고효율 모델"
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => { setEditingSolProd(null); setIsNewSolProd(false); }}
+                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold cursor-pointer"
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveSolProd}
+                            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black cursor-pointer shadow-md flex items-center gap-1"
+                          >
+                            <Save className="w-3.5 h-3.5" />
+                            <span>상업시설 충전기 저장</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                              🏢 상업시설 수익형 충전기 제품 라인업
+                            </h4>
+                            <p className="text-[11px] text-slate-500 font-medium">상업시설, 마트, 골프장, 주차장 등에 설치되는 수익형 충전기 목록을 추가 및 수정합니다.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditSolProd(null, 'parking', '공용 BIZ 충전기')}
+                            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>새 수익형 충전기 등록</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {(Object.entries(cmsParkingProducts) as [string, SolutionProduct[]][]).map(([catKey, prodList]) => (
+                            <div key={catKey} className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3">
+                              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                                <span className="text-xs font-black text-indigo-800 bg-indigo-100 px-2.5 py-0.5 rounded-full">
+                                  {catKey} ({prodList.length}개 기기)
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditSolProd(null, 'parking', catKey)}
+                                  className="text-[11px] font-extrabold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>이 카테고리에 충전기 추가</span>
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 gap-2.5">
+                                {prodList.map((p) => (
+                                  <div
+                                    key={p.id}
+                                    className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-4 shadow-2xs hover:border-indigo-300 transition-all"
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <img src={p.image} alt={p.name} className="w-12 h-12 object-cover rounded-xl border border-slate-100" />
+                                      <div className="min-w-0 space-y-0.5">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          {p.tags.map(t => (
+                                            <span key={t} className="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-black">{t}</span>
+                                          ))}
+                                          <span className="text-xs font-black text-indigo-600">{p.price?.toLocaleString()}원</span>
+                                          {p.regularPrice ? (
+                                            <span className="text-[10px] text-slate-400 line-through">{p.regularPrice.toLocaleString()}원</span>
+                                          ) : null}
+                                        </div>
+                                        <h5 className="text-xs font-black text-slate-900 truncate">{p.name}</h5>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleStartEditSolProd(p, 'parking', catKey)}
+                                        className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-extrabold flex items-center gap-1 border border-indigo-200/60 cursor-pointer"
+                                      >
+                                        <Edit3 className="w-3 h-3" />
+                                        <span>수정</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteSolProd(p.id, 'parking', catKey)}
+                                        className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                                        title="삭제"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 2: HOME CHARGERS */}
+                {solSubTab === 'home' && (
+                  <div className="space-y-4">
+                    {editingSolProd || isNewSolProd ? (
+                      <div className="space-y-4 p-4 border border-emerald-100 bg-emerald-50/10 rounded-2xl">
+                        <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                          <h5 className="text-xs font-black text-emerald-800 uppercase flex items-center gap-1.5">
+                            🏠 {isNewSolProd ? '새 가정용 홈 충전기 등록' : '가정용 홈 충전기 상세 수정'}
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={() => { setEditingSolProd(null); setIsNewSolProd(false); }}
+                            className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            목록으로 돌아가기
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">충전기 명칭 (모델명)</label>
+                            <input
+                              type="text"
+                              value={solProdName}
+                              onChange={(e) => setSolProdName(e.target.value)}
+                              placeholder="예: 스필 7kW 개인용 전기차 충전기 무상AS 4년"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">용량 구분</label>
+                            <select
+                              value={solProdCategory}
+                              onChange={(e) => setSolProdCategory(e.target.value)}
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                            >
+                              <option value="5kW">5kW</option>
+                              <option value="7kW">7kW</option>
+                              <option value="11kW">11kW</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Prices */}
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                          <label className="block text-[11px] font-black text-slate-800">💰 가격 및 할인율 설정</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">기존 정가 (원)</span>
+                              <input
+                                type="number"
+                                value={solProdRegularPrice}
+                                onChange={(e) => {
+                                  const reg = Number(e.target.value) || 0;
+                                  setSolProdRegularPrice(reg);
+                                  if (reg > 0 && solProdPrice > 0) {
+                                    setSolProdDiscount(Math.round(((reg - solProdPrice) / reg) * 100));
+                                  }
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-500 line-through"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">실제 판매가 (원)</span>
+                              <input
+                                type="number"
+                                value={solProdPrice}
+                                onChange={(e) => {
+                                  const pr = Number(e.target.value) || 0;
+                                  setSolProdPrice(pr);
+                                  if (solProdRegularPrice > 0 && pr > 0) {
+                                    setSolProdDiscount(Math.round(((solProdRegularPrice - pr) / solProdRegularPrice) * 100));
+                                  }
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-emerald-600"
+                              />
+                            </div>
+                            <div>
+                              <span className="block text-[10px] font-bold text-slate-500">할인율 (%)</span>
+                              <input
+                                type="number"
+                                value={solProdDiscount}
+                                onChange={(e) => setSolProdDiscount(Number(e.target.value) || 0)}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Image upload */}
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-700">충전기 대표 이미지</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={solProdImage}
+                              onChange={(e) => setSolProdImage(e.target.value)}
+                              placeholder="이미지 URL 또는 파일 드래그앤드롭"
+                              className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono"
+                            />
+                            <div
+                              onDragOver={(e) => { e.preventDefault(); setIsDraggingSolProdImg(true); }}
+                              onDragLeave={() => setIsDraggingSolProdImg(false)}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                setIsDraggingSolProdImg(false);
+                                const file = e.dataTransfer.files?.[0];
+                                if (file && file.type.startsWith('image/')) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    if (ev.target?.result) setSolProdImage(ev.target.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className={`px-4 py-2 border-2 border-dashed rounded-xl text-xs font-black cursor-pointer flex items-center justify-center transition-all ${
+                                isDraggingSolProdImg ? 'border-emerald-500 bg-emerald-50' : 'border-slate-300 hover:border-emerald-400'
+                              }`}
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.onchange = (e: any) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      if (ev.target?.result) setSolProdImage(ev.target.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                };
+                                input.click();
+                              }}
+                            >
+                              📁 파일 업로드
+                            </div>
+                          </div>
+                          {solProdImage && (
+                            <img src={solProdImage} alt="Preview" className="w-20 h-20 object-cover rounded-xl border border-slate-200 mt-2" />
+                          )}
+                        </div>
+
+                        {/* Tags and Badges */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-slate-700">태그 목록 (쉼표 분리)</label>
+                            <input
+                              type="text"
+                              value={solProdTags}
+                              onChange={(e) => setSolProdTags(e.target.value)}
+                              placeholder="예: MD CHOICE, HIT, BEST"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-4 pt-4">
+                            <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={solProdHasASBadge}
+                                onChange={(e) => setSolProdHasASBadge(e.target.checked)}
+                                className="w-4 h-4 rounded text-emerald-600"
+                              />
+                              <span>🛡️ 무상 A/S 4년 뱃지</span>
+                            </label>
+
+                            <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={solProdHasPromoRibbon}
+                                onChange={(e) => setSolProdHasPromoRibbon(e.target.checked)}
+                                className="w-4 h-4 rounded text-rose-600"
+                              />
+                              <span>🔥 특가 리본 뱃지</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-slate-700">기기 상세 홍보 문구 / 스펙</label>
+                          <textarea
+                            value={solProdDescription}
+                            onChange={(e) => setSolProdDescription(e.target.value)}
+                            rows={2.5}
+                            placeholder="예: [국내최초 무상A/S 4년] 화재 감지 자동 전력 차단 가정용 완속 충전 베스트셀러"
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => { setEditingSolProd(null); setIsNewSolProd(false); }}
+                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold cursor-pointer"
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveSolProd}
+                            className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black cursor-pointer shadow-md flex items-center gap-1"
+                          >
+                            <Save className="w-3.5 h-3.5" />
+                            <span>가정용 충전기 저장</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                              🏠 가정용 홈 충전기 제품 라인업
+                            </h4>
+                            <p className="text-[11px] text-slate-500 font-medium">단독주택, 전원주택, 개인용 주차장에 설치되는 가정용 충전기 목록을 관리합니다.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditSolProd(null, 'home', '7kW')}
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>새 가정용 충전기 등록</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {(Object.entries(cmsHomeProducts) as [string, SolutionProduct[]][]).map(([capacityKey, prodList]) => (
+                            <div key={capacityKey} className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3">
+                              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                                <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                                  {capacityKey} ({prodList.length}개 기기)
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditSolProd(null, 'home', capacityKey)}
+                                  className="text-[11px] font-extrabold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>{capacityKey} 충전기 추가</span>
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 gap-2.5">
+                                {prodList.map((p) => (
+                                  <div
+                                    key={p.id}
+                                    className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-4 shadow-2xs hover:border-emerald-300 transition-all"
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <img src={p.image} alt={p.name} className="w-12 h-12 object-cover rounded-xl border border-slate-100" />
+                                      <div className="min-w-0 space-y-0.5">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          {p.tags.map(t => (
+                                            <span key={t} className="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-black">{t}</span>
+                                          ))}
+                                          <span className="text-xs font-black text-emerald-600">{p.price?.toLocaleString()}원</span>
+                                          {p.regularPrice ? (
+                                            <span className="text-[10px] text-slate-400 line-through">{p.regularPrice.toLocaleString()}원</span>
+                                          ) : null}
+                                        </div>
+                                        <h5 className="text-xs font-black text-slate-900 truncate">{p.name}</h5>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleStartEditSolProd(p, 'home', capacityKey)}
+                                        className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-extrabold flex items-center gap-1 border border-emerald-200/60 cursor-pointer"
+                                      >
+                                        <Edit3 className="w-3 h-3" />
+                                        <span>수정</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteSolProd(p.id, 'home', capacityKey)}
+                                        className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                                        title="삭제"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 3: CARDS & BROCHURES */}
+                {solSubTab === 'cards' && (
+                  <div>
                 {!editingSolutionId ? (
                   <div className="space-y-3">
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">용도별 맞춤 전용 솔루션 편집</h4>
@@ -3400,6 +4199,8 @@ export default function CmsEditorModal({
                       </button>
                     </div>
                   </div>
+                )}
+                </div>
                 )}
               </motion.div>
             )}

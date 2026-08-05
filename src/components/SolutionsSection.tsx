@@ -502,9 +502,6 @@ export default function SolutionsSection({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        parsed['5kW'] = HOME_PRODUCTS_DATA['5kW'];
-        parsed['7kW'] = HOME_PRODUCTS_DATA['7kW'];
-        parsed['11kW'] = HOME_PRODUCTS_DATA['11kW'];
         return parsed;
       } catch (e) {
         return HOME_PRODUCTS_DATA;
@@ -520,7 +517,7 @@ export default function SolutionsSection({
         const parsed = JSON.parse(saved);
         if (parsed['공용 BIZ 충전기']) {
           parsed['공용 BIZ 충전기'] = parsed['공용 BIZ 충전기'].map((p: SolutionProduct) => {
-            if (p.id === 'park-11kw-spil' || (p.name.includes('스필') && p.name.includes('11kW'))) {
+            if ((p.id === 'park-11kw-spil' || (p.name.includes('스필') && p.name.includes('11kW'))) && (!p.image || p.image.includes('unsplash'))) {
               return { ...p, image: SPEEL_11KW_REPRESENTATIVE_IMAGE };
             }
             return p;
@@ -533,6 +530,27 @@ export default function SolutionsSection({
     }
     return PARKING_PRODUCTS_DATA;
   });
+
+  // Real-time synchronization listener for CMS updates
+  useEffect(() => {
+    const handleProductsUpdate = () => {
+      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+      if (savedHome) {
+        try { setHomeProducts(JSON.parse(savedHome)); } catch (e) {}
+      }
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+      if (savedParking) {
+        try { setParkingProducts(JSON.parse(savedParking)); } catch (e) {}
+      }
+    };
+
+    window.addEventListener('sy_cms_products_update', handleProductsUpdate);
+    window.addEventListener('storage', handleProductsUpdate);
+    return () => {
+      window.removeEventListener('sy_cms_products_update', handleProductsUpdate);
+      window.removeEventListener('storage', handleProductsUpdate);
+    };
+  }, []);
 
   // Product CRUD states
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);

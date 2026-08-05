@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
 import { 
@@ -246,6 +246,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   
   // Local working copy of products for batch editing
   const [productList, setProductList] = useState<Product[]>(products);
+
+  useEffect(() => {
+    setProductList(products);
+  }, [products]);
   const [productSearch, setProductSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'device' | 'replace' | 'install'>('all');

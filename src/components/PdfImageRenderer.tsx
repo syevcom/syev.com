@@ -9,7 +9,13 @@ interface PdfImageRendererProps {
 }
 
 export default function PdfImageRenderer({ fileUrl, fileName = 'document.pdf', brandName = '브랜드', isAdmin = false }: PdfImageRendererProps) {
-  const isPdf = fileUrl.startsWith('data:application/pdf') || fileName.toLowerCase().endsWith('.pdf');
+  const isDataPdf = fileUrl.startsWith('data:application/pdf');
+  const isDataImage = fileUrl.startsWith('data:image/');
+  const isPdfExt = fileName.toLowerCase().endsWith('.pdf') || fileUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+  const isImageExt = /\.(png|jpe?g|webp|gif|svg)$/i.test(fileName) || /\.(png|jpe?g|webp|gif|svg)$/i.test(fileUrl.split('?')[0]);
+
+  // If it's explicitly an image data URI or image extension, render with native ImageCatalogViewer
+  const isPdf = isDataPdf || (isPdfExt && !isDataImage && !isImageExt);
   
   if (!isPdf) {
     // If it's a standard image file, render it natively with premium frame and zoom
@@ -212,6 +218,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
   const [pdfLibLoaded, setPdfLibLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackToImage, setFallbackToImage] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [numPages, setNumPages] = useState(0);
 
@@ -226,6 +233,10 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  if (fallbackToImage) {
+    return <ImageCatalogViewer imageUrl={pdfUrl} fileName={fileName} brandName={brandName} isAdmin={isAdmin} />;
+  }
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -460,11 +471,18 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
               <h5 className="text-sm font-black text-white">PDF 직접 렌더링 불가 안내</h5>
               <p className="text-xs text-slate-400 leading-relaxed">{error}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setFallbackToImage(true)}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow-lg transition-all cursor-pointer flex items-center gap-1"
+              >
+                🖼️ 이미지 뷰어로 보기
+              </button>
               <a
                 href={pdfUrl}
                 download={fileName}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-black shadow-lg transition-all"
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-black shadow-lg transition-all flex items-center gap-1"
               >
                 📥 파일 즉시 다운로드
               </a>
@@ -472,7 +490,7 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
                 href={pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-black transition-all"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-black transition-all flex items-center gap-1"
               >
                 🖥️ 새 창에서 보기
               </a>

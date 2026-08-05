@@ -19,7 +19,7 @@ import AdminLoginModal from './components/AdminLoginModal';
 import CartModal from './components/CartModal';
 import AIChatBot from './components/AIChatBot';
 import { AdminPage } from './components/AdminPage';
-import { BRAND_METADATA } from './components/SolutionsSection';
+import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS } from './data';
@@ -746,29 +746,73 @@ export default function App() {
 
     // Also sync homeProducts & parkingProducts in localStorage so SolutionsSection is updated instantly
     try {
+      // 1. Sync Home Chargers (가정용 홈 충전기)
       const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
-      if (savedHome) {
-        const parsedHome = JSON.parse(savedHome);
-        newProducts.forEach((np) => {
-          Object.keys(parsedHome).forEach((powerKey) => {
-            parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
-              if (item.id === np.id || item.name === np.name) {
-                return {
-                  ...item,
-                  name: np.name,
-                  price: np.price,
-                  regularPrice: np.originalPrice || item.regularPrice,
-                  discount: np.discountRate || item.discount,
-                  image: np.image || item.image,
-                  description: np.description || item.description
-                };
-              }
-              return item;
-            });
+      const parsedHome = savedHome ? JSON.parse(savedHome) : JSON.parse(JSON.stringify(HOME_PRODUCTS_DATA));
+
+      newProducts.forEach((np) => {
+        Object.keys(parsedHome).forEach((powerKey) => {
+          parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
+            const isMatch =
+              item.id === np.id ||
+              item.name === np.name ||
+              (item.name && np.name && item.name.trim() === np.name.trim()) ||
+              (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) ||
+              (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || item.name.includes('스필 5kW'))) ||
+              (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || item.name.includes('스필 7kW'))) ||
+              (np.id === 'sy-ac11' && (item.id === 'res-11kw-spil' || item.name.includes('스필 11kW'))) ||
+              (np.brand && item.name && item.name.includes(np.brand) && np.power && (item.name.includes(np.power) || powerKey === np.power));
+
+            if (isMatch) {
+              return {
+                ...item,
+                name: np.name || item.name,
+                price: np.price || item.price,
+                regularPrice: np.originalPrice || item.regularPrice,
+                discount: np.discountRate || item.discount,
+                image: np.image || item.image,
+                description: np.description || item.description
+              };
+            }
+            return item;
           });
         });
-        localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
-      }
+      });
+      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+
+      // 2. Sync Parking / Commercial Chargers (상업시설 충전기)
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+      const parsedParking = savedParking ? JSON.parse(savedParking) : JSON.parse(JSON.stringify(PARKING_PRODUCTS_DATA));
+
+      newProducts.forEach((np) => {
+        Object.keys(parsedParking).forEach((catKey) => {
+          parsedParking[catKey] = parsedParking[catKey].map((item: any) => {
+            const isMatch =
+              item.id === np.id ||
+              item.name === np.name ||
+              (item.name && np.name && item.name.trim() === np.name.trim()) ||
+              (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) ||
+              (np.brand && item.name && item.name.includes(np.brand) && np.power && item.name.includes(np.power));
+
+            if (isMatch) {
+              return {
+                ...item,
+                name: np.name || item.name,
+                price: np.price || item.price,
+                regularPrice: np.originalPrice || item.regularPrice,
+                discount: np.discountRate || item.discount,
+                image: np.image || item.image,
+                description: np.description || item.description
+              };
+            }
+            return item;
+          });
+        });
+      });
+      localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(parsedParking));
+
+      // 3. Dispatch event for real-time component updates
+      window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to sync home products', e);
     }

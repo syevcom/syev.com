@@ -54,6 +54,25 @@ export interface Product {
   optionGroups?: ProductOptionGroup[];
 }
 
+export interface SolutionProduct {
+  id: string;
+  name: string;
+  description: string;
+  regularPrice: number;
+  price: number;
+  discount: number;
+  image: string;
+  tags: string[];
+  hasASBadge?: boolean;
+  hasPromoRibbon?: boolean;
+  summaryInfo?: string;
+  deliveryMethod?: string;
+  shippingFee?: string;
+  paymentMethod?: string;
+  optionLabel?: string;
+  options?: { id: string; label: string; price: number }[];
+}
+
 export interface Solution {
   id: string;
   title: string;
