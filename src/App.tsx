@@ -425,13 +425,6 @@ export default function App() {
         const parsed: Product[] = JSON.parse(savedProducts);
         let merged = parsed.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
         
-        // Add any missing default products from PRODUCTS that aren't in merged
-        PRODUCTS.forEach(p => {
-          if (!merged.some(m => m.id === p.id)) {
-            merged.push(p);
-          }
-        });
-
         merged = applyBrandOptions(merged);
         setProducts(merged);
         localStorage.setItem('sy_cms_products_v12', JSON.stringify(merged));
@@ -750,51 +743,33 @@ export default function App() {
       const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
       const parsedHome = savedHome ? JSON.parse(savedHome) : JSON.parse(JSON.stringify(HOME_PRODUCTS_DATA));
 
-      newProducts.forEach((np) => {
-        Object.keys(parsedHome).forEach((powerKey) => {
-          parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
-            const isMatch =
-              item.id === np.id ||
-              item.name === np.name ||
-              (item.name && np.name && item.name.trim() === np.name.trim()) ||
-              (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) ||
-              (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || item.name.includes('스필 5kW'))) ||
-              (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || item.name.includes('스필 7kW'))) ||
-              (np.id === 'sy-ac11' && (item.id === 'res-11kw-spil' || item.name.includes('스필 11kW'))) ||
-              (np.brand && item.name && item.name.includes(np.brand) && np.power && (item.name.includes(np.power) || powerKey === np.power));
-
-            if (isMatch) {
-              return {
-                ...item,
-                name: np.name || item.name,
-                price: np.price || item.price,
-                regularPrice: np.originalPrice || item.regularPrice,
-                discount: np.discountRate || item.discount,
-                image: np.image || item.image,
-                description: np.description || item.description
-              };
-            }
-            return item;
-          });
-        });
-      });
-      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
-
       // 2. Sync Parking / Commercial Chargers (상업시설 충전기)
       const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
       const parsedParking = savedParking ? JSON.parse(savedParking) : JSON.parse(JSON.stringify(PARKING_PRODUCTS_DATA));
 
-      newProducts.forEach((np) => {
-        Object.keys(parsedParking).forEach((catKey) => {
-          parsedParking[catKey] = parsedParking[catKey].map((item: any) => {
-            const isMatch =
-              item.id === np.id ||
-              item.name === np.name ||
-              (item.name && np.name && item.name.trim() === np.name.trim()) ||
-              (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) ||
-              (np.brand && item.name && item.name.includes(np.brand) && np.power && item.name.includes(np.power));
+      const checkIsMatch = (item: any, np: Product, powerOrCatKey?: string) => {
+        if (!item || !np) return false;
+        if (item.id === np.id) return true;
+        if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+        if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
+        if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
+        if (np.id === 'sy-ac11' && (item.id === 'res-11kw-spil' || (item.name && item.name.includes('스필 11kW')))) return true;
+        if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
+        if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
+        if (item.id === 'res-11kw-spil' && np.name && np.name.includes('스필 11kW')) return true;
+        if (np.brand && item.name && item.name.includes(np.brand) && np.power && (item.name.includes(np.power) || powerOrCatKey === np.power)) return true;
+        if (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) return true;
+        return false;
+      };
 
-            if (isMatch) {
+      // Update matching items or add brand new items
+      newProducts.forEach((np) => {
+        let matched = false;
+
+        Object.keys(parsedHome).forEach((powerKey) => {
+          parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
+            if (checkIsMatch(item, np, powerKey)) {
+              matched = true;
               return {
                 ...item,
                 name: np.name || item.name,
@@ -802,16 +777,78 @@ export default function App() {
                 regularPrice: np.originalPrice || item.regularPrice,
                 discount: np.discountRate || item.discount,
                 image: np.image || item.image,
-                description: np.description || item.description
+                description: np.description || item.description,
+                plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
               };
             }
             return item;
           });
         });
+
+        Object.keys(parsedParking).forEach((catKey) => {
+          parsedParking[catKey] = parsedParking[catKey].map((item: any) => {
+            if (checkIsMatch(item, np, catKey)) {
+              matched = true;
+              return {
+                ...item,
+                name: np.name || item.name,
+                price: np.price || item.price,
+                regularPrice: np.originalPrice || item.regularPrice,
+                discount: np.discountRate || item.discount,
+                image: np.image || item.image,
+                description: np.description || item.description,
+                plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
+              };
+            }
+            return item;
+          });
+        });
+
+        // If this product is brand new and not yet present in home/parking sections
+        if (!matched) {
+          const newItem = {
+            id: np.id,
+            name: np.name,
+            description: np.description || '',
+            price: np.price || 0,
+            regularPrice: np.originalPrice || np.price || 0,
+            discount: np.discountRate || 0,
+            image: np.image || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+            features: np.features || [],
+            plcSupported: np.plcSupported,
+            powerTag: np.power || '7kW',
+            options: []
+          };
+
+          if (np.type === '급속' || np.type === '초급속') {
+            const targetCat = Object.keys(parsedParking)[0] || '100kW+ 급속충전기';
+            if (!parsedParking[targetCat]) parsedParking[targetCat] = [];
+            parsedParking[targetCat].push(newItem);
+          } else {
+            const targetPower = (np.power && parsedHome[np.power]) ? np.power : '7kW';
+            if (!parsedHome[targetPower]) parsedHome[targetPower] = [];
+            parsedHome[targetPower].push(newItem);
+          }
+        }
       });
+
+      // Prune items from parsedHome & parsedParking that were deleted from newProducts
+      Object.keys(parsedHome).forEach((powerKey) => {
+        parsedHome[powerKey] = parsedHome[powerKey].filter((item: any) => {
+          return newProducts.some((np) => checkIsMatch(item, np, powerKey));
+        });
+      });
+
+      Object.keys(parsedParking).forEach((catKey) => {
+        parsedParking[catKey] = parsedParking[catKey].filter((item: any) => {
+          return newProducts.some((np) => checkIsMatch(item, np, catKey));
+        });
+      });
+
+      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
       localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(parsedParking));
 
-      // 3. Dispatch event for real-time component updates
+      // Dispatch event for real-time component updates
       window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to sync home products', e);

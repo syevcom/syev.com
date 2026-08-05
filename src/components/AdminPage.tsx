@@ -10,6 +10,7 @@ import {
   Trash2, 
   Upload, 
   CheckCircle2, 
+  Check,
   ArrowLeft, 
   Search, 
   Image as ImageIcon,
@@ -254,6 +255,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [powerFilter, setPowerFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'device' | 'replace' | 'install'>('all');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+  const [isSavedRecently, setIsSavedRecently] = useState(false);
 
   // Local working copy of brands
   const [brandList, setBrandList] = useState<Record<string, any>>(brands);
@@ -620,10 +622,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   // Save All Products
-  const handleSaveAllProducts = () => {
+  const handleSaveAllProducts = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     onSaveProducts(productList);
+    setIsSavedRecently(true);
     setSaveSuccessMsg('전체 상품 정보 및 변경된 대표 이미지가 성공적으로 저장되었습니다!');
-    setTimeout(() => setSaveSuccessMsg(''), 3500);
+    setTimeout(() => {
+      setSaveSuccessMsg('');
+      setIsSavedRecently(false);
+    }, 3500);
   };
 
   // Save All Brands
@@ -735,17 +745,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
-        {/* Success Alert Banner */}
+        {/* Success Alert Banner (Floating Toast) */}
         {saveSuccessMsg && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-2xl bg-emerald-600 text-white flex items-center justify-between shadow-lg font-bold text-sm"
+            initial={{ opacity: 0, y: -30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.95 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-6 py-4 rounded-2xl bg-emerald-600 text-white flex items-center justify-between shadow-2xl font-black text-sm sm:text-base border-2 border-emerald-300 gap-3 min-w-[320px] max-w-xl pointer-events-auto"
           >
-            <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 shrink-0" />
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-6 h-6 shrink-0 text-emerald-200" />
               <span>{saveSuccessMsg}</span>
             </div>
+            <button
+              type="button"
+              onClick={() => setSaveSuccessMsg('')}
+              className="text-emerald-200 hover:text-white font-bold text-xs bg-emerald-700 px-2 py-1 rounded-lg ml-2 cursor-pointer"
+            >
+              닫기
+            </button>
           </motion.div>
         )}
 
@@ -825,11 +843,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </button>
 
                 <button
-                  onClick={handleSaveAllProducts}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-1.5 transition-all cursor-pointer animate-bounce-short"
+                  type="button"
+                  onClick={(e) => handleSaveAllProducts(e)}
+                  className={`px-5 py-2.5 font-black text-xs rounded-xl shadow-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isSavedRecently
+                      ? 'bg-emerald-500 text-white ring-2 ring-emerald-300'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white animate-bounce-short'
+                  }`}
                 >
-                  <Save className="w-4 h-4" />
-                  <span>전체 변경사항 저장</span>
+                  {isSavedRecently ? (
+                    <>
+                      <Check className="w-4 h-4 text-white" />
+                      <span>✓ 저장 완료!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>전체 변경사항 저장</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -1556,16 +1588,30 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
 
             {/* Bottom Save Bar */}
-            <div className="sticky bottom-4 z-30 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-slate-800">
+            <div className="sticky bottom-4 z-40 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-slate-700">
               <span className="text-xs font-extrabold text-slate-300">
                 총 {productList.length}개 상품 설정중 (수정 후 반드시 [저장]을 눌러주세요)
               </span>
               <button
-                onClick={handleSaveAllProducts}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg flex items-center gap-2 transition-all cursor-pointer"
+                type="button"
+                onClick={(e) => handleSaveAllProducts(e)}
+                className={`px-6 py-2.5 font-black text-xs sm:text-sm rounded-xl shadow-lg flex items-center gap-2 transition-all cursor-pointer ${
+                  isSavedRecently
+                    ? 'bg-emerald-500 text-white ring-2 ring-emerald-300 scale-105'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white'
+                }`}
               >
-                <Save className="w-4 h-4" />
-                <span>전체 상품 변경사항 일괄 저장하기</span>
+                {isSavedRecently ? (
+                  <>
+                    <Check className="w-4 h-4 text-white" />
+                    <span>✓ 저장 완료되었습니다!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>전체 상품 변경사항 일괄 저장하기</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
