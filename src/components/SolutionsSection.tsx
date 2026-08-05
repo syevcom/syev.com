@@ -2156,7 +2156,96 @@ export default function SolutionsSection({
                         </div>
                       </div>
 
+                      {/* Brand PDF Catalog & Inline Document Viewer */}
+                      <div className="border border-emerald-500/20 bg-emerald-800/20 rounded-2xl p-5 space-y-4 relative z-10">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/30 pb-3">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-amber-300 animate-pulse" />
+                            <h5 className="text-sm font-black text-white uppercase tracking-wider">
+                              📄 {brandData.name} 공식 사양서 및 카탈로그
+                            </h5>
+                          </div>
+                          {brandData.pdfUrl && (
+                            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                              {isEditMode && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeletePdf(selectedAptBrand)}
+                                  className="px-2.5 py-1.5 bg-rose-900/80 hover:bg-rose-800 text-rose-100 rounded-lg text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border border-rose-700/50"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  브로셔 삭제
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
 
+                        {brandData.pdfUrl ? (
+                          <div className="space-y-2">
+                            <PdfImageRenderer 
+                              fileUrl={brandData.pdfUrl} 
+                              fileName={brandData.pdfName || 'catalog.pdf'} 
+                              brandName={brandData.name} 
+                              isAdmin={isEditMode}
+                            />
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {isEditMode ? (
+                              <div
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: true }));
+                                }}
+                                onDragLeave={() => {
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: false }));
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  setIsDraggingPdf(prev => ({ ...prev, [selectedAptBrand]: false }));
+                                  const file = e.dataTransfer.files?.[0];
+                                  if (file) {
+                                    handlePdfUpload(selectedAptBrand, file);
+                                  }
+                                }}
+                                onClick={() => document.getElementById(`pdf-file-input-${selectedAptBrand}`)?.click()}
+                                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] ${
+                                  isDraggingPdf[selectedAptBrand]
+                                    ? 'border-yellow-400 bg-yellow-500/10'
+                                    : 'border-emerald-500/40 bg-emerald-800/20 hover:bg-emerald-700/40 hover:border-emerald-400'
+                                }`}
+                              >
+                                <input
+                                  type="file"
+                                  id={`pdf-file-input-${selectedAptBrand}`}
+                                  accept="application/pdf, image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      handlePdfUpload(selectedAptBrand, file);
+                                    }
+                                  }}
+                                />
+                                <Upload className="w-7 h-7 text-emerald-100 mb-2" />
+                                <p className="text-xs font-black text-white">
+                                  여기에 <span className="text-yellow-300">[{brandData.name}]</span> 브랜드 카탈로그 PDF 또는 이미지 파일을 드래그하거나 클릭하여 업로드
+                                </p>
+                                <p className="text-[10px] text-emerald-200 font-bold mt-1">
+                                  PDF 파일 또는 이미지 형식(PNG, JPG, JPEG) 모두 완벽 지원 및 자동 고선명 실시간 렌더링
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="py-8 text-center bg-emerald-800/20 border border-emerald-500/20 rounded-xl flex flex-col items-center justify-center space-y-1.5">
+                                <FileText className="w-6 h-6 text-emerald-200" />
+                                <p className="text-xs text-white font-bold">현재 등록된 브랜드 공식 카탈로그가 없습니다.</p>
+                                <p className="text-[10px] text-emerald-100">우측 상단의 '실시간 편집 모드'를 활성화하면 PDF 또는 이미지 브로셔를 직접 등록하실 수 있습니다.</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-emerald-800/30 p-4 rounded-2xl border border-emerald-500/20 relative z-10">
                         <div className="flex items-center gap-2">
