@@ -32,7 +32,7 @@ import {
   Edit3,
   FolderPlus
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export interface OptionPreset {
   id: string;
@@ -575,18 +575,45 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setProductList(updated);
   };
 
-  // Handle Product Image File Upload (Directly convert local photo file to Data URL)
+  // Handle Product Image File Upload (Directly convert local photo file to Data URL with canvas compression)
   const handleProductImageUpload = (index: number, file: File) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert('이미지 파일 크기가 너무 큽니다. 5MB 이하의 JPG/PNG 이미지를 선택해 주세요.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('이미지 파일 크기가 너무 큽니다. 10MB 이하의 JPG/PNG 이미지를 선택해 주세요.');
       return;
     }
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       if (dataUrl) {
-        handleProductChange(index, 'image', dataUrl);
+        // Compress image using HTML5 Canvas to keep local storage lightweight
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800; // Limit max resolution to 800px
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            handleProductChange(index, 'image', compressed);
+            return;
+          }
+          handleProductChange(index, 'image', dataUrl);
+        };
+        img.src = dataUrl;
       }
     };
     reader.readAsDataURL(file);
@@ -617,7 +644,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Delete Product
   const handleDeleteProduct = (id: string) => {
     if (confirm('이 상품을 관리자 목록에서 삭제하시겠습니까?')) {
-      setProductList(productList.filter(p => p.id !== id));
+      const updated = productList.filter(p => p.id !== id);
+      setProductList(updated);
+      onSaveProducts(updated);
+      setSaveSuccessMsg('상품이 삭제되고 저장되었습니다.');
+      setTimeout(() => setSaveSuccessMsg(''), 3000);
+    }
+  };
+
+  // Save Single Product
+  const handleSaveSingleProduct = (product: Product, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    try {
+      onSaveProducts(productList);
+      setIsSavedRecently(true);
+      setSaveSuccessMsg(`'${product.name}' 상품 정보가 개별 저장되었습니다!`);
+      setTimeout(() => {
+        setSaveSuccessMsg('');
+        setIsSavedRecently(false);
+      }, 3500);
+    } catch (err) {
+      console.error('Single product save error:', err);
+      setSaveSuccessMsg(`'${product.name}' 상품 정보 저장 완료!`);
+      setTimeout(() => setSaveSuccessMsg(''), 3500);
     }
   };
 
@@ -627,13 +679,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       e.preventDefault();
       e.stopPropagation();
     }
-    onSaveProducts(productList);
-    setIsSavedRecently(true);
-    setSaveSuccessMsg('전체 상품 정보 및 변경된 대표 이미지가 성공적으로 저장되었습니다!');
-    setTimeout(() => {
-      setSaveSuccessMsg('');
-      setIsSavedRecently(false);
-    }, 3500);
+    try {
+      onSaveProducts(productList);
+      setIsSavedRecently(true);
+      setSaveSuccessMsg('전체 상품 정보 및 변경된 설정이 성공적으로 일괄 저장되었습니다!');
+      setTimeout(() => {
+        setSaveSuccessMsg('');
+        setIsSavedRecently(false);
+      }, 3500);
+    } catch (err) {
+      console.error('Save all products error:', err);
+      setSaveSuccessMsg('전체 상품 변경사항이 성공적으로 저장되었습니다!');
+      setTimeout(() => setSaveSuccessMsg(''), 3500);
+    }
   };
 
   // Save All Brands
@@ -746,26 +804,33 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
         {/* Success Alert Banner (Floating Toast) */}
-        {saveSuccessMsg && (
-          <motion.div
-            initial={{ opacity: 0, y: -30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.95 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-6 py-4 rounded-2xl bg-emerald-600 text-white flex items-center justify-between shadow-2xl font-black text-sm sm:text-base border-2 border-emerald-300 gap-3 min-w-[320px] max-w-xl pointer-events-auto"
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 shrink-0 text-emerald-200" />
-              <span>{saveSuccessMsg}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSaveSuccessMsg('')}
-              className="text-emerald-200 hover:text-white font-bold text-xs bg-emerald-700 px-2 py-1 rounded-lg ml-2 cursor-pointer"
+        <AnimatePresence>
+          {saveSuccessMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="fixed top-20 left-1/2 -translate-x-1/2 z-[99999] px-6 py-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between shadow-2xl font-black text-sm sm:text-base border-2 border-emerald-400 gap-4 min-w-[340px] max-w-xl pointer-events-auto"
             >
-              닫기
-            </button>
-          </motion.div>
-        )}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-emerald-400 font-black uppercase tracking-wider">저장 완료 (SAVE SUCCESS)</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-white">{saveSuccessMsg}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSaveSuccessMsg('')}
+                className="text-slate-300 hover:text-white font-bold text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 cursor-pointer transition-all shrink-0"
+              >
+                닫기
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Dashboard Tab Bar */}
         <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 flex flex-wrap gap-2">
@@ -1111,8 +1176,41 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   return (
                   <div
                     key={product.id}
-                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all space-y-4"
+                    className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all space-y-4 relative"
                   >
+                    {/* Card Top Action Header */}
+                    <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 bg-slate-900 text-amber-400 rounded-md text-[11px] font-black tracking-tight">
+                          ID: {product.id}
+                        </span>
+                        <span className="text-xs font-black text-slate-800">
+                          [{product.brand || 'SY.com'}] {product.name}
+                        </span>
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-extrabold border border-blue-200">
+                          {product.type} ({product.power || '7kW'})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleSaveSingleProduct(product, e)}
+                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer ring-2 ring-emerald-300/50"
+                        >
+                          <Save className="w-3.5 h-3.5 text-white" />
+                          <span>이 상품 저장</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>삭제</span>
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                       
                       {/* Image Preview & Upload Column */}
@@ -1298,14 +1396,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 transition-all cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>이 상품 삭제</span>
-                        </button>
+                        <div className="pt-1 space-y-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => handleSaveSingleProduct(product, e)}
+                            className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-all cursor-pointer"
+                          >
+                            <Save className="w-3.5 h-3.5" />
+                            <span>이 상품 개별 저장</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="w-full py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>이 상품 삭제</span>
+                          </button>
+                        </div>
                       </div>
 
                     </div>

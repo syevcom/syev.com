@@ -740,12 +740,18 @@ export default function App() {
 
   const handleSaveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
-    localStorage.setItem('sy_cms_products_v12', JSON.stringify(newProducts));
-    localStorage.setItem('sy_cms_products_v11', JSON.stringify(newProducts));
-    localStorage.setItem('sy_cms_products_v10', JSON.stringify(newProducts));
-    localStorage.setItem('sy_cms_products_v7', JSON.stringify(newProducts));
-    localStorage.setItem('sy_cms_products_v6', JSON.stringify(newProducts));
-    localStorage.setItem('sy_cms_products', JSON.stringify(newProducts));
+    try {
+      const dataStr = JSON.stringify(newProducts);
+      localStorage.setItem('sy_cms_products_v12', dataStr);
+      localStorage.setItem('sy_cms_products', dataStr);
+      // Clean up legacy duplicated key versions to save quota space
+      localStorage.removeItem('sy_cms_products_v11');
+      localStorage.removeItem('sy_cms_products_v10');
+      localStorage.removeItem('sy_cms_products_v7');
+      localStorage.removeItem('sy_cms_products_v6');
+    } catch (e) {
+      console.warn('LocalStorage quota warning (products saved to state):', e);
+    }
 
     // Also sync homeProducts & parkingProducts in localStorage so SolutionsSection is updated instantly
     try {
