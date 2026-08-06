@@ -171,6 +171,7 @@ export default function App() {
   const handleSaveBrands = (newBrands: Record<string, any>) => {
     setBrands(newBrands);
     localStorage.setItem('sy_cms_brands', JSON.stringify(newBrands));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const [heroConfig, setHeroConfig] = useState({
@@ -686,46 +687,55 @@ export default function App() {
   const handleSaveLogoConfig = (config: any) => {
     setLogoConfig(config);
     localStorage.setItem('sy_cms_logo', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveCategoryLabels = (labels: any) => {
     setCategoryLabels(labels);
     localStorage.setItem('sy_cms_categories', JSON.stringify(labels));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveHeaderConfig = (config: HeaderConfig) => {
     setHeaderConfig(config);
     localStorage.setItem('sy_cms_header', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveFooterConfig = (config: any) => {
     setFooterConfig(config);
     localStorage.setItem('sy_cms_footer', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveHeroConfig = (config: any) => {
     setHeroConfig(config);
     localStorage.setItem('sy_cms_hero', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveAboutConfig = (config: any) => {
     setAboutConfig(config);
     localStorage.setItem('sy_cms_about', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveSnsConfig = (config: any) => {
     setSnsConfig(config);
     localStorage.setItem('sy_cms_sns', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveQuickMenuConfig = (config: any) => {
     setQuickMenuConfig(config);
     localStorage.setItem('sy_cms_quickmenu', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveQuoteConfig = (config: any) => {
     setQuoteConfig(config);
     localStorage.setItem('sy_cms_quote', JSON.stringify(config));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveProducts = (newProducts: Product[]) => {
@@ -858,21 +868,25 @@ export default function App() {
   const handleSaveSolutions = (newSolutions: Solution[]) => {
     setSolutions(newSolutions);
     localStorage.setItem('sy_cms_solutions', JSON.stringify(newSolutions));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveReviews = (newReviews: Review[]) => {
     setReviews(newReviews);
     localStorage.setItem('sy_cms_reviews', JSON.stringify(newReviews));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveFaqs = (newFaqs: FAQ[]) => {
     setFaqs(newFaqs);
     localStorage.setItem('sy_cms_faqs', JSON.stringify(newFaqs));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleSaveNotices = (newNotices: any[]) => {
     setNotices(newNotices);
     localStorage.setItem('sy_cms_notices', JSON.stringify(newNotices));
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
   const handleResetAll = () => {

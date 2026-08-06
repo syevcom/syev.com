@@ -31,22 +31,22 @@ export async function loadFromFirestore(): Promise<void> {
       }
     });
 
-    // If Firestore was completely empty, seed it with any existing local values
-    if (firebaseKeys.size === 0) {
-      console.log('Firestore is empty. Seeding with current localStorage...');
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && shouldSync(key)) {
-          const value = localStorage.getItem(key);
-          if (value) {
-            await setDoc(doc(db, COLLECTION_NAME, key), {
-              value,
-              updatedAt: new Date().toISOString()
-            });
-          }
+    // Seed any local keys starting with sy_ that are not yet in Firestore
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && shouldSync(key) && !firebaseKeys.has(key)) {
+        const value = localStorage.getItem(key);
+        if (value) {
+          await setDoc(doc(db, COLLECTION_NAME, key), {
+            value,
+            updatedAt: new Date().toISOString()
+          });
         }
       }
     }
+
+    // Trigger state refresh event across components
+    window.dispatchEvent(new Event('sy_cms_products_update'));
   } catch (error) {
     console.error('Error loading data from Firestore:', error);
   } finally {
