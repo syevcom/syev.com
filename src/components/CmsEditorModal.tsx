@@ -1047,11 +1047,9 @@ export default function CmsEditorModal({
   };
 
   const handleDeleteReview = (id: string) => {
-    if (confirm('이 시공 후기를 정말 삭제하시겠습니까?')) {
-      onSaveReviews(reviews.filter((r) => r.id !== id));
-      if (editingReviewId === id) setEditingReviewId(null);
-      showSaveSuccess('🗑️ 시공 후기가 성공적으로 삭제되었습니다.');
-    }
+    onSaveReviews(reviews.filter((r) => r.id !== id));
+    if (editingReviewId === id) setEditingReviewId(null);
+    showSaveSuccess('🗑️ 시공 후기가 성공적으로 삭제되었습니다.');
   };
 
   // FAQ actions
@@ -1087,11 +1085,9 @@ export default function CmsEditorModal({
   };
 
   const handleDeleteFaq = (id: string) => {
-    if (confirm('이 FAQ를 정말 삭제하시겠습니까?')) {
-      onSaveFaqs(faqs.filter((f) => f.id !== id));
-      if (editingFaqId === id) setEditingFaqId(null);
-      showSaveSuccess('🗑️ FAQ가 삭제되었습니다.');
-    }
+    onSaveFaqs(faqs.filter((f) => f.id !== id));
+    if (editingFaqId === id) setEditingFaqId(null);
+    showSaveSuccess('🗑️ FAQ가 삭제되었습니다.');
   };
 
   // Notice actions
@@ -1127,11 +1123,9 @@ export default function CmsEditorModal({
   };
 
   const handleDeleteNotice = (id: number) => {
-    if (confirm('이 공지사항을 정말 삭제하시겠습니까?')) {
-      onSaveNotices(notices.filter((n) => n.id !== id));
-      if (editingNoticeId === id) setEditingNoticeId(null);
-      showSaveSuccess('🗑️ 공지사항이 즉시 삭제되었습니다.');
-    }
+    onSaveNotices(notices.filter((n) => n.id !== id));
+    if (editingNoticeId === id) setEditingNoticeId(null);
+    showSaveSuccess('🗑️ 공지사항이 즉시 삭제되었습니다.');
   };
 
   const handleRestoreDefault = () => {

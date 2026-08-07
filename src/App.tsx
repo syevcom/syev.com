@@ -795,6 +795,7 @@ export default function App() {
                 image: np.image || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
+                optionGroups: np.optionGroups || item.optionGroups,
               };
             }
             return item;
@@ -814,6 +815,7 @@ export default function App() {
                 image: np.image || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
+                optionGroups: np.optionGroups || item.optionGroups,
               };
             }
             return item;
@@ -833,7 +835,8 @@ export default function App() {
             features: np.features || [],
             plcSupported: np.plcSupported,
             powerTag: np.power || '7kW',
-            options: []
+            options: [],
+            optionGroups: np.optionGroups || []
           };
 
           if (np.type === '급속' || np.type === '초급속') {

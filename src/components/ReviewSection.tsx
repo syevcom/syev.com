@@ -114,9 +114,7 @@ export default function ReviewSection({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm(`'${rev.title}' 시공 후기를 삭제하시겠습니까?`)) {
-                            onDeleteReview(rev.id);
-                          }
+                          onDeleteReview(rev.id);
                         }}
                         className="absolute top-2 right-2 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-md text-[10px] shadow-md z-10 transition-transform hover:scale-110 cursor-pointer"
                         title="이 후기 삭제"

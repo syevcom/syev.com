@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, Plus } from 'lucide-react';
+import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
 import { Product, CartItem, ProductOptionGroup } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 
@@ -29,9 +29,18 @@ export default function ProductDetailModal({
 
   // Selected option state: map of optionGroupId -> optionItemId
   const [selectedOptionsMap, setSelectedOptionsMap] = useState<Record<string, string>>({});
+  const [selectedOptionQuantities, setSelectedOptionQuantities] = useState<Record<string, number>>({});
   const [quantity, setQuantity] = useState<number>(1);
   const [isLiked, setIsLiked] = useState(false);
   const [addedSuccessMsg, setAddedSuccessMsg] = useState(false);
+
+  const [selectedDisplayImage, setSelectedDisplayImage] = useState<string>(product?.image || '');
+
+  useEffect(() => {
+    if (product) {
+      setSelectedDisplayImage(product.image || '');
+    }
+  }, [product?.id, product?.image]);
 
   // Dynamic additional option groups state
   const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
@@ -129,14 +138,20 @@ export default function ProductDetailModal({
     return selectedOptionDetails.reduce((sum, opt) => sum + opt.optionPrice, 0);
   }, [selectedOptionDetails]);
 
-  const singleUnitPrice = basePrice + optionsTotalPrice;
-  const totalPrice = singleUnitPrice * quantity;
-
   const handleOptionChange = (groupId: string, optionItemId: string) => {
     setSelectedOptionsMap((prev) => ({
       ...prev,
       [groupId]: optionItemId
     }));
+    if (optionItemId) {
+      setSelectedOptionQuantities((prev) => ({ ...prev, [groupId]: 1 }));
+    } else {
+      setSelectedOptionQuantities((prev) => {
+        const next = { ...prev };
+        delete next[groupId];
+        return next;
+      });
+    }
   };
 
   const handleRemoveSelectedOption = (groupId: string) => {
@@ -145,7 +160,63 @@ export default function ProductDetailModal({
       delete next[groupId];
       return next;
     });
+    setSelectedOptionQuantities((prev) => {
+      const next = { ...prev };
+      delete next[groupId];
+      return next;
+    });
   };
+
+  const handleOptionQtyChange = (groupId: string, delta: number) => {
+    setSelectedOptionQuantities((prev) => ({
+      ...prev,
+      [groupId]: Math.max(1, (prev[groupId] || 1) + delta)
+    }));
+  };
+
+  const selectedOptionBoxes = useMemo(() => {
+    if (!activeOptionGroups) return [];
+    const boxes: {
+      groupId: string;
+      groupTitle: string;
+      optionName: string;
+      optionPrice: number;
+      quantity: number;
+      totalPrice: number;
+      isPrimary: boolean;
+    }[] = [];
+
+    activeOptionGroups.forEach((grp, idx) => {
+      const selectedOptId = selectedOptionsMap[grp.id];
+      if (!selectedOptId) return;
+
+      const opt = grp.options.find((o) => o.id === selectedOptId);
+      if (!opt || opt.name === '선택 안함') return;
+
+      const isPrimary = idx === 0;
+      const qty = selectedOptionQuantities[grp.id] || 1;
+      const unitPrice = isPrimary ? (basePrice + opt.price) : opt.price;
+      const boxTotal = unitPrice * qty;
+
+      boxes.push({
+        groupId: grp.id,
+        groupTitle: grp.title,
+        optionName: opt.name,
+        optionPrice: opt.price,
+        quantity: qty,
+        totalPrice: boxTotal,
+        isPrimary
+      });
+    });
+
+    return boxes;
+  }, [activeOptionGroups, selectedOptionsMap, selectedOptionQuantities, basePrice]);
+
+  const modalTotalPrice = selectedOptionBoxes.length > 0
+    ? selectedOptionBoxes.reduce((sum, b) => sum + b.totalPrice, 0)
+    : (basePrice + optionsTotalPrice) * quantity;
+
+  const totalPrice = modalTotalPrice;
 
   const handleAddToCart = () => {
     if (onAddToCart) {
@@ -258,7 +329,7 @@ export default function ProductDetailModal({
             <div className="md:col-span-5 space-y-4">
               <div className="relative aspect-square bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center p-4">
                 <img
-                  src={product.image}
+                  src={selectedDisplayImage || product.image}
                   alt={product.name}
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-contain"
@@ -275,6 +346,63 @@ export default function ProductDetailModal({
                   {product.power}
                 </span>
               </div>
+
+              {/* Dynamic Gallery Thumbnails */}
+              {product.images && product.images.length > 0 && (() => {
+                const gallery = product.images;
+                const activeUrl = selectedDisplayImage || product.image;
+                const currIdx = Math.max(0, gallery.findIndex(url => url === activeUrl));
+
+                const handlePrevModalImg = () => {
+                  const pIdx = (currIdx - 1 + gallery.length) % gallery.length;
+                  setSelectedDisplayImage(gallery[pIdx]);
+                };
+
+                const handleNextModalImg = () => {
+                  const nIdx = (currIdx + 1) % gallery.length;
+                  setSelectedDisplayImage(gallery[nIdx]);
+                };
+
+                return (
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={handlePrevModalImg}
+                      className="w-8 h-12 border border-slate-300 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors cursor-pointer shrink-0"
+                      title="이전 사진"
+                    >
+                      <ChevronLeft className="w-4 h-4 text-slate-800" />
+                    </button>
+
+                    <div className="flex items-center gap-2 overflow-x-auto py-1 flex-1 [&::-webkit-scrollbar]:hidden">
+                      {gallery.map((imgUrl, idx) => {
+                        const isCurrentlyActive = activeUrl === imgUrl;
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => setSelectedDisplayImage(imgUrl)}
+                            className={`w-12 h-12 flex items-center justify-center p-1 bg-white cursor-pointer transition-all shrink-0 ${
+                              isCurrentlyActive ? 'border-2 border-slate-900 shadow-2xs' : 'border border-slate-300 hover:border-slate-500'
+                            }`}
+                            title="클릭하여 이미지 크게 보기"
+                          >
+                            <img src={imgUrl} alt={`gallery thumbnail ${idx + 1}`} className="w-full h-full object-contain" />
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleNextModalImg}
+                      className="w-8 h-12 border border-slate-300 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 transition-colors cursor-pointer shrink-0"
+                      title="다음 사진"
+                    >
+                      <ChevronRight className="w-4 h-4 text-slate-800" />
+                    </button>
+                  </div>
+                );
+              })()}
 
               {/* Highlighting bullets */}
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
@@ -484,60 +612,89 @@ export default function ProductDetailModal({
               </div>
             </div>
 
-            {/* Selected Options Summary List */}
-            {selectedOptionDetails.length > 0 && (
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <div className="text-xs font-black text-slate-700">선택된 옵션 목록:</div>
-                <div className="space-y-1.5">
-                  {selectedOptionDetails.map((opt) => (
-                    <div key={opt.groupId} className="flex items-center justify-between text-xs font-bold text-slate-800 bg-white p-2 rounded-lg border border-slate-200/80">
-                      <span>{opt.groupTitle}: <strong className="text-emerald-700">{opt.optionName}</strong></span>
-                      <button
-                        onClick={() => handleRemoveSelectedOption(opt.groupId)}
-                        className="text-slate-400 hover:text-rose-600 transition-colors p-1"
-                        title="옵션 취소"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+            {/* Selected Options List Box (Matches screenshot) */}
+            {selectedOptionBoxes.length > 0 ? (
+              <div className="space-y-2.5 pt-2">
+                {selectedOptionBoxes.map((box) => (
+                  <div key={box.groupId} className="bg-[#f9f9f9] border border-[#e5e5e5] p-3.5 sm:p-4 space-y-3 font-sans">
+                    <div className="text-xs sm:text-sm font-medium text-slate-800">
+                      {box.groupTitle} : <span className="font-bold text-slate-900">{box.optionName}</span>
                     </div>
-                  ))}
+                    <div className="flex items-center justify-between">
+                      {/* Stepper */}
+                      <div className="inline-flex items-center border border-[#d9d9d9] bg-white">
+                        <button
+                          type="button"
+                          onClick={() => handleOptionQtyChange(box.groupId, -1)}
+                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold select-none border-r border-[#d9d9d9] cursor-pointer text-sm"
+                        >
+                          -
+                        </button>
+                        <span className="w-9 sm:w-10 text-center font-bold text-xs sm:text-sm text-slate-900">
+                          {box.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleOptionQtyChange(box.groupId, 1)}
+                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold select-none border-l border-[#d9d9d9] cursor-pointer text-sm"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      {/* Price & Delete */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-base sm:text-lg font-bold text-slate-900">
+                          ₩{box.totalPrice.toLocaleString()}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSelectedOption(box.groupId)}
+                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border border-[#d9d9d9] bg-white text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer text-xs font-bold"
+                          title="옵션 삭제"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Fallback Quantity Selector */
+              <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <span className="text-xs sm:text-sm font-black text-slate-900">수량</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center border border-slate-300 overflow-hidden bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                      className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
+                    >
+                      -
+                    </button>
+                    <span className="px-5 py-1.5 font-black text-slate-950 text-sm sm:text-base min-w-[40px] text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((prev) => prev + 1)}
+                      className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span className="text-xs font-bold text-slate-400">
+                    (최소주문수량 1개 이상)
+                  </span>
                 </div>
               </div>
             )}
 
-            {/* Quantity Selector matching Screenshot 1 */}
-            <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <span className="text-xs sm:text-sm font-black text-slate-900">수량</span>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white shadow-xs">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
-                  >
-                    -
-                  </button>
-                  <span className="px-5 py-1.5 font-black text-slate-950 text-sm sm:text-base min-w-[40px] text-center">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((prev) => prev + 1)}
-                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base transition-colors cursor-pointer select-none"
-                  >
-                    +
-                  </button>
-                </div>
-                <span className="text-xs font-bold text-slate-400">
-                  (최소주문수량 1개 이상)
-                </span>
-              </div>
-            </div>
-
-            {/* Total Price Section matching Screenshot 2 bottom right */}
+            {/* Total Price Section matching Screenshot bottom right */}
             <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-end sm:items-center justify-between gap-3">
               <div className="text-xs font-bold text-slate-500">
-                개당 {singleUnitPrice.toLocaleString()}원 × {quantity}개
+                총 {selectedOptionBoxes.length > 0 ? selectedOptionBoxes.reduce((s, b) => s + b.quantity, 0) : quantity}개
               </div>
 
               <div className="flex items-baseline gap-2">

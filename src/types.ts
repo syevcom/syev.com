@@ -36,6 +36,7 @@ export interface Product {
   features: string[];
   specs?: { [key: string]: string };
   image: string;
+  images?: string[];
   description: string;
   plcSupported?: boolean;
   price?: number;
@@ -62,6 +63,7 @@ export interface SolutionProduct {
   price: number;
   discount: number;
   image: string;
+  images?: string[];
   tags: string[];
   hasASBadge?: boolean;
   hasPromoRibbon?: boolean;
@@ -71,6 +73,7 @@ export interface SolutionProduct {
   paymentMethod?: string;
   optionLabel?: string;
   options?: { id: string; label: string; price: number }[];
+  optionGroups?: ProductOptionGroup[];
 }
 
 export interface Solution {

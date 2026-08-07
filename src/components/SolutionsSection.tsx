@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { Solution, ActivePage } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Solution, ActivePage, ProductOptionGroup } from '../types';
 import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE } from '../data';
+import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 
@@ -159,6 +159,7 @@ export interface SolutionProduct {
   price: number;
   discount: number;
   image: string;
+  images?: string[];
   tags: string[];
   hasASBadge?: boolean;
   hasPromoRibbon?: boolean;
@@ -168,6 +169,7 @@ export interface SolutionProduct {
   paymentMethod?: string;
   optionLabel?: string;
   options?: { id: string; label: string; price: number }[];
+  optionGroups?: ProductOptionGroup[];
 }
 
 export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
@@ -417,8 +419,46 @@ export default function SolutionsSection({
   const [productDetails, setProductDetails] = useState<Record<string, { pdfUrl?: string; pdfName?: string }>>({});
   
   const [selectedConnector, setSelectedConnector] = useState<string>('');
+  const [selectedOptionsMap, setSelectedOptionsMap] = useState<Record<string, string>>({});
+  const [selectedOptionQuantities, setSelectedOptionQuantities] = useState<Record<string, number>>({});
   const [quantity, setQuantity] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const getOptionGroupsForProduct = (prod: SolutionProduct | null): ProductOptionGroup[] => {
+    if (!prod) return [];
+    if (prod.optionGroups && prod.optionGroups.length > 0) {
+      return prod.optionGroups;
+    }
+    // Try matching from localStorage main products list
+    try {
+      const savedMain = localStorage.getItem('sy_cms_products_v12');
+      if (savedMain) {
+        const parsedMain = JSON.parse(savedMain);
+        const matched = parsedMain.find((mp: any) => mp.id === prod.id || (mp.name && prod.name && mp.name.trim() === prod.name.trim()));
+        if (matched?.optionGroups && matched.optionGroups.length > 0) {
+          return matched.optionGroups;
+        }
+      }
+    } catch (e) {}
+
+    // Fallback brand presets
+    const b = (prod.name || '').toLowerCase();
+    if (b.includes('롯데') || b.includes('evsis')) return LOTTE_EVSIS_OPTION_GROUPS;
+    if (b.includes('일렉트리') || b.includes('electree')) return ELECTREE_OPTION_GROUPS;
+    if (b.includes('차지고') || b.includes('chargego')) return CHARGEGO_OPTION_GROUPS;
+    if (b.includes('쿨차지') || b.includes('coolcharge')) return COOLCHARGE_OPTION_GROUPS;
+
+    return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+  };
+
+  useEffect(() => {
+    if (activeDetailProduct) {
+      setSelectedOptionsMap({});
+      setSelectedOptionQuantities({});
+      setSelectedConnector('');
+      setQuantity(1);
+    }
+  }, [activeDetailProduct?.id]);
 
   const [isDetailEditing, setIsDetailEditing] = useState(false);
   const [editName, setEditName] = useState('');
@@ -438,16 +478,87 @@ export default function SolutionsSection({
   const [isLeftImagePickerOpen, setIsLeftImagePickerOpen] = useState(false);
   const [customImageUrlInput, setCustomImageUrlInput] = useState('');
   const [isLeftImageDragging, setIsLeftImageDragging] = useState(false);
+  const [selectedDisplayImage, setSelectedDisplayImage] = useState<string>('');
+
+  useEffect(() => {
+    if (activeDetailProduct) {
+      setSelectedDisplayImage(activeDetailProduct.image || '');
+    }
+  }, [activeDetailProduct?.id, activeDetailProduct?.image]);
 
   const handleApplyLeftImageChange = (newImgUrl: string) => {
     if (!activeDetailProduct || !newImgUrl.trim()) return;
     const finalUrl = newImgUrl.trim();
-    updateProductDetails(activeDetailProduct.id, { image: finalUrl });
+    const currentList = activeDetailProduct.images && activeDetailProduct.images.length > 0
+      ? activeDetailProduct.images
+      : (activeDetailProduct.image ? [activeDetailProduct.image] : []);
+    const updatedList = currentList.includes(finalUrl) ? currentList : [finalUrl, ...currentList];
+
+    updateProductDetails(activeDetailProduct.id, {
+      image: finalUrl,
+      images: updatedList
+    });
     setEditImage(finalUrl);
-    setToastMessage('📷 대표 충전기 이미지가 변경되어 저장되었습니다!');
+    setSelectedDisplayImage(finalUrl);
+    setToastMessage('📷 메인 충전기 이미지가 변경되었습니다!');
     setTimeout(() => setToastMessage(null), 3000);
     setIsLeftImagePickerOpen(false);
     setCustomImageUrlInput('');
+  };
+
+  const handleAddGalleryImage = (newImgUrl: string) => {
+    if (!activeDetailProduct || !newImgUrl.trim()) return;
+    const finalUrl = newImgUrl.trim();
+    const currentList = activeDetailProduct.images && activeDetailProduct.images.length > 0
+      ? activeDetailProduct.images
+      : (activeDetailProduct.image ? [activeDetailProduct.image] : []);
+
+    const updatedList = currentList.includes(finalUrl) ? currentList : [...currentList, finalUrl];
+    const mainImg = activeDetailProduct.image || finalUrl;
+
+    updateProductDetails(activeDetailProduct.id, {
+      images: updatedList,
+      image: mainImg
+    });
+    setSelectedDisplayImage(finalUrl);
+    setToastMessage('📷 추가 사진이 정상적으로 등록되었습니다!');
+    setTimeout(() => setToastMessage(null), 3000);
+    setCustomImageUrlInput('');
+  };
+
+  const handleRemoveGalleryImage = (imgUrlToRemove: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!activeDetailProduct) return;
+    const currentList = activeDetailProduct.images && activeDetailProduct.images.length > 0
+      ? activeDetailProduct.images
+      : [activeDetailProduct.image];
+
+    const updatedList = currentList.filter(url => url !== imgUrlToRemove);
+    let newMainImage = activeDetailProduct.image;
+
+    if (imgUrlToRemove === activeDetailProduct.image) {
+      newMainImage = updatedList.length > 0 ? updatedList[0] : '';
+    }
+
+    updateProductDetails(activeDetailProduct.id, {
+      images: updatedList,
+      image: newMainImage
+    });
+
+    if (selectedDisplayImage === imgUrlToRemove) {
+      setSelectedDisplayImage(newMainImage);
+    }
+    setToastMessage('🗑️ 사진이 삭제되었습니다.');
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleSetMainImage = (imgUrl: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!activeDetailProduct) return;
+    updateProductDetails(activeDetailProduct.id, { image: imgUrl });
+    setSelectedDisplayImage(imgUrl);
+    setToastMessage('⭐ 메인 사진으로 설정되었습니다!');
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   useEffect(() => {
@@ -817,7 +928,8 @@ export default function SolutionsSection({
       e.stopPropagation();
       e.preventDefault();
     }
-    if (!window.confirm('정말 이 상품을 삭제하시겠습니까?')) {
+
+    if (!window.confirm('정말 이 충전기 상품을 삭제하시겠습니까?')) {
       return;
     }
 
@@ -826,12 +938,14 @@ export default function SolutionsSection({
       if (updated[category]) {
         updated[category] = updated[category].filter(p => p.id !== productId);
         saveHomeProducts(updated);
+        setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
       }
     } else {
       const updated = { ...parkingProducts };
       if (updated[category]) {
         updated[category] = updated[category].filter(p => p.id !== productId);
         saveParkingProducts(updated);
+        setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
       }
     }
   };
@@ -1051,24 +1165,75 @@ export default function SolutionsSection({
 
     const formatPrice = (val: number) => val.toLocaleString() + '원';
 
-    const defaultOptions = [
-      { id: '5m', label: '5m 커넥터 일체형 (기본 장착)', price: 0 },
-      { id: '7m', label: '7m 연장형', price: 30000 },
-      { id: '10m', label: '10m 최장 전용선', price: 50000 }
-    ];
+    const currentOptionGroups = getOptionGroupsForProduct(activeDetailProduct);
+    const primaryOptionGroup = currentOptionGroups[0] || null;
+    const secondaryOptionGroups = currentOptionGroups.slice(1);
 
-    const productOptions = activeDetailProduct.options || defaultOptions;
-    const optionLabel = activeDetailProduct.optionLabel || '커넥터길이';
+    const handleOptionSelect = (groupId: string, optionId: string) => {
+      setSelectedOptionsMap(prev => ({ ...prev, [groupId]: optionId }));
+      if (optionId) {
+        setSelectedOptionQuantities(prev => ({ ...prev, [groupId]: 1 }));
+      } else {
+        setSelectedOptionQuantities(prev => {
+          const next = { ...prev };
+          delete next[groupId];
+          return next;
+        });
+      }
+    };
 
-    // Calculate dynamic extra price based on option
-    const selectedOptObj = productOptions.find(o => o.id === selectedConnector);
-    const extraOptionPrice = selectedOptObj ? selectedOptObj.price : 0;
+    const handleRemoveOption = (groupId: string) => {
+      setSelectedOptionsMap(prev => {
+        const next = { ...prev };
+        delete next[groupId];
+        return next;
+      });
+      setSelectedOptionQuantities(prev => {
+        const next = { ...prev };
+        delete next[groupId];
+        return next;
+      });
+    };
 
-    const totalPrice = (activeDetailProduct.price + extraOptionPrice) * quantity;
+    const handleOptionQtyChange = (groupId: string, delta: number) => {
+      setSelectedOptionQuantities(prev => ({
+        ...prev,
+        [groupId]: Math.max(1, (prev[groupId] || 1) + delta)
+      }));
+    };
+
+    // Calculate selected option boxes
+    const selectedOptionBoxes = currentOptionGroups.reduce((acc, grp, idx) => {
+      const selectedOptId = selectedOptionsMap[grp.id];
+      if (!selectedOptId) return acc;
+
+      const foundOpt = grp.options.find(o => o.id === selectedOptId);
+      if (!foundOpt || foundOpt.name === '선택 안함') return acc;
+
+      const isPrimary = idx === 0;
+      const qty = selectedOptionQuantities[grp.id] || 1;
+      const unitPrice = isPrimary ? (activeDetailProduct.price + foundOpt.price) : foundOpt.price;
+      const boxTotal = unitPrice * qty;
+
+      acc.push({
+        groupId: grp.id,
+        groupTitle: grp.title,
+        optionName: foundOpt.name,
+        optionPrice: foundOpt.price,
+        quantity: qty,
+        totalPrice: boxTotal,
+        isPrimary
+      });
+      return acc;
+    }, [] as { groupId: string; groupTitle: string; optionName: string; optionPrice: number; quantity: number; totalPrice: number; isPrimary: boolean }[]);
+
+    const calculatedTotalPrice = selectedOptionBoxes.length > 0
+      ? selectedOptionBoxes.reduce((sum, b) => sum + b.totalPrice, 0)
+      : activeDetailProduct.price * quantity;
 
     const handleBuyNow = () => {
-      if (!selectedConnector) {
-        setToastMessage('⚠️ [필수] 커넥터 길이 옵션을 선택해 주세요.');
+      if (primaryOptionGroup && primaryOptionGroup.required && !selectedOptionsMap[primaryOptionGroup.id]) {
+        setToastMessage(`⚠️ [필수] ${primaryOptionGroup.title} 옵션을 선택해 주세요.`);
         return;
       }
       setToastMessage('✅ 신청 페이지로 이동합니다. 견적서 정보가 연동됩니다.');
@@ -1085,11 +1250,11 @@ export default function SolutionsSection({
     };
 
     const handleAddToCart = () => {
-      if (!selectedConnector) {
-        setToastMessage('⚠️ [필수] 커넥터 길이 옵션을 선택해 주세요.');
+      if (primaryOptionGroup && primaryOptionGroup.required && !selectedOptionsMap[primaryOptionGroup.id]) {
+        setToastMessage(`⚠️ [필수] ${primaryOptionGroup.title} 옵션을 선택해 주세요.`);
         return;
       }
-      setToastMessage(`🛒 장바구니에 ${activeDetailProduct.name} (${selectedConnector}) ${quantity}개가 담겼습니다.`);
+      setToastMessage(`🛒 장바구니에 ${activeDetailProduct.name} 담겼습니다.`);
     };
 
     const handleAddToWishlist = () => {
@@ -1493,7 +1658,7 @@ export default function SolutionsSection({
               }`}
             >
               <img
-                src={activeDetailProduct.image}
+                src={selectedDisplayImage || activeDetailProduct.image}
                 alt={activeDetailProduct.name}
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-contain max-h-[380px] hover:scale-105 transition-transform duration-300"
@@ -1518,9 +1683,9 @@ export default function SolutionsSection({
                     type="button"
                     onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
                     className="px-3.5 py-2 bg-slate-900/90 hover:bg-emerald-600 text-white font-black text-xs rounded-xl shadow-lg border border-white/20 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
-                    title="대표 충전기 이미지 변경 (관리자 전용)"
+                    title="대표 충전기 및 갤러리 사진 편집 (관리자 전용)"
                   >
-                    <span>📷 이미지 변경</span>
+                    <span>📷 사진 관리</span>
                   </button>
                 </div>
               )}
@@ -1529,13 +1694,13 @@ export default function SolutionsSection({
               {isEditMode && isLeftImageDragging && (
                 <div className="absolute inset-0 bg-emerald-900/80 backdrop-blur-xs flex flex-col items-center justify-center text-white z-30 p-4 text-center animate-fadeIn">
                   <Upload className="w-12 h-12 mb-2 text-emerald-300 animate-bounce" />
-                  <p className="font-black text-sm">여기에 이미지를 놓으면 바로 변경됩니다!</p>
+                  <p className="font-black text-sm">여기에 이미지를 놓으면 바로 대표 사진으로 등록됩니다!</p>
                   <p className="text-xs text-emerald-200 mt-1">PNG, JPG, WebP, GIF 지원</p>
                 </div>
               )}
             </div>
 
-            {/* Hidden Direct File Input */}
+            {/* Hidden File Inputs */}
             <input
               type="file"
               id="left-image-direct-file-input"
@@ -1552,6 +1717,22 @@ export default function SolutionsSection({
                 }
               }}
             />
+            <input
+              type="file"
+              id="left-image-add-gallery-file-input"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    handleAddGalleryImage(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
 
             {/* Expandable Image Change Editor Drawer */}
             {isLeftImagePickerOpen && (
@@ -1559,7 +1740,7 @@ export default function SolutionsSection({
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                   <div className="flex items-center gap-2">
                     <span className="text-base">🖼️</span>
-                    <h4 className="text-xs sm:text-sm font-black text-white">왼쪽 대표 충전기 이미지 변경</h4>
+                    <h4 className="text-xs sm:text-sm font-black text-white">상품 프로필 및 갤러리 사진 관리</h4>
                   </div>
                   <button
                     type="button"
@@ -1573,19 +1754,29 @@ export default function SolutionsSection({
                 {/* Option 1: File Upload */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-black text-emerald-400 block">1. 컴퓨터에서 사진 업로드</label>
-                  <button
-                    type="button"
-                    onClick={() => document.getElementById('left-image-direct-file-input')?.click()}
-                    className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>내 PC에서 이미지 파일 선택하기</span>
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('left-image-direct-file-input')?.click()}
+                      className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>대표 사진으로 등록</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('left-image-add-gallery-file-input')?.click()}
+                      className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/50 text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>추가 사진으로 등록</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Option 2: Image URL Input */}
                 <div className="space-y-2 pt-1">
-                  <label className="text-[11px] font-black text-emerald-400 block">2. 이미지 인터넷 링크 (URL) 직접 입력</label>
+                  <label className="text-[11px] font-black text-emerald-400 block">2. 이미지 링크 (URL) 입력</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -1597,16 +1788,23 @@ export default function SolutionsSection({
                     <button
                       type="button"
                       onClick={() => handleApplyLeftImageChange(customImageUrlInput)}
-                      className="px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs rounded-xl transition-all cursor-pointer shrink-0"
+                      className="px-3 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs rounded-xl transition-all cursor-pointer shrink-0"
                     >
-                      적용
+                      대표로 적용
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddGalleryImage(customImageUrlInput)}
+                      className="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs rounded-xl transition-all cursor-pointer shrink-0"
+                    >
+                      갤러리 추가
                     </button>
                   </div>
                 </div>
 
                 {/* Option 3: Preset Sample Gallery */}
                 <div className="space-y-2 pt-1 border-t border-slate-800">
-                  <label className="text-[11px] font-black text-slate-300 block">3. 추천 충전기 샘플 이미지 선택 (1클릭 적용)</label>
+                  <label className="text-[11px] font-black text-slate-300 block">3. 추천 충전기 샘플 이미지</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { name: 'SUV/EV 현장', url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&auto=format&fit=crop&q=80' },
@@ -1614,70 +1812,148 @@ export default function SolutionsSection({
                       { name: '스탠드 급속기', url: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=80' },
                       { name: '아파트 충전소', url: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop&q=80' },
                     ].map((preset, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleApplyLeftImageChange(preset.url)}
-                        className="p-1.5 bg-slate-800 hover:bg-emerald-950/80 border border-slate-700 hover:border-emerald-500 rounded-xl transition-all group flex flex-col items-center gap-1 cursor-pointer"
-                      >
+                      <div key={idx} className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 flex flex-col items-center gap-1 group">
                         <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center p-1">
-                          <img src={preset.url} alt={preset.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                          <img src={preset.url} alt={preset.name} className="w-full h-full object-contain" />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-300 truncate w-full text-center">{preset.name}</span>
-                      </button>
+                        <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center">{preset.name}</span>
+                        <div className="flex gap-1 w-full pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handleApplyLeftImageChange(preset.url)}
+                            className="flex-1 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[8px] font-extrabold rounded-md text-center"
+                          >
+                            대표
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAddGalleryImage(preset.url)}
+                            className="flex-1 py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[8px] font-extrabold rounded-md text-center"
+                          >
+                            +추가
+                          </button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Thumbnail Gallery Row */}
-            <div className="flex items-center gap-2.5 mt-2.5 justify-between">
-              <div className="flex items-center gap-2 overflow-x-auto py-1">
-                {/* Thumbnail 1 (Active) */}
-                <div
-                  onClick={() => {
-                    if (isEditMode) setIsLeftImagePickerOpen(true);
-                  }}
-                  className="w-14 h-14 border-2 border-emerald-600 flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs relative group"
-                  title={isEditMode ? "현재 메인 대표 이미지 (클릭하여 변경)" : "현재 메인 대표 이미지"}
-                >
-                  <img src={activeDetailProduct.image} alt="thumbnail active" className="w-full h-full object-contain" />
-                  <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[9px] font-black px-1 rounded-full">대표</span>
-                </div>
+            {/* Thumbnail Gallery Row with Navigation Arrows */}
+            {(() => {
+              const galleryImages = (activeDetailProduct.images && activeDetailProduct.images.length > 0)
+                ? activeDetailProduct.images
+                : (activeDetailProduct.image ? [activeDetailProduct.image] : []);
 
-                {/* Quick Preset Thumbnails for switching */}
-                {[
-                  'https://images.unsplash.com/photo-1563720223185-11003d516935?w=800&auto=format&fit=crop&q=80',
-                  'https://images.unsplash.com/photo-1558441719-443b38631ad9?w=800&auto=format&fit=crop&q=80',
-                  'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=80',
-                ].map((thumbUrl, tIdx) => (
-                  <div
-                    key={tIdx}
-                    onClick={() => {
-                      if (isEditMode) handleApplyLeftImageChange(thumbUrl);
-                    }}
-                    className={`w-14 h-14 border flex items-center justify-center p-1 bg-white cursor-pointer rounded-xl shadow-xs transition-all ${
-                      activeDetailProduct.image === thumbUrl ? 'border-emerald-600 border-2' : 'border-slate-200 hover:border-emerald-400'
-                    }`}
-                    title={isEditMode ? "클릭하여 이 이미지로 변경" : "샘플 이미지"}
+              const activeImgUrl = selectedDisplayImage || activeDetailProduct.image;
+              const currentIndex = Math.max(0, galleryImages.findIndex(img => img === activeImgUrl));
+
+              const handlePrevImage = () => {
+                if (galleryImages.length === 0) return;
+                const prevIdx = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+                setSelectedDisplayImage(galleryImages[prevIdx]);
+              };
+
+              const handleNextImage = () => {
+                if (galleryImages.length === 0) return;
+                const nextIdx = (currentIndex + 1) % galleryImages.length;
+                setSelectedDisplayImage(galleryImages[nextIdx]);
+              };
+
+              return (
+                <div className="flex items-center gap-2 mt-3 w-full">
+                  {/* Left Arrow Navigation Button */}
+                  <button
+                    type="button"
+                    onClick={handlePrevImage}
+                    className="w-10 h-14 border border-slate-300 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-800 transition-colors cursor-pointer shrink-0"
+                    title="이전 사진"
                   >
-                    <img src={thumbUrl} alt={`thumbnail preset ${tIdx}`} className="w-full h-full object-contain" />
-                  </div>
-                ))}
-              </div>
+                    <ChevronLeft className="w-5 h-5 text-slate-700" />
+                  </button>
 
-              {/* Image Change Trigger Button in Gallery Row (Admin Only) */}
-              {isEditMode && (
-                <button
-                  type="button"
-                  onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
-                  className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-black rounded-xl border border-slate-200 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
-                >
-                  <span>📷 사진 변경</span>
-                </button>
-              )}
-            </div>
+                  {/* Thumbnail Cards */}
+                  <div className="flex items-center gap-2 overflow-x-auto py-0.5 flex-1 [&::-webkit-scrollbar]:hidden">
+                    {galleryImages.map((thumbUrl, tIdx) => {
+                      const isMain = thumbUrl === activeDetailProduct.image;
+                      const isCurrentlyActive = activeImgUrl === thumbUrl;
+
+                      return (
+                        <div
+                          key={tIdx}
+                          onClick={() => setSelectedDisplayImage(thumbUrl)}
+                          className={`w-14 h-14 flex items-center justify-center p-1 bg-white cursor-pointer transition-all relative group shrink-0 ${
+                            isCurrentlyActive ? 'border-2 border-slate-900 shadow-2xs' : 'border border-slate-300 hover:border-slate-500'
+                          }`}
+                          title="클릭하여 크게 보기"
+                        >
+                          <img src={thumbUrl} alt={`gallery thumbnail ${tIdx + 1}`} className="w-full h-full object-contain" />
+
+                          {/* Hover Action Overlay in Edit Mode */}
+                          {isEditMode && (
+                            <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between p-1 z-20">
+                              <button
+                                type="button"
+                                onClick={(e) => handleRemoveGalleryImage(thumbUrl, e)}
+                                className="self-end bg-rose-600 hover:bg-rose-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shadow-xs cursor-pointer"
+                                title="사진 삭제"
+                              >
+                                ✕
+                              </button>
+                              {!isMain && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleSetMainImage(thumbUrl, e)}
+                                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[8px] font-extrabold py-0.5 rounded-md truncate shadow-xs cursor-pointer"
+                                  title="메인 사진으로 설정"
+                                >
+                                  메인 설정
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Add Image Button in Edit Mode */}
+                    {isEditMode && (
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('left-image-add-gallery-file-input')?.click()}
+                        className="w-14 h-14 border border-dashed border-emerald-500 bg-emerald-50/60 hover:bg-emerald-100 flex flex-col items-center justify-center gap-0.5 cursor-pointer text-emerald-700 transition-all shrink-0"
+                        title="컴퓨터에서 사진 추가 등록"
+                      >
+                        <Plus className="w-4 h-4 text-emerald-600" />
+                        <span className="text-[9px] font-black">추가</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Right Arrow Navigation Button */}
+                  <button
+                    type="button"
+                    onClick={handleNextImage}
+                    className="w-10 h-14 border border-slate-300 bg-white hover:bg-slate-100 flex items-center justify-center text-slate-800 transition-colors cursor-pointer shrink-0"
+                    title="다음 사진"
+                  >
+                    <ChevronRight className="w-5 h-5 text-slate-700" />
+                  </button>
+
+                  {/* Image Change Trigger Button in Gallery Row (Admin Only) */}
+                  {isEditMode && (
+                    <button
+                      type="button"
+                      onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
+                      className="px-2.5 py-2 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-black border border-slate-300 transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                    >
+                      <span>📷 편집</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* RIGHT: Spec Detail Block */}
@@ -1732,67 +2008,142 @@ export default function SolutionsSection({
 
             {/* Options Interactive Block */}
             <div className="space-y-4">
-              <div className="grid grid-cols-12 gap-2 items-center">
-                <div className="col-span-3 text-xs font-extrabold text-slate-600">커넥터길이</div>
-                <div className="col-span-9">
+              {/* 1. 상품옵션 (Primary Option) */}
+              {primaryOptionGroup && (
+                <div className="space-y-1.5">
+                  <div className="text-xs font-black text-slate-900 tracking-wide">
+                    상품옵션
+                  </div>
                   <select
-                    value={selectedConnector}
-                    onChange={(e) => setSelectedConnector(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-slate-300 text-xs text-slate-800 bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer rounded-lg"
+                    value={selectedOptionsMap[primaryOptionGroup.id] || ''}
+                    onChange={(e) => handleOptionSelect(primaryOptionGroup.id, e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer shadow-2xs"
                   >
-                    <option value="">- [필수] 옵션을 선택해 주세요 -</option>
-                    <option value="5m">5m 커넥터 일체형 (기본 장착)</option>
-                    <option value="7m">7m 연장형 (+30,000원)</option>
-                    <option value="10m">10m 최장 전용선 (+50,000원)</option>
+                    <option value="">- {primaryOptionGroup.title} -</option>
+                    {primaryOptionGroup.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.name} {opt.price > 0 ? `(+${opt.price.toLocaleString()}원)` : ''}
+                      </option>
+                    ))}
                   </select>
                 </div>
-              </div>
+              )}
 
-              <div className="grid grid-cols-12 gap-2 items-center pt-2">
-                <div className="col-span-3 text-xs font-extrabold text-slate-600 font-black">수량</div>
-                <div className="col-span-9">
-                  <div className="flex flex-col space-y-1">
-                    <div className="inline-flex items-center border border-slate-300 rounded-lg w-max overflow-hidden bg-white">
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                        className="px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-bold select-none text-slate-500 border-r border-slate-300"
+              {/* 2. 추가구성 (Secondary Option Groups) */}
+              {secondaryOptionGroups.length > 0 && (
+                <div className="space-y-2.5 pt-1">
+                  <div className="text-xs font-black text-slate-900 tracking-wide">
+                    추가구성
+                  </div>
+                  <div className="space-y-2">
+                    {secondaryOptionGroups.map((grp) => (
+                      <select
+                        key={grp.id}
+                        value={selectedOptionsMap[grp.id] || ''}
+                        onChange={(e) => handleOptionSelect(grp.id, e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer shadow-2xs"
                       >
-                        -
-                      </button>
-                      <span className="w-10 text-center font-bold select-none text-slate-800 text-xs">
-                        {quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(q => q + 1)}
-                        className="px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-bold select-none text-slate-500 border-l border-slate-300"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-bold">
-                      (최소주문수량 1개 이상)
-                    </span>
+                        <option value="">- {grp.title} -</option>
+                        {grp.options.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.name} {opt.price > 0 ? `(+${opt.price.toLocaleString()}원)` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Selected Options List Box (Matches screenshot) */}
+              {selectedOptionBoxes.length > 0 ? (
+                <div className="space-y-2.5 pt-2">
+                  {selectedOptionBoxes.map((box) => (
+                    <div key={box.groupId} className="bg-[#f9f9f9] border border-[#e5e5e5] p-3.5 sm:p-4 space-y-3 font-sans">
+                      <div className="text-xs sm:text-sm font-medium text-slate-800">
+                        {box.groupTitle} : <span className="font-bold text-slate-900">{box.optionName}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        {/* Stepper */}
+                        <div className="inline-flex items-center border border-[#d9d9d9] bg-white">
+                          <button
+                            type="button"
+                            onClick={() => handleOptionQtyChange(box.groupId, -1)}
+                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold select-none border-r border-[#d9d9d9] cursor-pointer text-sm"
+                          >
+                            -
+                          </button>
+                          <span className="w-9 sm:w-10 text-center font-bold text-xs sm:text-sm text-slate-900">
+                            {box.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleOptionQtyChange(box.groupId, 1)}
+                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold select-none border-l border-[#d9d9d9] cursor-pointer text-sm"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Price & Delete */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-base sm:text-lg font-bold text-slate-900">
+                            ₩{box.totalPrice.toLocaleString()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveOption(box.groupId)}
+                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border border-[#d9d9d9] bg-white text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer text-xs font-bold"
+                            title="옵션 삭제"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Fallback Quantity Controls if no option box is selected */
+                <div className="grid grid-cols-12 gap-2 items-center pt-2">
+                  <div className="col-span-3 text-xs font-black text-slate-600">수량</div>
+                  <div className="col-span-9">
+                    <div className="flex flex-col space-y-1">
+                      <div className="inline-flex items-center border border-slate-300 rounded-none w-max overflow-hidden bg-white">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                          className="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold border-r border-slate-300 cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="w-10 text-center font-bold text-xs text-slate-800">
+                          {quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(q => q + 1)}
+                          className="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 font-bold border-l border-slate-300 cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-bold">
+                        (최소주문수량 1개 이상)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-slate-200/80 my-4"></div>
 
             {/* Dynamic Total Price Block */}
-            <div className="flex items-end justify-between py-1">
-              <span className="text-xs font-extrabold text-slate-500 tracking-wider">TOTAL (QUANTITY)</span>
-              <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                {selectedConnector ? (
-                  <>
-                    <span className="text-blue-600">{formatPrice(totalPrice)}</span>
-                    <span className="text-xs text-slate-500 font-bold ml-1.5">({quantity}개)</span>
-                  </>
-                ) : (
-                  '0원 (0개)'
-                )}
+            <div className="flex items-center justify-end gap-3 py-1">
+              <span className="text-xs sm:text-sm font-bold text-slate-700">총 상품금액</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                ₩{calculatedTotalPrice.toLocaleString()}
               </span>
             </div>
 
@@ -1802,23 +2153,23 @@ export default function SolutionsSection({
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  className="flex-[2] py-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-black rounded-xl uppercase tracking-wider text-center select-none cursor-pointer transition-all border border-stone-950 shadow-md shadow-stone-900/10 active:scale-99"
+                  className="flex-[2] py-4 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-black rounded-xl tracking-wider text-center select-none cursor-pointer transition-all border border-stone-950 shadow-md shadow-stone-900/10 active:scale-99"
                 >
-                  BUY IT NOW
+                  바로구매
                 </button>
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
                 >
-                  CART
+                  장바구니
                 </button>
                 <button
                   type="button"
                   onClick={handleAddToWishlist}
-                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
                 >
-                  WISH LIST
+                  관심상품
                 </button>
               </div>
 

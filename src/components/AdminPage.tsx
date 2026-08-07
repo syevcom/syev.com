@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
-import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PRODUCTS } from '../data';
 import { 
   Package, 
   Building2, 
@@ -328,10 +328,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
     const brandLabel = targetBrand === 'all' ? '전체' : targetBrand;
 
-    if (!window.confirm(`[${brandLabel}] 브랜드 관련 상품들에 [${preset.name}] 세부 옵션 템플릿(${preset.optionGroups.length}개 그룹)을 일괄 적용하시겠습니까?`)) {
-      return;
-    }
-
     let affectedCount = 0;
     const updated = productList.map(p => {
       const pBrand = p.brand || '';
@@ -351,7 +347,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     });
 
     setProductList(updated);
-    alert(`성공! [${brandLabel}] 관련 상품 총 ${affectedCount}개에 [${preset.name}] 세부 옵션이 일괄 적용되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 꼭 클릭해 주세요.`);
+    onSaveProducts(updated);
+    setSaveSuccessMsg(`[${brandLabel}] 상품 총 ${affectedCount}개에 [${preset.name}] 옵션이 적용되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
   // Save current product's options as a new Preset
@@ -386,10 +384,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleDeletePreset = (presetId: string) => {
     const preset = optionPresets.find(p => p.id === presetId);
     if (!preset) return;
-    if (window.confirm(`정말 '${preset.name}' 템플릿을 삭제하시겠습니까?`)) {
-      const nextPresets = optionPresets.filter(p => p.id !== presetId);
-      updateOptionPresets(nextPresets);
-    }
+    const nextPresets = optionPresets.filter(p => p.id !== presetId);
+    updateOptionPresets(nextPresets);
   };
 
   // Handle Product Field Edit
@@ -414,14 +410,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       replace: '🔄 교체 (기기 교체시공)',
       install: '⚡ 설치 (신규 설치포함)'
     };
-    if (window.confirm(`정말 모든 상품(${productList.length}개)의 대분류(판매/시공 구분)를 [${labelMap[targetType]}](으)로 일괄 변경하시겠습니까?`)) {
-      const updated = productList.map(p => ({
-        ...p,
-        serviceType: targetType
-      }));
-      setProductList(updated);
-      alert(`모든 상품(${updated.length}개)의 대분류(판매/시공 구분)가 [${labelMap[targetType]}](으)로 변경되었습니다! 하단 [전체 변경사항 저장] 버튼을 누르시면 적용이 완료됩니다.`);
-    }
+    const updated = productList.map(p => ({
+      ...p,
+      serviceType: targetType
+    }));
+    setProductList(updated);
+    onSaveProducts(updated);
+    setSaveSuccessMsg(`모든 상품(${updated.length}개)의 대분류가 [${labelMap[targetType]}]로 변경되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
   // Batch copy option groups from a specific product to ALL products
@@ -434,26 +430,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       return;
     }
 
-    if (window.confirm(`[${sourceProduct.name}]의 세부 옵션 (${sourceGroups.length}개 그룹)을 전체 ${productList.length}개 상품에 일괄 적용하시겠습니까?`)) {
-      const updated = productList.map(p => ({
-        ...p,
-        optionGroups: JSON.parse(JSON.stringify(sourceGroups))
-      }));
-      setProductList(updated);
-      alert(`모든 상품(${updated.length}개)에 [${sourceProduct.name}]의 세부 옵션이 완벽하게 일괄 복사되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 누르면 저장이 완료됩니다.`);
-    }
+    const updated = productList.map(p => ({
+      ...p,
+      optionGroups: JSON.parse(JSON.stringify(sourceGroups))
+    }));
+    setProductList(updated);
+    onSaveProducts(updated);
+    setSaveSuccessMsg(`모든 상품(${updated.length}개)에 [${sourceProduct.name}]의 세부 옵션이 복사되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
   // Batch apply default 6 option groups to ALL products
   const handleBatchApplyDefaultOptionsToAll = () => {
-    if (window.confirm(`모든 상품(${productList.length}개)에 표준 세부 옵션(충전선 길이, 하이박스, 캐노피, 스탠드, 볼라드, 스토퍼 6종)을 일괄 적용하시겠습니까?`)) {
-      const updated = productList.map(p => ({
-        ...p,
-        optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
-      }));
-      setProductList(updated);
-      alert(`모든 상품(${updated.length}개)에 표준 세부 옵션 6종이 일괄 적용되었습니다!\n하단의 [전체 변경사항 저장] 버튼을 누르면 저장이 완료됩니다.`);
-    }
+    const updated = productList.map(p => ({
+      ...p,
+      optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+    }));
+    setProductList(updated);
+    onSaveProducts(updated);
+    setSaveSuccessMsg(`모든 상품(${updated.length}개)에 표준 세부 옵션 6종이 적용되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
   const expandAllOptions = () => {
@@ -642,13 +638,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   // Delete Product
-  const handleDeleteProduct = (id: string) => {
-    if (confirm('이 상품을 관리자 목록에서 삭제하시겠습니까?')) {
-      const updated = productList.filter(p => p.id !== id);
-      setProductList(updated);
-      onSaveProducts(updated);
-      setSaveSuccessMsg('상품이 삭제되고 저장되었습니다.');
-      setTimeout(() => setSaveSuccessMsg(''), 3000);
+  const handleDeleteProduct = (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const target = productList.find(p => p.id === id);
+    const prodName = target ? target.name : '상품';
+
+    if (!window.confirm(`정말 '${prodName}' 충전기 상품을 관리자 목록에서 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    const updated = productList.filter(p => p.id !== id);
+    setProductList(updated);
+    onSaveProducts(updated);
+    setSaveSuccessMsg(`'${prodName}' 상품이 성공적으로 삭제되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3000);
+  };
+
+  // Reset Default Products
+  const handleResetDefaultProducts = () => {
+    if (window.confirm('기초 정식 충전기 상품 목록(SY.com 기본 데이터)으로 전체 복원하시겠습니까?\n실수로 삭제하셨던 기본 충전기 상품들이 모두 복구됩니다.')) {
+      setProductList(PRODUCTS);
+      onSaveProducts(PRODUCTS);
+      setSaveSuccessMsg('SY.com 기본 충전기 상품 목록이 성공적으로 전면 복원되었습니다!');
+      setTimeout(() => setSaveSuccessMsg(''), 3500);
     }
   };
 
@@ -898,7 +913,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleResetDefaultProducts}
+                  className="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="실수로 삭제된 상품이나 기본 정식 충전기 데이터 전체 복원"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
+                  <span>기본 상품 복원</span>
+                </button>
+
                 <button
                   onClick={handleAddProduct}
                   className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
