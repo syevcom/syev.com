@@ -601,13 +601,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
+          let finalImg = dataUrl;
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.82);
-            handleProductChange(index, 'image', compressed);
-            return;
+            finalImg = canvas.toDataURL('image/jpeg', 0.82);
           }
-          handleProductChange(index, 'image', dataUrl);
+          
+          const updated = [...productList];
+          if (updated[index]) {
+            updated[index] = { ...updated[index], image: finalImg };
+            setProductList(updated);
+            onSaveProducts(updated);
+            setSaveSuccessMsg(`'${updated[index].name}' 상품의 사진 프로필 이미지가 즉시 저장 및 연동되었습니다!`);
+            setTimeout(() => setSaveSuccessMsg(''), 3500);
+          }
         };
         img.src = dataUrl;
       }
@@ -1319,8 +1326,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <input
                           type="text"
                           placeholder="또는 이미지 URL 직접 입력"
-                          value={product.image.startsWith('data:') ? 'Local Image File Loaded' : product.image}
-                          onChange={(e) => handleProductChange(realIndex, 'image', e.target.value)}
+                          value={product.image.startsWith('data:') ? '📷 파일에서 업로드된 이미지' : product.image}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (!val.includes('업로드된 이미지') && !val.includes('Local Image File Loaded')) {
+                              handleProductChange(realIndex, 'image', val);
+                            }
+                          }}
                           className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono text-slate-600 truncate"
                         />
                       </div>

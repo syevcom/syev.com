@@ -625,16 +625,7 @@ export default function SolutionsSection({
     const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        if (parsed['공용 BIZ 충전기']) {
-          parsed['공용 BIZ 충전기'] = parsed['공용 BIZ 충전기'].map((p: SolutionProduct) => {
-            if ((p.id === 'park-11kw-spil' || (p.name.includes('스필') && p.name.includes('11kW'))) && (!p.image || p.image.includes('unsplash'))) {
-              return { ...p, image: SPEEL_11KW_REPRESENTATIVE_IMAGE };
-            }
-            return p;
-          });
-        }
-        return parsed;
+        return JSON.parse(saved);
       } catch (e) {
         return PARKING_PRODUCTS_DATA;
       }
