@@ -126,13 +126,41 @@ export default function MainHero({
         className="relative rounded-none overflow-hidden flex items-center bg-slate-950 group/hero w-full"
         style={{ minHeight: `${heroConfig.height || 750}px` }}
       >
-        {isEditMode && onOpenCms && (
-          <button
-            onClick={() => onOpenCms('hero')}
-            className="absolute top-4 right-4 z-30 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-transform hover:scale-105 cursor-pointer"
-          >
-            ✏️ 히어로 영역 실시간 편집
-          </button>
+        {isEditMode && (
+          <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+            <label className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xl transition-all hover:scale-105 cursor-pointer border border-emerald-400">
+              <span>📁 배경 이미지 파일 첨부</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const newUrl = reader.result as string;
+                      const savedHero = localStorage.getItem('sy_cms_hero');
+                      let config = savedHero ? JSON.parse(savedHero) : { ...heroConfig };
+                      config.imageUrl = newUrl;
+                      localStorage.setItem('sy_cms_hero', JSON.stringify(config));
+                      window.dispatchEvent(new Event('sy_cms_products_update'));
+                      window.dispatchEvent(new Event('sy_cms_hero_update'));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+            </label>
+            {onOpenCms && (
+              <button
+                onClick={() => onOpenCms('hero')}
+                className="bg-slate-900/90 hover:bg-slate-900 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xl transition-all hover:scale-105 cursor-pointer border border-slate-700"
+              >
+                <span>✏️ 히어로 설정</span>
+              </button>
+            )}
+          </div>
         )}
 
         {/* Cinematic Background Image with Gradient Overlay */}

@@ -2245,49 +2245,96 @@ export default function CmsEditorModal({
                 </div>
 
                 {/* 1-0. HERO BACKGROUND IMAGE & HEIGHT CONFIG */}
-                <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl space-y-3 mt-1.5">
-                  <span className="block text-xs font-black text-emerald-900 flex items-center gap-1.5">
-                    🖼️ 메인 배경 이미지 및 배너 세로 높이 설정
-                  </span>
-                  <p className="text-[10px] text-slate-500 font-bold leading-normal">
-                    홈페이지에 첫 진입했을 때 보이는 대형 차량 메인 배경 이미지를 직접 변경하고, 세로 길이를 조절하여 더 웅장하고 높은 시네마틱 화면을 연출할 수 있습니다.
-                  </p>
-
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-bold text-slate-700">메인 배경 이미지 URL</label>
-                      <input
-                        type="text"
-                        value={heroImageUrl}
-                        onChange={(e) => setHeroImageUrl(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-blue-600"
-                        placeholder="https://images.unsplash.com/... 또는 직접 이미지 주소 입력"
-                      />
+                <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl space-y-4 mt-1.5">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <span className="block text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                        📁 메인 배경 이미지 파일 첨부 & 배너 설정
+                      </span>
+                      <p className="text-[10px] text-slate-500 font-bold leading-normal mt-0.5">
+                        내 컴퓨터의 배경 이미지 파일(JPG, PNG, WEBP 등)을 직접 첨부하여 메인 화면 배경을 변경할 수 있습니다.
+                      </p>
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Image Upload Area */}
-                      <div className="space-y-1">
-                        <label className="block text-[10px] font-bold text-slate-500">배경 이미지 파일 직접 업로드</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setHeroImageUrl(reader.result as string);
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                          className="w-full text-[10px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                  {/* PROMINENT FILE ATTACHMENT BOX & PREVIEW */}
+                  <div className="bg-white border-2 border-dashed border-emerald-300 hover:border-emerald-500 rounded-2xl p-4 transition-all space-y-3">
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      {/* Current Image Preview Thumbnail */}
+                      <div className="relative w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shrink-0 shadow-xs">
+                        <img
+                          src={heroImageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"}
+                          alt="Hero Background Preview"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
+                        <span className="absolute bottom-1.5 right-1.5 bg-slate-950/85 text-white text-[9px] font-extrabold px-2 py-0.5 rounded backdrop-blur-xs">
+                          현재 적용 배경
+                        </span>
                       </div>
 
+                      {/* File Upload Controls */}
+                      <div className="flex-1 space-y-2.5 w-full">
+                        <label className="block text-xs font-black text-slate-800 flex items-center gap-1">
+                          📷 메인 배경 이미지 파일 첨부하기
+                        </label>
+                        <p className="text-[11px] text-slate-500 font-medium leading-snug">
+                          원하는 배경 사진 파일(고화질 가로형 이미지 권장)을 선택하면 즉시 메인 화면에 적용됩니다.
+                        </p>
+
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <label className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-md cursor-pointer flex items-center gap-2 transition-all active:scale-95">
+                            <Upload className="w-4 h-4" />
+                            <span>📁 컴퓨터에서 이미지 파일 선택 / 첨부</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setHeroImageUrl(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+
+                          {heroImageUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setHeroImageUrl('')}
+                              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>기본 이미지로 초기화</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Collapsible URL Input Option */}
+                    <details className="pt-2 border-t border-slate-100 text-[11px] text-slate-500">
+                      <summary className="font-bold text-slate-600 cursor-pointer hover:text-emerald-700 select-none py-1">
+                        🔗 웹 이미지 URL 주소로 직접 입력하기 (선택 사항)
+                      </summary>
+                      <div className="mt-2 space-y-1">
+                        <input
+                          type="text"
+                          value={heroImageUrl}
+                          onChange={(e) => setHeroImageUrl(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-blue-600"
+                          placeholder="https://images.unsplash.com/... 또는 직접 이미지 URL 주소 입력"
+                        />
+                      </div>
+                    </details>
+                  </div>
+
                       {/* Banner Height Adjust */}
-                      <div className="space-y-1">
+                      <div className="space-y-1 bg-white p-3 border border-slate-200/80 rounded-xl">
                         <div className="flex justify-between items-center">
                           <label className="block text-[11px] font-bold text-slate-700">배너 세로 높이 조절 (px 단위)</label>
                           <span className="text-[11px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">
@@ -2306,7 +2353,6 @@ export default function CmsEditorModal({
                           />
                         </div>
                       </div>
-                    </div>
 
                     {/* Content Spacing (Padding Top & Bottom) controls */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-emerald-100">
@@ -2351,7 +2397,6 @@ export default function CmsEditorModal({
                       </div>
                     </div>
                   </div>
-                </div>
 
                 <div className="space-y-1">
                   <label className="block text-[11px] font-bold text-slate-700">메인 대형 메인 카피 타이틀 (HTML 지원)</label>

@@ -824,9 +824,22 @@ export default function App() {
       }
     };
 
+    const handleHeroUpdate = () => {
+      const savedHero = localStorage.getItem('sy_cms_hero');
+      if (savedHero) {
+        try {
+          setHeroConfig(JSON.parse(savedHero));
+        } catch (e) {
+          console.error('Error reading sy_cms_hero:', e);
+        }
+      }
+    };
+
     window.addEventListener('sy_cms_products_update', handleProductsUpdate);
+    window.addEventListener('sy_cms_hero_update', handleHeroUpdate);
     return () => {
       window.removeEventListener('sy_cms_products_update', handleProductsUpdate);
+      window.removeEventListener('sy_cms_hero_update', handleHeroUpdate);
     };
   }, []);
 

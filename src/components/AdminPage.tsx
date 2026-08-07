@@ -632,9 +632,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       discountRate: 23,
       brand: 'SY.com',
       manufacturer: '에스와이코리아',
-      detailCategory: '비공용완속'
+      detailCategory: '비공용완속',
+      optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
     };
-    setProductList([newProd, ...productList]);
+
+    const updated = [newProd, ...productList];
+    setProductList(updated);
+    onSaveProducts(updated);
+
+    // Reset filters & search so the newly added product is immediately visible
+    setProductSearch('');
+    setPowerFilter('all');
+    setServiceFilter('all');
+
+    // Expand options on new product
+    setExpandedOptions(prev => ({ ...prev, [newProd.id]: true }));
+
+    // Show toast message
+    setSaveSuccessMsg(`[${newProd.name}] 신규 상품이 추가되고 자동 저장되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
+
+    // Close preset manager modal if open
+    setIsPresetManagerOpen(false);
   };
 
   // Delete Product
@@ -1143,6 +1162,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                     <button
                       type="button"
+                      onClick={handleAddProduct}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-black transition-all shadow-md cursor-pointer flex items-center gap-1 shrink-0 ring-2 ring-emerald-300"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>➕ 신규 상품 추가</span>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={handleBatchApplyDefaultOptionsToAll}
                       className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
                     >
@@ -1164,19 +1192,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
             {/* Products Table Card List */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
+              <div className="flex items-center justify-between px-1 flex-wrap gap-2">
                 <p className="text-xs font-black text-slate-700">
                   총 <span className="text-blue-600 font-extrabold">{filteredProducts.length}개</span> 상품 표시 중 (전체 {productList.length}개)
                 </p>
-                {(powerFilter !== 'all' || serviceFilter !== 'all' || productSearch) && (
+                <div className="flex items-center gap-2">
+                  {(powerFilter !== 'all' || serviceFilter !== 'all' || productSearch) && (
+                    <button
+                      type="button"
+                      onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
+                      className="text-xs font-bold text-slate-500 hover:text-blue-600 underline cursor-pointer"
+                    >
+                      필터 전체 해제
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
-                    className="text-xs font-bold text-slate-500 hover:text-blue-600 underline cursor-pointer"
+                    onClick={handleAddProduct}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1 transition-all cursor-pointer"
                   >
-                    필터 전체 해제
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>신규 상품 추가</span>
                   </button>
-                )}
+                </div>
               </div>
 
               {filteredProducts.length === 0 ? (
@@ -2075,13 +2113,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
 
             {/* Subtitle / Help */}
-            <div className="bg-amber-50 p-4 border-b border-amber-200/80 text-xs text-amber-900 space-y-1">
-              <p className="font-bold flex items-center gap-1">
-                💡 미리 브랜드별 대분류/세부 옵션을 작성해 두고 필요할 때 일괄 적용하세요!
-              </p>
-              <p className="text-amber-800 text-[11px]">
-                스필, 일렉트리, 편리전기, 차지고, 롯데 이브이시스 등 브랜드별 전용 옵션을 클릭 한번으로 개별 상품 또는 해당 브랜드 전 상품에 일괄 적용할 수 있습니다.
-              </p>
+            <div className="bg-amber-50 p-4 border-b border-amber-200/80 text-xs text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <p className="font-bold flex items-center gap-1">
+                  💡 미리 브랜드별 대분류/세부 옵션을 작성해 두고 필요할 때 일괄 적용하세요!
+                </p>
+                <p className="text-amber-800 text-[11px]">
+                  스필, 일렉트리, 편리전기, 차지고, 롯데 이브이시스 등 브랜드별 전용 옵션을 클릭 한번으로 개별 상품 또는 해당 브랜드 전 상품에 일괄 적용할 수 있습니다.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddProduct}
+                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer shrink-0 border border-emerald-400"
+              >
+                <Plus className="w-4 h-4" />
+                <span>➕ 신규 상품 추가</span>
+              </button>
             </div>
 
             {/* Preset List Body */}
