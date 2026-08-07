@@ -879,6 +879,25 @@ export default function CmsEditorModal({
     showSaveSuccess('🏢 회사 소개 및 대표 인사말이 즉시 저장되었습니다!');
   };
 
+  const handleSaveAllMaster = () => {
+    handleSaveBrand();
+    handleSaveHero();
+    handleSaveQuote();
+    handleSaveAbout();
+
+    if (editingSolProd) {
+      handleSaveSolProd();
+    }
+
+    onSaveProducts(products);
+    onSaveSolutions(solutions);
+    onSaveReviews(reviews);
+    onSaveFaqs(faqs);
+    onSaveNotices(notices);
+
+    showSaveSuccess('💾 모든 탭의 에디터 변경 사항이 성공적으로 영구 저장되었습니다!');
+  };
+
   // Product actions
   const startEditProduct = (p: Product) => {
     setEditingProductId(p.id);
@@ -5507,18 +5526,31 @@ export default function CmsEditorModal({
         </div>
 
         {/* Footer Area */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 text-right flex justify-between items-center shrink-0">
+        <div className="p-4 bg-slate-50 border-t border-slate-200 text-right flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
           <p className="text-[10px] text-slate-400 font-bold leading-normal text-left max-w-md">
             ※ 관리자 에디터에서 변경한 텍스트 및 사진 링크는 사용자의 인터넷 브라우저 <strong>로컬 스토리지(LocalStorage)</strong>에 즉시 안전히 영구 저장되어 기기를 껐다 켜도 계속해서 유지됩니다.
           </p>
           
-          <button
-            onClick={onClose}
-            id="btn-cms-finish"
-            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl cursor-pointer"
-          >
-            편집 완료 후 나가기
-          </button>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleSaveAllMaster}
+              id="btn-cms-save-all"
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 border border-emerald-500"
+            >
+              <Save className="w-4 h-4" />
+              <span>💾 변경사항 저장</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              id="btn-cms-finish"
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl cursor-pointer transition-all active:scale-95 border border-slate-800"
+            >
+              편집 완료 후 나가기
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>

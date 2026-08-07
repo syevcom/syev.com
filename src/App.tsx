@@ -449,17 +449,36 @@ export default function App() {
         };
 
         if (parsedHome) {
+          let homeUpdated = false;
           Object.keys(parsedHome).forEach((powerKey) => {
             (parsedHome[powerKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
-                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
-                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  homeUpdated = true;
+                } else if (sp.image && existing.image !== sp.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
+                if (existing.name && sp.name !== existing.name) {
+                  sp.name = existing.name;
+                  homeUpdated = true;
+                }
+                if (existing.price !== undefined && sp.price !== existing.price) {
+                  sp.price = existing.price;
+                  homeUpdated = true;
+                }
+                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
+                  sp.regularPrice = existing.originalPrice;
+                  homeUpdated = true;
+                }
+                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
+                  sp.discount = existing.discountRate;
+                  homeUpdated = true;
+                }
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -492,20 +511,42 @@ export default function App() {
               }
             });
           });
+          if (homeUpdated) {
+            localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+          }
         }
 
         if (parsedParking) {
+          let parkingUpdated = false;
           Object.keys(parsedParking).forEach((catKey) => {
             (parsedParking[catKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
-                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
-                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  parkingUpdated = true;
+                } else if (sp.image && existing.image !== sp.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
+                if (existing.name && sp.name !== existing.name) {
+                  sp.name = existing.name;
+                  parkingUpdated = true;
+                }
+                if (existing.price !== undefined && sp.price !== existing.price) {
+                  sp.price = existing.price;
+                  parkingUpdated = true;
+                }
+                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
+                  sp.regularPrice = existing.originalPrice;
+                  parkingUpdated = true;
+                }
+                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
+                  sp.discount = existing.discountRate;
+                  parkingUpdated = true;
+                }
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -726,17 +767,36 @@ export default function App() {
         };
 
         if (parsedHome) {
+          let homeUpdated = false;
           Object.keys(parsedHome).forEach((powerKey) => {
             (parsedHome[powerKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
-                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
-                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  homeUpdated = true;
+                } else if (sp.image && existing.image !== sp.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
+                if (existing.name && sp.name !== existing.name) {
+                  sp.name = existing.name;
+                  homeUpdated = true;
+                }
+                if (existing.price !== undefined && sp.price !== existing.price) {
+                  sp.price = existing.price;
+                  homeUpdated = true;
+                }
+                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
+                  sp.regularPrice = existing.originalPrice;
+                  homeUpdated = true;
+                }
+                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
+                  sp.discount = existing.discountRate;
+                  homeUpdated = true;
+                }
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -768,20 +828,42 @@ export default function App() {
               }
             });
           });
+          if (homeUpdated) {
+            localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+          }
         }
 
         if (parsedParking) {
+          let parkingUpdated = false;
           Object.keys(parsedParking).forEach((catKey) => {
             (parsedParking[catKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
-                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
-                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  parkingUpdated = true;
+                } else if (sp.image && existing.image !== sp.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
+                if (existing.name && sp.name !== existing.name) {
+                  sp.name = existing.name;
+                  parkingUpdated = true;
+                }
+                if (existing.price !== undefined && sp.price !== existing.price) {
+                  sp.price = existing.price;
+                  parkingUpdated = true;
+                }
+                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
+                  sp.regularPrice = existing.originalPrice;
+                  parkingUpdated = true;
+                }
+                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
+                  sp.discount = existing.discountRate;
+                  parkingUpdated = true;
+                }
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -813,6 +895,9 @@ export default function App() {
               }
             });
           });
+          if (parkingUpdated) {
+            localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(parsedParking));
+          }
         }
 
         setProducts(nextProducts);

@@ -451,6 +451,28 @@ export default function SolutionsSection({
     return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
   };
 
+  const getCardImage = (prod: SolutionProduct | null): string => {
+    if (!prod) return '';
+    try {
+      const savedMain = localStorage.getItem('sy_cms_products_v12');
+      if (savedMain) {
+        const parsedMain = JSON.parse(savedMain);
+        const matched = parsedMain.find((mp: any) => 
+          mp.id === prod.id ||
+          (prod.id === 'res-11kw-spil' && (mp.id === 'sy-ac11-bi' || mp.id === 'sy-ac11' || (mp.name && mp.name.includes('스필') && mp.name.includes('11kW')))) ||
+          (prod.id === 'park-11kw-spil' && (mp.id === 'sy-ac11-bi' || mp.id === 'sy-ac11' || (mp.name && mp.name.includes('스필') && mp.name.includes('11kW')))) ||
+          (prod.id === 'res-5kw-spil' && (mp.id === 'sy-ac05' || (mp.name && mp.name.includes('스필') && mp.name.includes('5kW')))) ||
+          (prod.id === 'res-7kw-spil' && (mp.id === 'sy-ac07' || (mp.name && mp.name.includes('스필') && mp.name.includes('7kW')))) ||
+          (mp.name && prod.name && mp.name.trim() === prod.name.trim())
+        );
+        if (matched?.image) {
+          return matched.image;
+        }
+      }
+    } catch (e) {}
+    return prod.image || '';
+  };
+
   useEffect(() => {
     if (activeDetailProduct) {
       setSelectedOptionsMap({});
@@ -2818,12 +2840,14 @@ export default function SolutionsSection({
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {sortedProducts.map((p) => {
                           const pricing = getProductPricing(p);
+                          const cardImg = getCardImage(p);
                           const formatPrice = (val: number) => val.toLocaleString() + '원';
                           return (
                             <div
                               key={p.id}
                               onClick={() => setActiveDetailProduct({
                                 ...p,
+                                image: cardImg,
                                 price: pricing.price,
                                 regularPrice: pricing.regularPrice,
                                 discount: pricing.discount,
@@ -2836,7 +2860,7 @@ export default function SolutionsSection({
                                 <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
-                                    src={p.image}
+                                    src={cardImg}
                                     alt={p.name}
                                     referrerPolicy="no-referrer"
                                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
@@ -2994,10 +3018,11 @@ export default function SolutionsSection({
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {sortedProducts.map((p) => {
                           const formatPrice = (val: number) => val.toLocaleString() + '원';
+                          const cardImg = getCardImage(p);
                           return (
                             <div
                               key={p.id}
-                              onClick={() => setActiveDetailProduct(p)}
+                              onClick={() => setActiveDetailProduct({ ...p, image: cardImg })}
                               className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
@@ -3005,7 +3030,7 @@ export default function SolutionsSection({
                                 <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
-                                    src={p.image}
+                                    src={cardImg}
                                     alt={p.name}
                                     referrerPolicy="no-referrer"
                                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
