@@ -174,29 +174,39 @@ export default function App() {
     window.dispatchEvent(new Event('sy_cms_products_update'));
   };
 
-  const [heroConfig, setHeroConfig] = useState({
-    badge: '전국 최대 원스톱 설치 네트워크',
-    title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com</span>',
-    description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
-    ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
-    calcButton: '1분 스마트 보조금 견적 내기',
-    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
-    height: 750,
-    paddingTop: 120,
-    paddingBottom: 120,
-    showHeroImage: true,
-    titleSize: 'large' as 'small' | 'medium' | 'large' | 'xlarge',
-    descriptionSize: 'medium' as 'small' | 'medium' | 'large',
-    liveCountStart: 14520,
-    liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
-    liveCountSuffix: '대 돌파',
-    solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
-    commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
-    residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
-    parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤',
-    quickContact1: '환경부지원 아파트 무상설치 문의 ⚡',
-    quickContact2: '가정용 · 홈 충전기 설치문의 🏠',
-    quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
+  const [heroConfig, setHeroConfig] = useState(() => {
+    const savedHero = localStorage.getItem('sy_cms_hero');
+    if (savedHero) {
+      try {
+        return JSON.parse(savedHero);
+      } catch (e) {
+        console.error('Error parsing sy_cms_hero from localStorage:', e);
+      }
+    }
+    return {
+      badge: '전국 최대 원스톱 설치 네트워크',
+      title: '대한민국 어디든,<br />전기차가 멈추는 곳엔 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com</span>',
+      description: '전국 최대 전력 인프라망을 바탕으로 완벽 설계, 까다로운 지자체 정부 무상 보조금 신청 대행, 한전 계량기 수급 및 사후 24시간 철저 정비 관리까지 원스톱으로 명쾌하게 해결하세요.',
+      ctaButton: '👉 30초 만에 무료 설치 상담 예약하기',
+      calcButton: '1분 스마트 보조금 견적 내기',
+      imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+      height: 750,
+      paddingTop: 120,
+      paddingBottom: 120,
+      showHeroImage: true,
+      titleSize: 'large' as 'small' | 'medium' | 'large' | 'xlarge',
+      descriptionSize: 'medium' as 'small' | 'medium' | 'large',
+      liveCountStart: 14520,
+      liveCountLabel: '현재 전국 SY.com 충전기 설치 현황',
+      liveCountSuffix: '대 돌파',
+      solutionBlueSize: 'medium' as 'small' | 'medium' | 'large' | 'xlarge',
+      commercialBlueText: '회사 사옥, 물류창고, 공장, 관공서 전용',
+      residentialBlueText: '단독주택, 빌라, 아파트(개인/공용) 전용',
+      parkingBlueText: '대형 마트, 호텔, 빌딩, 공영주차장 맞춤',
+      quickContact1: '환경부지원 아파트 무상설치 문의 ⚡',
+      quickContact2: '가정용 · 홈 충전기 설치문의 🏠',
+      quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
+    };
   });
 
   const [quoteConfig, setQuoteConfig] = useState<{
