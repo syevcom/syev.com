@@ -714,6 +714,7 @@ export default function SolutionsSection({
     setHomeProducts(data);
     try {
       localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(data));
+      window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to save home products to localStorage:', e);
     }
@@ -723,6 +724,7 @@ export default function SolutionsSection({
     setParkingProducts(data);
     try {
       localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(data));
+      window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to save parking products to localStorage:', e);
     }
@@ -1023,7 +1025,8 @@ export default function SolutionsSection({
         image: prodFormImage,
         tags: tagsArray,
         hasASBadge: prodFormHasASBadge,
-        hasPromoRibbon: prodFormHasPromoRibbon
+        hasPromoRibbon: prodFormHasPromoRibbon,
+        optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
       };
 
       if (editingProductType === 'home') {

@@ -387,59 +387,169 @@ export default function App() {
       try { setAboutConfig(JSON.parse(savedAbout)); } catch (e) { console.error(e); }
     }
 
-    const REMOVED_PRODUCT_IDS = new Set([
-      'res-7kw-convenient',
-      'res-7kw-safe',
-      'res-7kw-hyundai',
-      'res-7kw-pylon',
-      'res-5kw-convenient',
-      'res-5kw-safe'
-    ]);
+    const syncAllProductsFromStorage = () => {
+      try {
+        const REMOVED_PRODUCT_IDS = new Set([
+          'res-7kw-convenient',
+          'res-7kw-safe',
+          'res-7kw-hyundai',
+          'res-7kw-pylon',
+          'res-5kw-convenient',
+          'res-5kw-safe'
+        ]);
 
-    // Use v12 to keep user edits preserved while ensuring option groups work
-    const savedProducts = localStorage.getItem('sy_cms_products_v12');
-    const applyBrandOptions = (pList: Product[]) => {
-      return pList.map(p => {
-        if (p.optionGroups && p.optionGroups.length > 0) {
-          return p;
+        const applyBrandOptions = (pList: Product[]) => {
+          return pList.map(p => {
+            if (p.optionGroups && p.optionGroups.length > 0) {
+              return p;
+            }
+            const b = (p.brand || '').toLowerCase();
+            const n = (p.name || '').toLowerCase();
+            if (b.includes('롯데') || b.includes('evsis') || n.includes('롯데') || n.includes('evsis')) {
+              return { ...p, optionGroups: LOTTE_EVSIS_OPTION_GROUPS };
+            }
+            if (b.includes('일렉트리') || n.includes('일렉트리') || b.includes('electree') || n.includes('electree')) {
+              return { ...p, optionGroups: ELECTREE_OPTION_GROUPS };
+            }
+            if (b.includes('차지고') || n.includes('차지고') || b.includes('chargego') || n.includes('chargego')) {
+              return { ...p, optionGroups: CHARGEGO_OPTION_GROUPS };
+            }
+            if (b.includes('쿨차지') || n.includes('쿨차지') || b.includes('coolcharge') || n.includes('coolcharge') || b.includes('cool charge')) {
+              return { ...p, optionGroups: COOLCHARGE_OPTION_GROUPS };
+            }
+            return { ...p, optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS };
+          });
+        };
+
+        const savedProducts = localStorage.getItem('sy_cms_products_v12');
+        let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
+        currentProducts = currentProducts.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
+        currentProducts = applyBrandOptions(currentProducts);
+
+        const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+        const parsedHome = savedHome ? JSON.parse(savedHome) : null;
+
+        const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+        const parsedParking = savedParking ? JSON.parse(savedParking) : null;
+
+        let isModified = false;
+        const nextProducts = [...currentProducts];
+
+        const checkIsMatch = (item: any, np: Product) => {
+          if (!item || !np) return false;
+          if (item.id === np.id) return true;
+          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+          if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
+          if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
+          if (np.id === 'sy-ac11' && (item.id === 'res-11kw-spil' || (item.name && item.name.includes('스필 11kW')))) return true;
+          if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
+          if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
+          if (item.id === 'res-11kw-spil' && np.name && np.name.includes('스필 11kW')) return true;
+          return false;
+        };
+
+        if (parsedHome) {
+          Object.keys(parsedHome).forEach((powerKey) => {
+            (parsedHome[powerKey] || []).forEach((sp: any) => {
+              const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
+              if (matchIdx !== -1) {
+                const existing = nextProducts[matchIdx];
+                let changed = false;
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
+                  existing.optionGroups = sp.optionGroups;
+                  changed = true;
+                }
+                if (changed) {
+                  nextProducts[matchIdx] = { ...existing };
+                  isModified = true;
+                }
+              } else {
+                // Brand new product added in Home section
+                const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
+                const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
+                const newP: Product = {
+                  id: sp.id || `res-custom-${Date.now()}`,
+                  name: sp.name || '신규 홈 충전기',
+                  type: '완속',
+                  power: powerKey || '7kW',
+                  features: sp.tags || ['MD CHOICE', 'HIT'],
+                  image: sp.image || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+                  description: sp.description || '가정용, 회사용, 공장용, 창고용 전기차 충전기',
+                  price: sp.price || 0,
+                  originalPrice: sp.regularPrice || sp.price || 0,
+                  discountRate: sp.discount || 0,
+                  brand: brandName,
+                  serviceType: 'device',
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                };
+                nextProducts.push(newP);
+                isModified = true;
+              }
+            });
+          });
         }
-        const b = (p.brand || '').toLowerCase();
-        const n = (p.name || '').toLowerCase();
-        if (b.includes('롯데') || b.includes('evsis') || n.includes('롯데') || n.includes('evsis')) {
-          return { ...p, optionGroups: LOTTE_EVSIS_OPTION_GROUPS };
+
+        if (parsedParking) {
+          Object.keys(parsedParking).forEach((catKey) => {
+            (parsedParking[catKey] || []).forEach((sp: any) => {
+              const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
+              if (matchIdx !== -1) {
+                const existing = nextProducts[matchIdx];
+                let changed = false;
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
+                  existing.optionGroups = sp.optionGroups;
+                  changed = true;
+                }
+                if (changed) {
+                  nextProducts[matchIdx] = { ...existing };
+                  isModified = true;
+                }
+              } else {
+                // Brand new product added in Commercial / Parking section
+                const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
+                const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
+                const newP: Product = {
+                  id: sp.id || `park-custom-${Date.now()}`,
+                  name: sp.name || '신규 상업용 충전기',
+                  type: '급속',
+                  power: catKey || '100kW',
+                  features: sp.tags || ['BEST', 'HIT'],
+                  image: sp.image || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+                  description: sp.description || '상업시설, 수익형 매장용 충전기',
+                  price: sp.price || 0,
+                  originalPrice: sp.regularPrice || sp.price || 0,
+                  discountRate: sp.discount || 0,
+                  brand: brandName,
+                  serviceType: 'device',
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                };
+                nextProducts.push(newP);
+                isModified = true;
+              }
+            });
+          });
         }
-        if (b.includes('일렉트리') || n.includes('일렉트리') || b.includes('electree') || n.includes('electree')) {
-          return { ...p, optionGroups: ELECTREE_OPTION_GROUPS };
+
+        setProducts(nextProducts);
+        if (isModified || !savedProducts) {
+          localStorage.setItem('sy_cms_products_v12', JSON.stringify(nextProducts));
         }
-        if (b.includes('차지고') || n.includes('차지고') || b.includes('chargego') || n.includes('chargego')) {
-          return { ...p, optionGroups: CHARGEGO_OPTION_GROUPS };
-        }
-        if (b.includes('쿨차지') || n.includes('쿨차지') || b.includes('coolcharge') || n.includes('coolcharge') || b.includes('cool charge')) {
-          return { ...p, optionGroups: COOLCHARGE_OPTION_GROUPS };
-        }
-        return { ...p, optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS };
-      });
+      } catch (e) {
+        console.error('Error syncing products in App.tsx:', e);
+      }
     };
 
-    if (savedProducts) {
-      try {
-        const parsed: Product[] = JSON.parse(savedProducts);
-        let merged = parsed.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
-        
-        merged = applyBrandOptions(merged);
-        setProducts(merged);
-        localStorage.setItem('sy_cms_products_v12', JSON.stringify(merged));
-      } catch (e) {
-        console.error(e);
-        const updated = applyBrandOptions(PRODUCTS);
-        setProducts(updated);
-        localStorage.setItem('sy_cms_products_v12', JSON.stringify(updated));
-      }
-    } else {
-      const updated = applyBrandOptions(PRODUCTS);
-      setProducts(updated);
-      localStorage.setItem('sy_cms_products_v12', JSON.stringify(updated));
-    }
+    syncAllProductsFromStorage();
 
     const savedSolutions = localStorage.getItem('sy_cms_solutions');
     if (savedSolutions) {
@@ -586,6 +696,139 @@ export default function App() {
       } catch (e) { console.error(e); }
     }
   }, [isSyncing]);
+
+  useEffect(() => {
+    const handleProductsUpdate = () => {
+      try {
+        const savedProducts = localStorage.getItem('sy_cms_products_v12');
+        let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
+
+        const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+        const parsedHome = savedHome ? JSON.parse(savedHome) : null;
+
+        const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+        const parsedParking = savedParking ? JSON.parse(savedParking) : null;
+
+        let isModified = false;
+        const nextProducts = [...currentProducts];
+
+        const checkIsMatch = (item: any, np: Product) => {
+          if (!item || !np) return false;
+          if (item.id === np.id) return true;
+          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+          if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
+          if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
+          if (np.id === 'sy-ac11' && (item.id === 'res-11kw-spil' || (item.name && item.name.includes('스필 11kW')))) return true;
+          if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
+          if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
+          if (item.id === 'res-11kw-spil' && np.name && np.name.includes('스필 11kW')) return true;
+          return false;
+        };
+
+        if (parsedHome) {
+          Object.keys(parsedHome).forEach((powerKey) => {
+            (parsedHome[powerKey] || []).forEach((sp: any) => {
+              const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
+              if (matchIdx !== -1) {
+                const existing = nextProducts[matchIdx];
+                let changed = false;
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
+                  existing.optionGroups = sp.optionGroups;
+                  changed = true;
+                }
+                if (changed) {
+                  nextProducts[matchIdx] = { ...existing };
+                  isModified = true;
+                }
+              } else {
+                const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
+                const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
+                const newP: Product = {
+                  id: sp.id || `res-custom-${Date.now()}`,
+                  name: sp.name || '신규 홈 충전기',
+                  type: '완속',
+                  power: powerKey || '7kW',
+                  features: sp.tags || ['MD CHOICE', 'HIT'],
+                  image: sp.image || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+                  description: sp.description || '가정용, 회사용, 공장용, 창고용 전기차 충전기',
+                  price: sp.price || 0,
+                  originalPrice: sp.regularPrice || sp.price || 0,
+                  discountRate: sp.discount || 0,
+                  brand: brandName,
+                  serviceType: 'device',
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                };
+                nextProducts.push(newP);
+                isModified = true;
+              }
+            });
+          });
+        }
+
+        if (parsedParking) {
+          Object.keys(parsedParking).forEach((catKey) => {
+            (parsedParking[catKey] || []).forEach((sp: any) => {
+              const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
+              if (matchIdx !== -1) {
+                const existing = nextProducts[matchIdx];
+                let changed = false;
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
+                  existing.optionGroups = sp.optionGroups;
+                  changed = true;
+                }
+                if (changed) {
+                  nextProducts[matchIdx] = { ...existing };
+                  isModified = true;
+                }
+              } else {
+                const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
+                const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
+                const newP: Product = {
+                  id: sp.id || `park-custom-${Date.now()}`,
+                  name: sp.name || '신규 상업용 충전기',
+                  type: '급속',
+                  power: catKey || '100kW',
+                  features: sp.tags || ['BEST', 'HIT'],
+                  image: sp.image || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+                  description: sp.description || '상업시설, 수익형 매장용 충전기',
+                  price: sp.price || 0,
+                  originalPrice: sp.regularPrice || sp.price || 0,
+                  discountRate: sp.discount || 0,
+                  brand: brandName,
+                  serviceType: 'device',
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                };
+                nextProducts.push(newP);
+                isModified = true;
+              }
+            });
+          });
+        }
+
+        setProducts(nextProducts);
+        if (isModified) {
+          localStorage.setItem('sy_cms_products_v12', JSON.stringify(nextProducts));
+        }
+      } catch (e) {
+        console.error('Error on sy_cms_products_update in App.tsx:', e);
+      }
+    };
+
+    window.addEventListener('sy_cms_products_update', handleProductsUpdate);
+    return () => {
+      window.removeEventListener('sy_cms_products_update', handleProductsUpdate);
+    };
+  }, []);
 
   // Sync state helpers
   const handleLogin = (newUser: User) => {
