@@ -47,6 +47,7 @@ export async function loadFromFirestore(): Promise<void> {
 
     // Trigger state refresh event across components
     window.dispatchEvent(new Event('sy_cms_products_update'));
+    window.dispatchEvent(new Event('sy_cms_hero_update'));
   } catch (error) {
     console.error('Error loading data from Firestore:', error);
   } finally {

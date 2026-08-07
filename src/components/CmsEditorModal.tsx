@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Product, Solution, Review, FAQ, HeaderConfig, ProductOptionGroup, ProductOptionItem, SolutionProduct } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
 import { PARKING_PRODUCTS_DATA, HOME_PRODUCTS_DATA } from './SolutionsSection';
+import { compressImage } from '../lib/imageCompressor';
 
 interface CmsEditorModalProps {
   isOpen: boolean;
@@ -520,7 +521,7 @@ export default function CmsEditorModal({
   const [prodOptionGroups, setProdOptionGroups] = useState<ProductOptionGroup[]>([]);
 
   // Helper for pasting image from clipboard (Requirement: "캡처해서 붙여넣기로 넣게 못만드나?")
-  const handlePasteImageFromClipboard = (e: React.ClipboardEvent, setImageFn: (url: string) => void) => {
+  const handlePasteImageFromClipboard = async (e: React.ClipboardEvent, setImageFn: (url: string) => void) => {
     const items = e.clipboardData?.items;
     if (!items) return;
     for (let i = 0; i < items.length; i++) {
@@ -528,14 +529,9 @@ export default function CmsEditorModal({
         const blob = items[i].getAsFile();
         if (blob) {
           e.preventDefault();
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            if (reader.result) {
-              setImageFn(reader.result as string);
-              alert('📋 클립보드 캡처 이미지가 성공적으로 붙여넣어졌습니다!');
-            }
-          };
-          reader.readAsDataURL(blob);
+          const compressed = await compressImage(blob, 1920, 1080, 0.82);
+          setImageFn(compressed);
+          alert('📋 클립보드 캡처 이미지가 성공적으로 붙여넣어졌습니다!');
           break;
         }
       }
@@ -822,7 +818,11 @@ export default function CmsEditorModal({
     showSaveSuccess('⚙️ 브랜드 로고, 카테고리, 헤더 단축문구, 푸터 회사 정보 및 SNS, 퀵메뉴 설정이 즉시 저장되었습니다!');
   };
 
-  const handleSaveHero = () => {
+  const handleSaveHero = async () => {
+    let finalImg = heroImageUrl;
+    if (finalImg && (finalImg.startsWith('data:image') || finalImg.startsWith('blob:'))) {
+      finalImg = await compressImage(finalImg, 1920, 1080, 0.82);
+    }
     onSaveHeroConfig({
       ...heroConfig,
       badge: heroBadge,
@@ -830,7 +830,7 @@ export default function CmsEditorModal({
       description: heroDesc,
       ctaButton: heroCta,
       calcButton: heroCalc,
-      imageUrl: heroImageUrl,
+      imageUrl: finalImg,
       height: Number(heroHeight),
       paddingTop: Number(heroPaddingTop),
       paddingBottom: Number(heroPaddingBottom),
@@ -2307,14 +2307,11 @@ export default function CmsEditorModal({
                             <input
                               type="file"
                               accept="image/*"
-                              onChange={(e) => {
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setHeroImageUrl(reader.result as string);
-                                  };
-                                  reader.readAsDataURL(file);
+                                  const compressed = await compressImage(file, 1920, 1080, 0.82);
+                                  setHeroImageUrl(compressed);
                                 }
                               }}
                               className="hidden"

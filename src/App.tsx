@@ -904,6 +904,7 @@ export default function App() {
         if (isModified) {
           localStorage.setItem('sy_cms_products_v12', JSON.stringify(nextProducts));
         }
+        handleHeroUpdate();
       } catch (e) {
         console.error('Error on sy_cms_products_update in App.tsx:', e);
       }

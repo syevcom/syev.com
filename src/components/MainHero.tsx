@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import { CalendarDays, Calculator, MapPin, Wrench, ShieldCheck, Sparkles, Building, Home, ParkingSquare, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { compressImage } from '../lib/imageCompressor';
 
 interface MainHeroProps {
   onOpenQuote: () => void;
@@ -134,20 +135,16 @@ export default function MainHero({
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      const newUrl = reader.result as string;
-                      const savedHero = localStorage.getItem('sy_cms_hero');
-                      let config = savedHero ? JSON.parse(savedHero) : { ...heroConfig };
-                      config.imageUrl = newUrl;
-                      localStorage.setItem('sy_cms_hero', JSON.stringify(config));
-                      window.dispatchEvent(new Event('sy_cms_products_update'));
-                      window.dispatchEvent(new Event('sy_cms_hero_update'));
-                    };
-                    reader.readAsDataURL(file);
+                    const compressedUrl = await compressImage(file, 1920, 1080, 0.82);
+                    const savedHero = localStorage.getItem('sy_cms_hero');
+                    let config = savedHero ? JSON.parse(savedHero) : { ...heroConfig };
+                    config.imageUrl = compressedUrl;
+                    localStorage.setItem('sy_cms_hero', JSON.stringify(config));
+                    window.dispatchEvent(new Event('sy_cms_products_update'));
+                    window.dispatchEvent(new Event('sy_cms_hero_update'));
                   }
                 }}
               />
