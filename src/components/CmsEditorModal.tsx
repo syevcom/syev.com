@@ -563,7 +563,7 @@ export default function CmsEditorModal({
   });
 
   const [cmsHomeProducts, setCmsHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_home_products_v5_fixed');
+    const saved = localStorage.getItem('sy_cms_home_products_v6_fixed');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -572,7 +572,7 @@ export default function CmsEditorModal({
 
   useEffect(() => {
     const handleProductsUpdate = () => {
-      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+      const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
       if (savedHome) {
         try { setCmsHomeProducts(JSON.parse(savedHome)); } catch (e) {}
       }
@@ -688,7 +688,7 @@ export default function CmsEditorModal({
       }
       updated[solProdCategory] = list;
       setCmsHomeProducts(updated);
-      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(updated));
+      localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(updated));
     }
 
     window.dispatchEvent(new Event('sy_cms_products_update'));
@@ -711,7 +711,7 @@ export default function CmsEditorModal({
       if (updated[category]) {
         updated[category] = updated[category].filter(item => item.id !== id);
         setCmsHomeProducts(updated);
-        localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(updated));
+        localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(updated));
       }
     }
     window.dispatchEvent(new Event('sy_cms_products_update'));

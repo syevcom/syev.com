@@ -631,7 +631,7 @@ export default function SolutionsSection({
   };
 
   const [homeProducts, setHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_home_products_v5_fixed');
+    const saved = localStorage.getItem('sy_cms_home_products_v6_fixed');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -658,7 +658,7 @@ export default function SolutionsSection({
   // Real-time synchronization listener for CMS updates
   useEffect(() => {
     const handleProductsUpdate = () => {
-      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+      const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
       if (savedHome) {
         try { setHomeProducts(JSON.parse(savedHome)); } catch (e) {}
       }
@@ -726,7 +726,7 @@ export default function SolutionsSection({
   const saveHomeProducts = (data: Record<string, SolutionProduct[]>) => {
     setHomeProducts(data);
     try {
-      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(data));
+      localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(data));
       window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to save home products to localStorage:', e);
@@ -2640,14 +2640,14 @@ export default function SolutionsSection({
                   const getProductPricing = (p: SolutionProduct) => {
                     if (selectedHomeServiceType === '교체 시공') {
                       const price = (p as any).replacementPrice || p.price + 150000;
-                      const regularPrice = p.regularPrice + 180000;
-                      const discount = Math.round((1 - price / regularPrice) * 100);
+                      const regularPrice = (p as any).replacementRegularPrice || p.regularPrice + 180000;
+                      const discount = (p as any).replacementDiscount !== undefined ? (p as any).replacementDiscount : Math.round((1 - price / regularPrice) * 100);
                       return { price, regularPrice, discount, label: '교체 시공 포함' };
                     }
                     if (selectedHomeServiceType === '신규 설치 포함') {
                       const price = (p as any).installIncludedPrice || p.price + 350000;
-                      const regularPrice = p.regularPrice + 400000;
-                      const discount = Math.round((1 - price / regularPrice) * 100);
+                      const regularPrice = (p as any).installIncludedRegularPrice || p.regularPrice + 400000;
+                      const discount = (p as any).installIncludedDiscount !== undefined ? (p as any).installIncludedDiscount : Math.round((1 - price / regularPrice) * 100);
                       return { price, regularPrice, discount, label: '신규 설치 포함' };
                     }
                     // Default: '단말기 단품'

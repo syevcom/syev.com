@@ -436,7 +436,7 @@ export default function App() {
         currentProducts = currentProducts.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
         currentProducts = applyBrandOptions(currentProducts);
 
-        const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+        const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
         const parsedHome = savedHome ? JSON.parse(savedHome) : null;
 
         const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
@@ -522,7 +522,7 @@ export default function App() {
             });
           });
           if (homeUpdated) {
-            localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+            localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(parsedHome));
           }
         }
 
@@ -754,7 +754,7 @@ export default function App() {
         const savedProducts = localStorage.getItem('sy_cms_products_v12');
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
 
-        const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+        const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
         const parsedHome = savedHome ? JSON.parse(savedHome) : null;
 
         const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
@@ -839,7 +839,7 @@ export default function App() {
             });
           });
           if (homeUpdated) {
-            localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+            localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(parsedHome));
           }
         }
 
@@ -1108,7 +1108,7 @@ export default function App() {
     // Also sync homeProducts & parkingProducts in localStorage so SolutionsSection is updated instantly
     try {
       // 1. Sync Home Chargers (가정용 홈 충전기)
-      const savedHome = localStorage.getItem('sy_cms_home_products_v5_fixed');
+      const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
       const parsedHome = savedHome ? JSON.parse(savedHome) : JSON.parse(JSON.stringify(HOME_PRODUCTS_DATA));
 
       // 2. Sync Parking / Commercial Chargers (상업시설 충전기)
@@ -1216,7 +1216,7 @@ export default function App() {
         });
       });
 
-      localStorage.setItem('sy_cms_home_products_v5_fixed', JSON.stringify(parsedHome));
+      localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(parsedHome));
       localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(parsedParking));
 
       // Dispatch event for real-time component updates

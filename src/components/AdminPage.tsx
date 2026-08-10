@@ -752,6 +752,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   // Helper to get service category (단말기, 교체, 설치, 전체)
   const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' | 'all' => {
+    if (p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow))) {
+      return 'all';
+    }
     if (p.serviceType) return p.serviceType as any;
     if (p.detailCategory === '공용완속' || p.detailCategory === '급속') return 'install';
     return 'all';
@@ -770,10 +773,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const st = getProductServiceType(p);
     let matchesService = true;
     if (serviceFilter !== 'all') {
-      if (st === 'all') {
-        matchesService = true; // 'all' (호환) matches device, replace, and install
+      const isHomeCharger = p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow));
+      if (st === 'all' || isHomeCharger) {
+        matchesService = true; // 'all' (호환/가정용) matches device, replace, and install
       } else if (st === 'device') {
-        matchesService = (serviceFilter === 'device') || (serviceFilter === 'replace' && (p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow))));
+        matchesService = (serviceFilter === 'device') || (serviceFilter === 'replace');
       } else {
         matchesService = (st === serviceFilter);
       }
