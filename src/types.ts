@@ -52,6 +52,12 @@ export interface Product {
   rewardPointsInfo?: string;
   detailCategory?: '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드';
   serviceType?: 'device' | 'replace' | 'install';
+  replacementPrice?: number;
+  replacementRegularPrice?: number;
+  replacementDiscount?: number;
+  installIncludedPrice?: number;
+  installIncludedRegularPrice?: number;
+  installIncludedDiscount?: number;
   optionGroups?: ProductOptionGroup[];
 }
 
@@ -62,6 +68,13 @@ export interface SolutionProduct {
   regularPrice: number;
   price: number;
   discount: number;
+  replacementPrice?: number;
+  replacementRegularPrice?: number;
+  replacementDiscount?: number;
+  installIncludedPrice?: number;
+  installIncludedRegularPrice?: number;
+  installIncludedDiscount?: number;
+  serviceType?: 'device' | 'replace' | 'install';
   image: string;
   images?: string[];
   tags: string[];

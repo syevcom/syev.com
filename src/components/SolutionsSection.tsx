@@ -457,14 +457,7 @@ export default function SolutionsSection({
       const savedMain = localStorage.getItem('sy_cms_products_v12');
       if (savedMain) {
         const parsedMain = JSON.parse(savedMain);
-        const matched = parsedMain.find((mp: any) => 
-          mp.id === prod.id ||
-          (prod.id === 'res-11kw-spil' && (mp.id === 'sy-ac11-bi' || mp.id === 'sy-ac11' || (mp.name && mp.name.includes('스필') && mp.name.includes('11kW')))) ||
-          (prod.id === 'park-11kw-spil' && (mp.id === 'sy-ac11-bi' || mp.id === 'sy-ac11' || (mp.name && mp.name.includes('스필') && mp.name.includes('11kW')))) ||
-          (prod.id === 'res-5kw-spil' && (mp.id === 'sy-ac05' || (mp.name && mp.name.includes('스필') && mp.name.includes('5kW')))) ||
-          (prod.id === 'res-7kw-spil' && (mp.id === 'sy-ac07' || (mp.name && mp.name.includes('스필') && mp.name.includes('7kW')))) ||
-          (mp.name && prod.name && mp.name.trim() === prod.name.trim())
-        );
+        const matched = parsedMain.find((mp: any) => mp.id && prod.id && mp.id === prod.id);
         if (matched?.image) {
           return matched.image;
         }
@@ -953,16 +946,27 @@ export default function SolutionsSection({
       if (updated[category]) {
         updated[category] = updated[category].filter(p => p.id !== productId);
         saveHomeProducts(updated);
-        setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
       }
     } else {
       const updated = { ...parkingProducts };
       if (updated[category]) {
         updated[category] = updated[category].filter(p => p.id !== productId);
         saveParkingProducts(updated);
-        setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
       }
     }
+
+    try {
+      const savedMain = localStorage.getItem('sy_cms_products_v12');
+      if (savedMain) {
+        const mainArr = JSON.parse(savedMain);
+        const nextMain = mainArr.filter((p: any) => p.id !== productId);
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(nextMain));
+        localStorage.setItem('sy_cms_products', JSON.stringify(nextMain));
+      }
+    } catch (e) {}
+
+    window.dispatchEvent(new Event('sy_cms_products_update'));
+    setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
   };
 
   const saveProductForm = () => {
@@ -2634,7 +2638,25 @@ export default function SolutionsSection({
                 })()}
 
                 {sol.category === 'Residential' && (() => {
-                  const productsList = homeProducts[selectedHomePower] || [];
+                  const rawProductsList = homeProducts[selectedHomePower] || [];
+                  
+                  // Filter products by serviceType if specified or zero price
+                  const productsList = rawProductsList.filter(p => {
+                    const st = (p.serviceType as string) || 'all';
+                    if (selectedHomeServiceType === '단말기 단품') {
+                      if (st === 'replace' || st === 'install') return false;
+                      if (p.price === 0) return false;
+                    } else if (selectedHomeServiceType === '교체 시공') {
+                      if (st === 'device' || st === 'install') return false;
+                      const repPrice = (p as any).replacementPrice !== undefined ? (p as any).replacementPrice : p.price + 150000;
+                      if (repPrice === 0) return false;
+                    } else if (selectedHomeServiceType === '신규 설치 포함') {
+                      if (st === 'device' || st === 'replace') return false;
+                      const instPrice = (p as any).installIncludedPrice !== undefined ? (p as any).installIncludedPrice : p.price + 350000;
+                      if (instPrice === 0) return false;
+                    }
+                    return true;
+                  });
                   
                   // Helper function to calculate price and badge for the active service type
                   const getProductPricing = (p: SolutionProduct) => {

@@ -823,18 +823,6 @@ export const PRODUCTS: Product[] = [
     features: ['부식방지 특수 분체도장', '실외 우천 보호 빗물받이', '충전 케이블 권취형 행거'],
     image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600',
     description: '야외 주차장이나 마당에 충전기를 독립형 스탠드로 세워 고정할 때 필수적인 전용 정품 스탠드 프레임입니다.'
-  },
-  {
-    id: 'sy-canopy-01',
-    name: '안도감 세이프 캐노피 보호부스',
-    type: '스탠드',
-    power: '전 기종 호환',
-    price: 450000,
-    detailCategory: '스탠드',
-    serviceType: 'device',
-    features: ['눈, 비, 강풍 완벽 방풍 설계', '선루프 및 야간 LED 인지 패널'],
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600',
-    description: '눈보라나 폭우 속에서도 안심하고 커넥터를 연결할 수 있도록 사방을 막아주는 안전 캐노피형 보호 하우징입니다.'
   }
 ];
 

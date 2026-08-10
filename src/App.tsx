@@ -405,7 +405,9 @@ export default function App() {
           'res-7kw-hyundai',
           'res-7kw-pylon',
           'res-5kw-convenient',
-          'res-5kw-safe'
+          'res-5kw-safe',
+          'sy-canopy-01',
+          'sy-stand-01'
         ]);
 
         const applyBrandOptions = (pList: Product[]) => {
@@ -448,19 +450,16 @@ export default function App() {
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
           if (item.id && np.id && item.id === np.id) return true;
-          if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
-          if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
-          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
-          if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
-          if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
-          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
-          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
           return false;
         };
 
         if (parsedHome) {
           let homeUpdated = false;
           Object.keys(parsedHome).forEach((powerKey) => {
+            const originalLen = (parsedHome[powerKey] || []).length;
+            parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => sp && !REMOVED_PRODUCT_IDS.has(sp.id));
+            if (parsedHome[powerKey].length !== originalLen) homeUpdated = true;
+
             (parsedHome[powerKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
@@ -497,7 +496,7 @@ export default function App() {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
-              } else {
+              } else if (!REMOVED_PRODUCT_IDS.has(sp.id)) {
                 // Brand new product added in Home section
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
@@ -766,13 +765,6 @@ export default function App() {
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
           if (item.id && np.id && item.id === np.id) return true;
-          if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
-          if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
-          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
-          if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
-          if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
-          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
-          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
           return false;
         };
 
@@ -1118,17 +1110,12 @@ export default function App() {
       const checkIsMatch = (item: any, np: Product, powerOrCatKey?: string) => {
         if (!item || !np) return false;
         if (item.id && np.id && item.id === np.id) return true;
-        if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
-        if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
-        if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
-        if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
-        if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
-        if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
-        if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
         return false;
       };
 
       // Update matching items or add brand new items
+      const REMOVED_SET = new Set(['sy-canopy-01', 'sy-stand-01', 'res-7kw-convenient', 'res-7kw-safe', 'res-7kw-hyundai', 'res-7kw-pylon', 'res-5kw-convenient', 'res-5kw-safe']);
+
       newProducts.forEach((np) => {
         let matched = false;
 
@@ -1139,9 +1126,16 @@ export default function App() {
               return {
                 ...item,
                 name: np.name || item.name,
-                price: np.price || item.price,
-                regularPrice: np.originalPrice || item.regularPrice,
-                discount: np.discountRate || item.discount,
+                price: np.price !== undefined ? np.price : item.price,
+                regularPrice: np.originalPrice !== undefined ? np.originalPrice : item.regularPrice,
+                discount: np.discountRate !== undefined ? np.discountRate : item.discount,
+                replacementPrice: np.replacementPrice,
+                replacementRegularPrice: np.replacementRegularPrice,
+                replacementDiscount: np.replacementDiscount,
+                installIncludedPrice: np.installIncludedPrice,
+                installIncludedRegularPrice: np.installIncludedRegularPrice,
+                installIncludedDiscount: np.installIncludedDiscount,
+                serviceType: np.serviceType || item.serviceType,
                 image: np.image || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
@@ -1159,9 +1153,16 @@ export default function App() {
               return {
                 ...item,
                 name: np.name || item.name,
-                price: np.price || item.price,
+                price: np.price !== undefined ? np.price : item.price,
                 regularPrice: np.originalPrice || item.regularPrice,
-                discount: np.discountRate || item.discount,
+                discount: np.discountRate !== undefined ? np.discountRate : item.discount,
+                replacementPrice: np.replacementPrice,
+                replacementRegularPrice: np.replacementRegularPrice,
+                replacementDiscount: np.replacementDiscount,
+                installIncludedPrice: np.installIncludedPrice,
+                installIncludedRegularPrice: np.installIncludedRegularPrice,
+                installIncludedDiscount: np.installIncludedDiscount,
+                serviceType: np.serviceType || item.serviceType,
                 image: np.image || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
@@ -1173,7 +1174,7 @@ export default function App() {
         });
 
         // If this product is brand new and not yet present in home/parking sections
-        if (!matched) {
+        if (!matched && !REMOVED_SET.has(np.id) && (np as any).type !== '스탠드' && (np as any).type !== '악세사리') {
           const newItem = {
             id: np.id,
             name: np.name,
@@ -1193,7 +1194,7 @@ export default function App() {
             const targetCat = Object.keys(parsedParking)[0] || '100kW+ 급속충전기';
             if (!parsedParking[targetCat]) parsedParking[targetCat] = [];
             parsedParking[targetCat].push(newItem);
-          } else {
+          } else if (np.type === '완속' || ['5kW', '7kW', '11kW'].some(k => (np.power || '').includes(k))) {
             const targetPower = (np.power && parsedHome[np.power]) ? np.power : '7kW';
             if (!parsedHome[targetPower]) parsedHome[targetPower] = [];
             parsedHome[targetPower].push(newItem);
@@ -1201,15 +1202,17 @@ export default function App() {
         }
       });
 
-      // Prune items from parsedHome & parsedParking that were deleted from newProducts
+      // Prune items from parsedHome & parsedParking that were deleted from newProducts or in REMOVED_SET
       Object.keys(parsedHome).forEach((powerKey) => {
         parsedHome[powerKey] = parsedHome[powerKey].filter((item: any) => {
+          if (!item || REMOVED_SET.has(item.id)) return false;
           return newProducts.some((np) => checkIsMatch(item, np, powerKey));
         });
       });
 
       Object.keys(parsedParking).forEach((catKey) => {
         parsedParking[catKey] = parsedParking[catKey].filter((item: any) => {
+          if (!item || REMOVED_SET.has(item.id)) return false;
           return newProducts.some((np) => checkIsMatch(item, np, catKey));
         });
       });

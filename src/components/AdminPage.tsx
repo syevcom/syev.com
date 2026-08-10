@@ -752,9 +752,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   // Helper to get service category (단말기, 교체, 설치, 전체)
   const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' | 'all' => {
-    if (p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow))) {
-      return 'all';
-    }
     if (p.serviceType) return p.serviceType as any;
     if (p.detailCategory === '공용완속' || p.detailCategory === '급속') return 'install';
     return 'all';
@@ -773,11 +770,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const st = getProductServiceType(p);
     let matchesService = true;
     if (serviceFilter !== 'all') {
-      const isHomeCharger = p.detailCategory === '비공용완속' || p.detailCategory === '비공용중속' || ['5kW','7kW','11kW'].some(pow => (p.power || '').includes(pow));
-      if (st === 'all' || isHomeCharger) {
-        matchesService = true; // 'all' (호환/가정용) matches device, replace, and install
-      } else if (st === 'device') {
-        matchesService = (serviceFilter === 'device') || (serviceFilter === 'replace');
+      if (st === 'all') {
+        matchesService = true; // 'all' (모두 호환) matches device, replace, and install
       } else {
         matchesService = (st === serviceFilter);
       }
@@ -1342,7 +1336,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       </div>
 
                       {/* Product Details Column */}
-                      <div className="lg:col-span-6 space-y-3">
+                      <div className="lg:col-span-5 space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500">상품명 (표시 이름)</label>
@@ -1432,47 +1426,145 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           </div>
                         </div>
 
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500">간단 설명</label>
-                          <input
-                            type="text"
-                            value={product.description}
-                            onChange={(e) => handleProductChange(realIndex, 'description', e.target.value)}
-                            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500">서비스 판매 범위 (시공/판매 유형)</label>
+                            <select
+                              value={product.serviceType || 'all'}
+                              onChange={(e) => handleProductChange(realIndex, 'serviceType', e.target.value)}
+                              className="w-full px-2.5 py-1.5 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs font-black text-indigo-900"
+                            >
+                              <option value="all">🌐 전체 지원 (단말기, 교체, 신규설치 모두)</option>
+                              <option value="replace">🛠️ 교체 시공 전용 (단말기 단품 없음)</option>
+                              <option value="install">🏗️ 신규 설치 포함 전용 (단말기 단품 없음)</option>
+                              <option value="device">📦 단말기 단품 전용 (시공 서비스 없음)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500">간단 설명</label>
+                            <input
+                              type="text"
+                              value={product.description}
+                              onChange={(e) => handleProductChange(realIndex, 'description', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
+                            />
+                          </div>
                         </div>
                       </div>
 
                       {/* Pricing & Action Column */}
-                      <div className="lg:col-span-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/60 space-y-3">
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500">기존 정가 (원)</label>
-                          <input
-                            type="number"
-                            value={product.originalPrice || 0}
-                            onChange={(e) => handleProductChange(realIndex, 'originalPrice', Number(e.target.value) || 0)}
-                            className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-400 line-through"
-                          />
+                      <div className="lg:col-span-4 bg-slate-50/90 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                          <span className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+                            💰 구분별 개별 가격 설정
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const baseP = product.price || 0;
+                              const baseOrig = product.originalPrice || baseP;
+                              const updated = [...productList];
+                              updated[realIndex] = {
+                                ...product,
+                                replacementPrice: baseP + 150000,
+                                replacementRegularPrice: baseOrig + 180000,
+                                installIncludedPrice: baseP + 350000,
+                                installIncludedRegularPrice: baseOrig + 400000,
+                              };
+                              setProductList(updated);
+                            }}
+                            className="text-[10px] font-bold text-blue-700 bg-blue-100/80 hover:bg-blue-200 px-2 py-0.5 rounded cursor-pointer transition-all"
+                            title="기존 단말기 가격 기준으로 교체(+15만)/설치(+35만) 표준가격 자동채우기"
+                          >
+                            ⚡표준가격 자동계산
+                          </button>
                         </div>
 
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500">실제 할인가격 (원)</label>
-                          <input
-                            type="number"
-                            value={product.price || 0}
-                            onChange={(e) => handleProductChange(realIndex, 'price', Number(e.target.value) || 0)}
-                            className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
-                          />
+                        {/* 1. 단말기 단품가 */}
+                        <div className="p-2.5 bg-white rounded-xl border border-amber-200/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-amber-900 flex items-center gap-1">
+                              📦 단말기 단품 (기기만)
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-400">정가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.originalPrice || 0}
+                                onChange={(e) => handleProductChange(realIndex, 'originalPrice', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-400 line-through"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-black text-amber-800">할인가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.price || 0}
+                                onChange={(e) => handleProductChange(realIndex, 'price', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-amber-50/50 border border-amber-300 rounded-lg text-xs font-black text-amber-950 focus:bg-white"
+                              />
+                            </div>
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500">할인율 (%)</label>
-                          <input
-                            type="number"
-                            value={product.discountRate || 0}
-                            onChange={(e) => handleProductChange(realIndex, 'discountRate', Number(e.target.value) || 0)}
-                            className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-black text-rose-600"
-                          />
+                        {/* 2. 교체 시공가 */}
+                        <div className="p-2.5 bg-white rounded-xl border border-blue-200/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-blue-900 flex items-center gap-1">
+                              🛠️ 교체 시공 포함가
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-400">정가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.replacementRegularPrice !== undefined ? product.replacementRegularPrice : ((product.originalPrice || 0) + 180000)}
+                                onChange={(e) => handleProductChange(realIndex, 'replacementRegularPrice', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-400 line-through"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-black text-blue-800">할인가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.replacementPrice !== undefined ? product.replacementPrice : ((product.price || 0) + 150000)}
+                                onChange={(e) => handleProductChange(realIndex, 'replacementPrice', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-blue-50/50 border border-blue-300 rounded-lg text-xs font-black text-blue-950 focus:bg-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. 신규 설치 포함가 */}
+                        <div className="p-2.5 bg-white rounded-xl border border-emerald-200/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-black text-emerald-900 flex items-center gap-1">
+                              ⚡ 신규 설치 포함가
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-400">정가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.installIncludedRegularPrice !== undefined ? product.installIncludedRegularPrice : ((product.originalPrice || 0) + 400000)}
+                                onChange={(e) => handleProductChange(realIndex, 'installIncludedRegularPrice', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-400 line-through"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-black text-emerald-800">할인가 (원)</label>
+                              <input
+                                type="number"
+                                value={product.installIncludedPrice !== undefined ? product.installIncludedPrice : ((product.price || 0) + 350000)}
+                                onChange={(e) => handleProductChange(realIndex, 'installIncludedPrice', Number(e.target.value) || 0)}
+                                className="w-full px-2 py-1 bg-emerald-50/50 border border-emerald-300 rounded-lg text-xs font-black text-emerald-950 focus:bg-white"
+                              />
+                            </div>
+                          </div>
                         </div>
 
                         <div className="pt-1 space-y-1.5">
