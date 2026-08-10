@@ -308,8 +308,12 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       price: 779000,
       discount: 6,
       serviceType: 'all',
+      replacementPrice: 929000,
+      replacementRegularPrice: 1029000,
+      replacementDiscount: 10,
       installIncludedPrice: 1129000,
       installIncludedRegularPrice: 1229000,
+      installIncludedDiscount: 8,
       image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT'],
       hasASBadge: true,
@@ -651,17 +655,68 @@ export default function SolutionsSection({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const ensureDefaultHomeProducts = (parsed: Record<string, SolutionProduct[]>) => {
+    const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+    const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+    const REMOVED_SET = new Set([
+      'res-7kw-convenient',
+      'res-7kw-safe',
+      'res-7kw-hyundai',
+      'res-7kw-pylon',
+      'res-5kw-convenient',
+      'res-5kw-safe',
+      'sy-canopy-01',
+      'sy-stand-01'
+    ]);
+    
+    const result: Record<string, SolutionProduct[]> = { ...parsed };
+    let modified = false;
+
+    Object.keys(HOME_PRODUCTS_DATA).forEach((cat) => {
+      if (!result[cat]) {
+        result[cat] = [...HOME_PRODUCTS_DATA[cat]];
+        modified = true;
+      } else {
+        const existingList = [...result[cat]];
+        HOME_PRODUCTS_DATA[cat].forEach((defaultProd) => {
+          if (!REMOVED_SET.has(defaultProd.id) && !deletedSet.has(defaultProd.id)) {
+            const exists = existingList.some(p => 
+              p.id === defaultProd.id || 
+              (p.name && p.name.trim() === defaultProd.name.trim()) || 
+              ((defaultProd.id === 'sy-ac11-bi' || defaultProd.id === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil')) ||
+              ((defaultProd.id === 'sy-ac07' || defaultProd.id === 'res-7kw-spil') && (p.id === 'sy-ac07' || p.id === 'res-7kw-spil')) ||
+              ((defaultProd.id === 'sy-ac05' || defaultProd.id === 'res-5kw-spil') && (p.id === 'sy-ac05' || p.id === 'res-5kw-spil'))
+            );
+            if (!exists) {
+              existingList.unshift(defaultProd);
+              modified = true;
+            }
+          }
+        });
+        result[cat] = existingList;
+      }
+    });
+
+    if (modified) {
+      try {
+        localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(result));
+      } catch (e) {}
+    }
+
+    return result;
+  };
+
   const [homeProducts, setHomeProducts] = useState<Record<string, SolutionProduct[]>>(() => {
     const saved = localStorage.getItem('sy_cms_home_products_v6_fixed');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return parsed;
+        return ensureDefaultHomeProducts(parsed);
       } catch (e) {
-        return HOME_PRODUCTS_DATA;
+        return ensureDefaultHomeProducts(HOME_PRODUCTS_DATA);
       }
     }
-    return HOME_PRODUCTS_DATA;
+    return ensureDefaultHomeProducts(HOME_PRODUCTS_DATA);
   });
 
   const [parkingProducts, setParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
@@ -681,7 +736,7 @@ export default function SolutionsSection({
     const handleProductsUpdate = () => {
       const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
       if (savedHome) {
-        try { setHomeProducts(JSON.parse(savedHome)); } catch (e) {}
+        try { setHomeProducts(ensureDefaultHomeProducts(JSON.parse(savedHome))); } catch (e) {}
       }
       const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
       if (savedParking) {

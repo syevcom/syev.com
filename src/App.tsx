@@ -436,12 +436,14 @@ export default function App() {
 
         const normalizeProductServiceTypes = (prods: Product[]) => {
           return prods.map(p => {
-            if (p.id === 'park-11kw-spil' || (p.name && p.name.includes('스필 11kW'))) {
+            if (p.id === 'park-11kw-spil' || p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil' || (p.name && p.name.includes('스필') && p.name.includes('11kW'))) {
               return {
                 ...p,
                 serviceType: 'all',
                 price: p.price || 779000,
                 originalPrice: p.originalPrice || 829000,
+                replacementPrice: (p as any).replacementPrice || 929000,
+                replacementRegularPrice: (p as any).replacementRegularPrice || 1029000,
                 installIncludedPrice: p.installIncludedPrice || 1129000,
                 installIncludedRegularPrice: p.installIncludedRegularPrice || 1229000
               };
@@ -482,6 +484,23 @@ export default function App() {
 
         if (parsedHome) {
           let homeUpdated = false;
+          Object.keys(HOME_PRODUCTS_DATA).forEach((catKey) => {
+            if (!parsedHome[catKey]) {
+              parsedHome[catKey] = [...HOME_PRODUCTS_DATA[catKey]];
+              homeUpdated = true;
+            } else {
+              HOME_PRODUCTS_DATA[catKey].forEach((defItem) => {
+                if (!REMOVED_PRODUCT_IDS.has(defItem.id) && !deletedSet.has(defItem.id)) {
+                  const hasItem = parsedHome[catKey].some((p: any) => checkIsMatch(p, defItem as any));
+                  if (!hasItem) {
+                    parsedHome[catKey].unshift({ ...defItem });
+                    homeUpdated = true;
+                  }
+                }
+              });
+            }
+          });
+
           Object.keys(parsedHome).forEach((powerKey) => {
             const seenNames = new Set<string>();
             parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => {
@@ -809,12 +828,14 @@ export default function App() {
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
         currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
         currentProducts = currentProducts.map(p => {
-          if (p.id === 'park-11kw-spil' || (p.name && p.name.includes('스필 11kW'))) {
+          if (p.id === 'park-11kw-spil' || p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil' || (p.name && p.name.includes('스필') && p.name.includes('11kW'))) {
             return {
               ...p,
               serviceType: 'all',
               price: p.price || 779000,
               originalPrice: p.originalPrice || 829000,
+              replacementPrice: (p as any).replacementPrice || 929000,
+              replacementRegularPrice: (p as any).replacementRegularPrice || 1029000,
               installIncludedPrice: p.installIncludedPrice || 1129000,
               installIncludedRegularPrice: p.installIncludedRegularPrice || 1229000
             };
@@ -836,6 +857,23 @@ export default function App() {
 
         if (parsedHome) {
           let homeUpdated = false;
+          Object.keys(HOME_PRODUCTS_DATA).forEach((catKey) => {
+            if (!parsedHome[catKey]) {
+              parsedHome[catKey] = [...HOME_PRODUCTS_DATA[catKey]];
+              homeUpdated = true;
+            } else {
+              HOME_PRODUCTS_DATA[catKey].forEach((defItem) => {
+                if (!REMOVED_PRODUCT_IDS.has(defItem.id) && !deletedSet.has(defItem.id)) {
+                  const hasItem = parsedHome[catKey].some((p: any) => checkIsMatch(p, defItem as any));
+                  if (!hasItem) {
+                    parsedHome[catKey].unshift({ ...defItem });
+                    homeUpdated = true;
+                  }
+                }
+              });
+            }
+          });
+
           Object.keys(parsedHome).forEach((powerKey) => {
             const seenNames = new Set<string>();
             parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => {
