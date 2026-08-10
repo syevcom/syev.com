@@ -447,14 +447,14 @@ export default function App() {
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
-          if (item.id === np.id) return true;
+          if (item.id && np.id && item.id === np.id) return true;
+          if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
+          if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
+          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
+          if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
+          if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
+          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
           if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
-          if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
-          if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
-          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil' || (item.name && item.name.includes('스필') && item.name.includes('11kW')))) return true;
-          if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
-          if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
-          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && np.name && np.name.includes('스필') && np.name.includes('11kW')) return true;
           return false;
         };
 
@@ -765,14 +765,14 @@ export default function App() {
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
-          if (item.id === np.id) return true;
+          if (item.id && np.id && item.id === np.id) return true;
+          if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
+          if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
+          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
+          if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
+          if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
+          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
           if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
-          if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
-          if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
-          if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil' || (item.name && item.name.includes('스필') && item.name.includes('11kW')))) return true;
-          if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
-          if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
-          if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && np.name && np.name.includes('스필') && np.name.includes('11kW')) return true;
           return false;
         };
 
@@ -1117,16 +1117,14 @@ export default function App() {
 
       const checkIsMatch = (item: any, np: Product, powerOrCatKey?: string) => {
         if (!item || !np) return false;
-        if (item.id === np.id) return true;
+        if (item.id && np.id && item.id === np.id) return true;
+        if (np.id === 'sy-ac05' && item.id === 'res-5kw-spil') return true;
+        if (np.id === 'sy-ac07' && item.id === 'res-7kw-spil') return true;
+        if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil')) return true;
+        if (item.id === 'res-5kw-spil' && np.id === 'sy-ac05') return true;
+        if (item.id === 'res-7kw-spil' && np.id === 'sy-ac07') return true;
+        if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && (np.id === 'sy-ac11' || np.id === 'sy-ac11-bi')) return true;
         if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
-        if (np.id === 'sy-ac05' && (item.id === 'res-5kw-spil' || (item.name && item.name.includes('스필 5kW')))) return true;
-        if (np.id === 'sy-ac07' && (item.id === 'res-7kw-spil' || (item.name && item.name.includes('스필 7kW')))) return true;
-        if ((np.id === 'sy-ac11' || np.id === 'sy-ac11-bi') && (item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil' || (item.name && item.name.includes('스필') && item.name.includes('11kW')))) return true;
-        if (item.id === 'res-5kw-spil' && np.name && np.name.includes('스필 5kW')) return true;
-        if (item.id === 'res-7kw-spil' && np.name && np.name.includes('스필 7kW')) return true;
-        if ((item.id === 'res-11kw-spil' || item.id === 'park-11kw-spil') && np.name && np.name.includes('스필') && np.name.includes('11kW')) return true;
-        if (np.brand && item.name && item.name.includes(np.brand) && np.power && (item.name.includes(np.power) || powerOrCatKey === np.power)) return true;
-        if (item.name && np.name && (item.name.includes(np.name) || np.name.includes(item.name))) return true;
         return false;
       };
 
