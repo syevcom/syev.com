@@ -41,7 +41,7 @@ export default function ReviewSection({
   };
 
   return (
-    <div className="space-y-12 py-12 relative group/review">
+    <div className="space-y-12 pt-6 md:pt-8 pb-12 relative group/review">
       {isEditMode && onOpenCms && (
         <button
           onClick={() => onOpenCms('review')}
@@ -52,12 +52,13 @@ export default function ReviewSection({
       )}
 
       {/* Top Header Copy */}
-      <section className="text-center max-w-2xl mx-auto space-y-3">
-        <span className="text-blue-600 font-bold text-xs uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+      <section className="text-center max-w-2xl mx-auto space-y-3 pt-2">
+        <span className="text-blue-600 font-bold text-xs uppercase tracking-wider bg-blue-50 px-3.5 py-1 rounded-full border border-blue-100/80 inline-block">
           Installation Gallery
         </span>
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-          "이미 전국 1만 개 이상의 공간이 <br />SY.com과 함께하고 있습니다."
+        <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+          "이미 전국 1만 개 이상의 공간이 <br className="hidden sm:inline" />
+          SY.com과 함께하고 있습니다."
         </h2>
         <p className="text-xs md:text-sm text-slate-500 font-medium">
           깐깐한 지자체 관공서부터 대기업 지식산업센터 물류창고, 우리 동네 단독주택까지 실제 고객들이 직접 증명하고 증언해 주시는 만족도 98%의 현장입니다.

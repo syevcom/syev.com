@@ -753,7 +753,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Helper to get service category (단말기, 교체, 설치, 전체)
   const getProductServiceType = (p: Product): 'device' | 'replace' | 'install' | 'all' => {
     if (p.serviceType) return p.serviceType as any;
-    if (p.detailCategory === '공용완속' || p.detailCategory === '급속') return 'install';
     return 'all';
   };
 
@@ -1435,9 +1434,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               className="w-full px-2.5 py-1.5 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs font-black text-indigo-900"
                             >
                               <option value="all">🌐 전체 지원 (단말기, 교체, 신규설치 모두)</option>
-                              <option value="replace">🛠️ 교체 시공 전용 (단말기 단품 없음)</option>
-                              <option value="install">🏗️ 신규 설치 포함 전용 (단말기 단품 없음)</option>
-                              <option value="device">📦 단말기 단품 전용 (시공 서비스 없음)</option>
+                              <option value="no_replace">📦⚡ 단말기 + 신규설치만 (교체시공 없음)</option>
+                              <option value="no_device">🛠️⚡ 교체 + 신규설치만 (단말기단품 없음)</option>
+                              <option value="no_install">📦🛠️ 단말기 + 교체시공만 (신규설치 없음)</option>
+                              <option value="replace">🛠️ 교체 시공 전용</option>
+                              <option value="install">🏗️ 신규 설치 포함 전용</option>
+                              <option value="device">📦 단말기 단품 전용</option>
                             </select>
                           </div>
                           <div>

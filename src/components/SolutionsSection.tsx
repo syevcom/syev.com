@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
+import { compressImage } from '../lib/imageCompressor';
 
 export const BRAND_METADATA: Record<string, {
   name: string;
@@ -158,6 +159,13 @@ export interface SolutionProduct {
   regularPrice: number;
   price: number;
   discount: number;
+  replacementPrice?: number;
+  replacementRegularPrice?: number;
+  replacementDiscount?: number;
+  installIncludedPrice?: number;
+  installIncludedRegularPrice?: number;
+  installIncludedDiscount?: number;
+  serviceType?: string;
   image: string;
   images?: string[];
   tags: string[];
@@ -306,11 +314,29 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       id: 'res-11kw-spil',
       name: '스필 11kW 프리미엄 개인용 충전기 무상AS 4년',
       description: '[국내최초 무상A/S 4년] 3상 11kW 초고속 완속 프리미엄 특화 모델',
-      regularPrice: 780000,
-      price: 650000,
-      discount: 16,
+      regularPrice: 829000,
+      price: 779000,
+      discount: 6,
+      serviceType: 'all',
+      installIncludedPrice: 1129000,
+      installIncludedRegularPrice: 1229000,
       image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT'],
+      hasASBadge: true,
+      hasPromoRibbon: true
+    },
+    {
+      id: 'park-11kw-spil',
+      name: '스필 11kW 공용 수익형 완속 충전기',
+      description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
+      regularPrice: 829000,
+      price: 779000,
+      discount: 6,
+      serviceType: 'all',
+      installIncludedPrice: 1129000,
+      installIncludedRegularPrice: 1229000,
+      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
+      tags: ['MD CHOICE', 'BEST'],
       hasASBadge: true,
       hasPromoRibbon: true
     },
@@ -321,6 +347,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 1450000,
       price: 1250000,
       discount: 13,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
       tags: ['PREMIUM', 'BEST']
     }
@@ -336,6 +363,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 1450000,
       price: 1250000,
       discount: 13,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
       tags: ['BEST', 'HIT'],
       hasPromoRibbon: true
@@ -344,9 +372,12 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       id: 'park-11kw-spil',
       name: '스필 11kW 공용 수익형 완속 충전기',
       description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
-      regularPrice: 1200000,
-      price: 1020000,
-      discount: 15,
+      regularPrice: 829000,
+      price: 779000,
+      discount: 6,
+      serviceType: 'all',
+      installIncludedPrice: 1129000,
+      installIncludedRegularPrice: 1229000,
       image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT']
     },
@@ -679,11 +710,16 @@ export default function SolutionsSection({
   const [prodFormName, setProdFormName] = useState('');
   const [prodFormRegularPrice, setProdFormRegularPrice] = useState(0);
   const [prodFormPrice, setProdFormPrice] = useState(0);
+  const [prodFormReplacementPrice, setProdFormReplacementPrice] = useState(0);
+  const [prodFormReplacementRegularPrice, setProdFormReplacementRegularPrice] = useState(0);
+  const [prodFormInstallIncludedPrice, setProdFormInstallIncludedPrice] = useState(0);
+  const [prodFormInstallIncludedRegularPrice, setProdFormInstallIncludedRegularPrice] = useState(0);
   const [prodFormDiscount, setProdFormDiscount] = useState(0);
   const [prodFormImage, setProdFormImage] = useState('');
   const [prodFormTags, setProdFormTags] = useState('');
   const [prodFormHasASBadge, setProdFormHasASBadge] = useState(false);
   const [prodFormHasPromoRibbon, setProdFormHasPromoRibbon] = useState(false);
+  const [isDraggingProdImage, setIsDraggingProdImage] = useState(false);
 
   // Sync to activeDetailProduct if it changed or was updated in real-time
   useEffect(() => {
@@ -901,6 +937,10 @@ export default function SolutionsSection({
     setProdFormName('');
     setProdFormRegularPrice(500000);
     setProdFormPrice(400000);
+    setProdFormReplacementPrice(550000);
+    setProdFormReplacementRegularPrice(680000);
+    setProdFormInstallIncludedPrice(750000);
+    setProdFormInstallIncludedRegularPrice(900000);
     setProdFormDiscount(20);
     setProdFormImage('https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600');
     setProdFormTags(type === 'home' ? 'MD CHOICE, HIT' : 'BEST, HIT');
@@ -915,16 +955,31 @@ export default function SolutionsSection({
       e.stopPropagation();
       e.preventDefault();
     }
+    setActiveDetailProduct(null);
     setEditingProduct(product);
     setEditingProductType(type);
     setEditingCategory(category);
 
-    setProdFormName(product.name);
-    setProdFormRegularPrice(product.regularPrice);
-    setProdFormPrice(product.price);
-    setProdFormDiscount(product.discount);
-    setProdFormImage(product.image);
-    setProdFormTags(product.tags.join(', '));
+    setProdFormName(product.name || '');
+    const baseP = product.price || 0;
+    const baseReg = product.regularPrice || baseP;
+
+    setProdFormRegularPrice(baseReg);
+    setProdFormPrice(baseP);
+
+    const repP = (product as any).replacementPrice !== undefined ? (product as any).replacementPrice : (baseP ? baseP + 150000 : 0);
+    const repRegP = (product as any).replacementRegularPrice !== undefined ? (product as any).replacementRegularPrice : (baseReg ? baseReg + 180000 : 0);
+    const instP = (product as any).installIncludedPrice !== undefined ? (product as any).installIncludedPrice : (baseP ? baseP + 350000 : 0);
+    const instRegP = (product as any).installIncludedRegularPrice !== undefined ? (product as any).installIncludedRegularPrice : (baseReg ? baseReg + 400000 : 0);
+
+    setProdFormReplacementPrice(repP);
+    setProdFormReplacementRegularPrice(repRegP);
+    setProdFormInstallIncludedPrice(instP);
+    setProdFormInstallIncludedRegularPrice(instRegP);
+
+    setProdFormDiscount(product.discount || 0);
+    setProdFormImage(product.image || '');
+    setProdFormTags(product.tags ? product.tags.join(', ') : '');
     setProdFormHasASBadge(!!product.hasASBadge);
     setProdFormHasPromoRibbon(!!product.hasPromoRibbon);
 
@@ -984,7 +1039,18 @@ export default function SolutionsSection({
       ? Math.round(((prodFormRegularPrice - prodFormPrice) / prodFormRegularPrice) * 100)
       : prodFormDiscount;
 
+    const repDiscount = prodFormReplacementRegularPrice > 0
+      ? Math.round(((prodFormReplacementRegularPrice - prodFormReplacementPrice) / prodFormReplacementRegularPrice) * 100)
+      : 0;
+
+    const instDiscount = prodFormInstallIncludedRegularPrice > 0
+      ? Math.round(((prodFormInstallIncludedRegularPrice - prodFormInstallIncludedPrice) / prodFormInstallIncludedRegularPrice) * 100)
+      : 0;
+
+    let targetId = '';
+
     if (editingProduct) {
+      targetId = editingProduct.id;
       // Edit mode
       if (editingProductType === 'home') {
         const updated = { ...homeProducts };
@@ -997,6 +1063,12 @@ export default function SolutionsSection({
                 regularPrice: Number(prodFormRegularPrice),
                 price: Number(prodFormPrice),
                 discount: calculatedDiscount,
+                replacementPrice: Number(prodFormReplacementPrice),
+                replacementRegularPrice: Number(prodFormReplacementRegularPrice),
+                replacementDiscount: repDiscount,
+                installIncludedPrice: Number(prodFormInstallIncludedPrice),
+                installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+                installIncludedDiscount: instDiscount,
                 image: prodFormImage,
                 tags: tagsArray,
                 hasASBadge: prodFormHasASBadge,
@@ -1018,6 +1090,12 @@ export default function SolutionsSection({
                 regularPrice: Number(prodFormRegularPrice),
                 price: Number(prodFormPrice),
                 discount: calculatedDiscount,
+                replacementPrice: Number(prodFormReplacementPrice),
+                replacementRegularPrice: Number(prodFormReplacementRegularPrice),
+                replacementDiscount: repDiscount,
+                installIncludedPrice: Number(prodFormInstallIncludedPrice),
+                installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+                installIncludedDiscount: instDiscount,
                 image: prodFormImage,
                 tags: tagsArray,
                 hasASBadge: prodFormHasASBadge,
@@ -1032,6 +1110,7 @@ export default function SolutionsSection({
     } else {
       // Add mode
       const newId = `${editingProductType === 'home' ? 'res' : 'park'}-custom-${Date.now()}`;
+      targetId = newId;
       const newProduct: SolutionProduct = {
         id: newId,
         name: prodFormName,
@@ -1039,6 +1118,12 @@ export default function SolutionsSection({
         regularPrice: Number(prodFormRegularPrice),
         price: Number(prodFormPrice),
         discount: calculatedDiscount,
+        replacementPrice: Number(prodFormReplacementPrice),
+        replacementRegularPrice: Number(prodFormReplacementRegularPrice),
+        replacementDiscount: repDiscount,
+        installIncludedPrice: Number(prodFormInstallIncludedPrice),
+        installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+        installIncludedDiscount: instDiscount,
         image: prodFormImage,
         tags: tagsArray,
         hasASBadge: prodFormHasASBadge,
@@ -1059,6 +1144,32 @@ export default function SolutionsSection({
       }
     }
 
+    // Also update main products in sy_cms_products_v12
+    try {
+      const savedMain = localStorage.getItem('sy_cms_products_v12');
+      if (savedMain) {
+        const mainArr = JSON.parse(savedMain);
+        const matchIdx = mainArr.findIndex((mp: any) => mp.id === targetId);
+        if (matchIdx !== -1) {
+          mainArr[matchIdx] = {
+            ...mainArr[matchIdx],
+            name: prodFormName,
+            price: Number(prodFormPrice),
+            originalPrice: Number(prodFormRegularPrice),
+            discountRate: calculatedDiscount,
+            replacementPrice: Number(prodFormReplacementPrice),
+            replacementRegularPrice: Number(prodFormReplacementRegularPrice),
+            installIncludedPrice: Number(prodFormInstallIncludedPrice),
+            installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+            image: prodFormImage,
+          };
+          localStorage.setItem('sy_cms_products_v12', JSON.stringify(mainArr));
+          localStorage.setItem('sy_cms_products', JSON.stringify(mainArr));
+        }
+      }
+    } catch (err) {}
+
+    window.dispatchEvent(new Event('sy_cms_products_update'));
     setIsProductModalOpen(false);
     setEditingProduct(null);
   };
@@ -1980,7 +2091,24 @@ export default function SolutionsSection({
           <div className="lg:col-span-6 space-y-6">
             {/* Top Row: Breadcrumb & Title */}
             <div className="space-y-2">
-              <div className="flex justify-end text-[11px] text-slate-400 font-extrabold tracking-wider">
+              <div className="flex justify-between items-center text-[11px] text-slate-400 font-extrabold tracking-wider">
+                {isEditMode ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      startEditProduct(
+                        activeDetailProduct,
+                        activeDetailProduct.id.startsWith('res') ? 'home' : 'parking',
+                        activeDetailProduct.id.startsWith('res') ? selectedHomePower : selectedParkingCapacity,
+                        e
+                      );
+                    }}
+                    className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-black border border-amber-300 flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                    <span>✏️ 상품 정보 및 이미지 수정</span>
+                  </button>
+                ) : <div />}
                 <span>홈 / {productPurpose === 'Residential' ? '가정용 홈 충전기' : '공용 BIZ 충전기'}</span>
               </div>
               
@@ -2644,15 +2772,16 @@ export default function SolutionsSection({
                   const productsList = rawProductsList.filter(p => {
                     const st = (p.serviceType as string) || 'all';
                     if (selectedHomeServiceType === '단말기 단품') {
-                      if (st === 'replace' || st === 'install') return false;
-                      if (p.price === 0) return false;
+                      if (st === 'replace' || st === 'no_device') return false;
+                      if (st === 'install' && !p.price) return false;
+                      if (p.price === 0 && !p.price) return false;
                     } else if (selectedHomeServiceType === '교체 시공') {
-                      if (st === 'device' || st === 'install') return false;
-                      const repPrice = (p as any).replacementPrice !== undefined ? (p as any).replacementPrice : p.price + 150000;
+                      if (st === 'device' || st === 'no_replace') return false;
+                      const repPrice = (p as any).replacementPrice !== undefined ? (p as any).replacementPrice : (p.price ? p.price + 150000 : 0);
                       if (repPrice === 0) return false;
                     } else if (selectedHomeServiceType === '신규 설치 포함') {
-                      if (st === 'device' || st === 'replace') return false;
-                      const instPrice = (p as any).installIncludedPrice !== undefined ? (p as any).installIncludedPrice : p.price + 350000;
+                      if (st === 'device' || st === 'replace' || st === 'no_install') return false;
+                      const instPrice = (p as any).installIncludedPrice !== undefined ? (p as any).installIncludedPrice : (p.price ? p.price + 350000 : 0);
                       if (instPrice === 0) return false;
                     }
                     return true;
@@ -2867,14 +2996,17 @@ export default function SolutionsSection({
                           return (
                             <div
                               key={p.id}
-                              onClick={() => setActiveDetailProduct({
-                                ...p,
-                                image: cardImg,
-                                price: pricing.price,
-                                regularPrice: pricing.regularPrice,
-                                discount: pricing.discount,
-                                description: `[${selectedHomeServiceType} • ${selectedHomePower}] ${p.description || ''}`
-                              })}
+                              onClick={(e) => {
+                                if ((e.target as HTMLElement).closest('button, a, input, select')) return;
+                                setActiveDetailProduct({
+                                  ...p,
+                                  image: cardImg,
+                                  price: pricing.price,
+                                  regularPrice: pricing.regularPrice,
+                                  discount: pricing.discount,
+                                  description: `[${selectedHomeServiceType} • ${selectedHomePower}] ${p.description || ''}`
+                                });
+                              }}
                               className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
@@ -3044,7 +3176,10 @@ export default function SolutionsSection({
                           return (
                             <div
                               key={p.id}
-                              onClick={() => setActiveDetailProduct({ ...p, image: cardImg })}
+                              onClick={(e) => {
+                                if ((e.target as HTMLElement).closest('button, a, input, select')) return;
+                                setActiveDetailProduct({ ...p, image: cardImg });
+                              }}
                               className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
@@ -3245,33 +3380,148 @@ export default function SolutionsSection({
                   />
                 </div>
 
-                {/* Regular Price */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-black text-slate-700">정상 소비자 가격 (원)</label>
-                    <input
-                      type="number"
-                      value={prodFormRegularPrice}
-                      onChange={(e) => setProdFormRegularPrice(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs font-extrabold"
-                    />
+                {/* Pricing Fields according to Service Type */}
+                <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span className="text-xs font-black text-slate-800 flex items-center gap-1">
+                      💰 시공/판매 구분별 가격 설정
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const baseP = Number(prodFormPrice) || 0;
+                        const baseReg = Number(prodFormRegularPrice) || baseP;
+                        setProdFormReplacementPrice(baseP + 150000);
+                        setProdFormReplacementRegularPrice(baseReg + 180000);
+                        setProdFormInstallIncludedPrice(baseP + 350000);
+                        setProdFormInstallIncludedRegularPrice(baseReg + 400000);
+                      }}
+                      className="text-[10px] font-bold text-blue-700 bg-blue-100/80 hover:bg-blue-200 px-2 py-0.5 rounded cursor-pointer transition-all"
+                      title="단말기 단품 가격 기준으로 교체(+15만)/설치(+35만) 자동채우기"
+                    >
+                      ⚡표준가격 자동계산
+                    </button>
                   </div>
-                  
-                  <div className="space-y-1">
-                    <label className="text-xs font-black text-slate-700">특가 혜택 가격 (원)</label>
-                    <input
-                      type="number"
-                      value={prodFormPrice}
-                      onChange={(e) => setProdFormPrice(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs font-extrabold"
-                    />
+
+                  {/* 1. 단말기 단품 */}
+                  <div className={`p-2.5 rounded-xl border transition-all ${
+                    selectedHomeServiceType === '단말기 단품'
+                      ? 'bg-amber-50/90 border-amber-300 ring-2 ring-amber-400/30'
+                      : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-black text-amber-900 flex items-center gap-1">
+                        📦 단말기 단품 (기기만)
+                      </span>
+                      {selectedHomeServiceType === '단말기 단품' && (
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                          👈 메인 화면 선택 중
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500">정가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormRegularPrice}
+                          onChange={(e) => setProdFormRegularPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-500 line-through"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-amber-800">특가 판매가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormPrice}
+                          onChange={(e) => setProdFormPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-white border border-amber-300 rounded-lg font-mono text-xs font-black text-amber-900 focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. 교체 시공 */}
+                  <div className={`p-2.5 rounded-xl border transition-all ${
+                    selectedHomeServiceType === '교체 시공'
+                      ? 'bg-blue-50/90 border-blue-300 ring-2 ring-blue-400/30'
+                      : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-black text-blue-900 flex items-center gap-1">
+                        🔄 교체 시공 (기존 기기 교체)
+                      </span>
+                      {selectedHomeServiceType === '교체 시공' && (
+                        <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                          👈 메인 화면 선택 중
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500">정가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormReplacementRegularPrice}
+                          onChange={(e) => setProdFormReplacementRegularPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-500 line-through"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-blue-800">특가 판매가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormReplacementPrice}
+                          onChange={(e) => setProdFormReplacementPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-white border border-blue-300 rounded-lg font-mono text-xs font-black text-blue-900 focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. 신규 설치 포함 */}
+                  <div className={`p-2.5 rounded-xl border transition-all ${
+                    selectedHomeServiceType === '신규 설치 포함'
+                      ? 'bg-emerald-50/90 border-emerald-300 ring-2 ring-emerald-400/30'
+                      : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-black text-emerald-900 flex items-center gap-1">
+                        ⚡ 신규 설치 포함 (한전대행+전체시공)
+                      </span>
+                      {selectedHomeServiceType === '신규 설치 포함' && (
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          👈 메인 화면 선택 중
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500">정가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormInstallIncludedRegularPrice}
+                          onChange={(e) => setProdFormInstallIncludedRegularPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-500 line-through"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-emerald-800">특가 판매가 (원)</label>
+                        <input
+                          type="number"
+                          value={prodFormInstallIncludedPrice}
+                          onChange={(e) => setProdFormInstallIncludedPrice(Number(e.target.value))}
+                          className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg font-mono text-xs font-black text-emerald-900 focus:ring-1 focus:ring-emerald-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Product Image URL */}
-                <div className="space-y-1">
+                {/* Product Image File Upload & URL */}
+                <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-black text-slate-700">상품 이미지 URL</label>
+                    <label className="text-xs font-black text-slate-800">📸 대표 이미지 업로드 / 변경</label>
                     <button
                       type="button"
                       onClick={() => {
@@ -3286,27 +3536,87 @@ export default function SolutionsSection({
                       }}
                       className="text-[10px] text-blue-600 font-black hover:underline cursor-pointer"
                     >
-                      랜덤 고화질 이미지 채우기
+                      🎲 샘플 이미지 적용
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    value={prodFormImage}
-                    onChange={(e) => setProdFormImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
-                  />
+
+                  {/* File Upload Drop Zone */}
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setIsDraggingProdImage(true); }}
+                    onDragLeave={() => setIsDraggingProdImage(false)}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      setIsDraggingProdImage(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file && file.type.startsWith('image/')) {
+                        const compressed = await compressImage(file, 1200, 1200, 0.85);
+                        setProdFormImage(compressed);
+                      }
+                    }}
+                    onClick={() => document.getElementById('prod-form-image-file-input')?.click()}
+                    className={`p-4 border-2 border-dashed rounded-xl text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                      isDraggingProdImage ? 'border-blue-500 bg-blue-100/70' : 'border-blue-300 bg-white hover:bg-blue-50/50 hover:border-blue-500'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      id="prod-form-image-file-input"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const compressed = await compressImage(file, 1200, 1200, 0.85);
+                          setProdFormImage(compressed);
+                        }
+                      }}
+                    />
+                    <Upload className="w-5 h-5 text-blue-600 animate-bounce" />
+                    <span className="text-xs font-black text-slate-900">
+                      📁 내 컴퓨터에서 이미지 파일 선택 / 드래그 업로드
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold">
+                      PNG, JPG, WebP 이미지 파일 지원 (자동 고화질 압축 저장)
+                    </span>
+                  </div>
+
+                  {/* Image URL Input */}
+                  <div className="pt-1">
+                    <span className="text-[10px] font-bold text-slate-500 block mb-1">또는 외부 이미지 웹 URL 입력:</span>
+                    <input
+                      type="text"
+                      value={prodFormImage}
+                      onChange={(e) => setProdFormImage(e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs font-mono"
+                    />
+                  </div>
+
+                  {/* Preview */}
                   {prodFormImage && (
-                    <div className="mt-2 w-24 h-24 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50">
-                      <img
-                        src={prodFormImage}
-                        alt="Preview"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-contain"
-                        onError={(e) => {
-                          (e.target as any).src = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=240';
-                        }}
-                      />
+                    <div className="mt-2 flex items-center gap-3 p-2 bg-white rounded-xl border border-slate-200">
+                      <div className="w-16 h-16 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
+                        <img
+                          src={prodFormImage}
+                          alt="Preview"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            (e.target as any).src = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=240';
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs font-extrabold text-emerald-600 block">✓ 대표 이미지 설정됨</span>
+                        <p className="text-[10px] text-slate-400 font-mono truncate">{prodFormImage.slice(0, 45)}...</p>
+                        <button
+                          type="button"
+                          onClick={() => setProdFormImage('')}
+                          className="mt-0.5 text-[10px] text-rose-600 font-bold hover:underline cursor-pointer"
+                        >
+                          이미지 초기화
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

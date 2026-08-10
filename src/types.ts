@@ -51,7 +51,7 @@ export interface Product {
   componentsInfo?: string;
   rewardPointsInfo?: string;
   detailCategory?: '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드';
-  serviceType?: 'device' | 'replace' | 'install';
+  serviceType?: string;
   replacementPrice?: number;
   replacementRegularPrice?: number;
   replacementDiscount?: number;
@@ -74,7 +74,7 @@ export interface SolutionProduct {
   installIncludedPrice?: number;
   installIncludedRegularPrice?: number;
   installIncludedDiscount?: number;
-  serviceType?: 'device' | 'replace' | 'install';
+  serviceType?: string;
   image: string;
   images?: string[];
   tags: string[];
