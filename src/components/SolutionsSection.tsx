@@ -825,12 +825,12 @@ export default function SolutionsSection({
   };
 
   const updateProductDetails = (productId: string, updatedFields: Partial<SolutionProduct>) => {
-    if (productId.startsWith('res-')) {
+    if (productId.startsWith('res-') || productId.startsWith('sy-')) {
       const updated = { ...homeProducts };
       let found = false;
       Object.keys(updated).forEach((category) => {
         const arr = [...(updated[category] || [])];
-        const index = arr.findIndex(p => p.id === productId);
+        const index = arr.findIndex(p => p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()));
         if (index !== -1) {
           arr[index] = { ...arr[index], ...updatedFields };
           updated[category] = arr;
@@ -846,7 +846,7 @@ export default function SolutionsSection({
       let found = false;
       Object.keys(updated).forEach((category) => {
         const arr = [...(updated[category] || [])];
-        const index = arr.findIndex(p => p.id === productId);
+        const index = arr.findIndex(p => p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()));
         if (index !== -1) {
           arr[index] = { ...arr[index], ...updatedFields };
           updated[category] = arr;
@@ -857,6 +857,40 @@ export default function SolutionsSection({
         saveParkingProducts(updated);
         setActiveDetailProduct(prev => prev && prev.id === productId ? { ...prev, ...updatedFields } : prev);
       }
+    }
+
+    // Sync to sy_cms_products_v12
+    try {
+      const savedProds = localStorage.getItem('sy_cms_products_v12');
+      if (savedProds) {
+        const parsedProds: any[] = JSON.parse(savedProds);
+        const updatedProds = parsedProds.map(p => {
+          if (p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()) || ((productId === 'sy-ac11-bi' || productId === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil'))) {
+            return {
+              ...p,
+              name: updatedFields.name !== undefined ? updatedFields.name : p.name,
+              image: updatedFields.image !== undefined ? updatedFields.image : p.image,
+              description: updatedFields.description !== undefined ? updatedFields.description : p.description,
+              price: updatedFields.price !== undefined ? updatedFields.price : p.price,
+              originalPrice: updatedFields.regularPrice !== undefined ? updatedFields.regularPrice : p.originalPrice,
+              discountRate: updatedFields.discount !== undefined ? updatedFields.discount : p.discountRate,
+              replacementPrice: updatedFields.replacementPrice !== undefined ? updatedFields.replacementPrice : p.replacementPrice,
+              replacementRegularPrice: updatedFields.replacementRegularPrice !== undefined ? updatedFields.replacementRegularPrice : p.replacementRegularPrice,
+              installIncludedPrice: updatedFields.installIncludedPrice !== undefined ? updatedFields.installIncludedPrice : p.installIncludedPrice,
+              installIncludedRegularPrice: updatedFields.installIncludedRegularPrice !== undefined ? updatedFields.installIncludedRegularPrice : p.installIncludedRegularPrice,
+              serviceType: updatedFields.serviceType !== undefined ? updatedFields.serviceType : p.serviceType,
+              deliveryInfo: updatedFields.deliveryMethod !== undefined ? updatedFields.deliveryMethod : p.deliveryInfo,
+              componentsInfo: updatedFields.shippingFee !== undefined ? updatedFields.shippingFee : p.componentsInfo,
+              rewardPointsInfo: updatedFields.paymentMethod !== undefined ? updatedFields.paymentMethod : p.rewardPointsInfo,
+              optionGroups: updatedFields.optionGroups !== undefined ? updatedFields.optionGroups : p.optionGroups
+            };
+          }
+          return p;
+        });
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(updatedProds));
+      }
+    } catch (e) {
+      console.error('Error syncing updateProductDetails to sy_cms_products_v12:', e);
     }
   };
 

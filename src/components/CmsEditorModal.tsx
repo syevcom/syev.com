@@ -648,6 +648,7 @@ export default function CmsEditorModal({
 
   const handleSaveSolProd = () => {
     const newProduct: SolutionProduct = {
+      ...(editingSolProd || {}),
       id: editingSolProd ? editingSolProd.id : `${solProdType === 'parking' ? 'park' : 'res'}-${Date.now()}`,
       name: solProdName || '새 충전기',
       regularPrice: Number(solProdRegularPrice) || 0,
@@ -691,10 +692,61 @@ export default function CmsEditorModal({
       localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(updated));
     }
 
+    // Sync to sy_cms_products_v12 so Admin Center stays identical
+    try {
+      const savedProds = localStorage.getItem('sy_cms_products_v12');
+      if (savedProds) {
+        const parsedProds: any[] = JSON.parse(savedProds);
+        let matchIdx = parsedProds.findIndex(p => p.id === newProduct.id || (p.name && p.name.trim() === newProduct.name.trim()) || ((newProduct.id === 'sy-ac11-bi' || newProduct.id === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil')));
+        if (matchIdx !== -1) {
+          parsedProds[matchIdx] = {
+            ...parsedProds[matchIdx],
+            name: newProduct.name,
+            price: newProduct.price,
+            originalPrice: newProduct.regularPrice,
+            discountRate: newProduct.discount,
+            image: newProduct.image,
+            description: newProduct.description,
+            replacementPrice: newProduct.replacementPrice !== undefined ? newProduct.replacementPrice : parsedProds[matchIdx].replacementPrice,
+            replacementRegularPrice: newProduct.replacementRegularPrice !== undefined ? newProduct.replacementRegularPrice : parsedProds[matchIdx].replacementRegularPrice,
+            installIncludedPrice: newProduct.installIncludedPrice !== undefined ? newProduct.installIncludedPrice : parsedProds[matchIdx].installIncludedPrice,
+            installIncludedRegularPrice: newProduct.installIncludedRegularPrice !== undefined ? newProduct.installIncludedRegularPrice : parsedProds[matchIdx].installIncludedRegularPrice,
+            serviceType: newProduct.serviceType || parsedProds[matchIdx].serviceType || 'all',
+            deliveryInfo: newProduct.deliveryMethod || parsedProds[matchIdx].deliveryInfo,
+            componentsInfo: newProduct.shippingFee || parsedProds[matchIdx].componentsInfo,
+            rewardPointsInfo: newProduct.paymentMethod || parsedProds[matchIdx].rewardPointsInfo,
+            optionGroups: newProduct.optionGroups || parsedProds[matchIdx].optionGroups
+          };
+        } else {
+          parsedProds.push({
+            id: newProduct.id,
+            name: newProduct.name,
+            type: solProdType === 'parking' ? '급속' : '완속',
+            power: solProdCategory || '7kW',
+            features: newProduct.tags || ['BEST'],
+            image: newProduct.image,
+            description: newProduct.description || '',
+            price: newProduct.price,
+            originalPrice: newProduct.regularPrice,
+            discountRate: newProduct.discount,
+            replacementPrice: newProduct.replacementPrice,
+            replacementRegularPrice: newProduct.replacementRegularPrice,
+            installIncludedPrice: newProduct.installIncludedPrice,
+            installIncludedRegularPrice: newProduct.installIncludedRegularPrice,
+            serviceType: newProduct.serviceType || 'all',
+            optionGroups: newProduct.optionGroups
+          });
+        }
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(parsedProds));
+      }
+    } catch (e) {
+      console.error('Error syncing CmsEditorModal edit to sy_cms_products_v12:', e);
+    }
+
     window.dispatchEvent(new Event('sy_cms_products_update'));
     setEditingSolProd(null);
     setIsNewSolProd(false);
-    showSaveSuccess('💾 충전기 상품 정보가 저장되어 홈페이지에 즉시 반영되었습니다!');
+    showSaveSuccess('💾 충전기 상품 정보가 저장되어 홈페이지와 관리자센터에 즉시 반영되었습니다!');
   };
 
   const handleDeleteSolProd = (id: string, type: 'parking' | 'home', category: string) => {

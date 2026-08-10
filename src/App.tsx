@@ -888,48 +888,33 @@ export default function App() {
             });
 
             (parsedHome[powerKey] || []).forEach((sp: any) => {
-              sp.serviceType = 'all';
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.image && existing.image !== sp.image) {
-                  existing.image = sp.image;
-                  changed = true;
-                }
-                if (sp.name && existing.name !== sp.name) {
-                  existing.name = sp.name;
-                  changed = true;
-                }
-                if (sp.price !== undefined && existing.price !== sp.price) {
-                  existing.price = sp.price;
-                  changed = true;
-                }
-                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) {
-                  existing.originalPrice = sp.regularPrice;
-                  changed = true;
-                }
-                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) {
-                  (existing as any).replacementPrice = sp.replacementPrice;
-                  changed = true;
-                }
-                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) {
-                  (existing as any).installIncludedPrice = sp.installIncludedPrice;
-                  changed = true;
-                }
-                if (sp.discount !== undefined && existing.discountRate !== sp.discount) {
-                  existing.discountRate = sp.discount;
-                  changed = true;
-                }
-                existing.serviceType = 'all';
-                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
-                  existing.optionGroups = sp.optionGroups;
-                  changed = true;
-                }
+
+                // Sync all fields symmetrically
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) { (existing as any).replacementPrice = sp.replacementPrice; changed = true; }
+                if (sp.replacementRegularPrice !== undefined && (existing as any).replacementRegularPrice !== sp.replacementRegularPrice) { (existing as any).replacementRegularPrice = sp.replacementRegularPrice; changed = true; }
+                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) { (existing as any).installIncludedPrice = sp.installIncludedPrice; changed = true; }
+                if (sp.installIncludedRegularPrice !== undefined && (existing as any).installIncludedRegularPrice !== sp.installIncludedRegularPrice) { (existing as any).installIncludedRegularPrice = sp.installIncludedRegularPrice; changed = true; }
+                if (sp.serviceType && existing.serviceType !== sp.serviceType) { existing.serviceType = sp.serviceType; changed = true; }
+                if (sp.optionGroups && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) { existing.optionGroups = sp.optionGroups; changed = true; }
+
                 if (changed) {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
+
+                // Reverse sync from existing back to sp if sp was missing values
+                if (existing.replacementPrice !== undefined && sp.replacementPrice === undefined) { sp.replacementPrice = existing.replacementPrice; homeUpdated = true; }
+                if (existing.installIncludedPrice !== undefined && sp.installIncludedPrice === undefined) { sp.installIncludedPrice = existing.installIncludedPrice; homeUpdated = true; }
               } else if (!REMOVED_PRODUCT_IDS.has(sp.id) && !deletedSet.has(sp.id)) {
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
@@ -945,7 +930,11 @@ export default function App() {
                   originalPrice: sp.regularPrice || sp.price || 0,
                   discountRate: sp.discount || 0,
                   brand: brandName,
-                  serviceType: 'device',
+                  serviceType: sp.serviceType || 'all',
+                  replacementPrice: sp.replacementPrice,
+                  replacementRegularPrice: sp.replacementRegularPrice,
+                  installIncludedPrice: sp.installIncludedPrice,
+                  installIncludedRegularPrice: sp.installIncludedRegularPrice,
                   optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
                 };
                 nextProducts.push(newP);
@@ -966,37 +955,29 @@ export default function App() {
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (existing.image && sp.image !== existing.image) {
-                  sp.image = existing.image;
-                  parkingUpdated = true;
-                } else if (sp.image && existing.image !== sp.image) {
-                  existing.image = sp.image;
-                  changed = true;
-                }
-                if (existing.name && sp.name !== existing.name) {
-                  sp.name = existing.name;
-                  parkingUpdated = true;
-                }
-                if (existing.price !== undefined && sp.price !== existing.price) {
-                  sp.price = existing.price;
-                  parkingUpdated = true;
-                }
-                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
-                  sp.regularPrice = existing.originalPrice;
-                  parkingUpdated = true;
-                }
-                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
-                  sp.discount = existing.discountRate;
-                  parkingUpdated = true;
-                }
-                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
-                  existing.optionGroups = sp.optionGroups;
-                  changed = true;
-                }
+
+                // Sync all fields symmetrically
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) { (existing as any).replacementPrice = sp.replacementPrice; changed = true; }
+                if (sp.replacementRegularPrice !== undefined && (existing as any).replacementRegularPrice !== sp.replacementRegularPrice) { (existing as any).replacementRegularPrice = sp.replacementRegularPrice; changed = true; }
+                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) { (existing as any).installIncludedPrice = sp.installIncludedPrice; changed = true; }
+                if (sp.installIncludedRegularPrice !== undefined && (existing as any).installIncludedRegularPrice !== sp.installIncludedRegularPrice) { (existing as any).installIncludedRegularPrice = sp.installIncludedRegularPrice; changed = true; }
+                if (sp.serviceType && existing.serviceType !== sp.serviceType) { existing.serviceType = sp.serviceType; changed = true; }
+                if (sp.optionGroups && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) { existing.optionGroups = sp.optionGroups; changed = true; }
+
                 if (changed) {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
+
+                // Reverse sync from existing back to sp if sp was missing values
+                if (existing.replacementPrice !== undefined && sp.replacementPrice === undefined) { sp.replacementPrice = existing.replacementPrice; parkingUpdated = true; }
+                if (existing.installIncludedPrice !== undefined && sp.installIncludedPrice === undefined) { sp.installIncludedPrice = existing.installIncludedPrice; parkingUpdated = true; }
               } else {
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
@@ -1012,7 +993,11 @@ export default function App() {
                   originalPrice: sp.regularPrice || sp.price || 0,
                   discountRate: sp.discount || 0,
                   brand: brandName,
-                  serviceType: 'device',
+                  serviceType: sp.serviceType || 'all',
+                  replacementPrice: sp.replacementPrice,
+                  replacementRegularPrice: sp.replacementRegularPrice,
+                  installIncludedPrice: sp.installIncludedPrice,
+                  installIncludedRegularPrice: sp.installIncludedRegularPrice,
                   optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
                 };
                 nextProducts.push(newP);
