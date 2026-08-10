@@ -183,12 +183,13 @@ export interface SolutionProduct {
 export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
   '5kW': [
     {
-      id: 'res-5kw-spil',
+      id: 'sy-ac05',
       name: '스필 5kW 개인용 전기차 충전기 무상AS 4년',
       description: '[국내최초 무상A/S 4년] 가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
       regularPrice: 543636,
       price: 460000,
       discount: 15,
+      serviceType: 'all',
       image: SPEEL_5KW_REPRESENTATIVE_IMAGE,
       tags: ['MD CHOICE', 'HIT'],
       hasASBadge: true,
@@ -201,6 +202,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 450000,
       price: 380000,
       discount: 15,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
       tags: ['MD CHOICE', 'NEW']
     },
@@ -211,6 +213,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 436364,
       price: 370000,
       discount: 15,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
       tags: ['MD CHOICE', 'HIT']
     },
@@ -221,6 +224,7 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 920000,
       price: 790000,
       discount: 14,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
       tags: ['PREMIUM', 'BEST']
     },
@@ -231,88 +235,74 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       regularPrice: 409091,
       price: 350000,
       discount: 14,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
       tags: ['HIT']
     }
   ],
   '7kW': [
     {
-      id: 'res-7kw-spil',
+      id: 'sy-ac07',
       name: '스필 7kW 개인용 전기차 충전기 무상AS 4년',
       description: '[국내최초 무상A/S 4년] 화재 감지 자동 전력 차단 가정용 완속 충전 베스트셀러',
-      regularPrice: 580000,
-      price: 490000,
-      discount: 15,
+      regularPrice: 660000,
+      price: 598000,
+      discount: 10,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
       tags: ['MD CHOICE', 'HIT'],
       hasASBadge: true,
       hasPromoRibbon: true
     },
     {
-      id: 'res-7kw-evsis',
-      name: '롯데 이브이시스 7kW 스마트홈 충전기',
-      description: '초소형 세련된 북유럽풍 미니멀 디자인, 블루투스 인증 예약 충전 기능',
-      regularPrice: 980000,
-      price: 850000,
-      discount: 13,
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['PREMIUM', 'BEST']
+      id: 'res-7kw-electree',
+      name: '일렉트리 7kW 개인용 전기차 충전기',
+      description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
+      regularPrice: 480000,
+      price: 480000,
+      discount: 0,
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT']
     },
     {
-      id: 'res-7kw-convenient',
-      name: '편리 7kW 스마트 예약 홈충전기',
-      description: '안정적인 출력 제어, 고휘도 직관적 LED 상태 표시 및 과전류 방지 센서',
-      regularPrice: 480000,
-      price: 410000,
-      discount: 14,
-      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-      tags: ['MD CHOICE']
+      id: 'res-7kw-coolcharge',
+      name: '쿨차지 7kW 개인용 전기차 충전기',
+      description: '쿨차지 7kW 개인용 전기차 충전기 단말기 전용 모델',
+      regularPrice: 660000,
+      price: 650000,
+      discount: 2,
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'NEW']
+    },
+    {
+      id: 'sy-home07',
+      name: '롯데 EVSIS 7kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
+      description: '초소형 세련된 북유럽풍 미니멀 디자인, 블루투스 인증 예약 충전 기능',
+      regularPrice: 1100000,
+      price: 840000,
+      discount: 24,
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['PREMIUM', 'BEST']
     },
     {
       id: 'res-7kw-chargego',
       name: '차지고 7kW 콤팩트 완속 충전기',
       description: '가정 및 빌라 실외 설치용 고강도 방수/방진 IP55 인증 최적화 하드웨어',
-      regularPrice: 470000,
-      price: 400000,
-      discount: 15,
+      regularPrice: 450000,
+      price: 450000,
+      discount: 0,
+      serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
       tags: ['HIT']
-    },
-    {
-      id: 'res-7kw-safe',
-      name: '안심 7kW 표준형 실속 홈 충전기',
-      description: '베이직 가성비 홈 충전 솔루션, 5m 난연 실리콘 고품질 케이블 기본 증정',
-      regularPrice: 445000,
-      price: 380000,
-      discount: 14,
-      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
-      tags: ['실속형']
-    },
-    {
-      id: 'res-7kw-hyundai',
-      name: '현대 전기차 홈 7kW 슬림형 충전기',
-      description: '현대/기아 공식 협력사 품질 인증, 고감도 자가 진단 및 화재 감지 안심 충전',
-      regularPrice: 520000,
-      price: 440000,
-      discount: 15,
-      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-      tags: ['공식인증', 'HIT']
-    },
-    {
-      id: 'res-7kw-pylon',
-      name: '파일런 7kW 컴팩트 고효율 충전기',
-      description: '벽부형 및 스탠드 겸용, 야외 가혹 환경에서도 든든한 IP56 등급 완전 방수 설계',
-      regularPrice: 460000,
-      price: 390000,
-      discount: 15,
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['가성비', 'IP56방수']
     }
   ],
   '11kW': [
     {
-      id: 'res-11kw-spil',
-      name: '스필 11kW 프리미엄 개인용 충전기 무상AS 4년',
+      id: 'sy-ac11-bi',
+      name: '스필 11kW 개인용 전기차 충전기 무상AS 4년',
       description: '[국내최초 무상A/S 4년] 3상 11kW 초고속 완속 프리미엄 특화 모델',
       regularPrice: 829000,
       price: 779000,
@@ -326,27 +316,34 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       hasPromoRibbon: true
     },
     {
-      id: 'park-11kw-spil',
-      name: '스필 11kW 공용 수익형 완속 충전기',
-      description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
-      regularPrice: 829000,
-      price: 779000,
-      discount: 6,
+      id: 'res-11kw-coolcharge',
+      name: '쿨차지 11kW 개인용 전기차 충전기',
+      description: '쿨차지 11kW 개인용 전기차 충전기 단말기 전용 모델',
+      regularPrice: 800000,
+      price: 800000,
+      discount: 0,
       serviceType: 'all',
-      installIncludedPrice: 1129000,
-      installIncludedRegularPrice: 1229000,
-      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
-      tags: ['MD CHOICE', 'BEST'],
-      hasASBadge: true,
-      hasPromoRibbon: true
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE']
+    },
+    {
+      id: 'res-11kw-electree',
+      name: '일렉트리 11kW 개인용 전기차 충전기',
+      description: '3상 11kW 완속 충전기, 실내외 설치 우수한 방수/방진',
+      regularPrice: 850000,
+      price: 750000,
+      discount: 12,
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      tags: ['HIT']
     },
     {
       id: 'res-11kw-evsis',
-      name: '롯데 이브이시스 11kW 스마트 프리미엄',
+      name: '롯데 EVSIS 11kW 개인용 전기차 충전기',
       description: 'OCPP 1.6 통신 모듈, 스마트 RFID 본인 인증 및 예약 제어 시스템',
-      regularPrice: 1450000,
-      price: 1250000,
-      discount: 13,
+      regularPrice: 1390000,
+      price: 1200000,
+      discount: 14,
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
       tags: ['PREMIUM', 'BEST']
@@ -1069,6 +1066,7 @@ export default function SolutionsSection({
                 installIncludedPrice: Number(prodFormInstallIncludedPrice),
                 installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
                 installIncludedDiscount: instDiscount,
+                serviceType: 'all',
                 image: prodFormImage,
                 tags: tagsArray,
                 hasASBadge: prodFormHasASBadge,
@@ -1096,6 +1094,7 @@ export default function SolutionsSection({
                 installIncludedPrice: Number(prodFormInstallIncludedPrice),
                 installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
                 installIncludedDiscount: instDiscount,
+                serviceType: 'all',
                 image: prodFormImage,
                 tags: tagsArray,
                 hasASBadge: prodFormHasASBadge,
@@ -1124,6 +1123,7 @@ export default function SolutionsSection({
         installIncludedPrice: Number(prodFormInstallIncludedPrice),
         installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
         installIncludedDiscount: instDiscount,
+        serviceType: 'all',
         image: prodFormImage,
         tags: tagsArray,
         hasASBadge: prodFormHasASBadge,
@@ -1149,7 +1149,12 @@ export default function SolutionsSection({
       const savedMain = localStorage.getItem('sy_cms_products_v12');
       if (savedMain) {
         const mainArr = JSON.parse(savedMain);
-        const matchIdx = mainArr.findIndex((mp: any) => mp.id === targetId);
+        const matchIdx = mainArr.findIndex((mp: any) =>
+          mp.id === targetId ||
+          (mp.name && prodFormName && mp.name.trim() === prodFormName.trim()) ||
+          ((targetId === 'sy-ac07' || targetId === 'res-7kw-spil') && (mp.id === 'sy-ac07' || mp.id === 'res-7kw-spil')) ||
+          ((targetId === 'sy-ac05' || targetId === 'res-5kw-spil') && (mp.id === 'sy-ac05' || mp.id === 'res-5kw-spil'))
+        );
         if (matchIdx !== -1) {
           mainArr[matchIdx] = {
             ...mainArr[matchIdx],
@@ -1161,6 +1166,7 @@ export default function SolutionsSection({
             replacementRegularPrice: Number(prodFormReplacementRegularPrice),
             installIncludedPrice: Number(prodFormInstallIncludedPrice),
             installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+            serviceType: 'all',
             image: prodFormImage,
           };
           localStorage.setItem('sy_cms_products_v12', JSON.stringify(mainArr));
@@ -2776,11 +2782,11 @@ export default function SolutionsSection({
                       if (st === 'install' && !p.price) return false;
                       if (p.price === 0 && !p.price) return false;
                     } else if (selectedHomeServiceType === '교체 시공') {
-                      if (st === 'device' || st === 'no_replace') return false;
+                      if (st === 'no_replace') return false;
                       const repPrice = (p as any).replacementPrice !== undefined ? (p as any).replacementPrice : (p.price ? p.price + 150000 : 0);
                       if (repPrice === 0) return false;
                     } else if (selectedHomeServiceType === '신규 설치 포함') {
-                      if (st === 'device' || st === 'replace' || st === 'no_install') return false;
+                      if (st === 'no_install') return false;
                       const instPrice = (p as any).installIncludedPrice !== undefined ? (p as any).installIncludedPrice : (p.price ? p.price + 350000 : 0);
                       if (instPrice === 0) return false;
                     }

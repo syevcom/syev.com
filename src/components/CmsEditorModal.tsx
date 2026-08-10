@@ -699,6 +699,33 @@ export default function CmsEditorModal({
 
   const handleDeleteSolProd = (id: string, type: 'parking' | 'home', category: string) => {
     if (!confirm('이 충전기 상품을 정말 삭제하시겠습니까?')) return;
+    try {
+      const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+      const deletedArr: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+      if (!deletedArr.includes(id)) deletedArr.push(id);
+      if (id === 'sy-ac07' || id === 'res-7kw-spil') {
+        if (!deletedArr.includes('sy-ac07')) deletedArr.push('sy-ac07');
+        if (!deletedArr.includes('res-7kw-spil')) deletedArr.push('res-7kw-spil');
+      }
+      if (id === 'sy-ac05' || id === 'res-5kw-spil') {
+        if (!deletedArr.includes('sy-ac05')) deletedArr.push('sy-ac05');
+        if (!deletedArr.includes('res-5kw-spil')) deletedArr.push('res-5kw-spil');
+      }
+      if (id === 'sy-ac11-bi' || id === 'res-11kw-spil') {
+        if (!deletedArr.includes('sy-ac11-bi')) deletedArr.push('sy-ac11-bi');
+        if (!deletedArr.includes('res-11kw-spil')) deletedArr.push('res-11kw-spil');
+      }
+      localStorage.setItem('sy_cms_deleted_product_ids', JSON.stringify(deletedArr));
+
+      // Also remove from sy_cms_products_v12
+      const savedProds = localStorage.getItem('sy_cms_products_v12');
+      if (savedProds) {
+        const parsedProds = JSON.parse(savedProds);
+        const filtered = parsedProds.filter((p: any) => p && p.id !== id && !deletedArr.includes(p.id));
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(filtered));
+      }
+    } catch (e) {}
+
     if (type === 'parking') {
       const updated = { ...cmsParkingProducts };
       if (updated[category]) {

@@ -58,6 +58,17 @@ const DEFAULT_FIELDS = {
   ]
 };
 
+const REMOVED_PRODUCT_IDS = new Set([
+  'res-7kw-convenient',
+  'res-7kw-safe',
+  'res-7kw-hyundai',
+  'res-7kw-pylon',
+  'res-5kw-convenient',
+  'res-5kw-safe',
+  'sy-canopy-01',
+  'sy-stand-01'
+]);
+
 export default function App() {
   const [isSyncing, setIsSyncing] = useState(true);
   const [activePage, setActivePage] = useState<ActivePage>('home');
@@ -399,16 +410,6 @@ export default function App() {
 
     const syncAllProductsFromStorage = () => {
       try {
-        const REMOVED_PRODUCT_IDS = new Set([
-          'res-7kw-convenient',
-          'res-7kw-safe',
-          'res-7kw-hyundai',
-          'res-7kw-pylon',
-          'res-5kw-convenient',
-          'res-5kw-safe',
-          'sy-canopy-01',
-          'sy-stand-01'
-        ]);
 
         const applyBrandOptions = (pList: Product[]) => {
           return pList.map(p => {
@@ -452,9 +453,22 @@ export default function App() {
           });
         };
 
+        const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+        const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+
+        const checkIsMatch = (item: any, np: Product) => {
+          if (!item || !np) return false;
+          if (item.id && np.id && item.id === np.id) return true;
+          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+          if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
+          if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
+          if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
+          return false;
+        };
+
         const savedProducts = localStorage.getItem('sy_cms_products_v12');
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
-        currentProducts = currentProducts.filter(p => !REMOVED_PRODUCT_IDS.has(p.id));
+        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
         currentProducts = normalizeProductServiceTypes(applyBrandOptions(currentProducts));
 
         const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
@@ -466,67 +480,56 @@ export default function App() {
         let isModified = false;
         const nextProducts = [...currentProducts];
 
-        const checkIsMatch = (item: any, np: Product) => {
-          if (!item || !np) return false;
-          if (item.id && np.id && item.id === np.id) return true;
-          return false;
-        };
-
         if (parsedHome) {
           let homeUpdated = false;
           Object.keys(parsedHome).forEach((powerKey) => {
-            const originalLen = (parsedHome[powerKey] || []).length;
-            parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => sp && !REMOVED_PRODUCT_IDS.has(sp.id));
-            if (parsedHome[powerKey].length !== originalLen) homeUpdated = true;
+            const seenNames = new Set<string>();
+            parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => {
+              if (!sp || REMOVED_PRODUCT_IDS.has(sp.id) || deletedSet.has(sp.id)) return false;
+              if (sp.id === 'res-7kw-spil') sp.id = 'sy-ac07';
+              if (sp.id === 'res-5kw-spil') sp.id = 'sy-ac05';
+              if (sp.id === 'res-11kw-spil') sp.id = 'sy-ac11-bi';
+              const nameKey = (sp.name || '').trim();
+              if (seenNames.has(nameKey)) return false;
+              seenNames.add(nameKey);
+              return true;
+            });
 
             (parsedHome[powerKey] || []).forEach((sp: any) => {
+              sp.serviceType = 'all';
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (existing.image && sp.image !== existing.image) {
-                  sp.image = existing.image;
-                  homeUpdated = true;
-                } else if (sp.image && existing.image !== sp.image) {
+                if (sp.image && existing.image !== sp.image) {
                   existing.image = sp.image;
                   changed = true;
                 }
-                if (existing.name && sp.name !== existing.name) {
-                  sp.name = existing.name;
-                  homeUpdated = true;
+                if (sp.name && existing.name !== sp.name) {
+                  existing.name = sp.name;
+                  changed = true;
                 }
-                if (existing.price !== undefined && sp.price !== existing.price) {
-                  sp.price = existing.price;
-                  homeUpdated = true;
-                } else if (sp.price !== undefined && existing.price !== sp.price) {
+                if (sp.price !== undefined && existing.price !== sp.price) {
                   existing.price = sp.price;
                   changed = true;
                 }
-                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
-                  sp.regularPrice = existing.originalPrice;
-                  homeUpdated = true;
-                } else if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) {
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) {
                   existing.originalPrice = sp.regularPrice;
                   changed = true;
                 }
-                if ((existing as any).replacementPrice !== undefined && sp.replacementPrice !== (existing as any).replacementPrice) {
-                  sp.replacementPrice = (existing as any).replacementPrice;
-                  homeUpdated = true;
-                } else if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) {
+                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) {
                   (existing as any).replacementPrice = sp.replacementPrice;
                   changed = true;
                 }
-                if ((existing as any).installIncludedPrice !== undefined && sp.installIncludedPrice !== (existing as any).installIncludedPrice) {
-                  sp.installIncludedPrice = (existing as any).installIncludedPrice;
-                  homeUpdated = true;
-                } else if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) {
+                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) {
                   (existing as any).installIncludedPrice = sp.installIncludedPrice;
                   changed = true;
                 }
-                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
-                  sp.discount = existing.discountRate;
-                  homeUpdated = true;
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) {
+                  existing.discountRate = sp.discount;
+                  changed = true;
                 }
+                existing.serviceType = 'all';
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -535,7 +538,7 @@ export default function App() {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
-              } else if (!REMOVED_PRODUCT_IDS.has(sp.id)) {
+              } else if (!REMOVED_PRODUCT_IDS.has(sp.id) && !deletedSet.has(sp.id)) {
                 // Brand new product added in Home section
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
@@ -789,8 +792,22 @@ export default function App() {
   useEffect(() => {
     const handleProductsUpdate = () => {
       try {
+        const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+        const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+
+        const checkIsMatch = (item: any, np: Product) => {
+          if (!item || !np) return false;
+          if (item.id && np.id && item.id === np.id) return true;
+          if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+          if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
+          if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
+          if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
+          return false;
+        };
+
         const savedProducts = localStorage.getItem('sy_cms_products_v12');
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
+        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
         currentProducts = currentProducts.map(p => {
           if (p.id === 'park-11kw-spil' || (p.name && p.name.includes('스필 11kW'))) {
             return {
@@ -817,43 +834,56 @@ export default function App() {
         let isModified = false;
         const nextProducts = [...currentProducts];
 
-        const checkIsMatch = (item: any, np: Product) => {
-          if (!item || !np) return false;
-          if (item.id && np.id && item.id === np.id) return true;
-          return false;
-        };
-
         if (parsedHome) {
           let homeUpdated = false;
           Object.keys(parsedHome).forEach((powerKey) => {
+            const seenNames = new Set<string>();
+            parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((sp: any) => {
+              if (!sp || REMOVED_PRODUCT_IDS.has(sp.id) || deletedSet.has(sp.id)) return false;
+              if (sp.id === 'res-7kw-spil') sp.id = 'sy-ac07';
+              if (sp.id === 'res-5kw-spil') sp.id = 'sy-ac05';
+              if (sp.id === 'res-11kw-spil') sp.id = 'sy-ac11-bi';
+              const nameKey = (sp.name || '').trim();
+              if (seenNames.has(nameKey)) return false;
+              seenNames.add(nameKey);
+              return true;
+            });
+
             (parsedHome[powerKey] || []).forEach((sp: any) => {
+              sp.serviceType = 'all';
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (existing.image && sp.image !== existing.image) {
-                  sp.image = existing.image;
-                  homeUpdated = true;
-                } else if (sp.image && existing.image !== sp.image) {
+                if (sp.image && existing.image !== sp.image) {
                   existing.image = sp.image;
                   changed = true;
                 }
-                if (existing.name && sp.name !== existing.name) {
-                  sp.name = existing.name;
-                  homeUpdated = true;
+                if (sp.name && existing.name !== sp.name) {
+                  existing.name = sp.name;
+                  changed = true;
                 }
-                if (existing.price !== undefined && sp.price !== existing.price) {
-                  sp.price = existing.price;
-                  homeUpdated = true;
+                if (sp.price !== undefined && existing.price !== sp.price) {
+                  existing.price = sp.price;
+                  changed = true;
                 }
-                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
-                  sp.regularPrice = existing.originalPrice;
-                  homeUpdated = true;
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) {
+                  existing.originalPrice = sp.regularPrice;
+                  changed = true;
                 }
-                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
-                  sp.discount = existing.discountRate;
-                  homeUpdated = true;
+                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) {
+                  (existing as any).replacementPrice = sp.replacementPrice;
+                  changed = true;
                 }
+                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) {
+                  (existing as any).installIncludedPrice = sp.installIncludedPrice;
+                  changed = true;
+                }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) {
+                  existing.discountRate = sp.discount;
+                  changed = true;
+                }
+                existing.serviceType = 'all';
                 if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
                   existing.optionGroups = sp.optionGroups;
                   changed = true;
@@ -862,7 +892,7 @@ export default function App() {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
-              } else {
+              } else if (!REMOVED_PRODUCT_IDS.has(sp.id) && !deletedSet.has(sp.id)) {
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
                 const newP: Product = {
@@ -1162,16 +1192,49 @@ export default function App() {
       const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
       const parsedParking = savedParking ? JSON.parse(savedParking) : JSON.parse(JSON.stringify(PARKING_PRODUCTS_DATA));
 
+      const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+      const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+
       const checkIsMatch = (item: any, np: Product, powerOrCatKey?: string) => {
         if (!item || !np) return false;
         if (item.id && np.id && item.id === np.id) return true;
+        if (item.name && np.name && item.name.trim() === np.name.trim()) return true;
+        if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
+        if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
+        if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
         return false;
       };
 
-      // Update matching items or add brand new items
       const REMOVED_SET = new Set(['sy-canopy-01', 'sy-stand-01', 'res-7kw-convenient', 'res-7kw-safe', 'res-7kw-hyundai', 'res-7kw-pylon', 'res-5kw-convenient', 'res-5kw-safe']);
 
+      // Prune deleted items & legacy aliases
+      Object.keys(parsedHome).forEach((powerKey) => {
+        const seenNames = new Set<string>();
+        parsedHome[powerKey] = (parsedHome[powerKey] || []).filter((item: any) => {
+          if (!item || REMOVED_SET.has(item.id) || deletedSet.has(item.id)) return false;
+          if (item.id === 'res-7kw-spil') item.id = 'sy-ac07';
+          if (item.id === 'res-5kw-spil') item.id = 'sy-ac05';
+          if (item.id === 'res-11kw-spil') item.id = 'sy-ac11-bi';
+          const nameKey = (item.name || '').trim();
+          if (seenNames.has(nameKey)) return false;
+          seenNames.add(nameKey);
+          return true;
+        });
+      });
+
+      Object.keys(parsedParking).forEach((catKey) => {
+        const seenNames = new Set<string>();
+        parsedParking[catKey] = (parsedParking[catKey] || []).filter((item: any) => {
+          if (!item || REMOVED_SET.has(item.id) || deletedSet.has(item.id)) return false;
+          const nameKey = (item.name || '').trim();
+          if (seenNames.has(nameKey)) return false;
+          seenNames.add(nameKey);
+          return true;
+        });
+      });
+
       newProducts.forEach((np) => {
+        if (!np || REMOVED_SET.has(np.id) || deletedSet.has(np.id)) return;
         let matched = false;
 
         Object.keys(parsedHome).forEach((powerKey) => {
@@ -1180,6 +1243,7 @@ export default function App() {
               matched = true;
               return {
                 ...item,
+                id: np.id,
                 name: np.name || item.name,
                 price: np.price !== undefined ? np.price : item.price,
                 regularPrice: np.originalPrice !== undefined ? np.originalPrice : item.regularPrice,
