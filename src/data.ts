@@ -5,6 +5,18 @@
 
 import { Product, Solution, Review, FAQ, ProductOptionGroup } from './types';
 
+export const PUBLIC_CHARGER_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'grp-public-connector-length',
+    title: '커넥터길이',
+    required: true,
+    options: [
+      { id: 'opt-connector-5m', name: '5M', price: 0 },
+      { id: 'opt-connector-7m', name: '7M (+30,000원)', price: 30000 }
+    ]
+  }
+];
+
 export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
   {
     id: 'grp-cable-length',
@@ -738,7 +750,7 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
     description: '오피스 빌딩, 상업 주차장에 적합한 고성능 11kW 충전기입니다.',
     plcSupported: true,
-    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
     id: 'park-11kw-spil',
@@ -761,7 +773,7 @@ export const PRODUCTS: Product[] = [
     features: ['OCPP 1.6 국토부 공인 프로토콜 적용', '스마트 부하 배분(DLB) 탑재'],
     image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
     description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
     id: 'park-11kw-convenient',
@@ -782,7 +794,7 @@ export const PRODUCTS: Product[] = [
     features: ['상업용 간편 QR 정산 연동', '소상공인 펜션 식당 주차장 설치 시 부가수익'],
     image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
     description: '상업용 간편 QR 정산 연동, 소상공인 펜션 식당 주차장 설치 시 최강의 부가수익 창출',
-    optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
     id: 'sy-dc50',
@@ -798,7 +810,8 @@ export const PRODUCTS: Product[] = [
     serviceType: 'install',
     features: ['30분 내 80% 쾌속 충전', '10인치 대형 터치스크린 탑재', '카드/회원권/소셜 페이 결제 모듈'],
     image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-    description: '도심지 빌딩, 마트, 소형 휴게소에 적합한 공간절약형 급속 충전기입니다.'
+    description: '도심지 빌딩, 마트, 소형 휴게소에 적합한 공간절약형 급속 충전기입니다.',
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
     id: 'sy-fc200',

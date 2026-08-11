@@ -6,7 +6,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
 import { Product, CartItem, ProductOptionGroup } from '../types';
-import { DEFAULT_RESIDENTIAL_OPTION_GROUPS } from '../data';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from '../data';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -44,18 +44,49 @@ export default function ProductDetailModal({
 
   // Dynamic additional option groups state
   const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
-    return product?.optionGroups && product.optionGroups.length > 0
+    if (!product) return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+    const isPublic = product.detailCategory === '공용완속' ||
+      product.detailCategory === '급속' ||
+      product.type === '급속' ||
+      product.name.includes('공용') ||
+      product.name.includes('수익형') ||
+      product.name.includes('관공서') ||
+      product.name.includes('조달상품') ||
+      product.name.includes('BIZ') ||
+      product.id.startsWith('park-');
+
+    if (isPublic) {
+      if (product.optionGroups && product.optionGroups.length === 1) return product.optionGroups;
+      return PUBLIC_CHARGER_OPTION_GROUPS;
+    }
+    return product.optionGroups && product.optionGroups.length > 0
       ? product.optionGroups
       : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
   });
 
   useEffect(() => {
     if (product) {
-      setActiveOptionGroups(
-        product.optionGroups && product.optionGroups.length > 0
-          ? product.optionGroups
-          : DEFAULT_RESIDENTIAL_OPTION_GROUPS
-      );
+      const isPublic = product.detailCategory === '공용완속' ||
+        product.detailCategory === '급속' ||
+        product.type === '급속' ||
+        product.name.includes('공용') ||
+        product.name.includes('수익형') ||
+        product.name.includes('관공서') ||
+        product.name.includes('조달상품') ||
+        product.name.includes('BIZ') ||
+        product.id.startsWith('park-');
+
+      let groups = product.optionGroups && product.optionGroups.length > 0
+        ? product.optionGroups
+        : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+
+      if (isPublic) {
+        if (groups.length > 1 || !product.optionGroups) {
+          groups = PUBLIC_CHARGER_OPTION_GROUPS;
+        }
+      }
+
+      setActiveOptionGroups(groups);
     }
   }, [product]);
 
@@ -523,22 +554,24 @@ export default function ProductDetailModal({
             
             {/* 1. 상품옵션 (Primary Option) */}
             {primaryOptionGroup && (
-              <div className="space-y-1.5">
-                <label className="block text-xs font-black text-slate-900 tracking-wide">
-                  상품옵션
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <label className="col-span-3 text-xs sm:text-sm font-bold text-slate-900 tracking-wide">
+                  {primaryOptionGroup.title}
                 </label>
-                <select
-                  value={selectedOptionsMap[primaryOptionGroup.id] || ''}
-                  onChange={(e) => handleOptionChange(primaryOptionGroup.id, e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
-                >
-                  <option value="">- {primaryOptionGroup.title} -</option>
-                  {primaryOptionGroup.options.map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="col-span-9">
+                  <select
+                    value={selectedOptionsMap[primaryOptionGroup.id] || ''}
+                    onChange={(e) => handleOptionChange(primaryOptionGroup.id, e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
+                  >
+                    <option value="">- [필수] 옵션을 선택해 주세요 -</option>
+                    {primaryOptionGroup.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.name.includes('(') ? opt.name : `${opt.name}${opt.price > 0 ? ` (+${opt.price.toLocaleString()}원)` : ''}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
 

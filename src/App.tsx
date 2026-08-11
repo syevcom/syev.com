@@ -22,7 +22,7 @@ import { AdminPage } from './components/AdminPage';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
-import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS } from './data';
+import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem } from './types';
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -418,6 +418,23 @@ export default function App() {
             }
             const b = (p.brand || '').toLowerCase();
             const n = (p.name || '').toLowerCase();
+            const isPublic = p.detailCategory === '공용완속' ||
+              p.detailCategory === '급속' ||
+              p.type === '급속' ||
+              p.id.startsWith('park-') ||
+              n.includes('공용') ||
+              n.includes('수익형') ||
+              n.includes('관공서') ||
+              n.includes('조달상품') ||
+              n.includes('biz');
+
+            if (isPublic) {
+              if (p.optionGroups && p.optionGroups.length === 1 && p.optionGroups[0].title === '커넥터길이') {
+                return p;
+              }
+              return { ...p, optionGroups: PUBLIC_CHARGER_OPTION_GROUPS };
+            }
+
             if (b.includes('롯데') || b.includes('evsis') || n.includes('롯데') || n.includes('evsis')) {
               return { ...p, optionGroups: LOTTE_EVSIS_OPTION_GROUPS };
             }
@@ -642,7 +659,7 @@ export default function App() {
                   discountRate: sp.discount || 0,
                   brand: brandName,
                   serviceType: 'device',
-                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(PUBLIC_CHARGER_OPTION_GROUPS))
                 };
                 nextProducts.push(newP);
                 isModified = true;
@@ -998,7 +1015,7 @@ export default function App() {
                   replacementRegularPrice: sp.replacementRegularPrice,
                   installIncludedPrice: sp.installIncludedPrice,
                   installIncludedRegularPrice: sp.installIncludedRegularPrice,
-                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+                  optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(PUBLIC_CHARGER_OPTION_GROUPS))
                 };
                 nextProducts.push(newP);
                 isModified = true;

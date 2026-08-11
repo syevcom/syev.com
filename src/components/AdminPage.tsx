@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
-import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PRODUCTS } from '../data';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, PRODUCTS } from '../data';
 import { 
   Package, 
   Building2, 
@@ -43,6 +43,13 @@ export interface OptionPreset {
 }
 
 export const INITIAL_OPTION_PRESETS: OptionPreset[] = [
+  {
+    id: 'preset-public-biz',
+    name: '공용/BIZ 충전기 전용 세부옵션 (커넥터길이 단일 옵션)',
+    brand: '공용/BIZ',
+    description: '공용 BIZ/상업용 충전기 전용 단일 커넥터길이 (5M / 7M) 옵션',
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
+  },
   {
     id: 'preset-speel',
     name: '스필(SPEEL) 4년 무상A/S 전용 세부옵션 (7종)',

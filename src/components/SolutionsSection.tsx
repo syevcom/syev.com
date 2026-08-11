@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Solution, ActivePage, ProductOptionGroup } from '../types';
 import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS } from '../data';
+import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 import { compressImage } from '../lib/imageCompressor';
@@ -368,7 +368,8 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       power: '7kW',
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['BEST', 'HIT']
+      tags: ['BEST', 'HIT'],
+      optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
     {
       id: 'park-11kw-stormshield',
@@ -380,7 +381,8 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       power: '11kW',
       serviceType: 'all',
       image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
-      tags: ['BEST', 'HIT']
+      tags: ['BEST', 'HIT'],
+      optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
     {
       id: 'park-35kw-stormshield',
@@ -392,7 +394,8 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       power: '35kW',
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['MD CHOICE']
+      tags: ['MD CHOICE'],
+      optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
     {
       id: 'park-50kw-1ch-coolcharge',
@@ -405,7 +408,8 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
       tags: ['MD CHOICE', '급속'],
-      hasPromoRibbon: true
+      hasPromoRibbon: true,
+      optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     }
   ]
 };
@@ -462,7 +466,21 @@ export default function SolutionsSection({
 
   const getOptionGroupsForProduct = (prod: SolutionProduct | null): ProductOptionGroup[] => {
     if (!prod) return [];
+
+    const isPublicCharger = prod.id.startsWith('park-') ||
+      prod.name.includes('공용') ||
+      prod.name.includes('수익형') ||
+      prod.name.includes('관공서') ||
+      prod.name.includes('조달상품') ||
+      prod.name.includes('BIZ') ||
+      (prod as any).type === '급속' ||
+      (prod as any).detailCategory === '공용완속' ||
+      (prod as any).detailCategory === '급속';
+
     if (prod.optionGroups && prod.optionGroups.length > 0) {
+      if (isPublicCharger && prod.optionGroups.length > 1) {
+        return PUBLIC_CHARGER_OPTION_GROUPS;
+      }
       return prod.optionGroups;
     }
     // Try matching from localStorage main products list
@@ -472,10 +490,17 @@ export default function SolutionsSection({
         const parsedMain = JSON.parse(savedMain);
         const matched = parsedMain.find((mp: any) => mp.id === prod.id || (mp.name && prod.name && mp.name.trim() === prod.name.trim()));
         if (matched?.optionGroups && matched.optionGroups.length > 0) {
+          if (isPublicCharger && matched.optionGroups.length > 1) {
+            return PUBLIC_CHARGER_OPTION_GROUPS;
+          }
           return matched.optionGroups;
         }
       }
     } catch (e) {}
+
+    if (isPublicCharger) {
+      return PUBLIC_CHARGER_OPTION_GROUPS;
+    }
 
     // Fallback brand presets
     const b = (prod.name || '').toLowerCase();
@@ -2290,22 +2315,24 @@ export default function SolutionsSection({
             <div className="space-y-4">
               {/* 1. 상품옵션 (Primary Option) */}
               {primaryOptionGroup && (
-                <div className="space-y-1.5">
-                  <div className="text-xs font-black text-slate-900 tracking-wide">
-                    상품옵션
+                <div className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-3 text-xs font-black text-slate-900 tracking-wide">
+                    {primaryOptionGroup.title}
                   </div>
-                  <select
-                    value={selectedOptionsMap[primaryOptionGroup.id] || ''}
-                    onChange={(e) => handleOptionSelect(primaryOptionGroup.id, e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer shadow-2xs"
-                  >
-                    <option value="">- {primaryOptionGroup.title} -</option>
-                    {primaryOptionGroup.options.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.name} {opt.price > 0 ? `(+${opt.price.toLocaleString()}원)` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="col-span-9">
+                    <select
+                      value={selectedOptionsMap[primaryOptionGroup.id] || ''}
+                      onChange={(e) => handleOptionSelect(primaryOptionGroup.id, e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-none text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer shadow-2xs"
+                    >
+                      <option value="">- [필수] 옵션을 선택해 주세요 -</option>
+                      {primaryOptionGroup.options.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.name.includes('(') ? opt.name : `${opt.name}${opt.price > 0 ? ` (+${opt.price.toLocaleString()}원)` : ''}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
 
