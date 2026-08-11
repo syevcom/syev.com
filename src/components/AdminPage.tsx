@@ -270,19 +270,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     try {
       const saved = localStorage.getItem('sy_cms_option_presets_v2');
       if (saved) {
-        const parsed: OptionPreset[] = JSON.parse(saved);
-        ['preset-evsis', 'preset-electree', 'preset-chargego', 'preset-coolcharge'].forEach(presetId => {
-          const freshPreset = INITIAL_OPTION_PRESETS.find(i => i.id === presetId);
-          if (freshPreset) {
-            const idx = parsed.findIndex(p => p.id === presetId);
-            if (idx !== -1) {
-              parsed[idx] = freshPreset;
-            } else {
-              parsed.push(freshPreset);
-            }
-          }
-        });
-        return parsed;
+        return JSON.parse(saved);
       }
     } catch (e) {
       console.error('Failed to parse option presets', e);
@@ -293,6 +281,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [batchSelectedBrand, setBatchSelectedBrand] = useState<string>('스필');
   const [batchSelectedPresetId, setBatchSelectedPresetId] = useState<string>('preset-speel');
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
+  const [editingPreset, setEditingPreset] = useState<OptionPreset | null>(null);
 
   // Save optionPresets to localStorage
   const updateOptionPresets = (newList: OptionPreset[]) => {
@@ -301,6 +290,78 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       localStorage.setItem('sy_cms_option_presets_v2', JSON.stringify(newList));
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  // Create a brand new preset
+  const handleCreateNewPreset = () => {
+    setEditingPreset({
+      id: `preset-custom-${Date.now()}`,
+      name: '새 브랜드 전용 세부 옵션 템플릿',
+      brand: '공통',
+      description: '템플릿 설명을 입력해주세요.',
+      optionGroups: [
+        {
+          id: `grp-${Date.now()}`,
+          title: '기본 구성 및 케이블 길이 선택',
+          required: false,
+          options: [
+            { id: `opt-${Date.now()}-1`, name: '5m 정품 케이블 (기본 장착)', price: 0 },
+            { id: `opt-${Date.now()}-2`, name: '7m 연장 케이블 (+30,000원)', price: 30000 },
+            { id: `opt-${Date.now()}-3`, name: '10m 최장 케이블 (+60,000원)', price: 60000 }
+          ]
+        }
+      ]
+    });
+  };
+
+  // Duplicate an existing preset
+  const handleDuplicatePreset = (preset: OptionPreset) => {
+    const newPreset: OptionPreset = {
+      ...JSON.parse(JSON.stringify(preset)),
+      id: `preset-custom-${Date.now()}`,
+      name: `${preset.name} (복사본)`
+    };
+    const nextList = [...optionPresets, newPreset];
+    updateOptionPresets(nextList);
+    alert(`'${newPreset.name}' 템플릿이 사본으로 복사 저장되었습니다.`);
+  };
+
+  // Save edited preset
+  const handleSaveEditedPreset = () => {
+    if (!editingPreset) return;
+    if (!editingPreset.name.trim()) {
+      alert('템플릿 이름을 입력해주세요.');
+      return;
+    }
+    const idx = optionPresets.findIndex(p => p.id === editingPreset.id);
+    let nextList: OptionPreset[];
+    if (idx !== -1) {
+      nextList = [...optionPresets];
+      nextList[idx] = editingPreset;
+    } else {
+      nextList = [...optionPresets, editingPreset];
+    }
+    updateOptionPresets(nextList);
+    setEditingPreset(null);
+    alert(`'${editingPreset.name}' 템플릿이 정상적으로 저장되었습니다!`);
+  };
+
+  // Delete Preset with confirmation
+  const handleDeletePreset = (presetId: string) => {
+    const preset = optionPresets.find(p => p.id === presetId);
+    if (!preset) return;
+    if (confirm(`'${preset.name}' 템플릿을 삭제하시겠습니까?`)) {
+      const nextPresets = optionPresets.filter(p => p.id !== presetId);
+      updateOptionPresets(nextPresets);
+    }
+  };
+
+  // Reset Presets to Default
+  const handleResetPresetsToDefault = () => {
+    if (confirm('모든 옵션 템플릿을 초기 브랜드 기본값으로 복원하시겠습니까? (작성한 커스텀 템플릿이 초기화될 수 있습니다)')) {
+      updateOptionPresets(INITIAL_OPTION_PRESETS);
+      alert('템플릿이 초기 기본값으로 복원되었습니다.');
     }
   };
 
@@ -379,14 +440,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const nextPresets = [...optionPresets, newPreset];
     updateOptionPresets(nextPresets);
     alert(`'${presetName}' 템플릿이 성공적으로 저장되었습니다!\n이제 브랜드별 일괄 적용이나 다른 상품 옵션 설정에서 언제든지 불러와 사용할 수 있습니다.`);
-  };
-
-  // Delete Custom Preset
-  const handleDeletePreset = (presetId: string) => {
-    const preset = optionPresets.find(p => p.id === presetId);
-    if (!preset) return;
-    const nextPresets = optionPresets.filter(p => p.id !== presetId);
-    updateOptionPresets(nextPresets);
   };
 
   // Handle Product Field Edit
@@ -2306,24 +2359,35 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               </button>
             </div>
 
-            {/* Subtitle / Help */}
+            {/* Subtitle / Action Bar */}
             <div className="bg-amber-50 p-4 border-b border-amber-200/80 text-xs text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="font-bold flex items-center gap-1">
-                  💡 미리 브랜드별 대분류/세부 옵션을 작성해 두고 필요할 때 일괄 적용하세요!
+                  💡 미리 브랜드별 대분류/세부 옵션을 자유롭게 작성, 수정, 삭제하고 필요할 때 일괄 적용하세요!
                 </p>
                 <p className="text-amber-800 text-[11px]">
-                  스필, 일렉트리, 편리전기, 차지고, 롯데 이브이시스 등 브랜드별 전용 옵션을 클릭 한번으로 개별 상품 또는 해당 브랜드 전 상품에 일괄 적용할 수 있습니다.
+                  스필, 일렉트리, 편리전기, 차지고, 롯데 이브이시스 등 브랜드별 전용 옵션을 수정하거나 새 템플릿을 생성하여 클릭 한 번으로 일괄 적용할 수 있습니다.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={handleAddProduct}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer shrink-0 border border-emerald-400"
-              >
-                <Plus className="w-4 h-4" />
-                <span>➕ 신규 상품 추가</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleCreateNewPreset}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer shrink-0 border border-emerald-400"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>➕ 신규 템플릿 작성</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetPresetsToDefault}
+                  className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-all border border-slate-300 flex items-center gap-1 cursor-pointer shrink-0"
+                  title="초기 브랜드 기본 템플릿 목록으로 복원"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>기본값 복원</span>
+                </button>
+              </div>
             </div>
 
             {/* Preset List Body */}
@@ -2360,28 +2424,47 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                    <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-1.5">
                       <button
                         type="button"
                         onClick={() => {
                           handleApplyPresetToBrand(preset.brand, preset.id);
                         }}
-                        className="flex-1 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                        className="flex-1 min-w-[120px] py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <Zap className="w-3.5 h-3.5" />
                         <span>[{preset.brand}] 전 상품 일괄 적용</span>
                       </button>
 
-                      {preset.id.startsWith('preset-custom-') && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setEditingPreset(JSON.parse(JSON.stringify(preset)))}
+                          className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+                          title="템플릿 제목, 대분류 및 소분류 항목 상세 편집"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>수정</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicatePreset(preset)}
+                          className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition-all cursor-pointer"
+                          title="템플릿 사본 복사"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleDeletePreset(preset.id)}
                           className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all cursor-pointer"
                           title="템플릿 삭제"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2399,6 +2482,243 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black cursor-pointer"
               >
                 닫기
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Option Preset Detail Editor Sub-Modal */}
+      {editingPreset && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]"
+          >
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base font-black">옵션 템플릿 세부 구성 편집</h3>
+              </div>
+              <button
+                onClick={() => setEditingPreset(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 overflow-y-auto space-y-5 flex-1 text-slate-800 text-xs">
+              {/* Preset Name & Brand */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2 space-y-1">
+                  <label className="font-bold text-slate-700">템플릿 이름 *</label>
+                  <input
+                    type="text"
+                    value={editingPreset.name}
+                    onChange={(e) => setEditingPreset({ ...editingPreset, name: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 스필 4년 무상A/S 전용 세부옵션"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">적용 브랜드 *</label>
+                  <input
+                    type="text"
+                    value={editingPreset.brand}
+                    onChange={(e) => setEditingPreset({ ...editingPreset, brand: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold focus:bg-white focus:ring-2 focus:ring-blue-500"
+                    placeholder="예: 스필, 일렉트리"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">템플릿 설명</label>
+                <input
+                  type="text"
+                  value={editingPreset.description || ''}
+                  onChange={(e) => setEditingPreset({ ...editingPreset, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-medium focus:bg-white focus:ring-2 focus:ring-blue-500"
+                  placeholder="템플릿에 포함된 주요 구성품이나 특징을 메모하세요."
+                />
+              </div>
+
+              {/* Option Groups Editor Header */}
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                <div>
+                  <h4 className="font-black text-slate-900 text-sm">대분류 옵션 그룹 ({editingPreset.optionGroups.length}개)</h4>
+                  <p className="text-[11px] text-slate-500">고객이 상품 주문 시 선택할 대분류 및 소분류 선택지 항목입니다.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newGrp: ProductOptionGroup = {
+                      id: `grp-${Date.now()}`,
+                      title: `신규 옵션 그룹 ${editingPreset.optionGroups.length + 1}`,
+                      required: false,
+                      options: [
+                        { id: `opt-${Date.now()}-1`, name: '선택 안함 (기본)', price: 0 },
+                        { id: `opt-${Date.now()}-2`, name: '추가 구성품 (+20,000원)', price: 20000 }
+                      ]
+                    };
+                    setEditingPreset({
+                      ...editingPreset,
+                      optionGroups: [...editingPreset.optionGroups, newGrp]
+                    });
+                  }}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-xs flex items-center gap-1 shrink-0"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>➕ 대분류 추가</span>
+                </button>
+              </div>
+
+              {/* Option Groups List */}
+              <div className="space-y-4">
+                {editingPreset.optionGroups.length === 0 ? (
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400 font-semibold">
+                    등록된 대분류 옵션 그룹이 없습니다. [➕ 대분류 추가] 버튼을 눌러 옵션을 구성해보세요.
+                  </div>
+                ) : (
+                  editingPreset.optionGroups.map((grp, grpIdx) => (
+                    <div key={grp.id || grpIdx} className="bg-slate-50 border border-slate-300/80 rounded-2xl p-4 space-y-3">
+                      {/* Group Title Header */}
+                      <div className="flex items-center gap-2 justify-between">
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-800 font-black text-xs flex items-center justify-center shrink-0">
+                            {grpIdx + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={grp.title}
+                            onChange={(e) => {
+                              const nextGrps = [...editingPreset.optionGroups];
+                              nextGrps[grpIdx] = { ...nextGrps[grpIdx], title: e.target.value };
+                              setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                            }}
+                            className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500"
+                            placeholder="대분류 그룹 제목 (예: 케이블 길이 선택)"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextGrps = editingPreset.optionGroups.filter((_, idx) => idx !== grpIdx);
+                            setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                          }}
+                          className="p-1.5 text-rose-500 hover:bg-rose-100 rounded-xl transition-all cursor-pointer shrink-0"
+                          title="대분류 그룹 삭제"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Sub Options Items */}
+                      <div className="pl-6 space-y-2">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
+                          <span>세부 선택지 항목 ({grp.options.length}개)</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const nextGrps = [...editingPreset.optionGroups];
+                              const grpObj = { ...nextGrps[grpIdx] };
+                              const newOpt: ProductOptionItem = {
+                                id: `opt-${Date.now()}`,
+                                name: '새 세부 항목',
+                                price: 10000
+                              };
+                              grpObj.options = [...grpObj.options, newOpt];
+                              nextGrps[grpIdx] = grpObj;
+                              setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                            }}
+                            className="text-blue-600 hover:text-blue-800 font-black cursor-pointer flex items-center gap-0.5"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>소분류 항목 추가</span>
+                          </button>
+                        </div>
+
+                        {grp.options.map((opt, optIdx) => (
+                          <div key={opt.id || optIdx} className="flex items-center gap-2 bg-white p-2 border border-slate-200 rounded-xl">
+                            <span className="text-slate-400 font-mono text-[10px] w-4 text-center shrink-0">
+                              {optIdx + 1}
+                            </span>
+                            <input
+                              type="text"
+                              value={opt.name}
+                              onChange={(e) => {
+                                const nextGrps = [...editingPreset.optionGroups];
+                                const grpObj = { ...nextGrps[grpIdx] };
+                                const nextOpts = [...grpObj.options];
+                                nextOpts[optIdx] = { ...nextOpts[optIdx], name: e.target.value };
+                                grpObj.options = nextOpts;
+                                nextGrps[grpIdx] = grpObj;
+                                setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                              }}
+                              className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-900 focus:bg-white"
+                              placeholder="항목 이름 (예: 7m 연장)"
+                            />
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[11px] font-bold text-slate-400">₩</span>
+                              <input
+                                type="number"
+                                value={opt.price}
+                                onChange={(e) => {
+                                  const nextGrps = [...editingPreset.optionGroups];
+                                  const grpObj = { ...nextGrps[grpIdx] };
+                                  const nextOpts = [...grpObj.options];
+                                  nextOpts[optIdx] = { ...nextOpts[optIdx], price: Number(e.target.value) || 0 };
+                                  grpObj.options = nextOpts;
+                                  nextGrps[grpIdx] = grpObj;
+                                  setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                                }}
+                                className="w-24 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 text-right focus:bg-white"
+                                placeholder="추가금액"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const nextGrps = [...editingPreset.optionGroups];
+                                const grpObj = { ...nextGrps[grpIdx] };
+                                grpObj.options = grpObj.options.filter((_, idx) => idx !== optIdx);
+                                nextGrps[grpIdx] = grpObj;
+                                setEditingPreset({ ...editingPreset, optionGroups: nextGrps });
+                              }}
+                              className="p-1 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer shrink-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setEditingPreset(null)}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold cursor-pointer transition-all"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditedPreset}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black cursor-pointer shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Save className="w-4 h-4" />
+                <span>💾 템플릿 저장하기</span>
               </button>
             </div>
           </motion.div>
