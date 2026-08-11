@@ -258,17 +258,6 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
       tags: ['PREMIUM', 'BEST']
-    },
-    {
-      id: 'res-7kw-chargego',
-      name: '차지고 7kW 콤팩트 완속 충전기',
-      description: '가정 및 빌라 실외 설치용 고강도 방수/방진 IP55 인증 최적화 하드웨어',
-      regularPrice: 450000,
-      price: 450000,
-      discount: 0,
-      serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['HIT']
     }
   ],
   '11kW': [
@@ -3315,23 +3304,33 @@ export default function SolutionsSection({
                                   
                                   {/* Price Section */}
                                   <div className="pt-1">
-                                    {pricing.regularPrice > pricing.price ? (
-                                      <span className="text-[10px] text-slate-400 font-medium line-through block leading-none mb-1">
-                                        ₩{pricing.regularPrice.toLocaleString()}
-                                      </span>
+                                    {(p.name.includes('공용') || p.name.includes('수익형') || p.name.includes('관공서') || p.name.includes('조달상품')) && !p.name.includes('개인용') && !p.name.includes('가정용') ? (
+                                      <div className="flex items-baseline gap-1.5">
+                                        <span className="text-sm sm:text-base font-black text-rose-600">
+                                          견적문의(전화문의)
+                                        </span>
+                                      </div>
                                     ) : (
-                                      <span className="text-[10px] text-transparent block leading-none mb-1 select-none">
-                                        -
-                                      </span>
+                                      <>
+                                        {pricing.regularPrice > pricing.price ? (
+                                          <span className="text-[10px] text-slate-400 font-medium line-through block leading-none mb-1">
+                                            ₩{pricing.regularPrice.toLocaleString()}
+                                          </span>
+                                        ) : (
+                                          <span className="text-[10px] text-transparent block leading-none mb-1 select-none">
+                                            -
+                                          </span>
+                                        )}
+                                        <div className="flex items-baseline gap-1.5">
+                                          <span className="text-sm sm:text-base font-black text-rose-600">
+                                            ₩{pricing.price.toLocaleString()}
+                                          </span>
+                                          <span className="text-[10px] font-bold text-emerald-600">
+                                            ({selectedHomeServiceType})
+                                          </span>
+                                        </div>
+                                      </>
                                     )}
-                                    <div className="flex items-baseline gap-1.5">
-                                      <span className="text-sm sm:text-base font-black text-rose-600">
-                                        ₩{pricing.price.toLocaleString()}
-                                      </span>
-                                      <span className="text-[10px] font-bold text-emerald-600">
-                                        ({selectedHomeServiceType})
-                                      </span>
-                                    </div>
                                   </div>
                                 </div>
                               </div>

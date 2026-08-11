@@ -60,6 +60,8 @@ const DEFAULT_FIELDS = {
 };
 
 const REMOVED_PRODUCT_IDS = new Set([
+  'park-11kw-spil',
+  'res-7kw-chargego',
   'res-7kw-convenient',
   'res-7kw-safe',
   'res-7kw-hyundai',
@@ -490,9 +492,10 @@ export default function App() {
 
         const normalizeProductServiceTypes = (prods: Product[]) => {
           return prods.map(p => {
-            if (p.id === 'park-11kw-spil' || p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil' || (p.name && p.name.includes('스필') && p.name.includes('11kW'))) {
+            if (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil') {
               return {
                 ...p,
+                name: '스필 11kW 개인용 전기차 충전기 무상AS 4년',
                 serviceType: 'all',
                 price: p.price || 779000,
                 originalPrice: p.originalPrice || 829000,
@@ -562,6 +565,9 @@ export default function App() {
               if (sp.id === 'res-7kw-spil') sp.id = 'sy-ac07';
               if (sp.id === 'res-5kw-spil') sp.id = 'sy-ac05';
               if (sp.id === 'res-11kw-spil') sp.id = 'sy-ac11-bi';
+              if (sp.id === 'sy-ac11-bi' && sp.name && (sp.name.includes('공용') || sp.name.includes('수익형'))) {
+                sp.name = '스필 11kW 개인용 전기차 충전기 무상AS 4년';
+              }
               const nameKey = (sp.name || '').trim();
               if (seenNames.has(nameKey)) return false;
               seenNames.add(nameKey);
@@ -882,9 +888,10 @@ export default function App() {
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
         currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
         currentProducts = currentProducts.map(p => {
-          if (p.id === 'park-11kw-spil' || p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil' || (p.name && p.name.includes('스필') && p.name.includes('11kW'))) {
+          if (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil') {
             return {
               ...p,
+              name: '스필 11kW 개인용 전기차 충전기 무상AS 4년',
               serviceType: 'all',
               price: p.price || 779000,
               originalPrice: p.originalPrice || 829000,
@@ -935,6 +942,9 @@ export default function App() {
               if (sp.id === 'res-7kw-spil') sp.id = 'sy-ac07';
               if (sp.id === 'res-5kw-spil') sp.id = 'sy-ac05';
               if (sp.id === 'res-11kw-spil') sp.id = 'sy-ac11-bi';
+              if (sp.id === 'sy-ac11-bi' && sp.name && (sp.name.includes('공용') || sp.name.includes('수익형'))) {
+                sp.name = '스필 11kW 개인용 전기차 충전기 무상AS 4년';
+              }
               const nameKey = (sp.name || '').trim();
               if (seenNames.has(nameKey)) return false;
               seenNames.add(nameKey);
