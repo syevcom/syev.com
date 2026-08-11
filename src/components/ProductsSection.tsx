@@ -183,10 +183,22 @@ export default function ProductsSection({
                     )}
                   </div>
 
-                  <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
-                    <span>{formatPrice(p.price)}</span>
-                    {p.price && <span className="text-xs text-slate-400 font-normal">(설치 포함)</span>}
-                  </div>
+                  {(() => {
+                    const isPublic = p.detailCategory === '공용완속' || p.detailCategory === '급속' || p.type === '급속' || p.name.includes('공용') || p.name.includes('수익형') || p.name.includes('관공서') || p.name.includes('조달상품') || p.id.startsWith('park-');
+                    if (isPublic) {
+                      return (
+                        <div className="text-base sm:text-lg font-black text-rose-600 flex items-baseline gap-1">
+                          <span>견적문의(전화문의)</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
+                        <span>{formatPrice(p.price)}</span>
+                        {p.price ? <span className="text-xs text-slate-400 font-normal">(설치 포함)</span> : null}
+                      </div>
+                    );
+                  })()}
                   <div className="w-8 h-0.5 bg-blue-500 mt-1 rounded-full"></div>
                 </div>
 

@@ -2231,8 +2231,41 @@ export default function SolutionsSection({
                 <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
                 <div className="col-span-3 font-extrabold text-slate-600 self-center">B2B공급가</div>
-                <div className="col-span-9 text-blue-600 font-black text-base sm:text-lg">
-                  {formatPrice(activeDetailProduct.price)}
+                <div className="col-span-9 flex flex-col justify-center">
+                  {(() => {
+                    const isPublicCharger = activeDetailProduct.id.startsWith('park-') || activeDetailProduct.name.includes('공용') || activeDetailProduct.name.includes('수익형') || activeDetailProduct.name.includes('관공서') || activeDetailProduct.name.includes('조달상품') || activeDetailProduct.type === '급속' || !activeDetailProduct.id.startsWith('res');
+
+                    if (isPublicCharger) {
+                      return (
+                        <div className="text-rose-600 font-black text-lg sm:text-2xl tracking-tight leading-tight flex items-center gap-2">
+                          <span>견적문의(전화문의)</span>
+                        </div>
+                      );
+                    }
+
+                    const regPrice = activeDetailProduct.regularPrice || (activeDetailProduct as any).originalPrice || (
+                      activeDetailProduct.discount && activeDetailProduct.discount > 0 && activeDetailProduct.discount < 100
+                        ? Math.round((activeDetailProduct.price / (1 - activeDetailProduct.discount / 100)) / 100) * 100
+                        : activeDetailProduct.price
+                    );
+                    return (
+                      <div className="space-y-0.5">
+                        {regPrice > activeDetailProduct.price && (
+                          <div className="text-xs sm:text-sm font-bold text-slate-400 line-through decoration-slate-400">
+                            ₩{regPrice.toLocaleString()}
+                          </div>
+                        )}
+                        <div className="text-blue-600 font-black text-lg sm:text-2xl tracking-tight leading-tight flex items-center gap-2">
+                          <span>₩{activeDetailProduct.price.toLocaleString()}</span>
+                          {regPrice > activeDetailProduct.price && (
+                            <span className="text-[11px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                              {Math.round(((regPrice - activeDetailProduct.price) / regPrice) * 100)}% 할인
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="col-span-12 border-t border-slate-100 my-1"></div>
@@ -3146,12 +3179,18 @@ export default function SolutionsSection({
                                   
                                   {/* Price Section */}
                                   <div className="pt-1">
-                                    <span className="text-[10px] text-slate-400 line-through block leading-none mb-1">
-                                      {formatPrice(pricing.regularPrice)}
-                                    </span>
+                                    {pricing.regularPrice > pricing.price ? (
+                                      <span className="text-[10px] text-slate-400 font-medium line-through block leading-none mb-1">
+                                        ₩{pricing.regularPrice.toLocaleString()}
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] text-transparent block leading-none mb-1 select-none">
+                                        -
+                                      </span>
+                                    )}
                                     <div className="flex items-baseline gap-1.5">
                                       <span className="text-sm sm:text-base font-black text-rose-600">
-                                        {formatPrice(pricing.price)}
+                                        ₩{pricing.price.toLocaleString()}
                                       </span>
                                       <span className="text-[10px] font-bold text-emerald-600">
                                         ({selectedHomeServiceType})
@@ -3314,11 +3353,8 @@ export default function SolutionsSection({
                                   
                                   {/* Price Section */}
                                   <div className="pt-1">
-                                    <span className="text-[10px] text-slate-400 line-through block leading-none mb-1">
-                                      {formatPrice(p.regularPrice)}
-                                    </span>
-                                    <span className="text-sm sm:text-base font-black text-rose-600">
-                                      {formatPrice(p.price)}
+                                    <span className="text-sm sm:text-base font-black text-rose-600 block">
+                                      견적문의(전화문의)
                                     </span>
                                   </div>
                                 </div>

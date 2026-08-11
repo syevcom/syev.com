@@ -423,19 +423,33 @@ export default function ProductDetailModal({
               
               {/* Pricing Display */}
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-                <div className="space-y-0.5">
-                  <div className="text-sm font-bold text-slate-400 line-through">
-                    ₩{originalPrice.toLocaleString()}
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
-                    ₩{basePrice.toLocaleString()}
-                  </div>
-                </div>
+                {(() => {
+                  const isPublic = product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || product.name.includes('공용') || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-');
+                  if (isPublic) {
+                    return (
+                      <div className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
+                        견적문의(전화문의)
+                      </div>
+                    );
+                  }
+                  return (
+                    <>
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-bold text-slate-400 line-through">
+                          ₩{originalPrice.toLocaleString()}
+                        </div>
+                        <div className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                          ₩{basePrice.toLocaleString()}
+                        </div>
+                      </div>
 
-                {/* Circular Discount Rate Badge matching screenshot 1 */}
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
-                  {discountRate}%
-                </div>
+                      {/* Circular Discount Rate Badge matching screenshot 1 */}
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
+                        {discountRate}%
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Metadata Details Table matching screenshot 1 */}
