@@ -4,10 +4,10 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Solution, ActivePage, ProductOptionGroup } from '../types';
+import { Solution, ActivePage, ProductOptionGroup, SolutionProduct } from '../types';
 import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from '../data';
+import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, DEVICE_ONLY_OPTION_GROUPS, REPLACEMENT_OPTION_GROUPS, INSTALLATION_OPTION_GROUPS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 import { compressImage } from '../lib/imageCompressor';
@@ -151,35 +151,6 @@ const HOME_POWER_METADATA: Record<string, {
     ]
   }
 };
-
-export interface SolutionProduct {
-  id: string;
-  name: string;
-  description: string;
-  regularPrice: number;
-  price: number;
-  discount: number;
-  power?: string;
-  replacementPrice?: number;
-  replacementRegularPrice?: number;
-  replacementDiscount?: number;
-  installIncludedPrice?: number;
-  installIncludedRegularPrice?: number;
-  installIncludedDiscount?: number;
-  serviceType?: string;
-  image: string;
-  images?: string[];
-  tags: string[];
-  hasASBadge?: boolean;
-  hasPromoRibbon?: boolean;
-  summaryInfo?: string;
-  deliveryMethod?: string;
-  shippingFee?: string;
-  paymentMethod?: string;
-  optionLabel?: string;
-  options?: { id: string; label: string; price: number }[];
-  optionGroups?: ProductOptionGroup[];
-}
 
 export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
   '5kW': [
@@ -464,7 +435,7 @@ export default function SolutionsSection({
   const [quantity, setQuantity] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const getOptionGroupsForProduct = (prod: SolutionProduct | null): ProductOptionGroup[] => {
+  const getOptionGroupsForProduct = (prod: SolutionProduct | null, serviceTypeParam?: string): ProductOptionGroup[] => {
     if (!prod) return [];
 
     const isPublicCharger = (
@@ -478,37 +449,46 @@ export default function SolutionsSection({
       (prod as any).detailCategory === '급속'
     ) && !prod.name.includes('개인용') && !prod.name.includes('가정용');
 
-    if (prod.optionGroups && prod.optionGroups.length > 0) {
-      if (isPublicCharger && prod.optionGroups.length > 1) {
-        return PUBLIC_CHARGER_OPTION_GROUPS;
-      }
-      return prod.optionGroups;
-    }
-    // Try matching from localStorage main products list
-    try {
-      const savedMain = localStorage.getItem('sy_cms_products_v12');
-      if (savedMain) {
-        const parsedMain = JSON.parse(savedMain);
-        const matched = parsedMain.find((mp: any) => mp.id === prod.id || (mp.name && prod.name && mp.name.trim() === prod.name.trim()));
-        if (matched?.optionGroups && matched.optionGroups.length > 0) {
-          if (isPublicCharger && matched.optionGroups.length > 1) {
-            return PUBLIC_CHARGER_OPTION_GROUPS;
-          }
-          return matched.optionGroups;
-        }
-      }
-    } catch (e) {}
-
     if (isPublicCharger) {
       return PUBLIC_CHARGER_OPTION_GROUPS;
     }
 
-    // Fallback brand presets
-    const b = (prod.name || '').toLowerCase();
-    if (b.includes('롯데') || b.includes('evsis')) return LOTTE_EVSIS_OPTION_GROUPS;
-    if (b.includes('일렉트리') || b.includes('electree')) return ELECTREE_OPTION_GROUPS;
-    if (b.includes('차지고') || b.includes('chargego')) return CHARGEGO_OPTION_GROUPS;
-    if (b.includes('쿨차지') || b.includes('coolcharge')) return COOLCHARGE_OPTION_GROUPS;
+    const st = serviceTypeParam || selectedHomeServiceType || '단말기 단품';
+
+    if ((st === '단말기 단품' || st === 'device') && prod.deviceOptionGroups && prod.deviceOptionGroups.length > 0) {
+      return prod.deviceOptionGroups;
+    }
+    if ((st === '교체 시공' || st === 'replace') && prod.replaceOptionGroups && prod.replaceOptionGroups.length > 0) {
+      return prod.replaceOptionGroups;
+    }
+    if ((st === '신규 설치 포함' || st === 'install') && prod.installOptionGroups && prod.installOptionGroups.length > 0) {
+      return prod.installOptionGroups;
+    }
+
+    if (prod.optionGroups && prod.optionGroups.length > 0) {
+      if (st === '단말기 단품' || st === 'device') {
+        const connectorGrp = prod.optionGroups.filter(g => g.title.includes('커넥터') || g.title.includes('충전선') || g.title.includes('길이'));
+        if (connectorGrp.length > 0) return connectorGrp;
+        return DEVICE_ONLY_OPTION_GROUPS;
+      }
+      if (st === '교체 시공' || st === 'replace') {
+        return REPLACEMENT_OPTION_GROUPS;
+      }
+      if (st === '신규 설치 포함' || st === 'install') {
+        return prod.optionGroups.length >= 2 ? prod.optionGroups : INSTALLATION_OPTION_GROUPS;
+      }
+      return prod.optionGroups;
+    }
+
+    if (st === '단말기 단품' || st === 'device') {
+      return DEVICE_ONLY_OPTION_GROUPS;
+    }
+    if (st === '교체 시공' || st === 'replace') {
+      return REPLACEMENT_OPTION_GROUPS;
+    }
+    if (st === '신규 설치 포함' || st === 'install') {
+      return INSTALLATION_OPTION_GROUPS;
+    }
 
     return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
   };
@@ -549,6 +529,10 @@ export default function SolutionsSection({
   const [editPayment, setEditPayment] = useState('');
   const [editOptionLabel, setEditOptionLabel] = useState('');
   const [editOptions, setEditOptions] = useState<{ id: string; label: string; price: number }[]>([]);
+  const [editActiveOptionTab, setEditActiveOptionTab] = useState<'device' | 'replace' | 'install'>('device');
+  const [editDeviceOptionGroups, setEditDeviceOptionGroups] = useState<ProductOptionGroup[]>([]);
+  const [editReplaceOptionGroups, setEditReplaceOptionGroups] = useState<ProductOptionGroup[]>([]);
+  const [editInstallOptionGroups, setEditInstallOptionGroups] = useState<ProductOptionGroup[]>([]);
   const [isDraggingProductImage, setIsDraggingProductImage] = useState(false);
 
   // Left side image picker states
@@ -661,6 +645,9 @@ export default function SolutionsSection({
         { id: '7m', label: '7m 연장형 (+30,000원)', price: 30000 },
         { id: '10m', label: '10m 최장 전용선 (+50,000원)', price: 50000 }
       ]);
+      setEditDeviceOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '단말기 단품'));
+      setEditReplaceOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '교체 시공'));
+      setEditInstallOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '신규 설치 포함'));
     }
   }, [activeDetailProduct, isDetailEditing]);
 
@@ -678,10 +665,13 @@ export default function SolutionsSection({
       shippingFee: editShipping,
       paymentMethod: editPayment,
       optionLabel: editOptionLabel,
-      options: editOptions
+      options: editOptions,
+      deviceOptionGroups: editDeviceOptionGroups,
+      replaceOptionGroups: editReplaceOptionGroups,
+      installOptionGroups: editInstallOptionGroups
     });
     setIsDetailEditing(false);
-    setToastMessage('💾 상품 수정 정보와 커넥터 옵션이 성공적으로 저장되었습니다!');
+    setToastMessage('💾 서비스 유형별 상품 옵션 및 상세정보가 성공적으로 저장되었습니다!');
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -1789,76 +1779,180 @@ export default function SolutionsSection({
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-black text-slate-700 mb-1.5 font-bold">옵션 대분류명 (예: 커넥터길이, 충전선 사양)</label>
-                  <input
-                    type="text"
-                    value={editOptionLabel}
-                    onChange={(e) => setEditOptionLabel(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold"
-                  />
-                </div>
+                {/* Service Type Option Group Tab Editor */}
+                <div className="border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-800">서비스 유형별 옵션 설정</span>
+                    <span className="text-[10px] text-slate-500 font-bold">서비스별로 다른 상세 옵션을 제공합니다</span>
+                  </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-black text-slate-700 font-bold">옵션 선택 리스트 항목</label>
+                  {/* Sub-tabs for Service Types */}
+                  <div className="grid grid-cols-3 gap-1 bg-slate-200/70 p-1 rounded-xl text-xs font-bold">
                     <button
                       type="button"
-                      onClick={() => {
-                        const newId = `opt-${Date.now()}`;
-                        setEditOptions([...editOptions, { id: newId, label: '새 옵션 항목', price: 0 }]);
-                      }}
-                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[10px] font-black border border-blue-200 transition-colors cursor-pointer"
+                      onClick={() => setEditActiveOptionTab('device')}
+                      className={`py-1.5 rounded-lg text-center transition-all cursor-pointer ${editActiveOptionTab === 'device' ? 'bg-white text-slate-900 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'}`}
                     >
-                      + 항목 추가
+                      📦 단말기 단품
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditActiveOptionTab('replace')}
+                      className={`py-1.5 rounded-lg text-center transition-all cursor-pointer ${editActiveOptionTab === 'replace' ? 'bg-white text-emerald-700 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'}`}
+                    >
+                      🛠️ 교체 시공
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditActiveOptionTab('install')}
+                      className={`py-1.5 rounded-lg text-center transition-all cursor-pointer ${editActiveOptionTab === 'install' ? 'bg-white text-blue-700 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900'}`}
+                    >
+                      ⚡ 신규 설치
                     </button>
                   </div>
 
-                  <div className="space-y-2 max-h-[180px] overflow-y-auto border border-slate-200 rounded-xl p-3 bg-white shadow-inner">
-                    {editOptions.length === 0 ? (
-                      <p className="text-[11px] text-slate-400 text-center py-4 font-bold">등록된 옵션 항목이 없습니다.</p>
-                    ) : (
-                      editOptions.map((opt, idx) => (
-                        <div key={opt.id} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={opt.label}
-                            onChange={(e) => {
-                              const updated = [...editOptions];
-                              updated[idx] = { ...updated[idx], label: e.target.value };
-                              setEditOptions(updated);
-                            }}
-                            className="flex-[2] px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white font-medium"
-                            placeholder="옵션 명칭 (예: 7m 연장)"
-                          />
-                          <div className="flex-1 flex items-center gap-1">
-                            <input
-                              type="number"
-                              value={opt.price}
-                              onChange={(e) => {
-                                const updated = [...editOptions];
-                                updated[idx] = { ...updated[idx], price: Number(e.target.value) };
-                                setEditOptions(updated);
-                              }}
-                              className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs text-right bg-slate-50 focus:bg-white font-bold"
-                              placeholder="추가금"
-                            />
-                            <span className="text-[10px] text-slate-400 shrink-0 font-bold">원</span>
-                          </div>
+                  {/* Option Groups Editor for active tab */}
+                  {(() => {
+                    const currentGroups = editActiveOptionTab === 'device'
+                      ? editDeviceOptionGroups
+                      : editActiveOptionTab === 'replace'
+                      ? editReplaceOptionGroups
+                      : editInstallOptionGroups;
+
+                    const setCurrentGroups = (updated: ProductOptionGroup[]) => {
+                      if (editActiveOptionTab === 'device') setEditDeviceOptionGroups(updated);
+                      else if (editActiveOptionTab === 'replace') setEditReplaceOptionGroups(updated);
+                      else setEditInstallOptionGroups(updated);
+                    };
+
+                    return (
+                      <div className="space-y-3 pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-black text-slate-700">
+                            {editActiveOptionTab === 'device' && '📦 단말기 단품 옵션 그룹'}
+                            {editActiveOptionTab === 'replace' && '🛠️ 교체 시공 옵션 그룹'}
+                            {editActiveOptionTab === 'install' && '⚡ 신규 설치 포함 옵션 그룹'}
+                            ({currentGroups.length}개)
+                          </span>
                           <button
                             type="button"
                             onClick={() => {
-                              const updated = editOptions.filter((_, i) => i !== idx);
-                              setEditOptions(updated);
+                              const newGrp: ProductOptionGroup = {
+                                id: `grp-${Date.now()}`,
+                                title: '새 옵션 그룹',
+                                required: false,
+                                options: [{ id: `opt-${Date.now()}`, name: '새 항목', price: 0 }]
+                              };
+                              setCurrentGroups([...currentGroups, newGrp]);
                             }}
-                            className="p-1.5 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-lg border border-transparent hover:border-rose-100 cursor-pointer text-xs font-bold"
+                            className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black border border-blue-200 cursor-pointer"
                           >
-                            ✕
+                            + 옵션 그룹 추가
                           </button>
                         </div>
-                      ))
-                    )}
-                  </div>
+
+                        <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
+                          {currentGroups.length === 0 ? (
+                            <div className="text-center py-4 text-xs text-slate-400 font-bold bg-white rounded-xl border border-dashed border-slate-200">
+                              등록된 옵션 그룹이 없습니다. [+ 옵션 그룹 추가]를 누르세요.
+                            </div>
+                          ) : (
+                            currentGroups.map((grp, gIdx) => (
+                              <div key={grp.id} className="bg-white border border-slate-200 rounded-xl p-2.5 space-y-2 shadow-2xs">
+                                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                                  <input
+                                    type="text"
+                                    value={grp.title}
+                                    onChange={(e) => {
+                                      const copy = [...currentGroups];
+                                      copy[gIdx] = { ...copy[gIdx], title: e.target.value };
+                                      setCurrentGroups(copy);
+                                    }}
+                                    className="flex-1 text-xs font-black text-slate-900 border border-slate-200 rounded-lg px-2 py-1 bg-slate-50 focus:bg-white"
+                                    placeholder="옵션 그룹명 (예: 충전케이블 길이)"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const copy = [...currentGroups];
+                                      copy[gIdx].options.push({
+                                        id: `opt-${Date.now()}`,
+                                        name: '새 옵션 항목',
+                                        price: 0
+                                      });
+                                      setCurrentGroups(copy);
+                                    }}
+                                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-md"
+                                  >
+                                    + 항목
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const copy = currentGroups.filter((_, i) => i !== gIdx);
+                                      setCurrentGroups(copy);
+                                    }}
+                                    className="p-1 text-rose-500 hover:bg-rose-50 rounded-md text-xs font-bold"
+                                    title="그룹 삭제"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+
+                                <div className="space-y-1.5 pl-1">
+                                  {grp.options.map((opt, oIdx) => (
+                                    <div key={opt.id} className="flex items-center gap-1.5">
+                                      <input
+                                        type="text"
+                                        value={opt.name}
+                                        onChange={(e) => {
+                                          const copy = [...currentGroups];
+                                          const opts = [...copy[gIdx].options];
+                                          opts[oIdx] = { ...opts[oIdx], name: e.target.value };
+                                          copy[gIdx] = { ...copy[gIdx], options: opts };
+                                          setCurrentGroups(copy);
+                                        }}
+                                        className="flex-[2] text-[11px] font-medium border border-slate-200 rounded-md px-2 py-1 bg-slate-50 focus:bg-white"
+                                        placeholder="옵션명"
+                                      />
+                                      <div className="flex-1 flex items-center gap-1">
+                                        <input
+                                          type="number"
+                                          value={opt.price}
+                                          onChange={(e) => {
+                                            const copy = [...currentGroups];
+                                            const opts = [...copy[gIdx].options];
+                                            opts[oIdx] = { ...opts[oIdx], price: Number(e.target.value) };
+                                            copy[gIdx] = { ...copy[gIdx], options: opts };
+                                            setCurrentGroups(copy);
+                                          }}
+                                          className="w-full text-[11px] font-bold text-right border border-slate-200 rounded-md px-1.5 py-1 bg-slate-50 focus:bg-white"
+                                          placeholder="추가금"
+                                        />
+                                        <span className="text-[10px] text-slate-400 font-bold">원</span>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const copy = [...currentGroups];
+                                          const opts = copy[gIdx].options.filter((_, i) => i !== oIdx);
+                                          copy[gIdx] = { ...copy[gIdx], options: opts };
+                                          setCurrentGroups(copy);
+                                        }}
+                                        className="p-1 text-slate-400 hover:text-rose-500 rounded text-[10px]"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

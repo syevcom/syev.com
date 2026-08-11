@@ -17,6 +17,109 @@ export const PUBLIC_CHARGER_OPTION_GROUPS: ProductOptionGroup[] = [
   }
 ];
 
+// 1. 단말기 단품 전용 옵션 (기기 본체만 구매 시 커넥터/케이블 사양 위주)
+export const DEVICE_ONLY_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'grp-cable-length-device',
+    title: '충전케이블 커넥터 길이 선택',
+    required: false,
+    options: [
+      { id: 'cable-5m', name: '5m 커넥터 일체형 (기본)', price: 0 },
+      { id: 'cable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'cable-10m', name: '10m 연장 커넥터 (+60,000원)', price: 60000 }
+    ]
+  },
+  {
+    id: 'grp-mount-type',
+    title: '벽부형 거치 브라켓 및 거치 고리',
+    required: false,
+    options: [
+      { id: 'mount-basic', name: '기본 벽부형 거치 브라켓 포함 (무상)', price: 0 },
+      { id: 'mount-portable', name: '휴대용/이동형 케이블 거치 고리 추가 (+15,000원)', price: 15000 }
+    ]
+  }
+];
+
+// 2. 기존 충전기 교체 시공 전용 옵션
+export const REPLACEMENT_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'grp-cable-length-replace',
+    title: '충전케이블 커넥터 길이 선택',
+    required: false,
+    options: [
+      { id: 'cable-5m', name: '5m 커넥터 일체형 (기본)', price: 0 },
+      { id: 'cable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'cable-10m', name: '10m 연장 커넥터 (+60,000원)', price: 60000 }
+    ]
+  },
+  {
+    id: 'grp-old-charger-removal',
+    title: '기존 충전기 철거 및 회수 옵션',
+    required: false,
+    options: [
+      { id: 'remove-free', name: '기존 충전기 철거 후 무상 회수 (추가금 없음)', price: 0 },
+      { id: 'remove-keep', name: '기존 충전기 철거 후 고객 보관 (+20,000원)', price: 20000 }
+    ]
+  },
+  {
+    id: 'grp-replace-stand',
+    title: '기존 거치대/하이박스 재활용 여부',
+    required: false,
+    options: [
+      { id: 'stand-reuse', name: '기존 벽면/거치대 그대로 사용', price: 0 },
+      { id: 'stand-new-hibox', name: '신규 계량기용 보호 하이박스 교체 (+50,000원)', price: 50000 },
+      { id: 'stand-new-steel', name: '신규 앙카식 스틸 고급 스탠드 설치 (+150,000원)', price: 150000 }
+    ]
+  }
+];
+
+// 3. 신규 설치 포함 전용 옵션 (전기공사 + 한전대행 포함)
+export const INSTALLATION_OPTION_GROUPS: ProductOptionGroup[] = [
+  {
+    id: 'grp-cable-length-install',
+    title: '충전케이블 커넥터 길이 선택',
+    required: false,
+    options: [
+      { id: 'cable-5m', name: '5m 커넥터 일체형 (기본)', price: 0 },
+      { id: 'cable-7m', name: '7m 연장 커넥터 (+30,000원)', price: 30000 },
+      { id: 'cable-10m', name: '10m 연장 커넥터 (+60,000원)', price: 60000 }
+    ]
+  },
+  {
+    id: 'grp-wiring-distance',
+    title: '배선 시공 거리 옵션 (기본 5m 초과시)',
+    required: false,
+    options: [
+      { id: 'wire-5m', name: '기본 배선 시공 (5m 이내 - 추가금 없음)', price: 0 },
+      { id: 'wire-10m', name: '배선 10m 이내 연장 (+50,000원)', price: 50000 },
+      { id: 'wire-15m', name: '배선 15m 이내 연장 (+100,000원)', price: 100000 },
+      { id: 'wire-20m', name: '배선 20m 이내 연장 (+150,000원)', price: 150000 }
+    ]
+  },
+  {
+    id: 'grp-install-structures',
+    title: '설치 환경별 부자재 / 거치 형태',
+    required: false,
+    options: [
+      { id: 'struct-none', name: '벽부형 기본 설치', price: 0 },
+      { id: 'struct-hibox', name: '보호 하이박스 추가 (+50,000원)', price: 50000 },
+      { id: 'struct-canopy', name: '아크릴 빗물 차단 캐노피 (+80,000원)', price: 80000 },
+      { id: 'struct-stand', name: '스틸 자립형 고급 스탠드 (+150,000원)', price: 150000 }
+    ]
+  },
+  {
+    id: 'grp-install-safety',
+    title: '주차장 안전 용품 추가 선택',
+    required: false,
+    options: [
+      { id: 'safety-none', name: '선택 안함', price: 0 },
+      { id: 'safety-bollard', name: '스텐 앙카식 I형 보호 볼라드 (+70,000원)', price: 70000 },
+      { id: 'safety-stopper', name: '고무 주차 스토퍼 1쌍 (+25,000원)', price: 25000 },
+      { id: 'safety-sign', name: '충전구역 알루미늄 표지판 (+35,000원)', price: 35000 }
+    ]
+  }
+];
+
 export const DEFAULT_RESIDENTIAL_OPTION_GROUPS: ProductOptionGroup[] = [
   {
     id: 'grp-cable-length',

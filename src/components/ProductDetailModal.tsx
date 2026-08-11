@@ -6,7 +6,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
 import { Product, CartItem, ProductOptionGroup } from '../types';
-import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from '../data';
+import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, DEVICE_ONLY_OPTION_GROUPS, REPLACEMENT_OPTION_GROUPS, INSTALLATION_OPTION_GROUPS } from '../data';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -42,53 +42,53 @@ export default function ProductDetailModal({
     }
   }, [product?.id, product?.image]);
 
+  const getProductOptionGroups = (p: Product) => {
+    const isPublic = (
+      p.detailCategory === '공용완속' ||
+      p.detailCategory === '급속' ||
+      p.type === '급속' ||
+      (p.name.includes('공용') && !p.name.includes('개인용')) ||
+      p.name.includes('수익형') ||
+      p.name.includes('관공서') ||
+      p.name.includes('조달상품') ||
+      p.id.startsWith('park-')
+    ) && !p.name.includes('개인용') && !p.name.includes('가정용');
+
+    if (isPublic) {
+      if (p.optionGroups && p.optionGroups.length === 1) return p.optionGroups;
+      return PUBLIC_CHARGER_OPTION_GROUPS;
+    }
+
+    const st = p.serviceType || 'device';
+    if (st === 'device' || st === '단말기 단품') {
+      if (p.deviceOptionGroups && p.deviceOptionGroups.length > 0) return p.deviceOptionGroups;
+      if (p.optionGroups && p.optionGroups.length > 0) {
+        const conn = p.optionGroups.filter(g => g.title.includes('커넥터') || g.title.includes('충전선') || g.title.includes('길이'));
+        if (conn.length > 0) return conn;
+      }
+      return DEVICE_ONLY_OPTION_GROUPS;
+    }
+    if (st === 'replace' || st === '교체 시공') {
+      if (p.replaceOptionGroups && p.replaceOptionGroups.length > 0) return p.replaceOptionGroups;
+      return REPLACEMENT_OPTION_GROUPS;
+    }
+    if (st === 'install' || st === '신규 설치 포함') {
+      if (p.installOptionGroups && p.installOptionGroups.length > 0) return p.installOptionGroups;
+      return INSTALLATION_OPTION_GROUPS;
+    }
+
+    return p.optionGroups && p.optionGroups.length > 0 ? p.optionGroups : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+  };
+
   // Dynamic additional option groups state
   const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
     if (!product) return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
-    const isPublic = (
-      product.detailCategory === '공용완속' ||
-      product.detailCategory === '급속' ||
-      product.type === '급속' ||
-      (product.name.includes('공용') && !product.name.includes('개인용')) ||
-      product.name.includes('수익형') ||
-      product.name.includes('관공서') ||
-      product.name.includes('조달상품') ||
-      product.id.startsWith('park-')
-    ) && !product.name.includes('개인용') && !product.name.includes('가정용');
-
-    if (isPublic) {
-      if (product.optionGroups && product.optionGroups.length === 1) return product.optionGroups;
-      return PUBLIC_CHARGER_OPTION_GROUPS;
-    }
-    return product.optionGroups && product.optionGroups.length > 0
-      ? product.optionGroups
-      : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
+    return getProductOptionGroups(product);
   });
 
   useEffect(() => {
     if (product) {
-      const isPublic = (
-        product.detailCategory === '공용완속' ||
-        product.detailCategory === '급속' ||
-        product.type === '급속' ||
-        (product.name.includes('공용') && !product.name.includes('개인용')) ||
-        product.name.includes('수익형') ||
-        product.name.includes('관공서') ||
-        product.name.includes('조달상품') ||
-        product.id.startsWith('park-')
-      ) && !product.name.includes('개인용') && !product.name.includes('가정용');
-
-      let groups = product.optionGroups && product.optionGroups.length > 0
-        ? product.optionGroups
-        : DEFAULT_RESIDENTIAL_OPTION_GROUPS;
-
-      if (isPublic) {
-        if (groups.length > 1 || !product.optionGroups) {
-          groups = PUBLIC_CHARGER_OPTION_GROUPS;
-        }
-      }
-
-      setActiveOptionGroups(groups);
+      setActiveOptionGroups(getProductOptionGroups(product));
     }
   }, [product]);
 

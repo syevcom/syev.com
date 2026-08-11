@@ -59,6 +59,9 @@ export interface Product {
   installIncludedRegularPrice?: number;
   installIncludedDiscount?: number;
   optionGroups?: ProductOptionGroup[];
+  deviceOptionGroups?: ProductOptionGroup[];
+  replaceOptionGroups?: ProductOptionGroup[];
+  installOptionGroups?: ProductOptionGroup[];
 }
 
 export interface SolutionProduct {
@@ -88,6 +91,9 @@ export interface SolutionProduct {
   optionLabel?: string;
   options?: { id: string; label: string; price: number }[];
   optionGroups?: ProductOptionGroup[];
+  deviceOptionGroups?: ProductOptionGroup[];
+  replaceOptionGroups?: ProductOptionGroup[];
+  installOptionGroups?: ProductOptionGroup[];
 }
 
 export interface Solution {

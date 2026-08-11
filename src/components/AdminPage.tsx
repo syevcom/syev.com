@@ -300,6 +300,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   });
 
   const [batchSelectedBrand, setBatchSelectedBrand] = useState<string>('스필');
+  const [batchSelectedServiceType, setBatchSelectedServiceType] = useState<'device' | 'replace' | 'install' | 'all'>('all');
   const [batchSelectedPresetId, setBatchSelectedPresetId] = useState<string>('preset-speel');
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
   const [editingPreset, setEditingPreset] = useState<OptionPreset | null>(null);
@@ -402,14 +403,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   // Apply a preset to ALL products matching a brand (or all)
-  const handleApplyPresetToBrand = (targetBrand: string, presetId: string) => {
+  const handleApplyPresetToBrand = (targetBrand: string, presetId: string, targetService?: 'device' | 'replace' | 'install' | 'all') => {
     const preset = optionPresets.find(p => p.id === presetId);
     if (!preset) {
       alert('선택된 옵션 템플릿을 찾을 수 없습니다.');
       return;
     }
 
+    const svc = targetService || batchSelectedServiceType;
     const brandLabel = targetBrand === 'all' ? '전체' : targetBrand;
+    const svcLabel = svc === 'device' ? '단말기 단품' : svc === 'replace' ? '교체 시공' : svc === 'install' ? '신규 설치' : '전체 서비스';
 
     let affectedCount = 0;
     const updated = productList.map(p => {
@@ -421,17 +424,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       if (matches) {
         affectedCount++;
-        return {
-          ...p,
-          optionGroups: JSON.parse(JSON.stringify(preset.optionGroups))
-        };
+        const clonedGroups = JSON.parse(JSON.stringify(preset.optionGroups));
+        if (svc === 'device') {
+          return { ...p, deviceOptionGroups: clonedGroups };
+        } else if (svc === 'replace') {
+          return { ...p, replaceOptionGroups: clonedGroups };
+        } else if (svc === 'install') {
+          return { ...p, installOptionGroups: clonedGroups };
+        } else {
+          return {
+            ...p,
+            deviceOptionGroups: clonedGroups,
+            replaceOptionGroups: clonedGroups,
+            installOptionGroups: clonedGroups,
+            optionGroups: clonedGroups
+          };
+        }
       }
       return p;
     });
 
     setProductList(updated);
     onSaveProducts(updated);
-    setSaveSuccessMsg(`[${brandLabel}] 상품 총 ${affectedCount}개에 [${preset.name}] 옵션이 적용되었습니다.`);
+    setSaveSuccessMsg(`[${brandLabel}]의 [${svcLabel}] 영역에 [${preset.name}] 템플릿이 적용되었습니다 (${affectedCount}개 상품).`);
     setTimeout(() => setSaveSuccessMsg(''), 3500);
   };
 
@@ -1204,133 +1219,233 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
               </div>
 
-              {/* Row 3: Quick Batch Apply for Service Type & Options */}
-              <div className="pt-3 border-t border-slate-100 space-y-2.5 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200/80">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-black text-amber-950 flex items-center gap-1">
-                      ⚡ 대분류(구분) 전체 일괄 지정:
+              {/* Row 3: Clean & Organized Batch Operations & Template Manager */}
+              <div className="pt-3 border-t border-slate-200/80 space-y-3">
+                {/* 1. Batch Service Type Card */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 font-black text-xs">
+                      ⚡
                     </span>
-                    <span className="text-[11px] font-bold text-amber-800 hidden md:inline">
-                      (한 번만 클릭하면 모든 {productList.length}개 상품의 대분류가 한꺼번에 변경됩니다)
-                    </span>
+                    <div>
+                      <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                        대분류(구분) 전체 일괄 변경
+                      </div>
+                      <div className="text-[11px] font-bold text-slate-500">
+                        단 한 번 클릭으로 전체 {productList.length}개 상품의 대분류 구성을 바꿉니다.
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto justify-end">
+
+                  <div className="flex items-center gap-1.5 flex-wrap w-full lg:w-auto justify-start lg:justify-end">
                     <button
                       type="button"
                       onClick={() => handleBatchServiceType('all')}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-2xs cursor-pointer flex items-center gap-1 ${
+                        serviceFilter === 'all'
+                          ? 'bg-blue-600 text-white ring-2 ring-blue-300'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
                     >
-                      ⚡ 전체 [모두 호환(단말기/교체/설치)]으로 일괄 변경
+                      <span>⚡ 전체 [모두 호환]</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleBatchServiceType('device')}
-                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                      className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-amber-50 text-amber-900 rounded-xl text-xs font-black transition-all shadow-2xs cursor-pointer flex items-center gap-1"
                     >
-                      📦 전체 [단말기]로 일괄 변경
+                      <span>📦 [단말기 단품]</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleBatchServiceType('replace')}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                      className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-emerald-50 text-emerald-900 rounded-xl text-xs font-black transition-all shadow-2xs cursor-pointer flex items-center gap-1"
                     >
-                      🔄 전체 [교체시공]으로 일괄 변경
+                      <span>🔄 [교체 시공]</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleBatchServiceType('install')}
-                      className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer"
+                      className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-indigo-50 text-indigo-900 rounded-xl text-xs font-black transition-all shadow-2xs cursor-pointer flex items-center gap-1"
                     >
-                      ⚡ 전체 [신규설치]로 일괄 변경
+                      <span>⚡ [신규 설치]</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-amber-200/80 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-xs font-black text-blue-950 flex items-center gap-1">
-                      🏷️ 브랜드별 세부 옵션 템플릿 일괄 지정:
-                    </span>
+                {/* 2. Brand Template Selection & Direct Management Bar */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-3.5 space-y-3 shadow-2xs">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-black text-xs">
+                        🏷️
+                      </span>
+                      <div>
+                        <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                          브랜드별 세부 옵션 템플릿 일괄 적용 & 관리
+                        </div>
+                        <div className="text-[11px] font-bold text-slate-500">
+                          스필, 일렉트리, 편리전기, 차지고 등 브랜드 전용 템플릿을 선택하여 일괄 적용하거나 수정/삭제합니다.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setIsPresetManagerOpen(true)}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <Bookmark className="w-3.5 h-3.5 text-indigo-200" />
+                        <span>⚙️ 템플릿 관리자 ({optionPresets.length}개 저장됨)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddProduct}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 border border-emerald-400"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>➕ 신규 상품 추가</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap w-full xl:w-auto justify-end">
-                    {/* Select Target Brand */}
-                    <div className="flex items-center gap-1 bg-white border border-blue-200 px-2 py-1 rounded-lg">
-                      <span className="text-[11px] font-bold text-slate-500 shrink-0">대상 브랜드:</span>
-                      <select
-                        value={batchSelectedBrand}
-                        onChange={(e) => setBatchSelectedBrand(e.target.value)}
-                        className="text-xs font-black text-blue-950 bg-transparent focus:outline-hidden cursor-pointer"
+                  {/* Template Application Controls */}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Select Target Brand */}
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+                        <span className="text-xs font-bold text-slate-500 shrink-0">대상 브랜드:</span>
+                        <select
+                          value={batchSelectedBrand}
+                          onChange={(e) => setBatchSelectedBrand(e.target.value)}
+                          className="text-xs font-black text-slate-900 bg-transparent focus:outline-hidden cursor-pointer"
+                        >
+                          <option value="all">🌐 전체 브랜드 상품</option>
+                          <option value="스필">스필 (SPEEL)</option>
+                          <option value="일렉트리">일렉트리 (ELECTREE)</option>
+                          <option value="편리">편리 (PNL)전기</option>
+                          <option value="차지고">차지고 (CHARGEGO)</option>
+                          <option value="롯데 이브이시스">롯데 이브이시스 (EVSIS)</option>
+                          <option value="쿨차지">쿨차지 (COOLCHARGE)</option>
+                        </select>
+                      </div>
+
+                      {/* Select Target Service Type */}
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+                        <span className="text-xs font-bold text-slate-500 shrink-0">적용 서비스:</span>
+                        <select
+                          value={batchSelectedServiceType}
+                          onChange={(e) => setBatchSelectedServiceType(e.target.value as any)}
+                          className="text-xs font-black text-slate-900 bg-transparent focus:outline-hidden cursor-pointer"
+                        >
+                          <option value="all">⚡ 전체 (단말기/교체/설치 모두)</option>
+                          <option value="device">📦 단말기 단품 전용</option>
+                          <option value="replace">🛠️ 교체 시공 전용</option>
+                          <option value="install">⚡ 신규 설치 포함 전용</option>
+                        </select>
+                      </div>
+
+                      {/* Select Option Preset */}
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+                        <span className="text-xs font-bold text-slate-500 shrink-0">적용할 템플릿:</span>
+                        <select
+                          value={batchSelectedPresetId}
+                          onChange={(e) => setBatchSelectedPresetId(e.target.value)}
+                          className="text-xs font-black text-slate-900 bg-transparent focus:outline-hidden cursor-pointer max-w-[220px] truncate"
+                        >
+                          {optionPresets.map(preset => (
+                            <option key={preset.id} value={preset.id}>
+                              [{preset.brand}] {preset.name} ({preset.optionGroups.length}개 그룹)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPresetToBrand(batchSelectedBrand, batchSelectedPresetId, batchSelectedServiceType)}
+                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
                       >
-                        <option value="all">🌐 전체 브랜드 상품</option>
-                        <option value="스필">스필 (SPEEL)</option>
-                        <option value="일렉트리">일렉트리 (ELECTREE)</option>
-                        <option value="편리">편리 (PNL)전기</option>
-                        <option value="차지고">차지고 (CHARGEGO)</option>
-                        <option value="롯데 이브이시스">롯데 이브이시스 (EVSIS)</option>
-                      </select>
+                        <Zap className="w-3.5 h-3.5 fill-current text-blue-200" />
+                        <span>선택 브랜드/서비스에 템플릿 적용</span>
+                      </button>
                     </div>
 
-                    {/* Select Option Preset */}
-                    <div className="flex items-center gap-1 bg-white border border-blue-200 px-2 py-1 rounded-lg">
-                      <span className="text-[11px] font-bold text-slate-500 shrink-0">적용할 템플릿:</span>
-                      <select
-                        value={batchSelectedPresetId}
-                        onChange={(e) => setBatchSelectedPresetId(e.target.value)}
-                        className="text-xs font-black text-slate-800 bg-transparent focus:outline-hidden cursor-pointer max-w-[210px] truncate"
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleBatchApplyDefaultOptionsToAll}
+                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                       >
-                        {optionPresets.map(preset => (
-                          <option key={preset.id} value={preset.id}>
-                            [{preset.brand}] {preset.name} ({preset.optionGroups.length}개 그룹)
-                          </option>
-                        ))}
-                      </select>
+                        <Zap className="w-3.5 h-3.5 text-slate-500" />
+                        <span>표준 7종 전체적용</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={expandAllOptions}
+                        className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      >
+                        📂 전체 펼치기
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Direct Template Quick-Edit Strip */}
+                  <div className="pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-black text-slate-700 flex items-center gap-1">
+                        ✏️ 저장된 세부 옵션 템플릿 목록 (여기서 직접 [수정/삭제] 가능):
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCreateNewPreset}
+                        className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>+ 새 템플릿 생성</span>
+                      </button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleApplyPresetToBrand(batchSelectedBrand, batchSelectedPresetId)}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
-                    >
-                      <Zap className="w-3.5 h-3.5 fill-current text-blue-200" />
-                      <span>⚡ 브랜드에 템플릿 일괄 적용</span>
-                    </button>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                      {optionPresets.map((preset) => (
+                        <div
+                          key={preset.id}
+                          className="bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-xl px-3 py-2 shrink-0 flex items-center gap-2.5 transition-all text-xs"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded w-fit">
+                              {preset.brand}
+                            </span>
+                            <span className="font-extrabold text-slate-800 text-[11px] truncate max-w-[150px]" title={preset.name}>
+                              {preset.name}
+                            </span>
+                          </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setIsPresetManagerOpen(true)}
-                      className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-black transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
-                    >
-                      <Bookmark className="w-3.5 h-3.5" />
-                      <span>⚙️ 템플릿 미리작성/관리</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleAddProduct}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-black transition-all shadow-md cursor-pointer flex items-center gap-1 shrink-0 ring-2 ring-emerald-300"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>➕ 신규 상품 추가</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleBatchApplyDefaultOptionsToAll}
-                      className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      <span>⚡ 표준 7종 전체적용</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={expandAllOptions}
-                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
-                    >
-                      📂 펼치기
-                    </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingPreset(JSON.parse(JSON.stringify(preset)));
+                              }}
+                              className="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-black cursor-pointer shadow-2xs"
+                              title="템플릿 옵션 항목 및 가격 수정"
+                            >
+                              수정
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePreset(preset.id)}
+                              className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
+                              title="템플릿 삭제"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
