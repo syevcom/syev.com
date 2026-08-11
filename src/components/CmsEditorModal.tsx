@@ -555,7 +555,7 @@ export default function CmsEditorModal({
 
   // Commercial / Parking Lot & Home Chargers states for CMS
   const [cmsParkingProducts, setCmsParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+    const saved = localStorage.getItem('sy_cms_parking_products_v5_fixed');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -576,7 +576,7 @@ export default function CmsEditorModal({
       if (savedHome) {
         try { setCmsHomeProducts(JSON.parse(savedHome)); } catch (e) {}
       }
-      const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
       if (savedParking) {
         try { setCmsParkingProducts(JSON.parse(savedParking)); } catch (e) {}
       }
@@ -676,7 +676,7 @@ export default function CmsEditorModal({
       }
       updated[solProdCategory] = list;
       setCmsParkingProducts(updated);
-      localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(updated));
+      localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(updated));
     } else {
       const updated = { ...cmsHomeProducts };
       const list = updated[solProdCategory] ? [...updated[solProdCategory]] : [];
@@ -783,7 +783,7 @@ export default function CmsEditorModal({
       if (updated[category]) {
         updated[category] = updated[category].filter(item => item.id !== id);
         setCmsParkingProducts(updated);
-        localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(updated));
+        localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(updated));
       }
     } else {
       const updated = { ...cmsHomeProducts };

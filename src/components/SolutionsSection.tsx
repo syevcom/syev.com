@@ -159,6 +159,7 @@ export interface SolutionProduct {
   regularPrice: number;
   price: number;
   discount: number;
+  power?: string;
   replacementPrice?: number;
   replacementRegularPrice?: number;
   replacementDiscount?: number;
@@ -358,49 +359,52 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
 export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
   '공용 BIZ 충전기': [
     {
-      id: 'park-11kw-evsis',
-      name: '롯데 이브이시스 11kW 수익형 완속 충전기',
-      description: 'RFID 및 전용 앱 정산 수수료 정산 관제망 탑재, 사업 수익 정산용 고효율 모델',
-      regularPrice: 1450000,
-      price: 1250000,
-      discount: 13,
+      id: 'park-7kw-plc-biz',
+      name: '스마트제어 완속 충전기 PLC 7kW BIZ 전기차 공용',
+      description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+      regularPrice: 0,
+      price: 0,
+      discount: 0,
+      power: '7kW',
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      tags: ['BEST', 'HIT']
+    },
+    {
+      id: 'park-11kw-stormshield',
+      name: '11kW BIZ 공용 전기차 충전기 쿨차지 스톰쉴드',
+      description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+      regularPrice: 0,
+      price: 0,
+      discount: 0,
+      power: '11kW',
+      serviceType: 'all',
+      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
+      tags: ['BEST', 'HIT']
+    },
+    {
+      id: 'park-35kw-stormshield',
+      name: '35kW BIZ 공용 전기차 충전기 쿨차지 스톰쉴드',
+      description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+      regularPrice: 0,
+      price: 0,
+      discount: 0,
+      power: '35kW',
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['BEST', 'HIT'],
-      hasPromoRibbon: true
+      tags: ['MD CHOICE']
     },
     {
-      id: 'park-11kw-spil',
-      name: '스필 11kW 공용 수익형 완속 충전기',
-      description: 'OCPP 1.6 국토부 공인 프로토콜 적용 및 스마트 부하 배분(DLB) 탑재',
-      regularPrice: 829000,
-      price: 779000,
-      discount: 6,
+      id: 'park-50kw-1ch-coolcharge',
+      name: '전기차 급속 충전기 50kW 1CH 쿨차지',
+      description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+      regularPrice: 0,
+      price: 0,
+      discount: 0,
+      power: '50kW',
       serviceType: 'all',
-      installIncludedPrice: 1129000,
-      installIncludedRegularPrice: 1229000,
-      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
-      tags: ['MD CHOICE', 'HIT']
-    },
-    {
-      id: 'park-11kw-convenient',
-      name: '편리 11kW 수익형 스마트 완속 충전기',
-      description: '상업용 간편 QR 정산 연동, 소상공인 펜션 식당 주차장 설치 시 최강의 부가수익 창출',
-      regularPrice: 1120000,
-      price: 980000,
-      discount: 12,
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['QR간편정산']
-    },
-    {
-      id: 'park-50kw-sy',
-      name: 'SY-DC50 슬림형 공용 수익형 급속 충전기',
-      description: '30분 초단기 80% 완벽 급속 충전, 대형 터치 모니터 및 회원/비회원 간편 결제',
-      regularPrice: 11500000,
-      price: 9800000,
-      discount: 14,
       image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-      tags: ['MD CHOICE', 'HIT'],
+      tags: ['MD CHOICE', '급속'],
       hasPromoRibbon: true
     }
   ]
@@ -720,7 +724,7 @@ export default function SolutionsSection({
   });
 
   const [parkingProducts, setParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+    const saved = localStorage.getItem('sy_cms_parking_products_v5_fixed');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -738,7 +742,7 @@ export default function SolutionsSection({
       if (savedHome) {
         try { setHomeProducts(ensureDefaultHomeProducts(JSON.parse(savedHome))); } catch (e) {}
       }
-      const savedParking = localStorage.getItem('sy_cms_parking_products_v4_fixed');
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
       if (savedParking) {
         try { setParkingProducts(JSON.parse(savedParking)); } catch (e) {}
       }
@@ -817,7 +821,7 @@ export default function SolutionsSection({
   const saveParkingProducts = (data: Record<string, SolutionProduct[]>) => {
     setParkingProducts(data);
     try {
-      localStorage.setItem('sy_cms_parking_products_v4_fixed', JSON.stringify(data));
+      localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(data));
       window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to save parking products to localStorage:', e);
@@ -3329,13 +3333,15 @@ export default function SolutionsSection({
                                   
                                   {/* Round Power Badge (Left overlay) */}
                                   <div className="absolute top-3 left-3 px-2.5 h-10 rounded-full bg-blue-50 text-indigo-600 font-extrabold text-[10px] flex items-center justify-center border border-indigo-200 shadow-xs ring-4 ring-indigo-500/10 whitespace-nowrap">
-                                    {selectedParkingCapacity.split(' ')[0]}
+                                    {p.power || p.name.match(/\d+kW/i)?.[0] || selectedParkingCapacity.split(' ')[0]}
                                   </div>
 
                                   {/* Black discount circular badge (Right overlay) */}
-                                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
-                                    {p.discount}%
-                                  </div>
+                                  {p.discount && p.discount > 0 ? (
+                                    <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
+                                      {p.discount}%
+                                    </div>
+                                  ) : null}
 
                                   {/* Left visual ribbons/badges */}
                                   {p.hasPromoRibbon && (

@@ -170,19 +170,6 @@ export default function ProductsSection({
                 
                 {/* Price Label displaying Original Strikethrough & Discounted Price */}
                 <div className="pt-1 pb-1 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    {p.originalPrice && (
-                      <span className="text-xs text-slate-400 font-bold line-through">
-                        ₩{p.originalPrice.toLocaleString()}
-                      </span>
-                    )}
-                    {p.discountRate && (
-                      <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full">
-                        {p.discountRate}% OFF
-                      </span>
-                    )}
-                  </div>
-
                   {(() => {
                     const isPublic = p.detailCategory === '공용완속' || p.detailCategory === '급속' || p.type === '급속' || p.name.includes('공용') || p.name.includes('수익형') || p.name.includes('관공서') || p.name.includes('조달상품') || p.id.startsWith('park-');
                     if (isPublic) {
@@ -193,10 +180,24 @@ export default function ProductsSection({
                       );
                     }
                     return (
-                      <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
-                        <span>{formatPrice(p.price)}</span>
-                        {p.price ? <span className="text-xs text-slate-400 font-normal">(설치 포함)</span> : null}
-                      </div>
+                      <>
+                        <div className="flex items-center gap-2">
+                          {p.originalPrice && (
+                            <span className="text-xs text-slate-400 font-bold line-through">
+                              ₩{p.originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                          {p.discountRate && (
+                            <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full">
+                              {p.discountRate}% OFF
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
+                          <span>{formatPrice(p.price)}</span>
+                          {p.price ? <span className="text-xs text-slate-400 font-normal">(설치 포함)</span> : null}
+                        </div>
+                      </>
                     );
                   })()}
                   <div className="w-8 h-0.5 bg-blue-500 mt-1 rounded-full"></div>

@@ -254,6 +254,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [productSearch, setProductSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'device' | 'replace' | 'install'>('all');
+  const [detailCategoryFilter, setDetailCategoryFilter] = useState<'all' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('all');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [isSavedRecently, setIsSavedRecently] = useState(false);
 
@@ -819,7 +820,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
     }
 
-    return matchesSearch && matchesService && matchesPower;
+    // Detail Category filter (비공용완속, 비공용중속, 공용완속, 급속, 스탠드)
+    let matchesCategory = true;
+    if (detailCategoryFilter !== 'all') {
+      matchesCategory = p.detailCategory === detailCategoryFilter;
+    }
+
+    return matchesSearch && matchesService && matchesPower && matchesCategory;
   });
 
   return (
@@ -1079,6 +1086,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   ))}
                 </div>
 
+                {/* 3. Detail Category / Public Charger Filter */}
+                <div className="flex items-center gap-1 flex-wrap w-full pt-2 border-t border-slate-100">
+                  <span className="text-xs font-black text-slate-700 mr-1 shrink-0 flex items-center gap-1">
+                    📂 용도/카테고리 필터:
+                  </span>
+                  {[
+                    { id: 'all', label: '전체 카테고리' },
+                    { id: '비공용완속', label: '🏠 비공용완속' },
+                    { id: '비공용중속', label: '🏠 비공용중속' },
+                    { id: '공용완속', label: '🏢 공용완속(견적문의)' },
+                    { id: '급속', label: '⚡ 급속(견적문의)' },
+                    { id: '스탠드', label: '🛡️ 스탠드/부스' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setDetailCategoryFilter(cat.id as any)}
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
+                        detailCategoryFilter === cat.id
+                          ? cat.id.includes('공용') || cat.id === '급속'
+                            ? 'bg-rose-600 text-white shadow-xs'
+                            : 'bg-indigo-600 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
               </div>
 
               {/* Row 3: Quick Batch Apply for Service Type & Options */}
@@ -1276,6 +1313,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-extrabold border border-blue-200">
                           {product.type} ({product.power || '7kW'})
                         </span>
+                        {(product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || product.name.includes('공용') || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-')) ? (
+                          <span className="px-2 py-0.5 bg-rose-50 text-rose-700 rounded text-[10px] font-extrabold border border-rose-200">
+                            🏢 공용 (견적문의)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[10px] font-extrabold border border-emerald-200">
+                            🏠 비공용 / 가정용
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -1414,6 +1460,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               <option value="초급속">초급속</option>
                               <option value="스마트홈">스마트홈</option>
                               <option value="스탠드">스탠드/보호부스</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500">용도/상세 분류 (공용 vs 비공용)</label>
+                            <select
+                              value={product.detailCategory || '비공용완속'}
+                              onChange={(e) => handleProductChange(realIndex, 'detailCategory', e.target.value)}
+                              className={`w-full px-2.5 py-1.5 border rounded-xl text-xs font-bold ${
+                                (product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속')
+                                  ? 'bg-rose-50/80 border-rose-300 text-rose-900 font-black'
+                                  : 'bg-slate-50 border-slate-200 text-slate-800'
+                              }`}
+                            >
+                              <option value="비공용완속">🏠 비공용완속 (가정용)</option>
+                              <option value="비공용중속">🏠 비공용중속 (가정용)</option>
+                              <option value="공용완속">🏢 공용완속 (상업/관공서/견적문의)</option>
+                              <option value="급속">⚡ 급속 (상업/관공서/견적문의)</option>
+                              <option value="스탠드">🛡️ 스탠드/보호부스</option>
                             </select>
                           </div>
 

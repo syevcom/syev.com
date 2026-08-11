@@ -68,6 +68,7 @@ export interface SolutionProduct {
   regularPrice: number;
   price: number;
   discount: number;
+  power?: string;
   replacementPrice?: number;
   replacementRegularPrice?: number;
   replacementDiscount?: number;
