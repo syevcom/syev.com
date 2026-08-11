@@ -467,15 +467,16 @@ export default function SolutionsSection({
   const getOptionGroupsForProduct = (prod: SolutionProduct | null): ProductOptionGroup[] => {
     if (!prod) return [];
 
-    const isPublicCharger = prod.id.startsWith('park-') ||
-      prod.name.includes('공용') ||
+    const isPublicCharger = (
+      prod.id.startsWith('park-') ||
+      (prod.name.includes('공용') && !prod.name.includes('개인용')) ||
       prod.name.includes('수익형') ||
       prod.name.includes('관공서') ||
       prod.name.includes('조달상품') ||
-      prod.name.includes('BIZ') ||
       (prod as any).type === '급속' ||
       (prod as any).detailCategory === '공용완속' ||
-      (prod as any).detailCategory === '급속';
+      (prod as any).detailCategory === '급속'
+    ) && !prod.name.includes('개인용') && !prod.name.includes('가정용');
 
     if (prod.optionGroups && prod.optionGroups.length > 0) {
       if (isPublicCharger && prod.optionGroups.length > 1) {
@@ -807,7 +808,7 @@ export default function SolutionsSection({
     if (activeDetailProduct) {
       // Find up-to-date info if it was edited
       let found: SolutionProduct | undefined = undefined;
-      if (activeDetailProduct.id.startsWith('res-')) {
+      if (activeDetailProduct.id.startsWith('res-') || activeDetailProduct.id.startsWith('sy-') || !activeDetailProduct.id.startsWith('park-')) {
         Object.values(homeProducts).forEach((arr) => {
           const typedArr = arr as SolutionProduct[];
           const match = typedArr.find(p => p.id === activeDetailProduct.id);
@@ -1407,7 +1408,8 @@ export default function SolutionsSection({
   };
 
   if (activeDetailProduct) {
-    const productPurpose = activeDetailProduct.id.startsWith('res-') ? 'Residential' : 'ParkingLot';
+    const isResidentialProduct = activeDetailProduct.id.startsWith('res-') || activeDetailProduct.id.startsWith('sy-') || activeDetailProduct.name.includes('개인용') || activeDetailProduct.name.includes('가정용') || !activeDetailProduct.id.startsWith('park-');
+    const productPurpose = isResidentialProduct ? 'Residential' : 'ParkingLot';
     const detailKey = `product-${activeDetailProduct.id}`;
     const detailData = productDetails[detailKey];
     
@@ -2222,8 +2224,8 @@ export default function SolutionsSection({
                     onClick={(e) => {
                       startEditProduct(
                         activeDetailProduct,
-                        activeDetailProduct.id.startsWith('res') ? 'home' : 'parking',
-                        activeDetailProduct.id.startsWith('res') ? selectedHomePower : selectedParkingCapacity,
+                        isResidentialProduct ? 'home' : 'parking',
+                        isResidentialProduct ? selectedHomePower : selectedParkingCapacity,
                         e
                       );
                     }}
@@ -2262,7 +2264,16 @@ export default function SolutionsSection({
                 <div className="col-span-3 font-extrabold text-slate-600 self-center">B2B공급가</div>
                 <div className="col-span-9 flex flex-col justify-center">
                   {(() => {
-                    const isPublicCharger = activeDetailProduct.id.startsWith('park-') || activeDetailProduct.name.includes('공용') || activeDetailProduct.name.includes('수익형') || activeDetailProduct.name.includes('관공서') || activeDetailProduct.name.includes('조달상품') || activeDetailProduct.type === '급속' || !activeDetailProduct.id.startsWith('res');
+                    const isPublicCharger = (
+                      activeDetailProduct.id.startsWith('park-') ||
+                      (activeDetailProduct.name.includes('공용') && !activeDetailProduct.name.includes('개인용')) ||
+                      activeDetailProduct.name.includes('수익형') ||
+                      activeDetailProduct.name.includes('관공서') ||
+                      activeDetailProduct.name.includes('조달상품') ||
+                      (activeDetailProduct as any).type === '급속' ||
+                      (activeDetailProduct as any).detailCategory === '공용완속' ||
+                      (activeDetailProduct as any).detailCategory === '급속'
+                    ) && !activeDetailProduct.name.includes('개인용') && !activeDetailProduct.name.includes('가정용');
 
                     if (isPublicCharger) {
                       return (

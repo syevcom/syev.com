@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, PRODUCTS } from '../data';
+import { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './HomePopupModal';
+import { compressImage } from '../lib/imageCompressor';
 import { 
   Package, 
   Building2, 
   ClipboardList, 
   Settings, 
+  Bell,
   Plus, 
   Trash2, 
   Upload, 
@@ -234,6 +237,9 @@ interface AdminPageProps {
     businessNumber: string;
   };
   onSaveFooterConfig: (config: any) => void;
+  homePopupConfig?: HomePopupConfig;
+  onSaveHomePopupConfig?: (config: HomePopupConfig) => void;
+  onPreviewPopup?: () => void;
   onNavigateHome: () => void;
 }
 
@@ -248,9 +254,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onSaveSnsConfig,
   footerConfig,
   onSaveFooterConfig,
+  homePopupConfig = DEFAULT_HOME_POPUP_CONFIG,
+  onSaveHomePopupConfig,
+  onPreviewPopup,
   onNavigateHome
 }) => {
-  const [adminTab, setAdminTab] = useState<'products' | 'brands' | 'inquiries' | 'settings'>('products');
+  const [adminTab, setAdminTab] = useState<'products' | 'brands' | 'inquiries' | 'settings' | 'popup'>('products');
   
   // Local working copy of products for batch editing
   const [productList, setProductList] = useState<Product[]>(products);
@@ -258,6 +267,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   useEffect(() => {
     setProductList(products);
   }, [products]);
+
+  const [popupState, setPopupState] = useState<HomePopupConfig>(homePopupConfig);
+  useEffect(() => {
+    if (homePopupConfig) setPopupState(homePopupConfig);
+  }, [homePopupConfig]);
   const [productSearch, setProductSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState<'all' | 'device' | 'replace' | 'install'>('all');
@@ -1005,6 +1019,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <Settings className="w-4 h-4" />
             <span>⚙️ 사이트 정보 & 퀵채널</span>
           </button>
+
+          <button
+            onClick={() => setAdminTab('popup')}
+            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              adminTab === 'popup'
+                ? 'bg-purple-900 text-white shadow-md'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Bell className="w-4 h-4 text-purple-400" />
+            <span>🔔 홈페이지 팝업 & 네이버폼</span>
+          </button>
         </div>
 
         {/* TAB 1: BATCH PRODUCTS MANAGER */}
@@ -1373,7 +1399,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-extrabold border border-blue-200">
                           {product.type} ({product.power || '7kW'})
                         </span>
-                        {(product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || product.name.includes('공용') || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-')) ? (
+                        {((product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || (product.name.includes('공용') && !product.name.includes('개인용')) || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-')) && !product.name.includes('개인용') && !product.name.includes('가정용')) ? (
                           <span className="px-2 py-0.5 bg-rose-50 text-rose-700 rounded text-[10px] font-extrabold border border-rose-200">
                             🏢 공용 (견적문의)
                           </span>
@@ -2338,6 +2364,238 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: HOME POPUP & NAVER FORM LINK MANAGER */}
+        {adminTab === 'popup' && (
+          <div className="space-y-6">
+            <div className="bg-white p-5 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-purple-600" />
+                  홈페이지 접속 팝업 & 네이버폼 링크 설정
+                </h2>
+                <p className="text-xs text-slate-500 font-semibold mt-1">
+                  고객이 홈페이지에 들어왔을 때 나타나는 정품보증서/안내 팝업 및 네이버폼 연결 링크를 수정합니다.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                {onPreviewPopup && (
+                  <button
+                    onClick={onPreviewPopup}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 bg-purple-100 hover:bg-purple-200 text-purple-900 font-black text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>👁️ 팝업 실시간 미리보기</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    if (onSaveHomePopupConfig) {
+                      onSaveHomePopupConfig(popupState);
+                      try {
+                        localStorage.setItem('sy_home_popup_config', JSON.stringify(popupState));
+                      } catch (e) {
+                        console.error(e);
+                      }
+                      setSaveSuccessMsg('홈페이지 팝업 및 네이버폼 설정이 성공적으로 저장되었습니다!');
+                      setIsSavedRecently(true);
+                      setTimeout(() => setIsSavedRecently(false), 3000);
+                    }
+                  }}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 bg-purple-900 hover:bg-purple-950 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>팝업 설정 저장</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Primary Settings & Naver Form Link */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-2.5 flex items-center justify-between">
+                  <span>⚙️ 팝업 기본 설정 및 네이버폼 URL</span>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <span className="text-xs font-bold text-slate-600">팝업 노출</span>
+                    <input
+                      type="checkbox"
+                      checked={popupState.enabled}
+                      onChange={(e) => setPopupState({ ...popupState, enabled: e.target.checked })}
+                      className="w-4 h-4 accent-purple-700 cursor-pointer"
+                    />
+                  </label>
+                </h3>
+
+                {/* Naver Form Link Input (Highlighted) */}
+                <div className="bg-purple-50/80 border-2 border-purple-300 p-4 rounded-xl space-y-2">
+                  <label className="block text-xs font-black text-purple-950 flex items-center gap-1.5">
+                    <ExternalLink className="w-4 h-4 text-purple-700" />
+                    연결할 네이버폼 (Naver Form) URL 주소
+                  </label>
+                  <input
+                    type="url"
+                    value={popupState.naverFormUrl || ''}
+                    onChange={(e) => setPopupState({ ...popupState, naverFormUrl: e.target.value })}
+                    placeholder="https://form.naver.com/..."
+                    className="w-full px-3.5 py-2.5 bg-white border border-purple-300 rounded-xl text-xs font-mono font-bold text-purple-900 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-xs"
+                  />
+                  <p className="text-[11px] font-bold text-purple-800">
+                    💡 고객이 팝업창의 버튼을 누르면 위 작성된 네이버폼 링크로 즉시 연결됩니다.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    팝업 메인 타이틀 (예: 품질보증서)
+                  </label>
+                  <input
+                    type="text"
+                    value={popupState.title}
+                    onChange={(e) => setPopupState({ ...popupState, title: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    상단 황금 뱃지 문구 (예: ★ 4년 보증 ★ SE Charger)
+                  </label>
+                  <input
+                    type="text"
+                    value={popupState.badgeText}
+                    onChange={(e) => setPopupState({ ...popupState, badgeText: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    버튼 문구 (예: 보증서 발급받기)
+                  </label>
+                  <input
+                    type="text"
+                    value={popupState.buttonText}
+                    onChange={(e) => setPopupState({ ...popupState, buttonText: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    팝업 중앙 대표 이미지 URL
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={popupState.imageUrl}
+                      onChange={(e) => setPopupState({ ...popupState, imageUrl: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                    />
+                    <label className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl cursor-pointer shrink-0 flex items-center gap-1">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>업로드</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              const compressed = await compressImage(file, 800, 800, 0.8);
+                              setPopupState({ ...popupState, imageUrl: compressed });
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Banner Message & Tabs */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+                <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-2">
+                  📝 상세 안내 문구 및 하단 탭
+                </h3>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    메인 강조 헤드라인
+                  </label>
+                  <input
+                    type="text"
+                    value={popupState.mainText}
+                    onChange={(e) => setPopupState({ ...popupState, mainText: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    서브 메시지 (보라색 강조)
+                  </label>
+                  <input
+                    type="text"
+                    value={popupState.subText}
+                    onChange={(e) => setPopupState({ ...popupState, subText: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    하단 보증 약관 / 안내 사항
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={popupState.noticeText}
+                    onChange={(e) => setPopupState({ ...popupState, noticeText: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 leading-relaxed"
+                  />
+                </div>
+
+                <div className="border-t border-slate-100 pt-3 space-y-2">
+                  <span className="text-xs font-black text-slate-900 block">하단 탭 3개 라벨 & 연결 링크 (선택사항)</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 1 (라벨)</span>
+                      <input
+                        type="text"
+                        value={popupState.tab1Label}
+                        onChange={(e) => setPopupState({ ...popupState, tab1Label: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                      />
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 2 (라벨)</span>
+                      <input
+                        type="text"
+                        value={popupState.tab2Label}
+                        onChange={(e) => setPopupState({ ...popupState, tab2Label: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                      />
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 3 (라벨)</span>
+                      <input
+                        type="text"
+                        value={popupState.tab3Label}
+                        onChange={(e) => setPopupState({ ...popupState, tab3Label: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

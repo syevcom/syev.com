@@ -18,6 +18,7 @@ import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import CartModal from './components/CartModal';
 import AIChatBot from './components/AIChatBot';
+import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './components/HomePopupModal';
 import { AdminPage } from './components/AdminPage';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
@@ -97,6 +98,41 @@ export default function App() {
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+
+  // Home Popup Config & State
+  const [homePopupConfig, setHomePopupConfig] = useState<HomePopupConfig>(() => {
+    try {
+      const saved = localStorage.getItem('sy_home_popup_config');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return DEFAULT_HOME_POPUP_CONFIG;
+  });
+  const [isHomePopupOpen, setIsHomePopupOpen] = useState(false);
+
+  // Auto-open Home Popup on homepage mount if enabled and not hidden for today
+  useEffect(() => {
+    if (activePage === 'home' && homePopupConfig.enabled) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const hiddenDate = localStorage.getItem('sy_popup_hide_date');
+      if (hiddenDate !== todayStr) {
+        const timer = setTimeout(() => {
+          setIsHomePopupOpen(true);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [activePage, homePopupConfig.enabled]);
+
+  const handleSaveHomePopupConfig = (newConfig: HomePopupConfig) => {
+    setHomePopupConfig(newConfig);
+    try {
+      localStorage.setItem('sy_home_popup_config', JSON.stringify(newConfig));
+    } catch (e) {
+      console.error(e);
+    }
+  };
   
   // Cart items state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -418,15 +454,16 @@ export default function App() {
             }
             const b = (p.brand || '').toLowerCase();
             const n = (p.name || '').toLowerCase();
-            const isPublic = p.detailCategory === '공용완속' ||
+            const isPublic = (
+              p.detailCategory === '공용완속' ||
               p.detailCategory === '급속' ||
               p.type === '급속' ||
               p.id.startsWith('park-') ||
-              n.includes('공용') ||
+              (n.includes('공용') && !n.includes('개인용')) ||
               n.includes('수익형') ||
               n.includes('관공서') ||
-              n.includes('조달상품') ||
-              n.includes('biz');
+              n.includes('조달상품')
+            ) && !n.includes('개인용') && !n.includes('가정용');
 
             if (isPublic) {
               if (p.optionGroups && p.optionGroups.length === 1 && p.optionGroups[0].title === '커넥터길이') {
@@ -1702,6 +1739,9 @@ export default function App() {
             onSaveSnsConfig={handleSaveSnsConfig}
             footerConfig={footerConfig}
             onSaveFooterConfig={handleSaveFooterConfig}
+            homePopupConfig={homePopupConfig}
+            onSaveHomePopupConfig={handleSaveHomePopupConfig}
+            onPreviewPopup={() => setIsHomePopupOpen(true)}
             onNavigateHome={() => handlePageChange('home')}
           />
         );
@@ -1878,6 +1918,15 @@ export default function App() {
             >
               blog
             </a>
+
+            {/* Re-open Warranty / Popup Button */}
+            <button
+              onClick={() => setIsHomePopupOpen(true)}
+              title="품질보증서 / 정품등록 팝업 열기"
+              className="w-10 h-10 rounded-full bg-purple-800 hover:bg-purple-900 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-purple-400/40"
+            >
+              <span className="text-sm">📜</span>
+            </button>
           </div>
 
           {/* Quick Scroll Top / Bottom buttons */}
@@ -2140,6 +2189,16 @@ export default function App() {
               장바구니 보기
             </button>
           </motion.div>
+        )}
+
+        {/* Home Entry Popup Modal (Naver Form / Warranty Popup) */}
+        {isHomePopupOpen && (
+          <HomePopupModal
+            isOpen={isHomePopupOpen}
+            onClose={() => setIsHomePopupOpen(false)}
+            config={homePopupConfig}
+            onOpenQuoteModal={() => setIsQuoteOpen(true)}
+          />
         )}
 
         {/* 24/7 AI 1:1 Live Support Chatbot */}

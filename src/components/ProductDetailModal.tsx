@@ -45,15 +45,16 @@ export default function ProductDetailModal({
   // Dynamic additional option groups state
   const [activeOptionGroups, setActiveOptionGroups] = useState<ProductOptionGroup[]>(() => {
     if (!product) return DEFAULT_RESIDENTIAL_OPTION_GROUPS;
-    const isPublic = product.detailCategory === '공용완속' ||
+    const isPublic = (
+      product.detailCategory === '공용완속' ||
       product.detailCategory === '급속' ||
       product.type === '급속' ||
-      product.name.includes('공용') ||
+      (product.name.includes('공용') && !product.name.includes('개인용')) ||
       product.name.includes('수익형') ||
       product.name.includes('관공서') ||
       product.name.includes('조달상품') ||
-      product.name.includes('BIZ') ||
-      product.id.startsWith('park-');
+      product.id.startsWith('park-')
+    ) && !product.name.includes('개인용') && !product.name.includes('가정용');
 
     if (isPublic) {
       if (product.optionGroups && product.optionGroups.length === 1) return product.optionGroups;
@@ -66,15 +67,16 @@ export default function ProductDetailModal({
 
   useEffect(() => {
     if (product) {
-      const isPublic = product.detailCategory === '공용완속' ||
+      const isPublic = (
+        product.detailCategory === '공용완속' ||
         product.detailCategory === '급속' ||
         product.type === '급속' ||
-        product.name.includes('공용') ||
+        (product.name.includes('공용') && !product.name.includes('개인용')) ||
         product.name.includes('수익형') ||
         product.name.includes('관공서') ||
         product.name.includes('조달상품') ||
-        product.name.includes('BIZ') ||
-        product.id.startsWith('park-');
+        product.id.startsWith('park-')
+      ) && !product.name.includes('개인용') && !product.name.includes('가정용');
 
       let groups = product.optionGroups && product.optionGroups.length > 0
         ? product.optionGroups
@@ -455,7 +457,16 @@ export default function ProductDetailModal({
               {/* Pricing Display */}
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 {(() => {
-                  const isPublic = product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || product.name.includes('공용') || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-');
+                  const isPublic = (
+                    product.detailCategory === '공용완속' ||
+                    product.detailCategory === '급속' ||
+                    product.type === '급속' ||
+                    (product.name.includes('공용') && !product.name.includes('개인용')) ||
+                    product.name.includes('수익형') ||
+                    product.name.includes('관공서') ||
+                    product.name.includes('조달상품') ||
+                    product.id.startsWith('park-')
+                  ) && !product.name.includes('개인용') && !product.name.includes('가정용');
                   if (isPublic) {
                     return (
                       <div className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">

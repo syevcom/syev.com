@@ -171,7 +171,16 @@ export default function ProductsSection({
                 {/* Price Label displaying Original Strikethrough & Discounted Price */}
                 <div className="pt-1 pb-1 space-y-0.5">
                   {(() => {
-                    const isPublic = p.detailCategory === '공용완속' || p.detailCategory === '급속' || p.type === '급속' || p.name.includes('공용') || p.name.includes('수익형') || p.name.includes('관공서') || p.name.includes('조달상품') || p.id.startsWith('park-');
+                    const isPublic = (
+                      p.detailCategory === '공용완속' ||
+                      p.detailCategory === '급속' ||
+                      p.type === '급속' ||
+                      (p.name.includes('공용') && !p.name.includes('개인용')) ||
+                      p.name.includes('수익형') ||
+                      p.name.includes('관공서') ||
+                      p.name.includes('조달상품') ||
+                      p.id.startsWith('park-')
+                    ) && !p.name.includes('개인용') && !p.name.includes('가정용');
                     if (isPublic) {
                       return (
                         <div className="text-base sm:text-lg font-black text-rose-600 flex items-baseline gap-1">
