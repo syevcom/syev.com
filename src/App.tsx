@@ -514,6 +514,8 @@ export default function App() {
 
         const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+        deletedSet.add('res-7kw-chargego');
+        deletedSet.add('park-11kw-spil');
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
@@ -873,6 +875,8 @@ export default function App() {
       try {
         const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+        deletedSet.add('res-7kw-chargego');
+        deletedSet.add('park-11kw-spil');
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;

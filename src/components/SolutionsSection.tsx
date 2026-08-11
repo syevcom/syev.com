@@ -668,6 +668,8 @@ export default function SolutionsSection({
     const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
     const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
     const REMOVED_SET = new Set([
+      'res-7kw-chargego',
+      'park-11kw-spil',
       'res-7kw-convenient',
       'res-7kw-safe',
       'res-7kw-hyundai',
@@ -678,32 +680,35 @@ export default function SolutionsSection({
       'sy-stand-01'
     ]);
     
-    const result: Record<string, SolutionProduct[]> = { ...parsed };
+    const result: Record<string, SolutionProduct[]> = {};
     let modified = false;
 
     Object.keys(HOME_PRODUCTS_DATA).forEach((cat) => {
-      if (!result[cat]) {
-        result[cat] = [...HOME_PRODUCTS_DATA[cat]];
+      // First clean up any removed items in existing parsed list
+      const existingRaw = parsed[cat] || HOME_PRODUCTS_DATA[cat] || [];
+      const cleanedExisting = existingRaw.filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id));
+      
+      if (cleanedExisting.length !== existingRaw.length) {
         modified = true;
-      } else {
-        const existingList = [...result[cat]];
-        HOME_PRODUCTS_DATA[cat].forEach((defaultProd) => {
-          if (!REMOVED_SET.has(defaultProd.id) && !deletedSet.has(defaultProd.id)) {
-            const exists = existingList.some(p => 
-              p.id === defaultProd.id || 
-              (p.name && p.name.trim() === defaultProd.name.trim()) || 
-              ((defaultProd.id === 'sy-ac11-bi' || defaultProd.id === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil')) ||
-              ((defaultProd.id === 'sy-ac07' || defaultProd.id === 'res-7kw-spil') && (p.id === 'sy-ac07' || p.id === 'res-7kw-spil')) ||
-              ((defaultProd.id === 'sy-ac05' || defaultProd.id === 'res-5kw-spil') && (p.id === 'sy-ac05' || p.id === 'res-5kw-spil'))
-            );
-            if (!exists) {
-              existingList.unshift(defaultProd);
-              modified = true;
-            }
-          }
-        });
-        result[cat] = existingList;
       }
+
+      const existingList = [...cleanedExisting];
+      HOME_PRODUCTS_DATA[cat].forEach((defaultProd) => {
+        if (!REMOVED_SET.has(defaultProd.id) && !deletedSet.has(defaultProd.id)) {
+          const exists = existingList.some(p => 
+            p.id === defaultProd.id || 
+            (p.name && p.name.trim() === defaultProd.name.trim()) || 
+            ((defaultProd.id === 'sy-ac11-bi' || defaultProd.id === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil')) ||
+            ((defaultProd.id === 'sy-ac07' || defaultProd.id === 'res-7kw-spil') && (p.id === 'sy-ac07' || p.id === 'res-7kw-spil')) ||
+            ((defaultProd.id === 'sy-ac05' || defaultProd.id === 'res-5kw-spil') && (p.id === 'sy-ac05' || p.id === 'res-5kw-spil'))
+          );
+          if (!exists) {
+            existingList.unshift(defaultProd);
+            modified = true;
+          }
+        }
+      });
+      result[cat] = existingList;
     });
 
     if (modified) {
