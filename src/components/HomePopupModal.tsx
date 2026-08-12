@@ -23,19 +23,19 @@ export interface HomePopupConfig {
 export const DEFAULT_HOME_POPUP_CONFIG: HomePopupConfig = {
   enabled: true,
   title: '품질보증서',
-  badgeText: '★ 4년 보증 ★ SE Charger',
+  badgeText: '★ 4년 무상 보증 ★ SE Charger',
   mainText: '스필일렉트릭 구매 및 설치후 꼭 정품보증서를 발급받으세요',
   subText: '무상4년 A/S를 위해 꼭 받아두세요',
   buttonText: '보증서 발급받기',
   naverFormUrl: 'https://form.naver.com/', // 네이버폼 연결 URL (관리자페이지에서 변경 가능)
   imageUrl: SPEEL_11KW_REPRESENTATIVE_IMAGE,
-  tab1Label: '포토리뷰이벤트',
+  tab1Label: '',
   tab1Url: '',
   tab2Label: '정품등록',
   tab2Url: '',
-  tab3Label: '상담시간연장',
+  tab3Label: '',
   tab3Url: '',
-  noticeText: '1. 본 제품의 보증 기간은 구입일로부터 4년입니다.\n2. 보증 기간 내에 부품이나 제조상의 결함이 있을 경우에는 무상으로 수리 또는 교체하여 드립니다.\n3. 이 보증서는 국내(대한민국)에서만 유효합니다.\n4. 무상 보증기간 이내라 하더라도 사용자 과실 시 유상 처리됩니다.\n[AS 접수문의: 031-898-1111]'
+  noticeText: '1. 본 제품의 보증 기간은 구입일로부터 4년입니다.\n2. 보증 기간 내에 부품이나 제조상의 결함이 있을 경우에는 무상으로 수리 또는 교체하여 드립니다.\n3. 이 보증서는 국내(대한민국)에서만 유효합니다.\n4. 무상 보증기간 이내라 하더라도 사용자 과실 시 유상 처리됩니다.'
 };
 
 interface HomePopupModalProps {
@@ -82,130 +82,119 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
     }
   };
 
+  const availableTabs = [
+    { id: 'tab1' as const, label: config.tab1Label, url: config.tab1Url },
+    { id: 'tab2' as const, label: config.tab2Label, url: config.tab2Url },
+    { id: 'tab3' as const, label: config.tab3Label, url: config.tab3Url }
+  ].filter(t => t.label && t.label.trim() !== '');
+
   return (
     <div 
-      className="fixed bottom-4 left-3 sm:bottom-6 sm:left-6 z-50 w-[310px] sm:w-[330px] max-w-[calc(100vw-24px)] animate-in slide-in-from-bottom-5 fade-in duration-300 font-sans"
+      className="fixed bottom-4 left-3 sm:bottom-6 sm:left-6 z-50 w-[320px] sm:w-[350px] max-w-[calc(100vw-24px)] animate-in slide-in-from-bottom-5 fade-in duration-300 font-sans"
     >
       <div 
-        className="relative w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-purple-200/90 flex flex-col max-h-[85vh] ring-1 ring-black/10"
+        className="relative w-full bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-amber-500/40 flex flex-col max-h-[88vh] ring-1 ring-amber-500/20 text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Close Button (X) */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 z-20 p-1 rounded-full bg-black/40 text-white hover:bg-black/70 transition-colors shadow-md cursor-pointer"
+          className="absolute top-2.5 right-2.5 z-20 p-1.5 rounded-full bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors shadow-md border border-slate-700 cursor-pointer"
           title="닫기"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Main Banner Body */}
-        <div className="relative overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-purple-950 via-purple-900 to-indigo-950 text-white p-3.5 sm:p-4 text-center">
+        <div className="relative overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 p-4 text-center">
           
-          {/* Top Gold Seal / Badge */}
-          <div className="inline-flex items-center justify-center bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 text-amber-950 font-black text-[10px] sm:text-xs px-3 py-1 rounded-full shadow-md border border-amber-100 mb-2 tracking-tight">
-            <Award className="w-3.5 h-3.5 mr-1 text-amber-900 fill-amber-300" />
-            {config.badgeText || '★ 4년 보증 ★ SE Charger'}
+          {/* Top Gold Badge */}
+          <div className="inline-flex items-center justify-center bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-slate-950 font-black text-xs px-3.5 py-1 rounded-full shadow-md border border-amber-200/60 mb-2 tracking-tight">
+            <Award className="w-3.5 h-3.5 mr-1 text-slate-950 fill-amber-900" />
+            {config.badgeText || '★ 4년 무상 보증 ★ SE Charger'}
           </div>
 
           {/* Title */}
-          <h2 className="text-lg sm:text-xl font-black text-white tracking-tight mb-2.5 drop-shadow-sm">
+          <h2 className="text-xl sm:text-2xl font-black text-amber-200 tracking-tight mb-3 drop-shadow-sm">
             {config.title || '품질보증서'}
           </h2>
 
           {/* Product Graphic + Card Wrapper */}
-          <div className="relative my-2 bg-white/95 rounded-xl p-3 text-slate-900 shadow-md border border-white/50 backdrop-blur-md">
+          <div className="relative my-2 bg-slate-800/90 rounded-xl p-3.5 text-slate-100 shadow-xl border border-amber-500/30 backdrop-blur-md">
             
-            {/* Background Charger Image / Graphic */}
-            <div className="flex justify-center mb-2">
-              <div className="relative w-20 h-20 sm:w-22 sm:h-22 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 shadow-inner flex items-center justify-center">
+            {/* Enlarged Charger Image / Graphic */}
+            <div className="flex justify-center mb-3">
+              <div className="relative w-36 h-36 sm:w-44 sm:h-44 bg-slate-950 rounded-xl overflow-hidden border border-amber-500/30 shadow-inner flex items-center justify-center p-2 group">
                 <img
                   src={config.imageUrl || SPEEL_11KW_REPRESENTATIVE_IMAGE}
                   alt="품질보증서 대상 충전기"
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full object-contain filter drop-shadow-md transition-transform duration-300 group-hover:scale-105"
                 />
-                <div className="absolute top-1 right-1 bg-purple-700 text-white text-[9px] font-bold px-1 py-0.5 rounded">
+                <div className="absolute top-1.5 right-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
                   4년 무상 A/S
                 </div>
               </div>
             </div>
 
             {/* Headline Banner Text */}
-            <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug break-keep mb-1">
+            <h3 className="text-sm sm:text-base font-extrabold text-white leading-snug break-keep mb-1">
               {config.mainText || '스필일렉트릭 구매 및 설치후 꼭 정품보증서를 발급받으세요'}
             </h3>
             
-            <p className="text-[11px] font-bold text-purple-700 mb-3">
+            <p className="text-xs font-bold text-amber-400 mb-3.5">
               {config.subText || '무상4년 A/S를 위해 꼭 받아두세요'}
             </p>
 
-            {/* Prominent CTA Button to Naver Form */}
+            {/* Prominent Gold CTA Button */}
             <button
               onClick={handleCtaClick}
-              className="w-full py-2.5 px-3 bg-purple-900 hover:bg-purple-950 text-white font-black text-xs rounded-full shadow-md hover:shadow-purple-900/40 transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-1.5 border border-purple-500/30 cursor-pointer"
+              className="w-full py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-xs sm:text-sm rounded-full shadow-lg shadow-amber-500/20 transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-1.5 border border-amber-200/50 cursor-pointer"
             >
               <span>{config.buttonText || '보증서 발급받기'}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-purple-200" />
+              <ExternalLink className="w-4 h-4 text-slate-950" />
             </button>
           </div>
 
           {/* Notice / Terms */}
-          <div className="mt-2 text-left bg-black/20 rounded-lg p-2.5 text-[9px] sm:text-[10px] text-purple-200/90 leading-relaxed border border-purple-800/40 whitespace-pre-line max-h-24 overflow-y-auto custom-scrollbar">
-            <div className="font-bold text-amber-300 mb-0.5 flex items-center">
-              <CheckCircle2 className="w-3 h-3 mr-1" />
+          <div className="mt-3 text-left bg-slate-950/80 rounded-xl p-3 text-[10px] text-slate-300 leading-relaxed border border-slate-700/60 whitespace-pre-line max-h-24 overflow-y-auto custom-scrollbar">
+            <div className="font-bold text-amber-400 mb-1 flex items-center text-[11px]">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-amber-400" />
               보증 서비스 안내
             </div>
             {config.noticeText}
           </div>
         </div>
 
-        {/* Bottom Tabs */}
-        <div className="grid grid-cols-3 bg-slate-100 border-t border-slate-200">
-          <button
-            onClick={() => handleTabClick('tab1', config.tab1Url)}
-            className={`py-2 px-1 text-[11px] font-bold transition-colors border-r border-slate-200 cursor-pointer ${
-              activeTab === 'tab1' 
-                ? 'bg-slate-700 text-white font-extrabold' 
-                : 'bg-white text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            {config.tab1Label || '포토리뷰이벤트'}
-          </button>
-
-          <button
-            onClick={() => handleTabClick('tab2', config.tab2Url)}
-            className={`py-2 px-1 text-[11px] font-bold transition-colors border-r border-slate-200 cursor-pointer ${
-              activeTab === 'tab2' 
-                ? 'bg-slate-700 text-white font-extrabold' 
-                : 'bg-white text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            {config.tab2Label || '정품등록'}
-          </button>
-
-          <button
-            onClick={() => handleTabClick('tab3', config.tab3Url)}
-            className={`py-2 px-1 text-[11px] font-bold transition-colors cursor-pointer ${
-              activeTab === 'tab3' 
-                ? 'bg-slate-700 text-white font-extrabold' 
-                : 'bg-white text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            {config.tab3Label || '상담시간연장'}
-          </button>
-        </div>
+        {/* Bottom Tabs (Only rendered if available) */}
+        {availableTabs.length > 0 && (
+          <div className={`grid grid-cols-${availableTabs.length} bg-slate-800 border-t border-slate-700`}>
+            {availableTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id, tab.url)}
+                className={`py-2 px-1 text-xs font-bold transition-colors border-r border-slate-700 last:border-r-0 cursor-pointer ${
+                  activeTab === tab.id 
+                    ? 'bg-amber-500 text-slate-950 font-extrabold' 
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Bottom Bar (Dont show today / Close) */}
-        <div className="flex items-center justify-between bg-slate-900 text-slate-300 text-[11px] px-3 py-2 font-bold">
+        <div className="flex items-center justify-between bg-slate-950 text-slate-400 text-[11px] px-3.5 py-2 font-bold border-t border-slate-800">
           <button
             onClick={handleDontShowToday}
-            className="hover:text-white transition-colors cursor-pointer flex items-center py-0.5 text-[10px] sm:text-[11px]"
+            className="hover:text-amber-300 transition-colors cursor-pointer flex items-center py-0.5 text-[11px]"
           >
             <span>오늘 하루 보이지 않음</span>
           </button>
           <button
             onClick={onClose}
-            className="hover:text-white transition-colors cursor-pointer px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 text-[10px] sm:text-[11px]"
+            className="hover:text-white transition-colors cursor-pointer px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-md text-slate-300 text-[11px] border border-slate-700"
           >
             닫기
           </button>

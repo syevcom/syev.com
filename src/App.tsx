@@ -139,6 +139,14 @@ export default function App() {
       console.error(e);
     }
   };
+
+  const handlePreviewPopup = (configToPreview?: HomePopupConfig) => {
+    if (configToPreview) {
+      handleSaveHomePopupConfig(configToPreview);
+    }
+    localStorage.removeItem('sy_popup_hide_date');
+    setIsHomePopupOpen(true);
+  };
   
   // Cart items state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -1785,7 +1793,7 @@ export default function App() {
             onSaveFooterConfig={handleSaveFooterConfig}
             homePopupConfig={homePopupConfig}
             onSaveHomePopupConfig={handleSaveHomePopupConfig}
-            onPreviewPopup={() => setIsHomePopupOpen(true)}
+            onPreviewPopup={(cfg) => handlePreviewPopup(cfg)}
             onNavigateHome={() => handlePageChange('home')}
           />
         );

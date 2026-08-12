@@ -239,7 +239,7 @@ interface AdminPageProps {
   onSaveFooterConfig: (config: any) => void;
   homePopupConfig?: HomePopupConfig;
   onSaveHomePopupConfig?: (config: HomePopupConfig) => void;
-  onPreviewPopup?: () => void;
+  onPreviewPopup?: (config?: HomePopupConfig) => void;
   onNavigateHome: () => void;
 }
 
@@ -2500,8 +2500,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
                 {onPreviewPopup && (
                   <button
-                    onClick={onPreviewPopup}
-                    className="flex-1 sm:flex-initial px-4 py-2.5 bg-purple-100 hover:bg-purple-200 text-purple-900 font-black text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    onClick={() => onPreviewPopup(popupState)}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-950 font-black text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 border border-amber-300/80 shadow-xs"
                   >
                     <span>👁️ 팝업 실시간 미리보기</span>
                   </button>
@@ -2696,7 +2696,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    서브 메시지 (보라색 강조)
+                    서브 메시지 (금색/골드 강조)
                   </label>
                   <input
                     type="text"
