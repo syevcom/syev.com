@@ -11,6 +11,7 @@ import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMA
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 import { compressImage } from '../lib/imageCompressor';
+import { OptionPreset, INITIAL_OPTION_PRESETS } from './AdminPage';
 
 export const BRAND_METADATA: Record<string, {
   name: string;
@@ -190,17 +191,6 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       tags: ['MD CHOICE', 'HIT']
     },
     {
-      id: 'res-5kw-evsis',
-      name: '롯데 이브이시스 5kW 스마트홈 충전기',
-      description: '초소형 세련된 북유럽풍 미니멀 디자인, 롯데 EVSIS 5kW 프리미엄 충전기',
-      regularPrice: 920000,
-      price: 790000,
-      discount: 14,
-      serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['PREMIUM', 'BEST']
-    },
-    {
       id: 'res-5kw-chargego',
       name: '차지고 5kW 개인용 전기차 충전기',
       description: '[예약충전 기능] 충전본체 분해없이 설치가능, 자가교체 가능한 커플러',
@@ -247,17 +237,6 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
       tags: ['MD CHOICE', 'NEW']
-    },
-    {
-      id: 'sy-home07',
-      name: '롯데 EVSIS 7kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
-      description: '초소형 세련된 북유럽풍 미니멀 디자인, 블루투스 인증 예약 충전 기능',
-      regularPrice: 1100000,
-      price: 840000,
-      discount: 24,
-      serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-      tags: ['PREMIUM', 'BEST']
     }
   ],
   '11kW': [
@@ -301,17 +280,6 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       serviceType: 'all',
       image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
       tags: ['HIT']
-    },
-    {
-      id: 'res-11kw-evsis',
-      name: '롯데 EVSIS 11kW 개인용 전기차 충전기',
-      description: 'OCPP 1.6 통신 모듈, 스마트 RFID 본인 인증 및 예약 제어 시스템',
-      regularPrice: 1390000,
-      price: 1200000,
-      discount: 14,
-      serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-      tags: ['PREMIUM', 'BEST']
     }
   ]
 };
@@ -524,6 +492,10 @@ export default function SolutionsSection({
   const [editInstallOptionGroups, setEditInstallOptionGroups] = useState<ProductOptionGroup[]>([]);
   const [isDraggingProductImage, setIsDraggingProductImage] = useState(false);
 
+  // Option Preset Template state for detail editor
+  const [optionPresetsList, setOptionPresetsList] = useState<OptionPreset[]>([]);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('');
+
   // Left side image picker states
   const [isLeftImagePickerOpen, setIsLeftImagePickerOpen] = useState(false);
   const [customImageUrlInput, setCustomImageUrlInput] = useState('');
@@ -637,6 +609,23 @@ export default function SolutionsSection({
       setEditDeviceOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '단말기 단품'));
       setEditReplaceOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '교체 시공'));
       setEditInstallOptionGroups(getOptionGroupsForProduct(activeDetailProduct, '신규 설치 포함'));
+
+      // Load saved option presets from localStorage or default
+      try {
+        const savedPresets = localStorage.getItem('sy_cms_option_presets_v2');
+        if (savedPresets) {
+          const parsed = JSON.parse(savedPresets);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setOptionPresetsList(parsed);
+          } else {
+            setOptionPresetsList(INITIAL_OPTION_PRESETS);
+          }
+        } else {
+          setOptionPresetsList(INITIAL_OPTION_PRESETS);
+        }
+      } catch (e) {
+        setOptionPresetsList(INITIAL_OPTION_PRESETS);
+      }
     }
   }, [activeDetailProduct, isDetailEditing]);
 
@@ -677,7 +666,11 @@ export default function SolutionsSection({
       'res-5kw-convenient',
       'res-5kw-safe',
       'sy-canopy-01',
-      'sy-stand-01'
+      'sy-stand-01',
+      'res-5kw-evsis',
+      'sy-home07',
+      'res-7kw-evsis',
+      'res-11kw-evsis'
     ]);
     
     const result: Record<string, SolutionProduct[]> = {};
@@ -1778,6 +1771,116 @@ export default function SolutionsSection({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-slate-800">서비스 유형별 옵션 설정</span>
                     <span className="text-[10px] text-slate-500 font-bold">서비스별로 다른 상세 옵션을 제공합니다</span>
+                  </div>
+
+                  {/* Saved Option Presets Quick Bar */}
+                  <div className="bg-amber-50/90 border border-amber-200/90 rounded-xl p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
+                        <span>🔖</span>
+                        <span>저장된 옵션 템플릿 불러오기 / 적용</span>
+                        <span className="text-[10px] text-amber-800 font-bold">({optionPresetsList.length}개)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentGrp = editActiveOptionTab === 'device'
+                            ? editDeviceOptionGroups
+                            : editActiveOptionTab === 'replace'
+                            ? editReplaceOptionGroups
+                            : editInstallOptionGroups;
+
+                          if (currentGrp.length === 0) {
+                            alert('저장할 옵션 그룹이 없습니다.');
+                            return;
+                          }
+                          const defaultName = `${editName || '상품'} 전용 옵션`;
+                          const presetName = prompt('현재 탭의 옵션들을 새로운 템플릿으로 저장합니다.\n템플릿 이름을 입력해 주세요:', defaultName);
+                          if (presetName && presetName.trim()) {
+                            const newPreset: OptionPreset = {
+                              id: `preset-${Date.now()}`,
+                              name: presetName.trim(),
+                              brand: activeDetailProduct?.brand || '스필',
+                              description: `${editName} 기준 옵션 (${currentGrp.length}개 그룹)`,
+                              optionGroups: JSON.parse(JSON.stringify(currentGrp))
+                            };
+                            const updated = [...optionPresetsList, newPreset];
+                            localStorage.setItem('sy_cms_option_presets_v2', JSON.stringify(updated));
+                            setOptionPresetsList(updated);
+                            setSelectedPresetId(newPreset.id);
+                            alert(`'${presetName.trim()}' 템플릿이 저장되었습니다!`);
+                          }
+                        }}
+                        className="text-[10px] font-black text-amber-800 hover:text-amber-950 underline cursor-pointer"
+                      >
+                        + 현재 옵션을 템플릿으로 저장
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <select
+                        value={selectedPresetId}
+                        onChange={(e) => setSelectedPresetId(e.target.value)}
+                        className="flex-1 bg-white border border-amber-300 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      >
+                        <option value="">-- 적용할 옵션 템플릿 선택 --</option>
+                        {optionPresetsList.map((preset) => (
+                          <option key={preset.id} value={preset.id}>
+                            [{preset.brand || '일반'}] {preset.name} ({preset.optionGroups.length}개 그룹)
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedPresetId) {
+                              alert('적용할 템플릿을 선택해 주세요.');
+                              return;
+                            }
+                            const preset = optionPresetsList.find(p => p.id === selectedPresetId);
+                            if (!preset) return;
+
+                            const cloned = JSON.parse(JSON.stringify(preset.optionGroups));
+                            if (editActiveOptionTab === 'device') setEditDeviceOptionGroups(cloned);
+                            else if (editActiveOptionTab === 'replace') setEditReplaceOptionGroups(cloned);
+                            else setEditInstallOptionGroups(cloned);
+
+                            const tabName = editActiveOptionTab === 'device' ? '단말기 단품' : editActiveOptionTab === 'replace' ? '교체 시공' : '신규 설치';
+                            alert(`'${preset.name}' 템플릿이 [${tabName}] 탭에 적용되었습니다!`);
+                          }}
+                          className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-lg text-xs font-black shadow-xs cursor-pointer transition-all"
+                        >
+                          현재 탭에 적용
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!selectedPresetId) {
+                              alert('적용할 템플릿을 선택해 주세요.');
+                              return;
+                            }
+                            const preset = optionPresetsList.find(p => p.id === selectedPresetId);
+                            if (!preset) return;
+
+                            if (confirm(`'${preset.name}' 템플릿을 [단말기 단품, 교체 시공, 신규 설치] 3개 탭 전체에 일괄 적용하시겠습니까?`)) {
+                              const cloned1 = JSON.parse(JSON.stringify(preset.optionGroups));
+                              const cloned2 = JSON.parse(JSON.stringify(preset.optionGroups));
+                              const cloned3 = JSON.parse(JSON.stringify(preset.optionGroups));
+                              setEditDeviceOptionGroups(cloned1);
+                              setEditReplaceOptionGroups(cloned2);
+                              setEditInstallOptionGroups(cloned3);
+                              alert(`'${preset.name}' 템플릿이 모든 서비스 탭에 적용되었습니다!`);
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white rounded-lg text-xs font-black shadow-xs cursor-pointer transition-all"
+                        >
+                          전체 탭에 적용
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Sub-tabs for Service Types */}

@@ -69,7 +69,11 @@ const REMOVED_PRODUCT_IDS = new Set([
   'res-5kw-convenient',
   'res-5kw-safe',
   'sy-canopy-01',
-  'sy-stand-01'
+  'sy-stand-01',
+  'res-5kw-evsis',
+  'sy-home07',
+  'res-7kw-evsis',
+  'res-11kw-evsis'
 ]);
 
 export default function App() {
@@ -516,6 +520,10 @@ export default function App() {
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
         deletedSet.add('res-7kw-chargego');
         deletedSet.add('park-11kw-spil');
+        deletedSet.add('res-5kw-evsis');
+        deletedSet.add('sy-home07');
+        deletedSet.add('res-7kw-evsis');
+        deletedSet.add('res-11kw-evsis');
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
@@ -877,6 +885,10 @@ export default function App() {
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
         deletedSet.add('res-7kw-chargego');
         deletedSet.add('park-11kw-spil');
+        deletedSet.add('res-5kw-evsis');
+        deletedSet.add('sy-home07');
+        deletedSet.add('res-7kw-evsis');
+        deletedSet.add('res-11kw-evsis');
 
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;

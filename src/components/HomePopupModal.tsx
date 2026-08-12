@@ -83,80 +83,82 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in duration-200">
+    <div 
+      className="fixed bottom-4 left-3 sm:bottom-6 sm:left-6 z-50 w-[310px] sm:w-[330px] max-w-[calc(100vw-24px)] animate-in slide-in-from-bottom-5 fade-in duration-300 font-sans"
+    >
       <div 
-        className="relative w-full max-w-sm sm:max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border border-purple-200 flex flex-col max-h-[92vh] font-sans"
+        className="relative w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-purple-200/90 flex flex-col max-h-[85vh] ring-1 ring-black/10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Close Button (X) */}
         <button
           onClick={onClose}
-          className="absolute top-2.5 right-2.5 z-20 p-1.5 rounded-full bg-black/40 text-white hover:bg-black/70 transition-colors shadow-md"
+          className="absolute top-2 right-2 z-20 p-1 rounded-full bg-black/40 text-white hover:bg-black/70 transition-colors shadow-md cursor-pointer"
           title="닫기"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Main Banner Body */}
-        <div className="relative overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-purple-950 via-purple-900 to-indigo-950 text-white p-5 text-center">
+        <div className="relative overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-purple-950 via-purple-900 to-indigo-950 text-white p-3.5 sm:p-4 text-center">
           
           {/* Top Gold Seal / Badge */}
-          <div className="inline-flex items-center justify-center bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 text-amber-950 font-black text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-lg border border-amber-100 mb-3 tracking-tight">
-            <Award className="w-4 h-4 mr-1 text-amber-900 fill-amber-300" />
+          <div className="inline-flex items-center justify-center bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 text-amber-950 font-black text-[10px] sm:text-xs px-3 py-1 rounded-full shadow-md border border-amber-100 mb-2 tracking-tight">
+            <Award className="w-3.5 h-3.5 mr-1 text-amber-900 fill-amber-300" />
             {config.badgeText || '★ 4년 보증 ★ SE Charger'}
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
+          <h2 className="text-lg sm:text-xl font-black text-white tracking-tight mb-2.5 drop-shadow-sm">
             {config.title || '품질보증서'}
           </h2>
 
           {/* Product Graphic + Card Wrapper */}
-          <div className="relative my-3 bg-white/95 rounded-2xl p-4 sm:p-5 text-slate-900 shadow-xl border border-white/50 backdrop-blur-md">
+          <div className="relative my-2 bg-white/95 rounded-xl p-3 text-slate-900 shadow-md border border-white/50 backdrop-blur-md">
             
             {/* Background Charger Image / Graphic */}
-            <div className="flex justify-center mb-3">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-inner flex items-center justify-center">
+            <div className="flex justify-center mb-2">
+              <div className="relative w-20 h-20 sm:w-22 sm:h-22 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 shadow-inner flex items-center justify-center">
                 <img
                   src={config.imageUrl || SPEEL_11KW_REPRESENTATIVE_IMAGE}
                   alt="품질보증서 대상 충전기"
                   className="w-full h-full object-contain p-1"
                 />
-                <div className="absolute top-1 right-1 bg-purple-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                <div className="absolute top-1 right-1 bg-purple-700 text-white text-[9px] font-bold px-1 py-0.5 rounded">
                   4년 무상 A/S
                 </div>
               </div>
             </div>
 
             {/* Headline Banner Text */}
-            <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug break-keep mb-1.5">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug break-keep mb-1">
               {config.mainText || '스필일렉트릭 구매 및 설치후 꼭 정품보증서를 발급받으세요'}
             </h3>
             
-            <p className="text-xs sm:text-sm font-bold text-purple-700 mb-4">
+            <p className="text-[11px] font-bold text-purple-700 mb-3">
               {config.subText || '무상4년 A/S를 위해 꼭 받아두세요'}
             </p>
 
             {/* Prominent CTA Button to Naver Form */}
             <button
               onClick={handleCtaClick}
-              className="w-full py-3.5 px-4 bg-purple-900 hover:bg-purple-950 text-white font-black text-sm sm:text-base rounded-full shadow-lg hover:shadow-purple-900/40 transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 border border-purple-500/30 cursor-pointer"
+              className="w-full py-2.5 px-3 bg-purple-900 hover:bg-purple-950 text-white font-black text-xs rounded-full shadow-md hover:shadow-purple-900/40 transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-1.5 border border-purple-500/30 cursor-pointer"
             >
               <span>{config.buttonText || '보증서 발급받기'}</span>
-              <ExternalLink className="w-4 h-4 text-purple-200" />
+              <ExternalLink className="w-3.5 h-3.5 text-purple-200" />
             </button>
           </div>
 
           {/* Notice / Terms */}
-          <div className="mt-3 text-left bg-black/20 rounded-lg p-3 text-[10px] sm:text-[11px] text-purple-200/90 leading-relaxed border border-purple-800/40 whitespace-pre-line">
-            <div className="font-bold text-amber-300 mb-1 flex items-center">
+          <div className="mt-2 text-left bg-black/20 rounded-lg p-2.5 text-[9px] sm:text-[10px] text-purple-200/90 leading-relaxed border border-purple-800/40 whitespace-pre-line max-h-24 overflow-y-auto custom-scrollbar">
+            <div className="font-bold text-amber-300 mb-0.5 flex items-center">
               <CheckCircle2 className="w-3 h-3 mr-1" />
               보증 서비스 안내
             </div>
             {config.noticeText}
           </div>
 
-          <div className="mt-2 text-right text-[10px] text-purple-300 font-medium">
+          <div className="mt-1.5 text-right text-[9px] text-purple-300 font-medium">
             AS 접수 : 031-898-1111
           </div>
         </div>
@@ -165,7 +167,7 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
         <div className="grid grid-cols-3 bg-slate-100 border-t border-slate-200">
           <button
             onClick={() => handleTabClick('tab1', config.tab1Url)}
-            className={`py-2.5 px-2 text-xs font-bold transition-colors border-r border-slate-200 ${
+            className={`py-2 px-1 text-[11px] font-bold transition-colors border-r border-slate-200 cursor-pointer ${
               activeTab === 'tab1' 
                 ? 'bg-slate-700 text-white font-extrabold' 
                 : 'bg-white text-slate-700 hover:bg-slate-50'
@@ -176,7 +178,7 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
 
           <button
             onClick={() => handleTabClick('tab2', config.tab2Url)}
-            className={`py-2.5 px-2 text-xs font-bold transition-colors border-r border-slate-200 ${
+            className={`py-2 px-1 text-[11px] font-bold transition-colors border-r border-slate-200 cursor-pointer ${
               activeTab === 'tab2' 
                 ? 'bg-slate-700 text-white font-extrabold' 
                 : 'bg-white text-slate-700 hover:bg-slate-50'
@@ -187,7 +189,7 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
 
           <button
             onClick={() => handleTabClick('tab3', config.tab3Url)}
-            className={`py-2.5 px-2 text-xs font-bold transition-colors ${
+            className={`py-2 px-1 text-[11px] font-bold transition-colors cursor-pointer ${
               activeTab === 'tab3' 
                 ? 'bg-slate-700 text-white font-extrabold' 
                 : 'bg-white text-slate-700 hover:bg-slate-50'
@@ -198,16 +200,16 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
         </div>
 
         {/* Bottom Bar (Dont show today / Close) */}
-        <div className="flex items-center justify-between bg-slate-800 text-slate-300 text-xs px-4 py-2.5 font-bold">
+        <div className="flex items-center justify-between bg-slate-900 text-slate-300 text-[11px] px-3 py-2 font-bold">
           <button
             onClick={handleDontShowToday}
-            className="hover:text-white transition-colors cursor-pointer flex items-center py-0.5"
+            className="hover:text-white transition-colors cursor-pointer flex items-center py-0.5 text-[10px] sm:text-[11px]"
           >
-            <span>오늘 하루 이 창을 열지 않음</span>
+            <span>오늘 하루 보이지 않음</span>
           </button>
           <button
             onClick={onClose}
-            className="hover:text-white transition-colors cursor-pointer px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-200"
+            className="hover:text-white transition-colors cursor-pointer px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 text-[10px] sm:text-[11px]"
           >
             닫기
           </button>

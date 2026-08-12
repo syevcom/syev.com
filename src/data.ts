@@ -558,27 +558,6 @@ export const PRODUCTS: Product[] = [
     optionGroups: ELECTREE_OPTION_GROUPS
   },
   {
-    id: 'res-5kw-evsis',
-    name: '롯데 이브이시스 5kW 스마트홈 충전기',
-    type: '완속',
-    power: '5kW',
-    price: 790000,
-    originalPrice: 920000,
-    discountRate: 14,
-    brand: '롯데 이브이시스',
-    manufacturer: '롯데 EVSIS',
-    origin: '대한민국',
-    modelName: 'EVSIS-5KW-HOME',
-    deliveryInfo: '택배(주문 시 결제) / 무료배송',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: ['초소형 세련된 미니멀 디자인', '블루투스 인증 예약 충전', '롯데 EVSIS 프리미엄 라인'],
-    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-    description: '초소형 세련된 북유럽풍 미니멀 디자인, 롯데 EVSIS 5kW 프리미엄 충전기',
-    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
-  },
-  {
     id: 'res-5kw-chargego',
     name: '차지고 5kW 개인용 전기차 충전기',
     type: '완속',
@@ -680,43 +659,6 @@ export const PRODUCTS: Product[] = [
     description: '쿨차지 7kW 개인용 전기차 충전기 단말기 전용 모델',
     optionGroups: COOLCHARGE_OPTION_GROUPS
   },
-  {
-    id: 'sy-home07',
-    name: '롯데 EVSIS 7kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
-    type: '스마트홈',
-    power: '7kW',
-    price: 840000,
-    originalPrice: 1100000,
-    discountRate: 24,
-    brand: '롯데EVSIS',
-    manufacturer: 'EVSIS(주)',
-    origin: '대한민국',
-    modelName: 'EVSIS-HOME-07',
-    certNumber: 'KC-EVSIS-2025-07',
-    deliveryInfo: '무료배송 (전문 기사 방문)',
-    componentsInfo: '스마트 월박스 본체 + 정품 커넥터',
-    rewardPointsInfo: '구매 ₩0',
-    detailCategory: '비공용완속',
-    serviceType: 'device',
-    features: [
-      '단독주택/빌라 개인 전용',
-      '블루투스 간편 사용자 인증',
-      '초소형 세련된 북유럽풍 미니멀 디자인',
-      '친환경 고내구성 소재 적용',
-      '전국 24시간 자가진단 알람'
-    ],
-    specs: {
-      '정격 입력': 'Single Phase AC 220V, 50/60Hz',
-      '설치 형태': '스탠드 또는 실내외 벽면 고정',
-      '부가 기능': '예약 충전 (전기세 저렴한 경부하 시간대 자동 실행)',
-      '크기': '220 x 300 x 110 mm',
-      '정격 전류': '32A'
-    },
-    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-    description: '나만의 프라이빗 주차 공간을 위한 인공지능 예약 충전 시스템입니다.',
-    plcSupported: true,
-    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
-  },
 
   // --- 11kW Products ---
   {
@@ -788,27 +730,6 @@ export const PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
     description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
     optionGroups: ELECTREE_OPTION_GROUPS
-  },
-  {
-    id: 'res-11kw-evsis',
-    name: '롯데 EVSIS 11kW 개인용 전기차 충전기 완속 홈집밥 충전기 커넥터6M 이브이시스',
-    type: '스마트홈',
-    power: '11kW',
-    price: 1200000,
-    originalPrice: 1390000,
-    discountRate: 14,
-    brand: '롯데EVSIS',
-    manufacturer: 'EVSIS(주)',
-    origin: '대한민국',
-    modelName: 'EVSIS-HOME-11',
-    deliveryInfo: '무료배송 (전문 기사 방문)',
-    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
-    detailCategory: '비공용중속',
-    serviceType: 'device',
-    features: ['OCPP 1.6 통신 모듈', '스마트 RFID 본인 인증 및 예약 제어'],
-    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-    description: 'OCPP 1.6 통신 모듈, 스마트 RFID 본인 인증 및 예약 제어 시스템',
-    optionGroups: LOTTE_EVSIS_OPTION_GROUPS
   },
 
   // --- 14kW & BIZ / 급속 Products ---
@@ -953,7 +874,7 @@ export const SOLUTIONS: Solution[] = [
     image: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=800',
     detailImageUrl: 'https://images.unsplash.com/photo-1594535182308-8ffef9412388?auto=format&fit=crop&q=80&w=1200',
     blueprintImageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200',
-    recommendedProducts: ['sy-ac07', 'sy-home07']
+    recommendedProducts: ['sy-ac07', 'res-7kw-electree']
   },
   {
     id: 'sol-parkinglot',

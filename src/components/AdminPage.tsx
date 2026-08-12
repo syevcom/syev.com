@@ -2677,35 +2677,59 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
 
                 <div className="border-t border-slate-100 pt-3 space-y-2">
-                  <span className="text-xs font-black text-slate-900 block">하단 탭 3개 라벨 & 연결 링크 (선택사항)</span>
+                  <span className="text-xs font-black text-slate-900 block">하단 탭 3개 라벨 & 클릭시 이동할 URL 링크</span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 1 (라벨)</span>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-500 block">탭 1 (라벨)</span>
                       <input
                         type="text"
                         value={popupState.tab1Label}
                         onChange={(e) => setPopupState({ ...popupState, tab1Label: e.target.value })}
                         className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
                       />
+                      <span className="text-[10px] font-bold text-slate-500 block pt-1">탭 1 이동 URL 링크</span>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={popupState.tab1Url || ''}
+                        onChange={(e) => setPopupState({ ...popupState, tab1Url: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"
+                      />
                     </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 2 (라벨)</span>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-500 block">탭 2 (라벨)</span>
                       <input
                         type="text"
                         value={popupState.tab2Label}
                         onChange={(e) => setPopupState({ ...popupState, tab2Label: e.target.value })}
                         className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
                       />
+                      <span className="text-[10px] font-bold text-slate-500 block pt-1">탭 2 이동 URL 링크</span>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={popupState.tab2Url || ''}
+                        onChange={(e) => setPopupState({ ...popupState, tab2Url: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"
+                      />
                     </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 block mb-0.5">탭 3 (라벨)</span>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-500 block">탭 3 (라벨)</span>
                       <input
                         type="text"
                         value={popupState.tab3Label}
                         onChange={(e) => setPopupState({ ...popupState, tab3Label: e.target.value })}
                         className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold"
+                      />
+                      <span className="text-[10px] font-bold text-slate-500 block pt-1">탭 3 이동 URL 링크</span>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={popupState.tab3Url || ''}
+                        onChange={(e) => setPopupState({ ...popupState, tab3Url: e.target.value })}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono"
                       />
                     </div>
                   </div>
