@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Product } from '../types';
+import { Product, CartItem } from '../types';
 import { Check, ShieldCheck, Cpu, Activity, FileDown, ShoppingBag, Eye, Percent } from 'lucide-react';
 import ProductDetailModal from './ProductDetailModal';
 
@@ -15,6 +15,7 @@ interface ProductsSectionProps {
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
   onAddToCart?: (product: Product, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], totalPrice?: number) => void;
   onPageChange?: (page: any) => void;
+  onOpenPayment?: (items: CartItem[]) => void;
 }
 
 export default function ProductsSection({ 
@@ -23,7 +24,8 @@ export default function ProductsSection({
   isEditMode = false,
   onOpenCms,
   onAddToCart,
-  onPageChange
+  onPageChange,
+  onOpenPayment
 }: ProductsSectionProps) {
   const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -250,29 +252,61 @@ export default function ProductsSection({
               </button>
 
               <div className="flex gap-2">
-                {onAddToCart && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDetailModalProduct(p);
-                    }}
-                    className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
-                    title="옵션선택 및 담기"
-                  >
-                    <ShoppingBag className="w-4 h-4 text-emerald-600" />
-                    <span>담기</span>
-                  </button>
-                )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
-                  }}
-                  id={`btn-product-quote-${p.id}`}
-                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
-                >
-                  무료 견적 요청
-                </button>
+                {(() => {
+                  const isPublic = (
+                    p.detailCategory === '공용완속' ||
+                    p.detailCategory === '급속' ||
+                    p.type === '급속' ||
+                    (p.name.includes('공용') && !p.name.includes('개인용')) ||
+                    p.name.includes('수익형') ||
+                    p.name.includes('관공서') ||
+                    p.name.includes('조달상품') ||
+                    p.id.startsWith('park-')
+                  ) && !p.name.includes('개인용') && !p.name.includes('가정용');
+
+                  if (isPublic) {
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
+                        }}
+                        id={`btn-product-quote-${p.id}`}
+                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        📋 무료 견적 요청
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <>
+                      {onAddToCart && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDetailModalProduct(p);
+                          }}
+                          className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
+                          title="옵션선택 및 담기"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                          <span>담기</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
+                        }}
+                        id={`btn-product-quote-${p.id}`}
+                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        무료 견적 요청
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -322,6 +356,7 @@ export default function ProductsSection({
         onClose={() => setDetailModalProduct(null)}
         onAddToCart={onAddToCart}
         onOpenQuoteWithPurpose={onOpenQuoteWithPurpose}
+        onOpenPayment={onOpenPayment}
       />
     </div>
   );

@@ -17,6 +17,10 @@ import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import CartModal from './components/CartModal';
+import CartPage from './components/CartPage';
+import CheckoutPage from './components/CheckoutPage';
+import PaymentModal from './components/PaymentModal';
+import PrintEstimateModal from './components/PrintEstimateModal';
 import AIChatBot from './components/AIChatBot';
 import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './components/HomePopupModal';
 import { AdminPage } from './components/AdminPage';
@@ -103,6 +107,8 @@ export default function App() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [paymentItems, setPaymentItems] = useState<CartItem[]>([]);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
 
   const sanitizePopupConfig = (cfg: HomePopupConfig): HomePopupConfig => {
@@ -163,6 +169,15 @@ export default function App() {
   // Cart items state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartToastMsg, setCartToastMsg] = useState<string>('');
+
+  // Print Estimate Document Modal state
+  const [isPrintEstimateOpen, setIsPrintEstimateOpen] = useState(false);
+  const [printEstimateItems, setPrintEstimateItems] = useState<CartItem[]>([]);
+
+  const handleOpenPrintEstimate = (items: CartItem[]) => {
+    setPrintEstimateItems(items.length > 0 ? items : cartItems);
+    setIsPrintEstimateOpen(true);
+  };
   
   // Custom default purpose for Quote Modal
   const [quoteDefaultPurpose, setQuoteDefaultPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>('Residential');
@@ -187,7 +202,7 @@ export default function App() {
     imageUrl: '',
     height: 44,
     showCompanyName: true,
-    companyNameText: '주식회사 에스와이코리아',
+    companyNameText: '(유)에스와이닷컴',
     companyNameFont: 'noto',
     companyNameWeight: 'extrabold',
     companyNameSize: 'sm',
@@ -221,8 +236,8 @@ export default function App() {
   const [footerConfig, setFooterConfig] = useState({
     phone: '1588-SY01 (A/S 정비 전담 지원)',
     email: 'sy.car.com@gmail.com',
-    companyName: '주식회사 에스와이코리아',
-    ceoName: '김성윤',
+    companyName: '(유)에스와이닷컴',
+    ceoName: '박우혁',
     businessNumber: '123-45-67890',
     address: '서울특별시 강남구 테헤란로 OOO 타워 SY빌딩',
     teleSalesNumber: '제 2026-서울강남-1234호',
@@ -345,10 +360,10 @@ export default function App() {
   });
 
   const [aboutConfig, setAboutConfig] = useState({
-    ceoName: '김 성 윤 대표이사',
+    ceoName: '박 우 혁 대표이사',
     ceoRole: 'SY.com Co., Ltd. Founder & CEO',
     ceoGreeting: '"지속 가능한 전기차 운전의 첫걸음, \n내 주차장에서 시작되는 안전과 편안함입니다."',
-    ceoMessage1: '안녕하십니까, SY.com 대표이사 김성윤입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
+    ceoMessage1: '안녕하십니까, SY.com 대표이사 박우혁입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
     ceoMessage2: '하지만 최근 다중이용시설 및 주거지역 내 전기차 충전 중의 크고 작은 전기적 트러블과 화재 위험에 대한 우려로 입주민 협의를 보지 못하고 설치를 망설이시는 고객분들이 많습니다.',
     ceoMessage3: '저희 SY.com은 특허청에 등록된 차세대 화재감지 PLC 모뎀 차단 기술과 실시간 과열 진단 모니터링을 전 기종에 도입하여 완벽히 안전한 스마트 충전 생태계를 이룩했습니다. 설계부터 번거로운 관공서/한전/지자체 보조금 심사 서류 신청까지, SY.com 전 직원이 발로 뛰며 고객님의 편안함을 완성하겠습니다.',
     ceoImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600'
@@ -538,7 +553,6 @@ export default function App() {
 
         const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
-        deletedSet.add('res-7kw-chargego');
         deletedSet.add('park-11kw-spil');
         deletedSet.add('res-5kw-evsis');
         deletedSet.add('sy-home07');
@@ -912,7 +926,6 @@ export default function App() {
       try {
         const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
         const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
-        deletedSet.add('res-7kw-chargego');
         deletedSet.add('park-11kw-spil');
         deletedSet.add('res-5kw-evsis');
         deletedSet.add('sy-home07');
@@ -1169,25 +1182,39 @@ export default function App() {
     setIsMyPageOpen(false);
   };
 
-  // Cart management handlers
-  const handleAddToCart = (product: Product) => {
+  // Cart & Payment management handlers
+  const handleAddToCart = (
+    product: any,
+    selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[],
+    customPrice?: number,
+    customQuantity: number = 1
+  ) => {
     let updatedCart: CartItem[];
+    const itemPrice = customPrice !== undefined ? customPrice : (product.price || 0);
     const existingIndex = cartItems.findIndex((item) => item.productId === product.id);
 
     if (existingIndex > -1) {
       updatedCart = cartItems.map((item, idx) =>
-        idx === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+        idx === existingIndex
+          ? {
+              ...item,
+              quantity: item.quantity + customQuantity,
+              price: itemPrice > 0 ? itemPrice : item.price,
+              selectedOptions: selectedOptions && selectedOptions.length > 0 ? selectedOptions : item.selectedOptions
+            }
+          : item
       );
     } else {
       const newItem: CartItem = {
         id: `cart-${Date.now()}`,
         productId: product.id,
         name: product.name,
-        power: product.power,
-        type: product.type,
+        power: product.power || (product.name?.includes('5kW') ? '5kW' : product.name?.includes('11kW') ? '11kW' : '7kW'),
+        type: product.type || '완속',
         image: product.image,
-        quantity: 1,
-        price: product.price,
+        quantity: customQuantity,
+        price: itemPrice,
+        selectedOptions: selectedOptions || [],
         addedAt: new Date().toISOString()
       };
       updatedCart = [newItem, ...cartItems];
@@ -1197,7 +1224,32 @@ export default function App() {
     localStorage.setItem('sy_cart_items', JSON.stringify(updatedCart));
 
     setCartToastMsg(`🛒 [${product.name}] 장바구니에 담겼습니다!`);
-    setTimeout(() => setCartToastMsg(''), 3000);
+    setTimeout(() => setCartToastMsg(''), 4000);
+  };
+
+  const handleOpenPayment = (items: CartItem[]) => {
+    const targetItems = items && items.length > 0 ? items : cartItems;
+    setPaymentItems(targetItems);
+    setActivePage('checkout');
+    setIsCartOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePaymentSuccess = (orderData: any) => {
+    const newBookingData = {
+      name: orderData.buyerName,
+      phone: orderData.buyerPhone,
+      location: orderData.address,
+      purpose: 'Residential' as const,
+      memo: `[주문/결제 완료 #${orderData.orderId}] ${orderData.items.map((i: any) => `${i.name} (${i.quantity}개)`).join(', ')} / 결제수단: ${orderData.paymentMethod}`,
+      estimateCost: `₩${orderData.totalAmount.toLocaleString()}원`
+    };
+    handleAddBooking(newBookingData);
+
+    const paidItemIds = new Set(orderData.items.map((i: any) => i.id));
+    const remainingCart = cartItems.filter((i) => !paidItemIds.has(i.id));
+    setCartItems(remainingCart);
+    localStorage.setItem('sy_cart_items', JSON.stringify(remainingCart));
   };
 
   const handleUpdateCartQuantity = (id: string, delta: number) => {
@@ -1532,7 +1584,7 @@ export default function App() {
       subtitle: 'SY.com',
       imageUrl: '',
       showCompanyName: true,
-      companyNameText: '주식회사 에스와이코리아',
+      companyNameText: '(유)에스와이닷컴',
       companyNameFont: 'noto',
       companyNameWeight: 'extrabold',
       companyNameSize: 'sm',
@@ -1563,8 +1615,8 @@ export default function App() {
     setFooterConfig({
       phone: '1588-SY01 (A/S 정비 전담 지원)',
       email: 'sy.car.com@gmail.com',
-      companyName: '주식회사 에스와이코리아',
-      ceoName: '김성윤',
+      companyName: '(유)에스와이닷컴',
+      ceoName: '박우혁',
       businessNumber: '123-45-67890',
       address: '서울특별시 강남구 테헤란로 OOO 타워 SY빌딩',
       teleSalesNumber: '제 2026-서울강남-1234호',
@@ -1633,10 +1685,10 @@ export default function App() {
     });
 
     setAboutConfig({
-      ceoName: '김 성 윤 대표이사',
+      ceoName: '박 우 혁 대표이사',
       ceoRole: 'SY.com Co., Ltd. Founder & CEO',
       ceoGreeting: '"지속 가능한 전기차 운전의 첫걸음, \n내 주차장에서 시작되는 안전과 편안함입니다."',
-      ceoMessage1: '안녕하십니까, SY.com 대표이사 김성윤입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
+      ceoMessage1: '안녕하십니까, SY.com 대표이사 박우혁입니다. 대한민국 도로 위에 친환경 전기차가 급증하면서 이제 충전 인프라는 선택이 아닌 필수 주거/상업 복지 인프라가 되었습니다.',
       ceoMessage2: '하지만 최근 다중이용시설 및 주거지역 내 전기차 충전 중의 크고 작은 전기적 트러블과 화재 위험에 대한 우려로 입주민 협의를 보지 못하고 설치를 망설이시는 고객분들이 많습니다.',
       ceoMessage3: '저희 SY.com은 특허청에 등록된 차세대 화재감지 PLC 모뎀 차단 기술과 실시간 과열 진단 모니터링을 전 기종에 도입하여 완벽히 안전한 스마트 충전 생태계를 이룩했습니다. 설계부터 번거로운 관공서/한전/지자체 보조금 심사 서류 신청까지, SY.com 전 직원이 발로 뛰며 고객님의 편안함을 완성하겠습니다.',
       ceoImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600'
@@ -1722,6 +1774,7 @@ export default function App() {
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
             onAddToCart={handleAddToCart}
+            onOpenPayment={handleOpenPayment}
           />
         );
       case 'solutions':
@@ -1739,6 +1792,9 @@ export default function App() {
             onSelectHomePower={setSelectedHomePower}
             selectedHomeServiceType={selectedHomeServiceType}
             onSelectHomeServiceType={setSelectedHomeServiceType}
+            onAddToCart={handleAddToCart}
+            onOpenCartModal={() => handlePageChange('cart')}
+            onOpenPayment={handleOpenPayment}
           />
         );
       case 'sol_commercial':
@@ -1753,6 +1809,9 @@ export default function App() {
             defaultActiveTab="Commercial"
             selectedAptBrand={selectedAptBrand}
             onSelectAptBrand={handleSelectAptBrand}
+            onAddToCart={handleAddToCart}
+            onOpenCartModal={() => handlePageChange('cart')}
+            onOpenPayment={handleOpenPayment}
           />
         );
       case 'sol_parking':
@@ -1767,6 +1826,9 @@ export default function App() {
             defaultActiveTab="ParkingLot"
             selectedParkingCapacity={selectedParkingCapacity}
             onSelectParkingCapacity={setSelectedParkingCapacity}
+            onAddToCart={handleAddToCart}
+            onOpenCartModal={() => handlePageChange('cart')}
+            onOpenPayment={handleOpenPayment}
           />
         );
       case 'review':
@@ -1807,6 +1869,31 @@ export default function App() {
             onSaveHomePopupConfig={handleSaveHomePopupConfig}
             onPreviewPopup={(cfg) => handlePreviewPopup(cfg)}
             onNavigateHome={() => handlePageChange('home')}
+          />
+        );
+      case 'cart':
+        return (
+          <CartPage
+            cartItems={cartItems}
+            onUpdateQuantity={handleUpdateCartQuantity}
+            onRemoveItem={handleRemoveCartItem}
+            onClearCart={handleClearCart}
+            onOpenQuoteWithItems={(items) => {
+              handleOpenPrintEstimate(items);
+            }}
+            onOpenPayment={handleOpenPayment}
+            onPageChange={handlePageChange}
+          />
+        );
+      case 'checkout':
+        return (
+          <CheckoutPage
+            items={paymentItems.length > 0 ? paymentItems : cartItems}
+            user={user}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPageChange={handlePageChange}
+            onOpenAuthModal={() => setIsAuthOpen(true)}
+            onOpenMyPage={() => setIsMyPageOpen(true)}
           />
         );
       default:
@@ -1907,7 +1994,7 @@ export default function App() {
           onSelectParkingCapacity={setSelectedParkingCapacity}
           headerConfig={headerConfig}
           cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
-          onOpenCartModal={() => setIsCartOpen(true)}
+          onOpenCartModal={() => handlePageChange('cart')}
         />
 
 
@@ -2163,8 +2250,28 @@ export default function App() {
             onClearCart={handleClearCart}
             onOpenQuoteWithItems={(items) => {
               setIsCartOpen(false);
-              setIsQuoteOpen(true);
+              handleOpenPrintEstimate(items);
             }}
+            onOpenPayment={handleOpenPayment}
+          />
+        )}
+
+        {isPrintEstimateOpen && (
+          <PrintEstimateModal
+            isOpen={isPrintEstimateOpen}
+            onClose={() => setIsPrintEstimateOpen(false)}
+            items={printEstimateItems}
+          />
+        )}
+
+        {isPaymentOpen && (
+          <PaymentModal
+            isOpen={isPaymentOpen}
+            onClose={() => setIsPaymentOpen(false)}
+            items={paymentItems}
+            user={user}
+            onPaymentSuccess={handlePaymentSuccess}
+            onOpenMyPage={() => setIsMyPageOpen(true)}
           />
         )}
 
@@ -2177,7 +2284,10 @@ export default function App() {
             cartItems={cartItems}
             bookings={bookings}
             asRequests={asRequests}
-            onOpenCartModal={() => setIsCartOpen(true)}
+            onOpenCartModal={() => {
+              setIsMyPageOpen(false);
+              handlePageChange('cart');
+            }}
             onOpenQuoteModal={() => setIsQuoteOpen(true)}
             isEditMode={isEditMode}
             onUpdateUserProfileImage={(imgUrl) => {
@@ -2247,7 +2357,7 @@ export default function App() {
           >
             <span>{cartToastMsg}</span>
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={() => handlePageChange('cart')}
               className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-2.5 py-1 rounded-lg font-bold text-[11px] cursor-pointer"
             >
               장바구니 보기

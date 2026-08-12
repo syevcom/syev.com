@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShoppingBag, Trash2, ArrowRight, Plus, Minus, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, ShoppingBag, Trash2, ArrowRight, Plus, Minus, ShieldCheck, CheckCircle2, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartItem } from '../types';
 
@@ -11,6 +11,7 @@ interface CartModalProps {
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
   onOpenQuoteWithItems: (items: CartItem[]) => void;
+  onOpenPayment?: (items: CartItem[]) => void;
 }
 
 export default function CartModal({
@@ -21,14 +22,21 @@ export default function CartModal({
   onRemoveItem,
   onClearCart,
   onOpenQuoteWithItems,
+  onOpenPayment,
 }: CartModalProps) {
   if (!isOpen) return null;
 
   const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalAmount = cartItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
 
   const handleRequestQuote = () => {
     onClose();
     onOpenQuoteWithItems(cartItems);
+  };
+
+  const handleProceedPayment = () => {
+    onClose();
+    onOpenPayment?.(cartItems);
   };
 
   return (
@@ -151,24 +159,26 @@ export default function CartModal({
         {/* Footer actions */}
         {cartItems.length > 0 && (
           <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3">
-            <div className="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl flex items-center gap-2 text-xs text-emerald-800 font-semibold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>선택하신 충전기 수량으로 현장 방문 무료 견적을 바로 신청할 수 있습니다.</span>
+            <div className="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-200">
+              <span className="text-xs font-bold text-slate-600">총 상품 주문 금액</span>
+              <span className="text-base font-black text-blue-600">
+                ₩{totalAmount.toLocaleString()}원
+              </span>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={onClose}
-                className="w-1/3 py-3 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-2xl cursor-pointer"
-              >
-                쇼핑 계속하기
-              </button>
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={handleRequestQuote}
-                className="w-2/3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 py-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-extrabold text-xs rounded-2xl cursor-pointer transition-colors"
               >
-                <span>장바구니 항목으로 설치 견적 신청</span>
-                <ArrowRight className="w-4 h-4" />
+                📋 설치 무상 견적 신청
+              </button>
+              <button
+                onClick={handleProceedPayment}
+                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs rounded-2xl shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>⚡ 바로 주문/결제하기</span>
               </button>
             </div>
           </div>

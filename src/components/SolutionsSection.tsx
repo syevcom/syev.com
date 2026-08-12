@@ -217,6 +217,17 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       hasPromoRibbon: true
     },
     {
+      id: 'res-7kw-chargego',
+      name: '차지고 7kW 개인용 전기차 충전기',
+      description: '[예약충전 기능] 차지고 7kW 가정용 완속 스마트 충전기',
+      regularPrice: 550000,
+      price: 490000,
+      discount: 11,
+      serviceType: 'all',
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+      tags: ['MD CHOICE', 'HIT']
+    },
+    {
       id: 'res-7kw-electree',
       name: '일렉트리 7kW 개인용 전기차 충전기',
       description: '가정용충전기, 공장용충전기, 회사용충전기, 창고용충전기',
@@ -358,6 +369,9 @@ interface SolutionsSectionProps {
   onSelectHomeServiceType?: (serviceType: string) => void;
   selectedParkingCapacity?: string;
   onSelectParkingCapacity?: (capacity: string) => void;
+  onAddToCart?: (product: any, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], customPrice?: number, customQuantity?: number) => void;
+  onOpenCartModal?: () => void;
+  onOpenPayment?: (items: any[]) => void;
 }
 
 export default function SolutionsSection({ 
@@ -374,7 +388,10 @@ export default function SolutionsSection({
   selectedHomeServiceType = '단말기 단품',
   onSelectHomeServiceType,
   selectedParkingCapacity = '공용 BIZ 충전기',
-  onSelectParkingCapacity
+  onSelectParkingCapacity,
+  onAddToCart,
+  onOpenCartModal,
+  onOpenPayment
  }: SolutionsSectionProps) {
   const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>(defaultActiveTab);
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
@@ -423,17 +440,6 @@ export default function SolutionsSection({
     }
 
     if (prod.optionGroups && prod.optionGroups.length > 0) {
-      if (st === '단말기 단품' || st === 'device') {
-        const connectorGrp = prod.optionGroups.filter(g => g.title.includes('커넥터') || g.title.includes('충전선') || g.title.includes('길이'));
-        if (connectorGrp.length > 0) return connectorGrp;
-        return DEVICE_ONLY_OPTION_GROUPS;
-      }
-      if (st === '교체 시공' || st === 'replace') {
-        return REPLACEMENT_OPTION_GROUPS;
-      }
-      if (st === '신규 설치 포함' || st === 'install') {
-        return prod.optionGroups.length >= 2 ? prod.optionGroups : INSTALLATION_OPTION_GROUPS;
-      }
       return prod.optionGroups;
     }
 
@@ -1572,10 +1578,30 @@ export default function SolutionsSection({
         setToastMessage(`⚠️ [필수] ${primaryOptionGroup.title} 옵션을 선택해 주세요.`);
         return;
       }
-      setToastMessage('✅ 신청 페이지로 이동합니다. 견적서 정보가 연동됩니다.');
-      setTimeout(() => {
-        onOpenQuoteWithPurpose(productPurpose);
-      }, 500);
+
+      const optionDetails = selectedOptionBoxes.map(b => ({ groupTitle: b.groupTitle, optionName: b.optionName, optionPrice: b.optionPrice }));
+
+      if (onOpenPayment) {
+        const unitPrice = calculatedTotalPrice > 0 ? calculatedTotalPrice / quantity : activeDetailProduct.price;
+        const buyNowItem = {
+          id: `buy-${Date.now()}`,
+          productId: activeDetailProduct.id,
+          name: activeDetailProduct.name,
+          power: powerKey || '7kW',
+          type: activeDetailProduct.type || '완속',
+          image: selectedDisplayImage || activeDetailProduct.image,
+          quantity: quantity,
+          price: unitPrice,
+          selectedOptions: optionDetails,
+          addedAt: new Date().toISOString()
+        };
+        onOpenPayment([buyNowItem]);
+      } else {
+        setToastMessage('✅ 바로 결제 및 시공 신청 페이지로 이동합니다.');
+        setTimeout(() => {
+          onOpenQuoteWithPurpose(productPurpose);
+        }, 500);
+      }
     };
 
     const handleBulkInquiry = () => {
@@ -1590,7 +1616,14 @@ export default function SolutionsSection({
         setToastMessage(`⚠️ [필수] ${primaryOptionGroup.title} 옵션을 선택해 주세요.`);
         return;
       }
-      setToastMessage(`🛒 장바구니에 ${activeDetailProduct.name} 담겼습니다.`);
+
+      const unitPrice = calculatedTotalPrice > 0 ? calculatedTotalPrice / quantity : activeDetailProduct.price;
+      const optionDetails = selectedOptionBoxes.map(b => ({ groupTitle: b.groupTitle, optionName: b.optionName, optionPrice: b.optionPrice }));
+      if (onAddToCart) {
+        onAddToCart(activeDetailProduct, optionDetails, unitPrice, quantity);
+      }
+
+      setToastMessage(`🛒 [${activeDetailProduct.name}] 장바구니에 담겼습니다!`);
     };
 
     const handleAddToWishlist = () => {
@@ -1606,9 +1639,18 @@ export default function SolutionsSection({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white text-xs font-black px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 border border-slate-700/50 backdrop-blur-md"
+              className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white text-xs font-black px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700/50 backdrop-blur-md"
             >
               <span>{toastMessage}</span>
+              {onOpenCartModal && toastMessage.includes('장바구니에') && (
+                <button
+                  type="button"
+                  onClick={onOpenCartModal}
+                  className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-[11px] font-black cursor-pointer transition-colors"
+                >
+                  장바구니 열기 →
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -2559,13 +2601,20 @@ export default function SolutionsSection({
                   {(() => {
                     const isPublicCharger = (
                       activeDetailProduct.id.startsWith('park-') ||
+                      activeDetailProduct.id.startsWith('comm-') ||
+                      activeDetailProduct.id.startsWith('sol-comm') ||
+                      activeDetailProduct.id.startsWith('sol-park') ||
                       (activeDetailProduct.name.includes('공용') && !activeDetailProduct.name.includes('개인용')) ||
+                      activeDetailProduct.name.includes('상업') ||
                       activeDetailProduct.name.includes('수익형') ||
                       activeDetailProduct.name.includes('관공서') ||
                       activeDetailProduct.name.includes('조달상품') ||
+                      activeDetailProduct.name.includes('스탠드') ||
+                      activeDetailProduct.name.includes('쿨차지') ||
                       (activeDetailProduct as any).type === '급속' ||
                       (activeDetailProduct as any).detailCategory === '공용완속' ||
-                      (activeDetailProduct as any).detailCategory === '급속'
+                      (activeDetailProduct as any).detailCategory === '급속' ||
+                      productPurpose === 'ParkingLot'
                     ) && !activeDetailProduct.name.includes('개인용') && !activeDetailProduct.name.includes('가정용');
 
                     if (isPublicCharger) {
@@ -2603,13 +2652,82 @@ export default function SolutionsSection({
 
                 <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
-                <div className="col-span-3 font-extrabold text-slate-600 self-center">배송방법</div>
-                <div className="col-span-9 text-slate-700 font-medium">택배</div>
+                {(() => {
+                  const isPublicCharger = (
+                    activeDetailProduct.id.startsWith('park-') ||
+                    activeDetailProduct.id.startsWith('comm-') ||
+                    activeDetailProduct.id.startsWith('sol-comm') ||
+                    activeDetailProduct.id.startsWith('sol-park') ||
+                    (activeDetailProduct.name.includes('공용') && !activeDetailProduct.name.includes('개인용')) ||
+                    activeDetailProduct.name.includes('상업') ||
+                    activeDetailProduct.name.includes('수익형') ||
+                    activeDetailProduct.name.includes('관공서') ||
+                    activeDetailProduct.name.includes('조달상품') ||
+                    activeDetailProduct.name.includes('스탠드') ||
+                    activeDetailProduct.name.includes('쿨차지') ||
+                    (activeDetailProduct as any).type === '급속' ||
+                    (activeDetailProduct as any).detailCategory === '공용완속' ||
+                    (activeDetailProduct as any).detailCategory === '급속' ||
+                    productPurpose === 'ParkingLot'
+                  ) && !activeDetailProduct.name.includes('개인용') && !activeDetailProduct.name.includes('가정용');
 
-                <div className="col-span-12 border-t border-slate-100 my-1"></div>
+                  if (isPublicCharger) {
+                    return (
+                      <>
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">적립혜택</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">
+                          구매 <span className="text-rose-600 font-black">견적문의(전화문의)</span>
+                        </div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
-                <div className="col-span-3 font-extrabold text-slate-600 self-center">배송비</div>
-                <div className="col-span-9 text-slate-700 font-medium">무료</div>
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">배송</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">
+                          직접배송(주문 시 결제) / <span className="text-slate-500 font-normal">무료배송</span>
+                        </div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">상품정보</div>
+                        <div className="col-span-9 text-slate-700 font-medium">우측 '자세히' 참조</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">브랜드</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">{activeDetailProduct.brand || '쿨차지'}</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">운영료품목</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">월 전기기본료,월 통신료, 월 관제이용료</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">운영료선택</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">일시납,매월납 옵션선택</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">옵션선택</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">캐노피,I볼라드,스토퍼 옵션선택</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">한전불입금</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">신규증설시 옵션선택</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">청약철회</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">불가</div>
+                      </>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="col-span-3 font-extrabold text-slate-600 self-center">배송방법</div>
+                      <div className="col-span-9 text-slate-700 font-medium">택배</div>
+
+                      <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                      <div className="col-span-3 font-extrabold text-slate-600 self-center">배송비</div>
+                      <div className="col-span-9 text-slate-700 font-medium">무료</div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
@@ -2751,47 +2869,98 @@ export default function SolutionsSection({
             <div className="border-t border-slate-200/80 my-4"></div>
 
             {/* Dynamic Total Price Block */}
-            <div className="flex items-center justify-end gap-3 py-1">
-              <span className="text-xs sm:text-sm font-bold text-slate-700">총 상품금액</span>
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                ₩{calculatedTotalPrice.toLocaleString()}
-              </span>
-            </div>
+            {(() => {
+              const isCommercialProduct = (
+                activeDetailProduct.id.startsWith('park-') ||
+                activeDetailProduct.id.startsWith('comm-') ||
+                activeDetailProduct.id.startsWith('sol-comm') ||
+                activeDetailProduct.id.startsWith('sol-park') ||
+                (activeDetailProduct.name.includes('공용') && !activeDetailProduct.name.includes('개인용')) ||
+                activeDetailProduct.name.includes('상업') ||
+                activeDetailProduct.name.includes('수익형') ||
+                activeDetailProduct.name.includes('관공서') ||
+                activeDetailProduct.name.includes('조달상품') ||
+                activeDetailProduct.name.includes('스탠드') ||
+                activeDetailProduct.name.includes('쿨차지') ||
+                (activeDetailProduct as any).type === '급속' ||
+                (activeDetailProduct as any).detailCategory === '공용완속' ||
+                (activeDetailProduct as any).detailCategory === '급속' ||
+                productPurpose === 'ParkingLot'
+              ) && !activeDetailProduct.name.includes('개인용') && !activeDetailProduct.name.includes('가정용');
 
-            {/* Shopping Action Buttons */}
-            <div className="space-y-2 pt-2">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  className="flex-[2] py-4 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-black rounded-xl tracking-wider text-center select-none cursor-pointer transition-all border border-stone-950 shadow-md shadow-stone-900/10 active:scale-99"
-                >
-                  바로구매
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
-                >
-                  장바구니
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddToWishlist}
-                  className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
-                >
-                  관심상품
-                </button>
-              </div>
+              return (
+                <>
+                  <div className="flex items-center justify-end gap-3 py-1">
+                    <span className="text-xs sm:text-sm font-bold text-slate-700">총 상품금액</span>
+                    {isCommercialProduct ? (
+                      <span className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
+                        견적문의(전화문의)
+                      </span>
+                    ) : (
+                      <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                        ₩{calculatedTotalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
 
-              <button
-                type="button"
-                onClick={handleBulkInquiry}
-                className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-black py-3.5 tracking-wider text-center rounded-xl cursor-pointer select-none transition-all active:scale-99 shadow-xs"
-              >
-                대량구매문의
-              </button>
-            </div>
+                  {/* Shopping Action Buttons */}
+                  {isCommercialProduct ? (
+                    <div className="space-y-2 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleBulkInquiry}
+                          className="flex-[2] py-4 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-black rounded-xl text-center select-none cursor-pointer transition-all active:scale-99 flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/20"
+                        >
+                          <span>📋 온라인 견적서 신청</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddToWishlist}
+                          className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                        >
+                          관심상품
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleBuyNow}
+                          className="flex-[2] py-4 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-black rounded-xl tracking-wider text-center select-none cursor-pointer transition-all border border-stone-950 shadow-md shadow-stone-900/10 active:scale-99"
+                        >
+                          바로구매
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddToCart}
+                          className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                        >
+                          장바구니
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAddToWishlist}
+                          className="flex-1 py-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold rounded-xl text-center select-none cursor-pointer transition-all active:scale-99"
+                        >
+                          관심상품
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleBulkInquiry}
+                        className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-black py-3.5 tracking-wider text-center rounded-xl cursor-pointer select-none transition-all active:scale-99 shadow-xs"
+                      >
+                        대량구매문의
+                      </button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
         )}

@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type ActivePage = 'home' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sol_residential' | 'sol_commercial' | 'sol_parking' | 'admin';
+export type ActivePage = 'home' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'sol_residential' | 'sol_commercial' | 'sol_parking' | 'admin' | 'cart' | 'checkout';
 
 export interface User {
   id: string;
   email: string;
   name: string;
   type: 'B2C' | 'B2B';
+  phone?: string;
   profileImage?: string;
   businessNumber?: string;
   companyName?: string;

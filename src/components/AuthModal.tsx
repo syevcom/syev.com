@@ -320,7 +320,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
                           type="text"
                           value={companyName}
                           onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="(주)에스와이코리아"
+                          placeholder="(유)에스와이닷컴"
                           id="input-auth-company"
                           className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs font-bold focus:ring-2 focus:ring-blue-500/20 focus:outline-none focus:border-blue-600 transition-all"
                         />

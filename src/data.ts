@@ -618,6 +618,27 @@ export const PRODUCTS: Product[] = [
     optionGroups: DEFAULT_RESIDENTIAL_OPTION_GROUPS
   },
   {
+    id: 'res-7kw-chargego',
+    name: '차지고 7kW 개인용 전기차 충전기',
+    type: '완속',
+    power: '7kW',
+    price: 490000,
+    originalPrice: 550000,
+    discountRate: 11,
+    brand: '차지고',
+    manufacturer: '차지고',
+    origin: '대한민국',
+    modelName: 'CG-7KW-HOME',
+    deliveryInfo: '택배(주문 시 결제) / 무료배송',
+    componentsInfo: '제조사 별도 발송 / 설치비 미포함 상품',
+    detailCategory: '비공용완속',
+    serviceType: 'device',
+    features: ['스마트 모바일 앱 연결 및 예약 충전', 'KC 안전인증 및 정밀 전력 측정', 'IP65 최고등급 방수/방진 구조'],
+    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600',
+    description: '[예약충전 기능] 차지고 7kW 가정용 완속 스마트 충전기',
+    optionGroups: CHARGEGO_OPTION_GROUPS
+  },
+  {
     id: 'res-7kw-electree',
     name: '일렉트리 7kW 개인용 전기차 충전기',
     type: '완속',

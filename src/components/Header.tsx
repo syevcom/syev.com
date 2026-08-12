@@ -92,7 +92,7 @@ export default function Header({
   isEditMode,
   onToggleEditMode,
   onOpenCms,
-  logoConfig = { text: 'SY', subtitle: 'SY.com', showCompanyName: true, companyNameText: '주식회사 에스와이코리아' },
+  logoConfig = { text: 'SY', subtitle: 'SY.com', showCompanyName: true, companyNameText: '(유)에스와이닷컴' },
   snsConfig = { kakaoUrl: 'https://pf.kakao.com/', instagramUrl: 'https://www.instagram.com/', blogUrl: 'https://section.blog.naver.com/', youtubeUrl: 'https://www.youtube.com/', showFloatingSns: true },
   footerConfig = { phone: '1588-SY01', email: 'sy.car.com@gmail.com' },
   selectedAptBrand = 'sk일렉링크',

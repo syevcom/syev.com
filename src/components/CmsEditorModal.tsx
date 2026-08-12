@@ -1705,7 +1705,7 @@ export default function CmsEditorModal({
                               type="text"
                               value={logoCompanyNameText}
                               onChange={(e) => setLogoCompanyNameText(e.target.value)}
-                              placeholder="주식회사 에스와이코리아"
+                              placeholder="(유)에스와이닷컴"
                               className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
                             />
                           </div>

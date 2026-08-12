@@ -15,6 +15,7 @@ interface ProductDetailModalProps {
   onAddToCart?: (product: Product, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], totalPrice?: number) => void;
   onOpenQuoteWithPurpose?: (purpose: 'Commercial' | 'Residential' | 'ParkingLot', memoText?: string) => void;
   onSelectCategoryQuick?: (typeOrKw: string) => void;
+  onOpenPayment?: (items: CartItem[]) => void;
 }
 
 export default function ProductDetailModal({
@@ -23,7 +24,8 @@ export default function ProductDetailModal({
   onClose,
   onAddToCart,
   onOpenQuoteWithPurpose,
-  onSelectCategoryQuick
+  onSelectCategoryQuick,
+  onOpenPayment
 }: ProductDetailModalProps) {
   if (!isOpen || !product) return null;
 
@@ -62,10 +64,7 @@ export default function ProductDetailModal({
     const st = p.serviceType || 'device';
     if (st === 'device' || st === '단말기 단품') {
       if (p.deviceOptionGroups && p.deviceOptionGroups.length > 0) return p.deviceOptionGroups;
-      if (p.optionGroups && p.optionGroups.length > 0) {
-        const conn = p.optionGroups.filter(g => g.title.includes('커넥터') || g.title.includes('충전선') || g.title.includes('길이'));
-        if (conn.length > 0) return conn;
-      }
+      if (p.optionGroups && p.optionGroups.length > 0) return p.optionGroups;
       return DEVICE_ONLY_OPTION_GROUPS;
     }
     if (st === 'replace' || st === '교체 시공') {
@@ -129,15 +128,42 @@ export default function ProductDetailModal({
   const primaryOptionGroup = activeOptionGroups[0];
   const secondaryOptionGroups = activeOptionGroups.slice(1);
 
+  const isCommercial = useMemo(() => {
+    if (!product) return false;
+    const isPublicCat =
+      product.detailCategory === '공용완속' ||
+      product.detailCategory === '급속' ||
+      product.detailCategory === '스탠드';
+    const isQuickType = product.type === '급속' || product.type === '초급속';
+    const isCommName =
+      product.name.includes('공용') ||
+      product.name.includes('상업') ||
+      product.name.includes('수익형') ||
+      product.name.includes('관공서') ||
+      product.name.includes('조달') ||
+      product.name.includes('스탠드') ||
+      product.name.includes('쿨차지');
+    const isParkId =
+      product.id.startsWith('park-') ||
+      product.id.startsWith('comm-') ||
+      product.id.startsWith('sol-comm') ||
+      product.id.startsWith('sol-park');
+    return (
+      (isPublicCat || isQuickType || isCommName || isParkId) &&
+      !product.name.includes('개인용') &&
+      !product.name.includes('가정용')
+    );
+  }, [product]);
+
   // Default value fallbacks matching user screenshots
-  const brandName = product.brand || '스필';
+  const brandName = product.brand || (isCommercial ? '쿨차지' : '스필');
   const manufacturer = product.manufacturer || '스필일렉트릭';
   const origin = product.origin || '대한민국';
   const modelName = product.modelName || 'DO-EVC-SEC7-C/K';
   const certNumber = product.certNumber || 'XD070158-25001A';
-  const deliveryInfo = product.deliveryInfo || '택배(주문 시 결제)\n무료배송';
+  const deliveryInfo = product.deliveryInfo || '직접배송(주문 시 결제)\n무료배송';
   const componentsInfo = product.componentsInfo || '제조사 별도 발송 / 설치비 미포함 상품';
-  const rewardPointsInfo = product.rewardPointsInfo || '구매 ₩0';
+  const rewardPointsInfo = product.rewardPointsInfo || (isCommercial ? '구매 견적문의(전화문의)' : '구매 ₩0');
   const descriptionTag = product.description || '[국내최초 무상A/S 4년] 가정용충전기,공장용충전기,회사용충전기,창고용충전기';
 
   const basePrice = product.price || 598000;
@@ -260,6 +286,27 @@ export default function ProductDetailModal({
       );
       setAddedSuccessMsg(true);
       setTimeout(() => setAddedSuccessMsg(false), 2500);
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (onOpenPayment && product) {
+      const buyNowItem = {
+        id: `buy-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        power: product.power,
+        type: product.type,
+        image: product.image,
+        quantity: quantity,
+        price: totalPrice / quantity,
+        selectedOptions: selectedOptionDetails.map(o => ({ groupTitle: o.groupTitle, optionName: o.optionName, optionPrice: o.optionPrice })),
+        addedAt: new Date().toISOString()
+      };
+      onClose();
+      onOpenPayment([buyNowItem]);
+    } else {
+      handleRequestQuote();
     }
   };
 
@@ -457,21 +504,20 @@ export default function ProductDetailModal({
               {/* Pricing Display */}
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 {(() => {
-                  const isPublic = (
-                    product.detailCategory === '공용완속' ||
-                    product.detailCategory === '급속' ||
-                    product.type === '급속' ||
-                    (product.name.includes('공용') && !product.name.includes('개인용')) ||
-                    product.name.includes('수익형') ||
-                    product.name.includes('관공서') ||
-                    product.name.includes('조달상품') ||
-                    product.id.startsWith('park-')
-                  ) && !product.name.includes('개인용') && !product.name.includes('가정용');
-                  if (isPublic) {
+                  if (isCommercial) {
                     return (
-                      <div className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
-                        견적문의(전화문의)
-                      </div>
+                      <>
+                        <div className="space-y-0.5">
+                          <div className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
+                            견적문의(전화문의)
+                          </div>
+                        </div>
+
+                        {/* Circular Discount Rate Badge matching screenshot */}
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
+                          {discountRate}%
+                        </div>
+                      </>
                     );
                   }
                   return (
@@ -494,68 +540,124 @@ export default function ProductDetailModal({
                 })()}
               </div>
 
-              {/* Metadata Details Table matching screenshot 1 */}
-              <div className="space-y-2.5 text-xs sm:text-sm text-slate-700">
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{rewardPointsInfo}</span>
-                </div>
+              {/* Metadata Details Table matching screenshot 1 & user commercial screenshot */}
+              {isCommercial ? (
+                <div className="space-y-2.5 text-xs sm:text-sm text-slate-700">
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">
+                      구매 <span className="text-rose-600 font-black">견적문의(전화문의)</span>
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100 items-start">
-                  <span className="col-span-3 text-slate-400 font-bold">배송</span>
-                  <div className="col-span-9 space-y-0.5">
-                    <div className="font-extrabold text-slate-800">{deliveryInfo}</div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100 items-start">
+                    <span className="col-span-3 text-slate-400 font-bold">배송</span>
+                    <div className="col-span-9 space-y-0.5">
+                      <div className="font-extrabold text-slate-800">직접배송(주문 시 결제)</div>
+                      <div className="text-slate-500 font-bold text-xs">무료배송</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">상품정보</span>
+                    <span className="col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900">
+                      우측 '자세히' 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">브랜드</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{brandName}</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">운영료품목</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">월 전기기본료,월 통신료, 월 관제이용료</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">운영료선택</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">일시납,매월납 옵션선택</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">옵션선택</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">캐노피,I볼라드,스토퍼 옵션선택</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">한전불입금</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">신규증설시 옵션선택</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1">
+                    <span className="col-span-3 text-slate-400 font-bold">청약철회</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">불가</span>
                   </div>
                 </div>
+              ) : (
+                <div className="space-y-2.5 text-xs sm:text-sm text-slate-700">
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{rewardPointsInfo}</span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">상품정보</span>
-                  <span className="col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900">
-                    우측 '자세히' 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                  </span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100 items-start">
+                    <span className="col-span-3 text-slate-400 font-bold">배송</span>
+                    <div className="col-span-9 space-y-0.5">
+                      <div className="font-extrabold text-slate-800">{deliveryInfo}</div>
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">상품후기</span>
-                  <span className="col-span-9 font-extrabold text-slate-800 flex items-center gap-1">
-                    1명
-                    <span className="flex text-amber-400">
-                      {'★'.repeat(5)}
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">상품정보</span>
+                    <span className="col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900">
+                      우측 '자세히' 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                     </span>
-                    <span className="text-slate-500 font-bold text-xs">(5/5)</span>
-                  </span>
-                </div>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">브랜드</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{brandName}</span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">상품후기</span>
+                    <span className="col-span-9 font-extrabold text-slate-800 flex items-center gap-1">
+                      1명
+                      <span className="flex text-amber-400">
+                        {'★'.repeat(5)}
+                      </span>
+                      <span className="text-slate-500 font-bold text-xs">(5/5)</span>
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">구성품</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{componentsInfo}</span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">브랜드</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{brandName}</span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">원산지</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{origin}</span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">구성품</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{componentsInfo}</span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">제조사</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{manufacturer}</span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">원산지</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{origin}</span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                  <span className="col-span-3 text-slate-400 font-bold">모델명</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{modelName}</span>
-                </div>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">제조사</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{manufacturer}</span>
+                  </div>
 
-                <div className="grid grid-cols-12 gap-2 py-1">
-                  <span className="col-span-3 text-slate-400 font-bold">인증번호</span>
-                  <span className="col-span-9 font-extrabold text-slate-800">{certNumber}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
+                    <span className="col-span-3 text-slate-400 font-bold">모델명</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{modelName}</span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-2 py-1">
+                    <span className="col-span-3 text-slate-400 font-bold">인증번호</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">{certNumber}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           </div>
@@ -757,9 +859,15 @@ export default function ProductDetailModal({
 
               <div className="flex items-baseline gap-2">
                 <span className="text-sm font-black text-slate-900">총 상품금액</span>
-                <span className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
-                  ₩{totalPrice.toLocaleString()}
-                </span>
+                {isCommercial ? (
+                  <span className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
+                    견적문의(전화문의)
+                  </span>
+                ) : (
+                  <span className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+                    ₩{totalPrice.toLocaleString()}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -771,22 +879,40 @@ export default function ProductDetailModal({
             )}
 
             {/* Actions Bar */}
-            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="py-3.5 px-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-sm sm:text-base transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-98"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                <span>장바구니 담기</span>
-              </button>
+            {isCommercial ? (
+              <div className="pt-2">
+                <button
+                  onClick={handleRequestQuote}
+                  className="w-full py-4 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/20 active:scale-98"
+                >
+                  <span>📋 온라인 견적서 신청</span>
+                </button>
+              </div>
+            ) : (
+              <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button
+                  onClick={handleAddToCart}
+                  className="py-3.5 px-4 bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-xl font-black text-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>장바구니 담기</span>
+                </button>
 
-              <button
-                onClick={handleRequestQuote}
-                className="py-3.5 px-5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl font-black text-sm sm:text-base transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-slate-900/20 active:scale-98"
-              >
-                <span>무료 설치 / 구매 견적 문의</span>
-              </button>
-            </div>
+                <button
+                  onClick={handleBuyNow}
+                  className="py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-black text-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-98"
+                >
+                  <span>⚡ 바로 구매 / 결제</span>
+                </button>
+
+                <button
+                  onClick={handleRequestQuote}
+                  className="py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black text-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-slate-900/20 active:scale-98"
+                >
+                  <span>📋 무료 견적 문의</span>
+                </button>
+              </div>
+            )}
 
           </div>
 
