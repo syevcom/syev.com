@@ -169,50 +169,50 @@ export default function Header({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/75 backdrop-blur-lg border-b border-slate-200/80 shadow-md shadow-slate-900/5">
-      {/* Top Banner (Subtle, professional notification with premium bright emerald theme) */}
-      <div className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white text-[13px] sm:text-[14px] md:text-[15px] py-2.5 px-4 text-center font-black tracking-normal flex justify-center items-center gap-2 border-b border-emerald-400/20">
-        <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse shrink-0" />
-        <span>[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
+      {/* Top Banner (Subtle, professional notification banner) */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white text-xs sm:text-[13px] py-1.5 px-4 text-center font-bold tracking-tight flex justify-center items-center gap-2 border-b border-emerald-500/20 shrink-0">
+        <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse shrink-0" />
+        <span className="truncate max-w-[90vw]">[공지] 2026년 하반기 전기차 충전기 국가 무상 보조금 한도 선착순 마감 임박! 지금 바로 견적 신청하세요.</span>
       </div>
 
-      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-x-4 relative">
+      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-x-4 relative">
         
-        {/* 1. Left side: Brand Logo Container (Far Left, anchored, never overflows left) */}
+        {/* 1. Left side: Brand Logo Container (Sleek, compact height) */}
         <div 
           onClick={() => handleMenuClick('home')}
           id="logo-container"
-          className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-1 text-left px-0"
+          className="flex flex-col items-start justify-center cursor-pointer group shrink-0 gap-0.5 text-left px-0"
         >
           {logoConfig.imageUrl ? (
             <img 
               src={logoConfig.imageUrl} 
               alt={logoConfig.subtitle} 
-              style={{ height: logoConfig.height ? `${logoConfig.height}px` : '44px' }}
-              className="max-w-[240px] object-contain transition-transform group-hover:scale-103 shrink-0"
+              style={{ height: logoConfig.height ? `${Math.min(logoConfig.height, 36)}px` : '34px' }}
+              className="max-w-[180px] object-contain transition-transform group-hover:scale-103 shrink-0"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
-              <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
+            <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+              <span className="font-black text-white text-sm tracking-tighter">{logoConfig.text}</span>
             </div>
           )}
           
-          <div className="flex flex-col leading-none items-start mt-0.5 pl-0.5">
+          <div className="flex flex-col leading-none items-start pl-0.5">
             {!logoConfig.imageUrl && (
-              <span className="font-black text-[14px] sm:text-[16px] tracking-tight text-stone-900 whitespace-nowrap">
+              <span className="font-black text-xs sm:text-sm tracking-tight text-stone-900 whitespace-nowrap">
                 {logoConfig.subtitle || 'SY.com'}
               </span>
             )}
             {logoConfig.showCompanyName && logoConfig.companyNameText && (
-              <span className="tracking-tight whitespace-nowrap text-[9px] sm:text-[10px] text-stone-600 font-bold mt-1">
+              <span className="tracking-tight whitespace-nowrap text-[8.5px] sm:text-[9.5px] text-stone-500 font-bold mt-0.5">
                 {logoConfig.companyNameText}
               </span>
             )}
           </div>
         </div>
 
-        {/* 2. Navigation Links (Evenly distributed with explicit right separation from inquiry CTA) */}
-        <nav className="hidden lg:flex items-center justify-between flex-1 max-w-2xl xl:max-w-3xl ml-2 lg:ml-4 xl:ml-6 mr-6 lg:mr-10 xl:mr-16 shrink-0">
+        {/* 2. Navigation Links (Clean, horizontal distribution like reference site) */}
+        <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 flex-1 max-w-2xl xl:max-w-3xl mx-2 lg:mx-4 shrink-0">
           {menuItems.map((item) => {
             const isActive = activePage === item.id || 
               (item.id === 'sol_residential' && activePage === 'solutions');
@@ -220,10 +220,10 @@ export default function Header({
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
-                className={`px-2.5 lg:px-3 xl:px-4 py-2 text-[14px] lg:text-[15px] xl:text-[16px] 2xl:text-[17px] font-black tracking-tight transition-all duration-200 cursor-pointer whitespace-nowrap relative ${
+                className={`px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-extrabold tracking-tight transition-all duration-150 cursor-pointer whitespace-nowrap relative rounded-lg ${
                   isActive
-                    ? 'text-emerald-600 font-black after:absolute after:bottom-[-4px] after:left-2 after:right-2 after:h-[3px] after:bg-emerald-600'
-                    : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/50 rounded-lg'
+                    ? 'text-emerald-700 font-black bg-emerald-50/80 after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2.5px] after:bg-emerald-600'
+                    : 'text-stone-700 hover:text-stone-950 hover:bg-stone-100'
                 }`}
               >
                 {item.label}
@@ -232,67 +232,71 @@ export default function Header({
           })}
         </nav>
 
-        {/* 3. Right side: Premium Inquiry CTA + Utility */}
-        <div className="hidden md:flex items-center gap-2.5 lg:gap-3.5 shrink-0 pl-4 lg:pl-6 border-l border-stone-200/80 ml-auto">
+        {/* 3. Right side: Compact Installation Shortcuts + Utility Icons */}
+        <div className="hidden md:flex items-center gap-2 lg:gap-3 shrink-0 pl-3 border-l border-stone-200/80 ml-auto">
 
-          {/* 3 Premium Stacked Installation Inquiry Buttons with Unified Green Theme */}
-          <div className="flex flex-col gap-1 w-[210px] lg:w-[240px] xl:w-[250px] 2xl:w-[270px] shrink-0">
-            {/* 상단 통합 레이블 */}
-            <div 
-              onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
-              className={`text-[13px] lg:text-[14px] xl:text-[15px] 2xl:text-[17px] font-black text-emerald-800 hover:text-white text-center tracking-wider bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-md py-1.5 mb-1 select-none shadow-xs cursor-pointer transition-all duration-200 ${
-                isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
-              }`}
-              title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
-            >
-              {isEditMode ? `✏️ ${headerConfig.inquiryTitlePc || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitlePc || '⚡ 전기차충전기 설치문의')}
-            </div>
-
-            {/* 1. 아파트 전기차 충전기 설치문의 (녹색으로 통일) */}
+          {/* Compact Horizontal Installation Shortcuts */}
+          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200/80 shadow-xs">
+            {/* 1. 아파트 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Commercial') : onOpenQuote()}
-              className={`flex items-center justify-center px-3 py-1.5 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink hover:bg-yellow-500 hover:text-white ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer shadow-2xs whitespace-nowrap hover:bg-yellow-400 hover:text-slate-950 ${
                 activePage === 'sol_commercial' 
-                  ? 'bg-emerald-500 text-white animate-pulse' 
-                  : 'bg-emerald-600 text-white'
+                  ? 'bg-emerald-600 text-white font-black' 
+                  : 'bg-white text-slate-800 hover:bg-emerald-50'
               }`}
-              id="btn-header-shortcut-apt"
+              title="아파트 · 공동주택 충전기 설치문의"
             >
-              <span className="truncate">
-                {headerConfig.shortcutCommercialPc || '⚡ 아파트 · 공동주택'}
-              </span>
+              {headerConfig.shortcutCommercialPc?.split('·')[0] || '⚡ 아파트'}
             </button>
 
-            {/* 2. 가정용 홈 전기차 충전기 */}
+            {/* 2. 가정용 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('Residential') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
-              id="btn-header-shortcut-home"
+              className="px-2.5 py-1 bg-white hover:bg-yellow-400 text-slate-800 hover:text-slate-950 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+              title="가정용 · 개인 홈 충전기 설치문의"
             >
-              <span className="truncate">{headerConfig.shortcutResidentialPc || '🏠 가정용 · 개인 홈'}</span>
+              {headerConfig.shortcutResidentialPc?.split('·')[0] || '🏠 가정용'}
             </button>
 
-            {/* 3. 상업시설 · 수익형 전기차 충전기 설치문의 */}
+            {/* 3. 상업시설 */}
             <button
               onClick={() => onOpenQuoteWithPurpose ? onOpenQuoteWithPurpose('ParkingLot') : onOpenQuote()}
-              className="flex items-center justify-center px-3 py-1.5 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500/10 rounded-md text-[11px] lg:text-[11.5px] 2xl:text-[12.5px] font-black transition-all cursor-pointer shadow-sm group shrink"
-              id="btn-header-shortcut-commercial"
+              className="px-2.5 py-1 bg-white hover:bg-yellow-400 text-slate-800 hover:text-slate-950 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+              title="상업시설 · 수익형 충전기 설치문의"
             >
-              <span className="truncate">{headerConfig.shortcutParkingPc || '🏢 상업시설 · 수익형'}</span>
+              {headerConfig.shortcutParkingPc?.split('·')[0] || '🏢 상업시설'}
+            </button>
+
+            {/* 메인 설치문의 버튼 */}
+            <button
+              onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
+              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-black transition-all cursor-pointer shadow-xs whitespace-nowrap ml-0.5"
+            >
+              ⚡ 무료견적
             </button>
           </div>
 
           {/* User Profile / Cart / Admin Quick links */}
-          <div className="flex items-center gap-2 pl-2 border-l border-stone-200 shrink-0">
+          <div className="flex items-center gap-1.5 pl-1.5 shrink-0">
+            {/* Search Icon Button */}
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              title="충전기 모델 / 용량 검색"
+              className="p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 transition-all cursor-pointer border border-stone-200"
+            >
+              <Search className="w-3.5 h-3.5 text-stone-700" />
+            </button>
+
             {/* Cart Button with Count Badge */}
             <button
               onClick={onOpenCartModal}
               title="관심 충전기 장바구니"
-              className="relative p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-all cursor-pointer border border-slate-200"
+              className="relative p-1.5 rounded-lg bg-stone-100 hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 transition-all cursor-pointer border border-stone-200"
             >
-              <ShoppingBag className="w-4 h-4 text-slate-700" />
+              <ShoppingBag className="w-3.5 h-3.5 text-stone-700" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white font-black text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-2xs">
                   {cartCount}
                 </span>
               )}
@@ -302,16 +306,16 @@ export default function Header({
               <button
                 onClick={onOpenMyPage}
                 title="마이페이지"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black cursor-pointer shadow-sm transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-all"
               >
                 <User className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="truncate max-w-[80px]">{user.name} 님</span>
+                <span className="truncate max-w-[70px]">{user.name}</span>
               </button>
             ) : (
               <button
                 onClick={onOpenAuth}
                 title="로그인 / 회원가입"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black cursor-pointer shadow-sm transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-all"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>로그인</span>
@@ -320,30 +324,30 @@ export default function Header({
 
             {/* Admin control buttons */}
             {isEditMode ? (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <button
                   onClick={onToggleEditMode}
-                  className="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md animate-pulse"
+                  className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md animate-pulse"
                   title="관리자 수정모드 (클릭시 비활성화)"
                 >
-                  <Settings className="w-3.5 h-3.5 animate-spin" />
+                  <Settings className="w-3 h-3 animate-spin" />
                 </button>
                 <button
                   onClick={() => onPageChange('admin')}
-                  className="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 rounded-xl font-black text-[11px] px-3 py-1.5 cursor-pointer transition-all shrink-0 shadow-md flex items-center gap-1"
-                  title="전체 상품 및 이미지 일괄 편집 관리자 센터"
+                  className="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 rounded-lg font-bold text-[10.5px] px-2 py-1 cursor-pointer transition-all shrink-0 shadow-xs flex items-center gap-0.5"
+                  title="관리자 센터"
                 >
-                  <span>🔧 관리자 센터</span>
+                  <span>🔧 관리자</span>
                 </button>
               </div>
             ) : (
               <button
                 onClick={onToggleEditMode}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl font-extrabold text-[11px] px-2.5 py-1.5 cursor-pointer transition-all shrink-0 flex items-center gap-1"
-                title="관리자 로그인 / 편집 모드"
+                className="bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-lg font-bold text-[10.5px] px-2 py-1 cursor-pointer transition-all shrink-0 flex items-center gap-1"
+                title="관리자 로그인"
               >
-                <Settings className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden lg:inline">관리자</span>
+                <Settings className="w-3 h-3 text-stone-500" />
+                <span className="hidden xl:inline">관리자</span>
               </button>
             )}
           </div>

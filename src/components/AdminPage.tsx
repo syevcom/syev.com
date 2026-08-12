@@ -268,9 +268,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setProductList(products);
   }, [products]);
 
-  const [popupState, setPopupState] = useState<HomePopupConfig>(homePopupConfig);
+  const sanitizePopup = (cfg: HomePopupConfig): HomePopupConfig => {
+    const cleaned = { ...cfg };
+    if (cleaned.tab1Label === '포토리뷰이벤트') cleaned.tab1Label = '';
+    if (cleaned.tab3Label === '상담시간연장') cleaned.tab3Label = '';
+    return cleaned;
+  };
+
+  const [popupState, setPopupState] = useState<HomePopupConfig>(() => sanitizePopup(homePopupConfig));
   useEffect(() => {
-    if (homePopupConfig) setPopupState(homePopupConfig);
+    if (homePopupConfig) setPopupState(sanitizePopup(homePopupConfig));
   }, [homePopupConfig]);
   const [productSearch, setProductSearch] = useState('');
   const [powerFilter, setPowerFilter] = useState('all');

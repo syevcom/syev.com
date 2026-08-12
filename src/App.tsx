@@ -105,11 +105,23 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
 
+  const sanitizePopupConfig = (cfg: HomePopupConfig): HomePopupConfig => {
+    const cleaned = { ...cfg };
+    if (cleaned.tab1Label === '포토리뷰이벤트') cleaned.tab1Label = '';
+    if (cleaned.tab3Label === '상담시간연장') cleaned.tab3Label = '';
+    return cleaned;
+  };
+
   // Home Popup Config & State
   const [homePopupConfig, setHomePopupConfig] = useState<HomePopupConfig>(() => {
     try {
       const saved = localStorage.getItem('sy_home_popup_config');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const cleaned = sanitizePopupConfig(parsed);
+        localStorage.setItem('sy_home_popup_config', JSON.stringify(cleaned));
+        return cleaned;
+      }
     } catch (e) {
       console.error(e);
     }
@@ -1857,12 +1869,12 @@ export default function App() {
       {/* Spacer container to match the fixed Header height and prevent page content overlap */}
       <div className={`w-full shrink-0 transition-all duration-200 ${
         isEditMode
-          ? activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking'
-            ? 'h-[215px] sm:h-[230px] md:h-[245px] xl:h-[260px]'
-            : 'h-[200px] sm:h-[215px] md:h-[225px] xl:h-[240px]'
-          : activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking'
-            ? 'h-[175px] sm:h-[190px] md:h-[200px] xl:h-[215px]'
-            : 'h-[165px] sm:h-[175px] md:h-[185px] xl:h-[195px]'
+          ? activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking' || activePage === 'home' || activePage === 'about' || activePage === 'review'
+            ? 'h-[150px] sm:h-[155px]'
+            : 'h-[115px] sm:h-[120px]'
+          : activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking' || activePage === 'home' || activePage === 'about' || activePage === 'review'
+            ? 'h-[115px] sm:h-[120px]'
+            : 'h-[80px] sm:h-[85px]'
       }`}>
         <Header
           user={user}

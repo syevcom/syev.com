@@ -86,7 +86,7 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
     { id: 'tab1' as const, label: config.tab1Label, url: config.tab1Url },
     { id: 'tab2' as const, label: config.tab2Label, url: config.tab2Url },
     { id: 'tab3' as const, label: config.tab3Label, url: config.tab3Url }
-  ].filter(t => t.label && t.label.trim() !== '');
+  ].filter(t => t.label && t.label.trim() !== '' && t.label !== '포토리뷰이벤트' && t.label !== '상담시간연장');
 
   return (
     <div 
