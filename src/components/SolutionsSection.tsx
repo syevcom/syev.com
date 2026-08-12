@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Solution, ActivePage, ProductOptionGroup, SolutionProduct } from '../types';
-import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Check, ArrowRight, Zap, RefreshCw, Building2, Home, ParkingCircle, Layers, Image, FileText, Trash2, Upload, ExternalLink, X, Plus, Edit3, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMAGE, DEFAULT_RESIDENTIAL_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, DEVICE_ONLY_OPTION_GROUPS, REPLACEMENT_OPTION_GROUPS, INSTALLATION_OPTION_GROUPS } from '../data';
 import PdfImageRenderer from './PdfImageRenderer';
@@ -384,7 +384,7 @@ export default function SolutionsSection({
   const [localDetailModes, setLocalDetailModes] = useState<Record<string, 'scroll' | 'unfold'>>({});
   const [sortBy, setSortBy] = useState<'new' | 'priceAsc' | 'priceDesc' | 'popular'>('new');
   const [activeDetailProduct, setActiveDetailProduct] = useState<SolutionProduct | null>(null);
-  const [productDetails, setProductDetails] = useState<Record<string, { pdfUrl?: string; pdfName?: string }>>({});
+  const [productDetails, setProductDetails] = useState<Record<string, { pdfUrl?: string; pdfName?: string; pdfUrls?: string[]; pdfNames?: string[] }>>({});
   
   const [selectedConnector, setSelectedConnector] = useState<string>('');
   const [selectedOptionsMap, setSelectedOptionsMap] = useState<Record<string, string>>({});
@@ -987,34 +987,127 @@ export default function SolutionsSection({
 
   const [isDraggingProductPdf, setIsDraggingProductPdf] = useState<Record<string, boolean>>({});
 
-  const handleProductPdfUpload = (productId: string, file: File) => {
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    const isImage = file.type.startsWith('image/');
+  const handleProductPdfUpload = (productId: string, fileInput: FileList | File[] | File) => {
+    const fileArray = fileInput instanceof FileList ? Array.from(fileInput) : Array.isArray(fileInput) ? fileInput : [fileInput];
+    if (fileArray.length === 0) return;
 
-    if (!isPdf && !isImage) {
+    const validFiles = fileArray.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf') || f.type.startsWith('image/'));
+    if (validFiles.length === 0) {
       alert('PDF 파일 또는 이미지 파일(PNG/JPG/JPEG)만 업로드할 수 있습니다.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const dataUrl = reader.result as string;
+    const promises = validFiles.map(file => {
+      return new Promise<{ url: string; name: string }>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve({ url: reader.result as string, name: file.name });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(promises).then(async (newAssets) => {
       const key = `product-${productId}`;
-      try {
-        await saveBrandPdf(key, dataUrl, file.name);
-        setProductDetails(prev => ({
+      setProductDetails(prev => {
+        const existing = prev[key] || {};
+        const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
+          ? existing.pdfUrls
+          : (existing.pdfUrl ? [existing.pdfUrl] : []);
+        const existingNames = existing.pdfNames && existing.pdfNames.length > 0
+          ? existing.pdfNames
+          : (existing.pdfName ? [existing.pdfName] : []);
+
+        const updatedUrls = [...existingUrls, ...newAssets.map(a => a.url)];
+        const updatedNames = [...existingNames, ...newAssets.map(a => a.name)];
+
+        const updatedObj = {
+          pdfUrls: updatedUrls,
+          pdfNames: updatedNames,
+          pdfUrl: updatedUrls[0],
+          pdfName: updatedNames[0]
+        };
+
+        saveBrandPdf(key, updatedObj).catch(dbErr => {
+          console.error('Failed to save product detail to IndexedDB:', dbErr);
+        });
+
+        return {
           ...prev,
-          [key]: {
-            pdfUrl: dataUrl,
-            pdfName: file.name
-          }
-        }));
-      } catch (dbError) {
-        console.error('Failed to save product detail to IndexedDB:', dbError);
-        alert('데이터 저장에 실패했습니다. 프라이빗 브라우징 모드를 해제해 주십시오.');
+          [key]: updatedObj
+        };
+      });
+    }).catch(err => {
+      console.error('Error reading files:', err);
+      alert('파일을 읽는 도중 오류가 발생했습니다.');
+    });
+  };
+
+  const handleDeleteProductSingleFile = async (productId: string, index: number) => {
+    const key = `product-${productId}`;
+    setProductDetails(prev => {
+      const existing = prev[key];
+      if (!existing) return prev;
+
+      const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
+        ? existing.pdfUrls
+        : (existing.pdfUrl ? [existing.pdfUrl] : []);
+      const existingNames = existing.pdfNames && existing.pdfNames.length > 0
+        ? existing.pdfNames
+        : (existing.pdfName ? [existing.pdfName] : []);
+
+      const updatedUrls = existingUrls.filter((_, i) => i !== index);
+      const updatedNames = existingNames.filter((_, i) => i !== index);
+
+      if (updatedUrls.length === 0) {
+        deleteBrandPdf(key).catch(err => console.error(err));
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      } else {
+        const updatedObj = {
+          pdfUrls: updatedUrls,
+          pdfNames: updatedNames,
+          pdfUrl: updatedUrls[0],
+          pdfName: updatedNames[0]
+        };
+        saveBrandPdf(key, updatedObj).catch(err => console.error(err));
+        return {
+          ...prev,
+          [key]: updatedObj
+        };
       }
-    };
-    reader.readAsDataURL(file);
+    });
+  };
+
+  const handleReorderProductFile = (productId: string, fromIndex: number, toIndex: number) => {
+    const key = `product-${productId}`;
+    setProductDetails(prev => {
+      const existing = prev[key];
+      if (!existing) return prev;
+
+      const existingUrls = [...(existing.pdfUrls && existing.pdfUrls.length > 0 ? existing.pdfUrls : (existing.pdfUrl ? [existing.pdfUrl] : []))];
+      const existingNames = [...(existing.pdfNames && existing.pdfNames.length > 0 ? existing.pdfNames : (existing.pdfName ? [existing.pdfName] : []))];
+
+      if (toIndex < 0 || toIndex >= existingUrls.length) return prev;
+
+      const [movedUrl] = existingUrls.splice(fromIndex, 1);
+      const [movedName] = existingNames.splice(fromIndex, 1);
+
+      existingUrls.splice(toIndex, 0, movedUrl);
+      existingNames.splice(toIndex, 0, movedName);
+
+      const updatedObj = {
+        pdfUrls: existingUrls,
+        pdfNames: existingNames,
+        pdfUrl: existingUrls[0],
+        pdfName: existingNames[0]
+      };
+      saveBrandPdf(key, updatedObj).catch(err => console.error(err));
+      return {
+        ...prev,
+        [key]: updatedObj
+      };
+    });
   };
 
   const handleDeleteProductPdf = async (productId: string) => {
@@ -2706,93 +2799,236 @@ export default function SolutionsSection({
         {/* BOTTOM: Long Catalog Brochure Details */}
         <div className="border-t border-slate-200/80 pt-6">
           <div className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-6 space-y-4 shadow-sm">
-            {detailData?.pdfUrl && isEditMode && (
-              <div className="flex justify-end border-b border-slate-100 pb-3">
-                <button
-                  type="button"
-                  onClick={() => handleDeleteProductPdf(activeDetailProduct.id)}
-                  className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border border-rose-200"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  상세페이지 이미지 삭제
-                </button>
-              </div>
-            )}
+            {(() => {
+              const detailUrls: string[] = detailData?.pdfUrls && detailData.pdfUrls.length > 0
+                ? detailData.pdfUrls
+                : (detailData?.pdfUrl ? [detailData.pdfUrl] : []);
+              const detailNames: string[] = detailData?.pdfNames && detailData.pdfNames.length > 0
+                ? detailData.pdfNames
+                : (detailData?.pdfName ? [detailData.pdfName] : []);
 
-            {/* Brochure render or upload zone */}
-            {detailData?.pdfUrl ? (
-              <div className="space-y-4">
-                <PdfImageRenderer 
-                  fileUrl={detailData.pdfUrl} 
-                  fileName={detailData.pdfName || 'product-catalog.pdf'} 
-                  brandName={activeDetailProduct.name} 
-                  isAdmin={isEditMode}
-                />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {isEditMode ? (
-                  <div
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: true }));
-                    }}
-                    onDragLeave={() => {
-                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
-                      const file = e.dataTransfer.files?.[0];
-                      if (file) {
-                        handleProductPdfUpload(activeDetailProduct.id, file);
-                      }
-                    }}
-                    onClick={() => document.getElementById(`product-detail-upload-${activeDetailProduct.id}`)?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[260px] ${
-                      isDraggingProductPdf[activeDetailProduct.id]
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-300 bg-slate-50 hover:bg-slate-100/50 hover:border-blue-400'
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      id={`product-detail-upload-${activeDetailProduct.id}`}
-                      accept="application/pdf, image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleProductPdfUpload(activeDetailProduct.id, file);
+              if (detailUrls.length > 0) {
+                if (!isEditMode) {
+                  return (
+                    <div className="space-y-2 w-full">
+                      {detailUrls.map((url, idx) => (
+                        <div key={idx} className="w-full">
+                          <PdfImageRenderer 
+                            fileUrl={url} 
+                            fileName={detailNames[idx] || `${activeDetailProduct.name} 상세페이지 이미지 ${idx + 1}`} 
+                            brandName={activeDetailProduct.name} 
+                            isAdmin={false}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold">
+                          총 {detailUrls.length}장 이미지/PDF 등록됨
+                        </span>
+                        <p className="text-xs text-slate-300 font-medium">
+                          긴 상세페이지를 여러 장으로 분할하여 순서대로 등록 및 관리하실 수 있습니다.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById(`product-detail-add-more-${activeDetailProduct.id}`)?.click()}
+                          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          이미지/PDF 추가 등록
+                        </button>
+                        <input
+                          type="file"
+                          id={`product-detail-add-more-${activeDetailProduct.id}`}
+                          multiple
+                          accept="application/pdf, image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              handleProductPdfUpload(activeDetailProduct.id, e.target.files);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProductPdf(activeDetailProduct.id)}
+                          className="px-3.5 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-all border border-rose-800"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          전체 삭제
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List of images */}
+                    <div className="space-y-4">
+                      {detailUrls.map((url, idx) => (
+                        <div key={idx} className="border border-slate-200 bg-slate-50/60 rounded-2xl p-4 space-y-3 relative shadow-2xs">
+                          <div className="flex items-center justify-between pb-2 border-b border-slate-200 text-xs font-bold text-slate-800">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </span>
+                              <span className="truncate max-w-[200px] sm:max-w-[320px]">
+                                {detailNames[idx] || `상세페이지 이미지 #${idx + 1}`}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleReorderProductFile(activeDetailProduct.id, idx, idx - 1)}
+                                className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-30 rounded-lg text-slate-700 cursor-pointer transition-all"
+                                title="위로 이동"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === detailUrls.length - 1}
+                                onClick={() => handleReorderProductFile(activeDetailProduct.id, idx, idx + 1)}
+                                className="p-1.5 bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-30 rounded-lg text-slate-700 cursor-pointer transition-all"
+                                title="아래로 이동"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteProductSingleFile(activeDetailProduct.id, idx)}
+                                className="px-2.5 py-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-600 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors ml-2"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                삭제
+                              </button>
+                            </div>
+                          </div>
+
+                          <PdfImageRenderer 
+                            fileUrl={url} 
+                            fileName={detailNames[idx] || `${activeDetailProduct.name} 상세페이지 이미지 ${idx + 1}`} 
+                            brandName={activeDetailProduct.name} 
+                            isAdmin={true}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Drag-and-Drop Dropzone at Bottom */}
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: true }));
+                      }}
+                      onDragLeave={() => {
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                          handleProductPdfUpload(activeDetailProduct.id, e.dataTransfer.files);
                         }
                       }}
-                    />
-                    <Upload className="w-10 h-10 text-slate-400 mb-3 animate-pulse" />
-                    <p className="text-xs sm:text-sm font-black text-slate-800">
-                      여기에 <span className="text-blue-600">[{activeDetailProduct.name}]</span> 제품의 상세 설명 이미지(PNG, JPG, JPEG) 또는 카탈로그 PDF를 드래그하거나 클릭하여 등록해 주세요.
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-bold mt-2">
-                      권장: 고해상도 상세페이지 길쭉한 통 이미지 등록 시 고화질로 렌더링되어 제품 정보 전달력이 대폭 상승합니다!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="py-16 text-center bg-slate-50 border border-slate-200 rounded-2xl flex flex-col items-center justify-center space-y-3">
-                    <FileText className="w-10 h-10 text-slate-400" />
-                    <p className="text-xs sm:text-sm text-slate-800 font-extrabold">본 제품의 고화질 상세 설명 이미지가 업로드 준비 중입니다.</p>
-                    <p className="text-[11px] text-slate-500 font-bold max-w-sm leading-relaxed mx-auto">
-                      1분 무료 자격 심사 상담 신청을 완료해 주시면, 담당 엔지니어가 카탈로그 사양서 전달 및 지자체 지원금 승인 조회를 신속하게 진행해 드립니다.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => onOpenQuoteWithPurpose(productPurpose)}
-                      className="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-xs mt-2"
+                      onClick={() => document.getElementById(`product-detail-upload-bottom-${activeDetailProduct.id}`)?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${
+                        isDraggingProductPdf[activeDetailProduct.id]
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-slate-300 bg-slate-50/50 hover:bg-slate-100/60 hover:border-blue-400'
+                      }`}
                     >
-                      ⚡ 실시간 무상설치 자격 문의하기
-                    </button>
+                      <input
+                        type="file"
+                        id={`product-detail-upload-bottom-${activeDetailProduct.id}`}
+                        multiple
+                        accept="application/pdf, image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            handleProductPdfUpload(activeDetailProduct.id, e.target.files);
+                          }
+                        }}
+                      />
+                      <Upload className="w-6 h-6 text-blue-600 mb-1" />
+                      <p className="text-xs font-bold text-slate-800">
+                        <span className="text-blue-600 font-extrabold">+ 이미지/PDF 파일 여러 장 추가 업로드하기</span> (드래그하여 드롭하거나 클릭하여 한꺼번에 선택 가능)
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                );
+              }
+
+              return (
+                <div className="space-y-4">
+                  {isEditMode ? (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: true }));
+                      }}
+                      onDragLeave={() => {
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingProductPdf(prev => ({ ...prev, [activeDetailProduct.id]: false }));
+                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                          handleProductPdfUpload(activeDetailProduct.id, e.dataTransfer.files);
+                        }
+                      }}
+                      onClick={() => document.getElementById(`product-detail-upload-${activeDetailProduct.id}`)?.click()}
+                      className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[260px] ${
+                        isDraggingProductPdf[activeDetailProduct.id]
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-slate-300 bg-slate-50 hover:bg-slate-100/50 hover:border-blue-400'
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        id={`product-detail-upload-${activeDetailProduct.id}`}
+                        multiple
+                        accept="application/pdf, image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            handleProductPdfUpload(activeDetailProduct.id, e.target.files);
+                          }
+                        }}
+                      />
+                      <Upload className="w-10 h-10 text-slate-400 mb-3 animate-pulse" />
+                      <p className="text-xs sm:text-sm font-black text-slate-800">
+                        여기에 <span className="text-blue-600">[{activeDetailProduct.name}]</span> 제품의 상세 설명 이미지(PNG, JPG, JPEG) 여러 장 또는 카탈로그 PDF를 드래그하거나 클릭하여 등록해 주세요.
+                      </p>
+                      <p className="text-[11px] text-slate-500 font-bold mt-2">
+                        💡 <span className="text-blue-600 font-extrabold">여러 장 다중 등록 지원</span>: 파일이 길어서 2장 이상 분할된 경우, 파일 여러 개를 동시에 선택하여 업로드하면 완벽하게 연결되어 표시됩니다!
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="py-16 text-center bg-slate-50 border border-slate-200 rounded-2xl flex flex-col items-center justify-center space-y-3">
+                      <FileText className="w-10 h-10 text-slate-400" />
+                      <p className="text-xs sm:text-sm text-slate-800 font-extrabold">본 제품의 고화질 상세 설명 이미지가 업로드 준비 중입니다.</p>
+                      <p className="text-[11px] text-slate-500 font-bold max-w-sm leading-relaxed mx-auto">
+                        1분 무료 자격 심사 상담 신청을 완료해 주시면, 담당 엔지니어가 카탈로그 사양서 전달 및 지자체 지원금 승인 조회를 신속하게 진행해 드립니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => onOpenQuoteWithPurpose(productPurpose)}
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-black rounded-xl transition-all cursor-pointer shadow-xs mt-2"
+                      >
+                        ⚡ 실시간 무상설치 자격 문의하기
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

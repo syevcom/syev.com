@@ -29,14 +29,26 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /**
- * Saves a brand's PDF details (Base64 URL and file name) to IndexedDB
+ * Saves a brand or product's PDF/image details (Base64 URL, names, or arrays of URLs) to IndexedDB
  */
-export async function saveBrandPdf(brandKey: string, pdfUrl: string, pdfName: string): Promise<void> {
+export async function saveBrandPdf(
+  brandKey: string,
+  pdfUrlOrData: string | { pdfUrl?: string; pdfName?: string; pdfUrls?: string[]; pdfNames?: string[] },
+  pdfName?: string
+): Promise<void> {
   try {
     const db = await openDB();
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
-    store.put({ pdfUrl, pdfName }, brandKey);
+
+    let dataToStore: { pdfUrl?: string; pdfName?: string; pdfUrls?: string[]; pdfNames?: string[] };
+    if (typeof pdfUrlOrData === 'string') {
+      dataToStore = { pdfUrl: pdfUrlOrData, pdfName: pdfName || 'document.pdf' };
+    } else {
+      dataToStore = pdfUrlOrData;
+    }
+
+    store.put(dataToStore, brandKey);
     return new Promise((resolve, reject) => {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
@@ -67,15 +79,15 @@ export async function deleteBrandPdf(brandKey: string): Promise<void> {
 }
 
 /**
- * Loads all stored brand PDFs from IndexedDB
+ * Loads all stored brand/product PDFs from IndexedDB
  */
-export async function loadAllBrandPdfs(): Promise<Record<string, { pdfUrl: string; pdfName: string }>> {
+export async function loadAllBrandPdfs(): Promise<Record<string, { pdfUrl?: string; pdfName?: string; pdfUrls?: string[]; pdfNames?: string[] }>> {
   try {
     const db = await openDB();
     const tx = db.transaction(STORE_NAME, 'readonly');
     const store = tx.objectStore(STORE_NAME);
     const request = store.openCursor();
-    const results: Record<string, { pdfUrl: string; pdfName: string }> = {};
+    const results: Record<string, { pdfUrl?: string; pdfName?: string; pdfUrls?: string[]; pdfNames?: string[] }> = {};
 
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
