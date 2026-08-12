@@ -157,10 +157,6 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
             </div>
             {config.noticeText}
           </div>
-
-          <div className="mt-1.5 text-right text-[9px] text-purple-300 font-medium">
-            AS 접수 : 031-898-1111
-          </div>
         </div>
 
         {/* Bottom Tabs */}

@@ -2600,36 +2600,78 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    팝업 중앙 대표 이미지 URL
+                  <label className="block text-xs font-bold text-slate-700 mb-2">
+                    🖼️ 팝업 대표 이미지 (파일 업로드)
                   </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={popupState.imageUrl}
-                      onChange={(e) => setPopupState({ ...popupState, imageUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
-                    />
-                    <label className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl cursor-pointer shrink-0 flex items-center gap-1">
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>업로드</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              const compressed = await compressImage(file, 800, 800, 0.8);
-                              setPopupState({ ...popupState, imageUrl: compressed });
-                            } catch (err) {
-                              console.error(err);
-                            }
-                          }
-                        }}
-                      />
-                    </label>
+                  
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                    {/* Image Preview & File Choice Box */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      {popupState.imageUrl ? (
+                        <div className="relative w-28 h-28 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs shrink-0 flex items-center justify-center">
+                          <img
+                            src={popupState.imageUrl}
+                            alt="팝업 이미지 미리보기"
+                            className="w-full h-full object-contain p-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPopupState({ ...popupState, imageUrl: '' })}
+                            className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md transition-colors cursor-pointer"
+                            title="이미지 삭제"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="w-28 h-28 bg-slate-200/70 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 shrink-0">
+                          <ImageIcon className="w-8 h-8 mb-1" />
+                          <span className="text-[10px] font-bold">이미지 없음</span>
+                        </div>
+                      )}
+
+                      <div className="flex-1 space-y-2 w-full">
+                        <label className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm transition-all border border-purple-500">
+                          <Upload className="w-4 h-4" />
+                          <span>PC에서 이미지 파일 선택 업로드</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const compressed = await compressImage(file, 800, 800, 0.8);
+                                  setPopupState({ ...popupState, imageUrl: compressed });
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
+                            }}
+                          />
+                        </label>
+                        <p className="text-[11px] text-slate-500 leading-tight">
+                          💡 컴퓨터나 휴대폰의 사진 파일(JPG, PNG 등)을 직접 선택하여 등록하실 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Secondary URL Input Option */}
+                    <details className="pt-2 border-t border-slate-200/60">
+                      <summary className="text-[11px] font-bold text-slate-500 hover:text-slate-700 cursor-pointer">
+                        웹 이미지 URL 주소로 직접 입력하기 (선택)
+                      </summary>
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          placeholder="https://..."
+                          value={popupState.imageUrl}
+                          onChange={(e) => setPopupState({ ...popupState, imageUrl: e.target.value })}
+                          className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-800"
+                        />
+                      </div>
+                    </details>
                   </div>
                 </div>
               </div>
