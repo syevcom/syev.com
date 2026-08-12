@@ -673,13 +673,22 @@ export default function SolutionsSection({
       'res-11kw-evsis'
     ]);
     
+    const isLotteProduct = (p: any) => {
+      if (!p) return false;
+      const id = String(p.id || '').toLowerCase();
+      const name = String(p.name || '').toLowerCase();
+      const brand = String(p.brand || '').toLowerCase();
+      const mfr = String(p.manufacturer || '').toLowerCase();
+      return id.includes('evsis') || name.includes('롯데') || name.includes('evsis') || name.includes('이브이시스') || brand.includes('롯데') || brand.includes('evsis') || brand.includes('이브이시스') || mfr.includes('롯데') || mfr.includes('evsis');
+    };
+
     const result: Record<string, SolutionProduct[]> = {};
     let modified = false;
 
     Object.keys(HOME_PRODUCTS_DATA).forEach((cat) => {
       // First clean up any removed items in existing parsed list
       const existingRaw = parsed[cat] || HOME_PRODUCTS_DATA[cat] || [];
-      const cleanedExisting = existingRaw.filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id));
+      const cleanedExisting = existingRaw.filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p));
       
       if (cleanedExisting.length !== existingRaw.length) {
         modified = true;

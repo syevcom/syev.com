@@ -525,6 +525,15 @@ export default function App() {
         deletedSet.add('res-7kw-evsis');
         deletedSet.add('res-11kw-evsis');
 
+        const isLotteProduct = (p: any) => {
+          if (!p) return false;
+          const id = String(p.id || '').toLowerCase();
+          const name = String(p.name || '').toLowerCase();
+          const brand = String(p.brand || '').toLowerCase();
+          const mfr = String(p.manufacturer || '').toLowerCase();
+          return id.includes('evsis') || name.includes('롯데') || name.includes('evsis') || name.includes('이브이시스') || brand.includes('롯데') || brand.includes('evsis') || brand.includes('이브이시스') || mfr.includes('롯데') || mfr.includes('evsis');
+        };
+
         const checkIsMatch = (item: any, np: Product) => {
           if (!item || !np) return false;
           if (item.id && np.id && item.id === np.id) return true;
@@ -537,7 +546,7 @@ export default function App() {
 
         const savedProducts = localStorage.getItem('sy_cms_products_v12');
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
-        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
+        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p));
         currentProducts = normalizeProductServiceTypes(applyBrandOptions(currentProducts));
 
         const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
@@ -900,9 +909,18 @@ export default function App() {
           return false;
         };
 
+        const isLotteProduct = (p: any) => {
+          if (!p) return false;
+          const id = String(p.id || '').toLowerCase();
+          const name = String(p.name || '').toLowerCase();
+          const brand = String(p.brand || '').toLowerCase();
+          const mfr = String(p.manufacturer || '').toLowerCase();
+          return id.includes('evsis') || name.includes('롯데') || name.includes('evsis') || name.includes('이브이시스') || brand.includes('롯데') || brand.includes('evsis') || brand.includes('이브이시스') || mfr.includes('롯데') || mfr.includes('evsis');
+        };
+
         const savedProducts = localStorage.getItem('sy_cms_products_v12');
         let currentProducts: Product[] = savedProducts ? JSON.parse(savedProducts) : [...PRODUCTS];
-        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id));
+        currentProducts = currentProducts.filter(p => p && !REMOVED_PRODUCT_IDS.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p));
         currentProducts = currentProducts.map(p => {
           if (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil') {
             return {
