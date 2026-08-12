@@ -546,10 +546,10 @@ export default function Header({
 
       {/* Sub-navigation bar for Brands (Only visible when 'sol_commercial' / Apartment Charger page is active) */}
       {activePage === 'sol_commercial' && (
-        <div className="w-full bg-slate-900 border-t border-slate-800/80 py-2.5 shadow-inner">
+        <div className="w-full bg-white/95 backdrop-blur-md border-t border-b border-slate-200/80 py-2 shadow-2xs">
           <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none whitespace-nowrap py-0.5 flex-1">
-              <span className="text-xs font-black text-emerald-400 shrink-0 hidden md:inline">아파트 브랜드:</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none whitespace-nowrap py-0.5 flex-1">
+              <span className="text-[11px] font-bold text-slate-500 mr-1 hidden sm:inline">아파트 브랜드:</span>
               {[
                 'sk일렉링크',
                 '플러그링크',
@@ -577,10 +577,10 @@ export default function Header({
                         }
                       }, 50);
                     }}
-                    className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                       isSelected
-                        ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 font-black scale-105'
-                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20 scale-[1.02]'
+                        : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/60'
                     }`}
                   >
                     {brand}
@@ -589,11 +589,11 @@ export default function Header({
               })}
             </div>
 
-            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            {/* Quick Charger Search Button */}
             <button
               onClick={() => setIsSearchModalOpen(true)}
               title="충전기 모델 / 용량 검색"
-              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-xs shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
               id="btn-header-search"
             >
               <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -605,12 +605,12 @@ export default function Header({
 
       {/* Sub-navigation bar for Home Charger (Price Type & Power Capacities) */}
       {activePage === 'sol_residential' && (
-        <div className="w-full bg-emerald-950 border-t border-emerald-900/40 py-2.5 shadow-inner">
+        <div className="w-full bg-white/95 backdrop-blur-md border-t border-b border-slate-200/80 py-2 shadow-2xs">
           <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-3 overflow-x-auto scrollbar-none whitespace-nowrap flex-1">
               {/* Price Category Tabs */}
               <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap">
-                <span className="text-[11px] font-black text-emerald-400 mr-1 hidden sm:inline">구분:</span>
+                <span className="text-[11px] font-bold text-slate-500 mr-1 hidden sm:inline">구분:</span>
                 {[
                   { id: '단말기 단품', label: '📦 단말기 단품' },
                   { id: '교체 시공', label: '🛠️ 교체 시공' },
@@ -634,10 +634,10 @@ export default function Header({
                           }
                         }, 60);
                       }}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                         isSelected
-                          ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 font-black scale-105'
-                          : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                          ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20 scale-[1.02]'
+                          : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/60'
                       }`}
                     >
                       {st.label}
@@ -647,8 +647,8 @@ export default function Header({
               </div>
 
               {/* Power Capacity Tabs */}
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap border-l border-emerald-800/60 pl-3">
-                <span className="text-[11px] font-black text-amber-300 mr-1 hidden sm:inline">용량:</span>
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap border-l border-slate-200 pl-3">
+                <span className="text-[11px] font-bold text-slate-500 mr-1 hidden sm:inline">용량:</span>
                 {['5kW', '7kW', '11kW'].map((kw) => {
                   const isSelected = selectedHomePower === kw;
                   return (
@@ -668,10 +668,10 @@ export default function Header({
                           }
                         }, 60);
                       }}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                         isSelected
-                          ? 'bg-yellow-400 text-slate-950 shadow-md shadow-yellow-400/30 font-black scale-105'
-                          : 'text-emerald-100 hover:text-white hover:bg-white/10'
+                          ? 'bg-amber-500 text-slate-950 shadow-xs shadow-amber-500/20 scale-[1.02]'
+                          : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50/60'
                       }`}
                     >
                       ⚡ {kw}
@@ -697,9 +697,10 @@ export default function Header({
 
       {/* Sub-navigation bar for ParkingLot (Only visible when 'sol_parking' is active) */}
       {activePage === 'sol_parking' && (
-        <div className="w-full bg-slate-900 border-t border-slate-800 py-2.5 shadow-inner">
+        <div className="w-full bg-white/95 backdrop-blur-md border-t border-b border-slate-200/80 py-2 shadow-2xs">
           <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-none whitespace-nowrap flex-1">
+              <span className="text-[11px] font-bold text-slate-500 mr-1 hidden sm:inline">구분:</span>
               {[
                 '공용 BIZ 충전기'
               ].map((cap) => {
@@ -708,23 +709,23 @@ export default function Header({
                   <button
                     key={cap}
                     onClick={() => onSelectParkingCapacity?.(cap)}
-                    className={`px-5 py-1.5 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                       isSelected
-                        ? 'bg-blue-500 text-slate-950 shadow-md shadow-blue-500/35 font-black scale-105'
-                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/20 scale-[1.02]'
+                        : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/60'
                     }`}
                   >
-                    {cap}
+                    🏢 {cap}
                   </button>
                 );
               })}
             </div>
 
-            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            {/* Quick Charger Search Button */}
             <button
               onClick={() => setIsSearchModalOpen(true)}
               title="충전기 모델 / 용량 검색"
-              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-xs shadow-amber-500/20 shrink-0 hover:scale-103 active:scale-97 border border-amber-400"
               id="btn-header-search"
             >
               <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -734,20 +735,20 @@ export default function Header({
         </div>
       )}
 
-      {/* Sub-bar for Home, About, Review (Moves search button 1 line down cleanly) */}
+      {/* Sub-bar for Home, About, Review */}
       {(activePage === 'home' || activePage === 'about' || activePage === 'review') && (
-        <div className="w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800/80 py-2 shadow-sm">
+        <div className="w-full bg-white/95 backdrop-blur-md border-t border-b border-slate-200/80 py-2 shadow-2xs">
           <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-slate-300 font-bold">
-              <span className="bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-md border border-emerald-500/30 font-black">원스톱 서비스</span>
-              <span className="hidden sm:inline text-slate-300">전국 최대 네트워크! 원하는 전기차 충전기 모델과 용량을 원클릭으로 검색해보세요.</span>
+            <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold">
+              <span className="bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-md border border-emerald-200/80 font-bold">원스톱 서비스</span>
+              <span className="hidden sm:inline text-slate-600">전국 최대 네트워크! 원하는 전기차 충전기 모델과 용량을 원클릭으로 검색해보세요.</span>
             </div>
 
-            {/* Quick Charger Search Button (Moved down 1 line as requested) */}
+            {/* Quick Charger Search Button */}
             <button
               onClick={() => setIsSearchModalOpen(true)}
               title="충전기 모델 / 용량 검색"
-              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-black text-xs transition-all cursor-pointer shadow-md shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-xs shadow-yellow-400/20 shrink-0 hover:scale-103 active:scale-97 border border-yellow-300"
               id="btn-header-search"
             >
               <Search className="w-3.5 h-3.5 text-slate-950 shrink-0" />

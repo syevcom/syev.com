@@ -71,6 +71,25 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
 
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
 
+  // 1-A. Non-Admin View: Pure clean image output without control bars or dark borders
+  if (!isAdmin) {
+    return (
+      <div className="w-full flex justify-center py-1">
+        <div 
+          className="w-full rounded-2xl bg-white overflow-hidden"
+          style={isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
+        >
+          <img
+            src={imageUrl}
+            alt={`${brandName} 카탈로그`}
+            className="w-full h-auto object-contain block"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative border border-slate-800 bg-slate-950/60 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
       {/* Toast Notification */}
@@ -351,6 +370,48 @@ function PdfCatalogViewer({ pdfUrl, fileName, brandName, isAdmin }: { pdfUrl: st
   }, [pdfLibLoaded, pdfUrl]);
 
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
+
+  // 2-A. Non-Admin View: Clean continuous scroll pages without top/bottom control bars
+  if (!isAdmin) {
+    return (
+      <div className="w-full py-1 flex flex-col items-center relative scroll-smooth">
+        {loading && (
+          <div className="flex flex-col items-center justify-center space-y-2 py-10">
+            <div className="w-7 h-7 rounded-full border-2 border-slate-300 border-t-emerald-600 animate-spin" />
+            <p className="text-xs font-bold text-slate-500">카탈로그 문서 로딩 중...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
+            <p className="text-xs text-rose-600 font-bold">{error}</p>
+            <button
+              type="button"
+              onClick={() => setFallbackToImage(true)}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm"
+            >
+              이미지로 보기
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && pdfDoc && (
+          <div className="space-y-4 w-full flex flex-col items-center">
+            {Array.from({ length: numPages }).map((_, i) => (
+              <ScrollPageItem
+                key={i}
+                pdfDoc={pdfDoc}
+                pageNum={i + 1}
+                zoom={zoom}
+                brandName={brandName}
+                isAdmin={false}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative border border-slate-800 bg-slate-950/60 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
@@ -642,6 +703,24 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
       }
     };
   }, [pdfDoc, pageNum, zoom]);
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center w-full">
+        <div 
+          className="w-full rounded-xl bg-white overflow-hidden select-none relative shadow-sm"
+          style={aspectRatio ? { aspectRatio: `${aspectRatio}` } : undefined}
+        >
+          <canvas ref={canvasRef} className="block w-full h-auto object-contain" />
+          {!rendered && (
+            <div className="absolute inset-0 bg-slate-100/60 flex items-center justify-center">
+              <RefreshCw className="w-6 h-6 text-emerald-600 animate-spin" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center space-y-2 w-full">

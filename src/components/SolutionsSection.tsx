@@ -2704,16 +2704,10 @@ export default function SolutionsSection({
         )}
 
         {/* BOTTOM: Long Catalog Brochure Details */}
-        <div className="border-t border-slate-200/80 pt-10">
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-emerald-600" />
-                <h5 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
-                  📄 상세 설명 카탈로그 및 이미지 정보
-                </h5>
-              </div>
-              {detailData?.pdfUrl && isEditMode && (
+        <div className="border-t border-slate-200/80 pt-6">
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-6 space-y-4 shadow-sm">
+            {detailData?.pdfUrl && isEditMode && (
+              <div className="flex justify-end border-b border-slate-100 pb-3">
                 <button
                   type="button"
                   onClick={() => handleDeleteProductPdf(activeDetailProduct.id)}
@@ -2722,8 +2716,8 @@ export default function SolutionsSection({
                   <Trash2 className="w-3 h-3" />
                   상세페이지 이미지 삭제
                 </button>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Brochure render or upload zone */}
             {detailData?.pdfUrl ? (
@@ -2875,7 +2869,7 @@ export default function SolutionsSection({
                 {/* 1. Header Text & Benefits Block (Top) */}
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <span className="text-blue-600 font-black text-sm sm:text-base tracking-widest uppercase block">
+                    <span className="text-emerald-700 font-bold text-xs sm:text-sm tracking-wider uppercase block">
                       {sol.category === 'Commercial' ? '🏢 아파트·공동주택·공용시설 맞춤' : sol.category === 'Residential' ? '🏡 가정용·홈·개인소유지' : '🅿️ 상업시설·수익형 주차장'}
                     </span>
                     <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-snug">
@@ -2883,57 +2877,45 @@ export default function SolutionsSection({
                     </h3>
                   </div>
                   
-                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
-                    <p className="text-base text-slate-700 leading-relaxed font-bold max-w-4xl">
+                  {sol.category === 'ParkingLot' && (
+                    <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal whitespace-pre-line max-w-3xl pt-1">
                       {sol.description}
                     </p>
-                  )}
-
-                  {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
-                    /* Grid benefits */
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                      {sol.benefits.map((b) => (
-                        <div key={b} className="flex items-start gap-2.5 text-sm md:text-base text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/60 shadow-xs">
-                          <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                          <span className="font-extrabold leading-relaxed">{b}</span>
-                        </div>
-                      ))}
-                    </div>
                   )}
                 </div>
 
                 {sol.category === 'Commercial' && (() => {
                   const brandData = brands[selectedAptBrand] || brands['sk일렉링크'];
                   return (
-                    <div id="apt-brand-section" className="p-8 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white rounded-3xl border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden group/brand">
-                      {/* Decorative Background Glow */}
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div id="apt-brand-section" className="p-6 sm:p-8 bg-white text-slate-900 rounded-3xl border border-slate-200/90 space-y-6 shadow-2xs relative overflow-hidden group/brand">
+                      {/* Top Gradient Line Accent */}
+                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
                       
-                      <div className="space-y-4 border-b border-emerald-500/30 pb-5 relative z-10">
+                      <div className="space-y-4 border-b border-slate-200/80 pb-5 relative z-10">
                         {/* Top Info Row */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <div className="flex items-center gap-2">
                               <span className="text-xl sm:text-2xl">{brandData.icon}</span>
-                              <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block bg-emerald-800/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                              <span className="text-xs font-bold text-emerald-800 tracking-wide uppercase block bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80">
                                 SY.com 아파트 브랜드 공식 파트너
                               </span>
                             </div>
-                            <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                            <h4 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                               {brandData.name}
                             </h4>
-                            <p className="text-sm text-emerald-100 font-bold">
+                            <p className="text-sm text-slate-600 font-medium leading-relaxed">
                               {brandData.slogan}
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2 bg-emerald-900/60 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold text-amber-300 self-start sm:self-auto shrink-0 shadow-sm">
+                          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 self-start sm:self-auto shrink-0 shadow-2xs">
                             <span>🏢 아파트 브랜드 선택 ({Object.keys(brands).length}개)</span>
                           </div>
                         </div>
 
-                        {/* Full-Width Horizontal Brand Selector with Scroll Buttons & Visible Yellow Scrollbar */}
-                        <div className="relative flex items-center gap-2 bg-emerald-950/40 p-2.5 rounded-2xl border border-emerald-500/30 shadow-inner">
+                        {/* Full-Width Horizontal Brand Selector with Scroll Buttons */}
+                        <div className="relative flex items-center gap-2 bg-slate-50/90 p-2.5 rounded-2xl border border-slate-200/80 shadow-2xs">
                           {/* Left Navigation Arrow */}
                           <button
                             type="button"
@@ -2941,16 +2923,16 @@ export default function SolutionsSection({
                               const el = document.getElementById('apt-brand-scroll-container');
                               if (el) el.scrollBy({ left: -240, behavior: 'smooth' });
                             }}
-                            className="p-2.5 bg-emerald-800 hover:bg-yellow-400 hover:text-slate-950 text-white rounded-xl transition-all shadow-md shrink-0 border border-emerald-500/40 cursor-pointer active:scale-95"
+                            className="p-2.5 bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl transition-all shadow-2xs shrink-0 border border-slate-200 cursor-pointer active:scale-95"
                             title="왼쪽 브랜드 보기"
                           >
                             <ChevronLeft className="w-4 h-4" />
                           </button>
 
-                          {/* Scrollable Container with Custom High-Contrast Scrollbar */}
+                          {/* Scrollable Container */}
                           <div
                             id="apt-brand-scroll-container"
-                            className="flex gap-2 overflow-x-auto py-1.5 scroll-smooth w-full [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-track]:bg-emerald-950/80 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-amber-400 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-amber-300 cursor-grab active:cursor-grabbing"
+                            className="flex gap-2 overflow-x-auto py-1.5 scroll-smooth w-full [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-emerald-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-emerald-500 cursor-grab active:cursor-grabbing"
                           >
                             {Object.keys(brands).map((b) => {
                               const isSel = selectedAptBrand === b;
@@ -2969,10 +2951,10 @@ export default function SolutionsSection({
                                       }
                                     }, 50);
                                   }}
-                                  className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                                     isSel
-                                      ? 'bg-yellow-400 text-slate-950 shadow-lg shadow-yellow-400/30 scale-102 ring-2 ring-yellow-200'
-                                      : 'bg-emerald-800/90 text-emerald-100 hover:text-white hover:bg-emerald-700 border border-emerald-500/30'
+                                      ? 'bg-emerald-600 text-white font-bold shadow-xs shadow-emerald-600/20 scale-102 ring-1 ring-emerald-600'
+                                      : 'bg-white text-slate-700 hover:text-emerald-800 hover:bg-emerald-50/60 border border-slate-200/80'
                                   }`}
                                 >
                                   {b}
@@ -2988,7 +2970,7 @@ export default function SolutionsSection({
                               const el = document.getElementById('apt-brand-scroll-container');
                               if (el) el.scrollBy({ left: 240, behavior: 'smooth' });
                             }}
-                            className="p-2.5 bg-emerald-800 hover:bg-yellow-400 hover:text-slate-950 text-white rounded-xl transition-all shadow-md shrink-0 border border-emerald-500/40 cursor-pointer active:scale-95"
+                            className="p-2.5 bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl transition-all shadow-2xs shrink-0 border border-slate-200 cursor-pointer active:scale-95"
                             title="오른쪽 브랜드 보기"
                           >
                             <ChevronRight className="w-4 h-4" />
@@ -2998,27 +2980,27 @@ export default function SolutionsSection({
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                         <div className="space-y-4">
-                          <p className="text-sm sm:text-base text-emerald-50 leading-relaxed font-bold">
+                          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
                             {brandData.description}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {brandData.highlights.map((hl) => (
-                              <span key={hl} className="text-xs font-black bg-emerald-800/50 text-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                              <span key={hl} className="text-xs font-semibold bg-emerald-50/80 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200/70">
                                 ✓ {hl}
                               </span>
                             ))}
                           </div>
                         </div>
 
-                        <div className="space-y-3 bg-emerald-800/40 p-5 rounded-2xl border border-emerald-500/30">
-                          <span className="text-xs font-extrabold text-yellow-300 tracking-wider uppercase block">
+                        <div className="space-y-3 bg-emerald-50/40 p-5 rounded-2xl border border-emerald-100/80">
+                          <span className="text-xs font-bold text-amber-700 tracking-wider uppercase block">
                             🎁 SY.com 무상 설치 공식 혜택
                           </span>
-                          <div className="space-y-2.5">
+                          <div className="space-y-2">
                             {brandData.benefits.map((benefit, bIdx) => (
-                              <div key={bIdx} className="flex items-start gap-2 text-sm text-emerald-50">
-                                <span className="text-yellow-400 font-bold mt-0.5">•</span>
-                                <span className="font-bold leading-relaxed">{benefit}</span>
+                              <div key={bIdx} className="flex items-start gap-2 text-sm text-slate-700">
+                                <span className="text-emerald-600 font-bold mt-0.5">•</span>
+                                <span className="font-medium leading-relaxed">{benefit}</span>
                               </div>
                             ))}
                           </div>
@@ -3026,29 +3008,19 @@ export default function SolutionsSection({
                       </div>
 
                       {/* Brand PDF Catalog & Inline Document Viewer */}
-                      <div className="border border-emerald-500/20 bg-emerald-800/20 rounded-2xl p-5 space-y-4 relative z-10">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/30 pb-3">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-amber-300 animate-pulse" />
-                            <h5 className="text-sm font-black text-white uppercase tracking-wider">
-                              📄 {brandData.name} 공식 사양서 및 카탈로그
-                            </h5>
+                      <div className="border border-slate-200/80 bg-slate-50/50 rounded-2xl p-4 space-y-4 relative z-10">
+                        {isEditMode && brandData.pdfUrl && (
+                          <div className="flex justify-end border-b border-slate-200 pb-2">
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePdf(selectedAptBrand)}
+                              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer border border-rose-200"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              브로셔 삭제
+                            </button>
                           </div>
-                          {brandData.pdfUrl && (
-                            <div className="flex items-center gap-1.5 self-end sm:self-auto">
-                              {isEditMode && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeletePdf(selectedAptBrand)}
-                                  className="px-2.5 py-1.5 bg-rose-900/80 hover:bg-rose-800 text-rose-100 rounded-lg text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border border-rose-700/50"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                  브로셔 삭제
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        )}
 
                         {brandData.pdfUrl ? (
                           <div className="space-y-2">
@@ -3081,8 +3053,8 @@ export default function SolutionsSection({
                                 onClick={() => document.getElementById(`pdf-file-input-${selectedAptBrand}`)?.click()}
                                 className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] ${
                                   isDraggingPdf[selectedAptBrand]
-                                    ? 'border-yellow-400 bg-yellow-500/10'
-                                    : 'border-emerald-500/40 bg-emerald-800/20 hover:bg-emerald-700/40 hover:border-emerald-400'
+                                    ? 'border-emerald-500 bg-emerald-50'
+                                    : 'border-slate-300 bg-white hover:bg-slate-50 hover:border-emerald-400'
                                 }`}
                               >
                                 <input
@@ -3097,36 +3069,36 @@ export default function SolutionsSection({
                                     }
                                   }}
                                 />
-                                <Upload className="w-7 h-7 text-emerald-100 mb-2" />
-                                <p className="text-xs font-black text-white">
-                                  여기에 <span className="text-yellow-300">[{brandData.name}]</span> 브랜드 카탈로그 PDF 또는 이미지 파일을 드래그하거나 클릭하여 업로드
+                                <Upload className="w-7 h-7 text-emerald-600 mb-2" />
+                                <p className="text-xs font-bold text-slate-800">
+                                  여기에 <span className="text-emerald-700 font-extrabold">[{brandData.name}]</span> 브랜드 카탈로그 PDF 또는 이미지 파일을 드래그하거나 클릭하여 업로드
                                 </p>
-                                <p className="text-[10px] text-emerald-200 font-bold mt-1">
+                                <p className="text-[10px] text-slate-500 font-medium mt-1">
                                   PDF 파일 또는 이미지 형식(PNG, JPG, JPEG) 모두 완벽 지원 및 자동 고선명 실시간 렌더링
                                 </p>
                               </div>
                             ) : (
-                              <div className="py-8 text-center bg-emerald-800/20 border border-emerald-500/20 rounded-xl flex flex-col items-center justify-center space-y-1.5">
-                                <FileText className="w-6 h-6 text-emerald-200" />
-                                <p className="text-xs text-white font-bold">현재 등록된 브랜드 공식 카탈로그가 없습니다.</p>
-                                <p className="text-[10px] text-emerald-100">우측 상단의 '실시간 편집 모드'를 활성화하면 PDF 또는 이미지 브로셔를 직접 등록하실 수 있습니다.</p>
+                              <div className="py-8 text-center bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center space-y-1.5">
+                                <FileText className="w-6 h-6 text-slate-400" />
+                                <p className="text-xs text-slate-700 font-bold">현재 등록된 브랜드 공식 카탈로그가 없습니다.</p>
+                                <p className="text-[10px] text-slate-500">우측 상단의 '실시간 편집 모드'를 활성화하면 PDF 또는 이미지 브로셔를 직접 등록하실 수 있습니다.</p>
                               </div>
                             )}
                           </div>
                         )}
                       </div>
 
-                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-emerald-800/30 p-4 rounded-2xl border border-emerald-500/20 relative z-10">
+                      <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4 bg-emerald-50/80 p-4 rounded-2xl border border-emerald-200/80 relative z-10">
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-yellow-400 animate-ping shrink-0"></span>
-                          <p className="text-[11px] sm:text-xs text-white font-bold">
-                            지금 문의하시면 <span className="text-yellow-300 font-black">{brandData.name}</span> 정부 및 지자체 무상 지원 자격을 즉시 심사 매칭해 드립니다.
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                          <p className="text-[11px] sm:text-xs text-slate-700 font-medium">
+                            지금 문의하시면 <span className="text-emerald-800 font-bold">{brandData.name}</span> 정부 및 지자체 무상 지원 자격을 즉시 심사 매칭해 드립니다.
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => onOpenQuoteWithPurpose('Commercial')}
-                          className="w-full md:w-auto px-5 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-slate-950 text-xs font-black rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0 shadow-md shadow-yellow-500/20"
+                          className="w-full md:w-auto px-5 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 text-xs font-bold rounded-xl cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-center gap-1 shrink-0 shadow-2xs border border-yellow-300"
                         >
                           ⚡ {selectedAptBrand} 무상설치 문의하기
                         </button>
@@ -3197,19 +3169,22 @@ export default function SolutionsSection({
                   return (
                     <div className="space-y-6 pt-2">
                       {/* Step 1 & Step 2 Category Selection Box */}
-                      <div id="home-options-section" className="bg-slate-900 text-white rounded-3xl p-5 md:p-6 shadow-xl border border-slate-800 space-y-5">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                      <div id="home-options-section" className="bg-white text-slate-900 rounded-3xl p-5 md:p-6 shadow-2xs border border-slate-200/90 space-y-5 relative overflow-hidden">
+                        {/* Accent Top Gradient Line */}
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
+
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4 pt-1">
                           <div>
-                            <span className="text-xs sm:text-sm font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-3 py-1 rounded-full uppercase tracking-wider">
+                            <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
                               가정용 홈충전기 맞춤 옵션 선택
                             </span>
-                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mt-1 text-white">
+                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mt-1 text-slate-900">
                               원하시는 시공 방식과 충전 용량을 선택하세요
                             </h4>
                           </div>
-                          <div className="flex items-center gap-2 bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/60 self-start md:self-auto">
-                            <span className="text-sm font-bold text-slate-300 px-1">선택 옵션:</span>
-                            <span className="text-sm font-black text-yellow-300 bg-slate-950 px-3.5 py-1.5 rounded-xl border border-yellow-500/30">
+                          <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80 self-start md:self-auto">
+                            <span className="text-sm font-medium text-slate-600 px-1">선택 옵션:</span>
+                            <span className="text-sm font-bold text-emerald-800 bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shadow-2xs">
                               {selectedHomeServiceType} • {selectedHomePower}
                             </span>
                           </div>
@@ -3218,8 +3193,8 @@ export default function SolutionsSection({
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                           {/* Service / Price Category Selector */}
                           <div className="space-y-2.5">
-                            <label className="text-sm font-black text-slate-200 flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">1</span>
+                            <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">1</span>
                               구매 및 시공 구분 선택 (가격 기준)
                             </label>
                             <div className="grid grid-cols-3 gap-2.5">
@@ -3246,17 +3221,17 @@ export default function SolutionsSection({
                                     }}
                                     className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
-                                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20 scale-[1.02]'
-                                        : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
+                                        ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs shadow-emerald-600/20 scale-[1.02]'
+                                        : 'bg-slate-50 hover:bg-emerald-50/60 text-slate-700 hover:text-emerald-800 border-slate-200/90'
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
                                       <span className="text-base sm:text-lg">{st.icon}</span>
-                                      {active && <Check className="w-5 h-5 text-slate-950 shrink-0" />}
+                                      {active && <Check className="w-5 h-5 text-white shrink-0" />}
                                     </div>
                                     <div className="mt-2">
-                                      <span className="text-sm sm:text-base font-black block leading-tight">{st.name}</span>
-                                      <span className={`text-xs block mt-1 font-semibold ${active ? 'text-slate-900 font-extrabold' : 'text-slate-400'}`}>
+                                      <span className="text-sm sm:text-base font-bold block leading-tight">{st.name}</span>
+                                      <span className={`text-xs block mt-1 ${active ? 'text-emerald-100 font-medium' : 'text-slate-500'}`}>
                                         {st.desc}
                                       </span>
                                     </div>
@@ -3268,8 +3243,8 @@ export default function SolutionsSection({
 
                           {/* Power Capacity Selector */}
                           <div className="space-y-2.5">
-                            <label className="text-sm font-black text-slate-200 flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-yellow-400 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">2</span>
+                            <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">2</span>
                               충전 용량 선택 (킬로와트)
                             </label>
                             <div className="grid grid-cols-3 gap-2.5">
@@ -3296,16 +3271,16 @@ export default function SolutionsSection({
                                     }}
                                     className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
                                       active
-                                        ? 'bg-yellow-400 text-slate-950 border-yellow-300 font-black shadow-lg shadow-yellow-400/20 scale-[1.02]'
-                                        : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white'
+                                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold shadow-xs shadow-amber-500/20 scale-[1.02]'
+                                        : 'bg-slate-50 hover:bg-amber-50/60 text-slate-700 hover:text-amber-800 border-slate-200/90'
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
-                                      <span className="text-sm sm:text-base font-black">⚡ {pow.label}</span>
+                                      <span className="text-sm sm:text-base font-bold">⚡ {pow.label}</span>
                                       {active && <Check className="w-5 h-5 text-slate-950 shrink-0" />}
                                     </div>
                                     <div className="mt-2">
-                                      <span className={`text-xs block font-semibold ${active ? 'text-slate-900 font-extrabold' : 'text-slate-400'}`}>
+                                      <span className={`text-xs block ${active ? 'text-slate-900 font-bold' : 'text-slate-500'}`}>
                                         {pow.desc}
                                       </span>
                                     </div>
@@ -3664,18 +3639,18 @@ export default function SolutionsSection({
                   );
                 })()}
 
-                {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) - 글 아래인 상단으로 이동 */}
-                {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
-                  <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                    <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
+                {/* 정부 보조금 및 설치 대행 프로세스 (01단계 ~ 04단계) */}
+                {sol.category !== 'Residential' && (
+                  <div className="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                       정부 보조금 및 설치 대행 프로세스 (원스톱 무료 대행 서비스)
                     </span>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-600">
                       {sol.subsidyProcess.map((step, sIdx) => (
-                        <div key={step} className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-xs relative flex flex-col justify-between">
+                        <div key={step} className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-2xs relative flex flex-col justify-between">
                           <div>
-                            <span className="text-[10px] font-black text-blue-600 block mb-1">0{sIdx+1}단계</span>
-                            <span className="font-extrabold leading-relaxed block text-slate-800 text-xs sm:text-[11px]">{step.split(': ')[1]}</span>
+                            <span className="text-[10px] font-bold text-emerald-700 block mb-1">0{sIdx+1}단계</span>
+                            <span className="font-bold leading-relaxed block text-slate-800 text-xs sm:text-[11px]">{step.split(': ')[1]}</span>
                           </div>
                         </div>
                       ))}
@@ -3683,21 +3658,17 @@ export default function SolutionsSection({
                   </div>
                 )}
 
-                {sol.category !== 'Residential' && sol.category !== 'ParkingLot' && (
+                {sol.category !== 'Residential' && (
                   <div className="pt-3 pb-6 flex flex-col items-center justify-center text-center gap-3 py-6 border-b border-slate-100">
                     <button
                       onClick={() => onOpenQuoteWithPurpose(sol.category)}
                       id={`btn-solution-cta-${sol.id}`}
-                      className={`w-full sm:w-auto min-w-[280px] sm:min-w-[420px] py-4 px-10 font-black shadow-md rounded-2xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer text-white ${
-                        sol.category === 'Commercial'
-                          ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25'
-                          : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25'
-                      }`}
+                      className="w-full sm:w-auto min-w-[280px] sm:min-w-[420px] py-4 px-10 font-bold shadow-xs rounded-2xl text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer text-white bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
                     >
                       <span>{sol.subtitle} 맞춤 상담 예약하기</span>
                       <ArrowRight className="w-4 h-4 ml-1.5 animate-pulse" />
                     </button>
-                    <span className="text-[11px] text-slate-400 font-bold block">
+                    <span className="text-[11px] text-slate-400 font-medium block">
                       * 국고 보조금 예산 마감 전 신청을 적극 권장드립니다.
                     </span>
                   </div>

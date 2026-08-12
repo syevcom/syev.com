@@ -49,9 +49,12 @@ export async function loadFromFirestore(): Promise<void> {
     window.dispatchEvent(new Event('sy_cms_products_update'));
     window.dispatchEvent(new Event('sy_cms_hero_update'));
   } catch (error) {
-    console.error('Error loading data from Firestore:', error);
+    // Graceful fallback if Firestore quota is exceeded or offline
+    console.warn('Firestore load notice (falling back to local storage cache):', error);
   } finally {
     isSyncing = false;
+    window.dispatchEvent(new Event('sy_cms_products_update'));
+    window.dispatchEvent(new Event('sy_cms_hero_update'));
   }
 }
 
