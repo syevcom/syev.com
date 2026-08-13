@@ -1769,6 +1769,7 @@ export default function App() {
                 isEditMode={isEditMode}
                 onOpenCms={handleOpenCmsTab}
                 onDeleteReview={(id) => handleSaveReviews(reviews.filter((r) => r.id !== id))}
+                onSaveReviews={handleSaveReviews}
               />
             </div>
           </>
@@ -1853,6 +1854,7 @@ export default function App() {
             isEditMode={isEditMode}
             onOpenCms={handleOpenCmsTab}
             onDeleteReview={(id) => handleSaveReviews(reviews.filter((r) => r.id !== id))}
+            onSaveReviews={handleSaveReviews}
           />
         );
       case 'support':
