@@ -30,11 +30,26 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
   if (!isOpen) return null;
 
   const handleSocialLogin = (provider: 'google' | 'kakao' | 'naver') => {
-    // Simulate social login
+    if (provider === 'naver') {
+      const naverClientId = '70CVfYxs3pmZjg_kATOJ';
+      const redirectUri = encodeURIComponent(window.location.origin);
+      const state = Math.random().toString(36).substring(2, 11);
+      sessionStorage.setItem('naver_oauth_state', state);
+
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
+      
+      // Store flag for callback checking
+      sessionStorage.setItem('naver_auth_pending', 'true');
+      
+      window.location.href = naverAuthUrl;
+      return;
+    }
+
+    // Simulate social login for other providers
     const mockUser: UserType = {
       id: `usr-${Date.now()}`,
       email: `social.${provider}@example.com`,
-      name: `소셜${provider === 'google' ? '구글' : provider === 'kakao' ? '카카오' : '네이버'}회원`,
+      name: `소셜${provider === 'google' ? '구글' : '카카오'}회원`,
       type: 'B2C'
     };
     onLoginSuccess(mockUser);

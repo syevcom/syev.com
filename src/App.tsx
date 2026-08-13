@@ -100,6 +100,36 @@ export default function App() {
       }
     }
     initFirebaseSync();
+
+    // Check Naver OAuth code callback on mount
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    const isPending = sessionStorage.getItem('naver_auth_pending');
+
+    if (code && isPending) {
+      sessionStorage.removeItem('naver_auth_pending');
+      const mockUser: User = {
+        id: `usr-naver-${Date.now()}`,
+        email: 'naver_user@naver.com',
+        name: '네이버 회원님',
+        type: 'B2C'
+      };
+      setUser(mockUser);
+      localStorage.setItem('sy_logged_user', JSON.stringify(mockUser));
+      // Clean up URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      // Check saved user
+      const savedUser = localStorage.getItem('sy_logged_user');
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
   }, []);
 
   // Modal Open States
