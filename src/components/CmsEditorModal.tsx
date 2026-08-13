@@ -4371,7 +4371,7 @@ export default function CmsEditorModal({
                             <img src={rev.afterImg} alt={rev.title} className="w-12 h-12 object-cover rounded-xl border border-slate-200/50" />
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] text-blue-600 font-extrabold">{rev.location} | {rev.author}</span>
+                                <span className="text-[10px] text-blue-600 font-extrabold">{rev.location}</span>
                                 {rev.isBlogImported && (
                                   <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded text-[8px] font-black">
                                     {rev.blogName || '블로그'}
@@ -4541,18 +4541,9 @@ export default function CmsEditorModal({
                           className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-bold text-slate-700">고객명 / 직함</label>
-                        <input
-                          type="text"
-                          value={revAuthor}
-                          onChange={(e) => setRevAuthor(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
-                        />
-                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="block text-[11px] font-bold text-slate-700">시공 상세 지역</label>
                         <input
@@ -4573,17 +4564,6 @@ export default function CmsEditorModal({
                           <option value="Residential">주거 전용</option>
                           <option value="ParkingLot">수익형 주차장</option>
                         </select>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="block text-[11px] font-bold text-slate-700">만족도 평점 (1~5)</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="5"
-                          value={revRating}
-                          onChange={(e) => setRevRating(Number(e.target.value))}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
-                        />
                       </div>
                     </div>
 

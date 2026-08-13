@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { Review } from '../types';
 import { REVIEWS } from '../data';
-import { Star, X, Check, Plus, Edit3, Trash2 } from 'lucide-react';
+import { X, Check, Plus, Edit3, Trash2 } from 'lucide-react';
 
 interface ReviewSectionProps {
   reviews?: Review[];
@@ -214,15 +214,7 @@ export default function ReviewSection({
                   </div>
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-slate-100 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-slate-500 font-extrabold">{rev.author}</span>
-                    <div className="flex items-center gap-0.5 text-amber-400">
-                      <Star className="w-3 h-3 fill-amber-400" />
-                      <span className="text-[10px] font-bold text-slate-700">{rev.rating}.0</span>
-                    </div>
-                  </div>
-
+                <div className="pt-3 mt-3 border-t border-slate-100">
                   {/* Direct Blog / Detail Link Button */}
                   {rev.blogUrl ? (
                     <a
@@ -288,31 +280,18 @@ export default function ReviewSection({
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">작성자 / 블로거명</label>
-                  <input
-                    type="text"
-                    value={formReview.author || ''}
-                    onChange={(e) => setFormReview({ ...formReview, author: e.target.value })}
-                    placeholder="예: 달콤한초코"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">설치 지역</label>
-                  <input
-                    type="text"
-                    value={formReview.location || ''}
-                    onChange={(e) => setFormReview({ ...formReview, location: e.target.value })}
-                    placeholder="예: 경기 성남시 분당구"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">설치 지역</label>
+                <input
+                  type="text"
+                  value={formReview.location || ''}
+                  onChange={(e) => setFormReview({ ...formReview, location: e.target.value })}
+                  placeholder="예: 경기 성남시 분당구"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">설치 완료일</label>
                   <input
@@ -322,19 +301,6 @@ export default function ReviewSection({
                     placeholder="2026-06-29"
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1">별점</label>
-                  <select
-                    value={formReview.rating || 5}
-                    onChange={(e) => setFormReview({ ...formReview, rating: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 bg-white"
-                  >
-                    <option value={5}>⭐⭐⭐⭐⭐ 5점</option>
-                    <option value={4}>⭐⭐⭐⭐ 4점</option>
-                    <option value={3}>⭐⭐⭐ 3점</option>
-                  </select>
                 </div>
 
                 <div>
