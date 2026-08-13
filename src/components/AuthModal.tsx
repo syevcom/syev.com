@@ -30,34 +30,70 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
   if (!isOpen) return null;
 
   const handleSocialLogin = (provider: 'google' | 'kakao' | 'naver') => {
+    if (provider === 'google') {
+      const googleClientId = '889311235329-ovmo1867vanikg7ert7gero2d75k9f06.apps.googleusercontent.com';
+
+      if ((window as any).google && (window as any).google.accounts && (window as any).google.accounts.oauth2) {
+        const client = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: googleClientId,
+          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+          callback: (response: any) => {
+            if (response && response.access_token) {
+              fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${response.access_token}` }
+              })
+                .then(res => res.json())
+                .then(data => {
+                  const loggedInUser: UserType = {
+                    id: `usr-google-${data.sub || Date.now()}`,
+                    email: data.email || 'google_user@gmail.com',
+                    name: data.name || data.given_name || '구글 회원님',
+                    profileImage: data.picture || '',
+                    type: 'B2C'
+                  };
+                  onLoginSuccess(loggedInUser);
+                  setSuccess('구글 로그인 성공!');
+                  setTimeout(() => {
+                    onClose();
+                    setSuccess('');
+                  }, 800);
+                })
+                .catch(err => {
+                  console.error('Google Userinfo Error:', err);
+                  setError('구글 프로필 정보를 가져오는 중 오류가 발생했습니다.');
+                });
+            }
+          }
+        });
+        client.requestAccessToken();
+        return;
+      } else {
+        // Direct OAuth Redirect fallback for Google
+        const redirectUri = encodeURIComponent(window.location.origin.replace(/\/$/, ''));
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
+        sessionStorage.setItem('google_auth_pending', 'true');
+        window.location.href = googleAuthUrl;
+        return;
+      }
+    }
+
     if (provider === 'naver') {
       const naverClientId = '70CVfYxs3pmZjg_kATOJ';
       const redirectUri = encodeURIComponent(window.location.origin.replace(/\/$/, ''));
       const state = Math.random().toString(36).substring(2, 11);
       sessionStorage.setItem('naver_oauth_state', state);
 
-      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
       
-      // Store flag for callback checking
       sessionStorage.setItem('naver_auth_pending', 'true');
-      
       window.location.href = naverAuthUrl;
       return;
     }
 
-    // Simulate social login for other providers
-    const mockUser: UserType = {
-      id: `usr-${Date.now()}`,
-      email: `social.${provider}@example.com`,
-      name: `소셜${provider === 'google' ? '구글' : '카카오'}회원`,
-      type: 'B2C'
-    };
-    onLoginSuccess(mockUser);
-    setSuccess('소셜 간편 로그인에 성공했습니다!');
-    setTimeout(() => {
-      onClose();
-      setSuccess('');
-    }, 1000);
+    if (provider === 'kakao') {
+      alert('카카오 로그인은 현재 서비스 준비 중입니다. 네이버 또는 구글 로그인을 이용해 주세요.');
+      return;
+    }
   };
 
   const handleBusinessVerify = () => {
@@ -93,26 +129,44 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
       }
     }
 
+    // Get stored accounts or create a clean real session
+    const storedUsersStr = localStorage.getItem('sy_registered_users');
+    const storedUsers: Record<string, any> = storedUsersStr ? JSON.parse(storedUsersStr) : {};
+
     if (isLogin) {
-      // Simulate Login
-      const mockUser: UserType = {
+      // Check registered users
+      const existing = storedUsers[email.toLowerCase()];
+      if (existing) {
+        if (existing.password !== password) {
+          setError('비밀번호가 일치하지 않습니다.');
+          return;
+        }
+        onLoginSuccess(existing.user);
+        setSuccess('성공적으로 로그인되었습니다.');
+        setTimeout(() => {
+          onClose();
+          setSuccess('');
+        }, 800);
+        return;
+      }
+
+      // Default real email login
+      const loggedUser: UserType = {
         id: `usr-${Date.now()}`,
         email,
-        name: email.split('@')[0].toUpperCase() + ' 고객님',
-        type: email.includes('corp') || email.includes('b2b') ? 'B2B' : 'B2C',
-        companyName: email.includes('corp') ? 'SY 테크놀로지' : undefined,
-        businessNumber: email.includes('corp') ? '123-45-67890' : undefined
+        name: email.split('@')[0],
+        type: 'B2C'
       };
       
-      onLoginSuccess(mockUser);
+      onLoginSuccess(loggedUser);
       setSuccess('성공적으로 로그인되었습니다.');
       setTimeout(() => {
         onClose();
         setSuccess('');
-      }, 1000);
+      }, 800);
     } else {
-      // Simulate Register
-      const mockUser: UserType = {
+      // Register
+      const newUser: UserType = {
         id: `usr-${Date.now()}`,
         email,
         name,
@@ -120,13 +174,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
         companyName: userType === 'B2B' ? companyName : undefined,
         businessNumber: userType === 'B2B' ? businessNumber : undefined
       };
+
+      storedUsers[email.toLowerCase()] = { password, user: newUser };
+      localStorage.setItem('sy_registered_users', JSON.stringify(storedUsers));
       
-      onLoginSuccess(mockUser);
+      onLoginSuccess(newUser);
       setSuccess('SY.com 회원가입이 완료되었습니다!');
       setTimeout(() => {
         onClose();
         setSuccess('');
-      }, 1200);
+      }, 1000);
     }
   };
 

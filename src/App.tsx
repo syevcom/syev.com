@@ -101,12 +101,36 @@ export default function App() {
     }
     initFirebaseSync();
 
-    // Check Naver OAuth callback on mount
+    // Check OAuth callbacks on mount
     const hasHashAccessToken = window.location.hash.includes('access_token=');
     const urlParams = new URLSearchParams(window.location.search);
     const hasCode = urlParams.get('code');
+    const isGooglePending = sessionStorage.getItem('google_auth_pending');
 
-    if (hasHashAccessToken || hasCode) {
+    if (hasHashAccessToken && isGooglePending) {
+      sessionStorage.removeItem('google_auth_pending');
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      if (accessToken) {
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        })
+          .then(res => res.json())
+          .then(data => {
+            const loggedInUser: User = {
+              id: `usr-google-${data.sub || Date.now()}`,
+              email: data.email || 'google_user@gmail.com',
+              name: data.name || data.given_name || '구글 회원님',
+              profileImage: data.picture || '',
+              type: 'B2C'
+            };
+            setUser(loggedInUser);
+            localStorage.setItem('sy_logged_user', JSON.stringify(loggedInUser));
+            window.history.replaceState({}, document.title, window.location.pathname);
+          })
+          .catch(err => console.error('Google userinfo fetch failed:', err));
+      }
+    } else if (hasHashAccessToken || hasCode) {
       const initNaverLogin = () => {
         if ((window as any).naver && (window as any).naver.LoginWithNaverId) {
           try {
