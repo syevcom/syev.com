@@ -101,24 +101,52 @@ export default function App() {
     }
     initFirebaseSync();
 
-    // Check Naver OAuth code callback on mount
+    // Check Naver OAuth callback on mount
+    const hasHashAccessToken = window.location.hash.includes('access_token=');
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-    const isPending = sessionStorage.getItem('naver_auth_pending');
+    const hasCode = urlParams.get('code');
 
-    if (code && isPending) {
-      sessionStorage.removeItem('naver_auth_pending');
-      const mockUser: User = {
-        id: `usr-naver-${Date.now()}`,
-        email: 'naver_user@naver.com',
-        name: '네이버 회원님',
-        type: 'B2C'
+    if (hasHashAccessToken || hasCode) {
+      const initNaverLogin = () => {
+        if ((window as any).naver && (window as any).naver.LoginWithNaverId) {
+          try {
+            const naverLogin = new (window as any).naver.LoginWithNaverId({
+              clientId: '70CVfYxs3pmZjg_kATOJ',
+              callbackUrl: window.location.origin.replace(/\/$/, ''),
+              isPopup: false,
+              callbackHandle: true
+            });
+            naverLogin.init();
+            naverLogin.getLoginStatus((status: boolean) => {
+              if (status && naverLogin.user) {
+                sessionStorage.removeItem('naver_auth_pending');
+                const realEmail = naverLogin.user.getEmail() || naverLogin.user.email || 'sy.car.com@naver.com';
+                const realName = naverLogin.user.getName() || naverLogin.user.name || naverLogin.user.nickname || realEmail.split('@')[0];
+                const profileImg = naverLogin.user.getProfileImage() || naverLogin.user.profile_image || '';
+
+                const loggedInUser: User = {
+                  id: `usr-naver-${naverLogin.user.id || Date.now()}`,
+                  email: realEmail,
+                  name: realName,
+                  profileImage: profileImg,
+                  type: 'B2C'
+                };
+                setUser(loggedInUser);
+                localStorage.setItem('sy_logged_user', JSON.stringify(loggedInUser));
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }
+            });
+          } catch (err) {
+            console.error('Naver Login status error:', err);
+          }
+        }
       };
-      setUser(mockUser);
-      localStorage.setItem('sy_logged_user', JSON.stringify(mockUser));
-      // Clean up URL parameters
-      window.history.replaceState({}, document.title, window.location.pathname);
+
+      if ((window as any).naver) {
+        initNaverLogin();
+      } else {
+        window.addEventListener('load', initNaverLogin);
+      }
     } else {
       // Check saved user
       const savedUser = localStorage.getItem('sy_logged_user');
@@ -2338,8 +2366,13 @@ export default function App() {
             onOpenQuoteModal={() => setIsQuoteOpen(true)}
             isEditMode={isEditMode}
             onUpdateUserProfileImage={(imgUrl) => {
-              setUser(prev => prev ? { ...prev, profileImage: imgUrl } : null);
-              localStorage.setItem('sy_user', JSON.stringify({ ...user, profileImage: imgUrl }));
+              const updated = { ...user, profileImage: imgUrl };
+              setUser(updated);
+              localStorage.setItem('sy_logged_user', JSON.stringify(updated));
+            }}
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('sy_logged_user', JSON.stringify(updated));
             }}
           />
         )}

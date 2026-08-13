@@ -15,6 +15,7 @@ interface MyPageModalProps {
   onOpenQuoteModal: () => void;
   isEditMode?: boolean;
   onUpdateUserProfileImage?: (newImage: string) => void;
+  onUpdateUser?: (updatedUser: User) => void;
 }
 
 export default function MyPageModal({
@@ -29,9 +30,13 @@ export default function MyPageModal({
   onOpenQuoteModal,
   isEditMode = false,
   onUpdateUserProfileImage,
+  onUpdateUser,
 }: MyPageModalProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'cart'>('profile');
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editEmail, setEditEmail] = useState(user?.email || '');
 
   if (!isOpen || !user) return null;
 
@@ -218,36 +223,83 @@ export default function MyPageModal({
                 </div>
               )}
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  기본 회원 정보
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
-                    <span className="text-slate-400 font-bold block text-[11px]">이름 / 담당자</span>
-                    <p className="font-extrabold text-slate-900">{user.name}</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
-                    <span className="text-slate-400 font-bold block text-[11px]">이메일 주소</span>
-                    <p className="font-extrabold text-slate-900">{user.email}</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
-                    <span className="text-slate-400 font-bold block text-[11px]">회원 구분</span>
-                    <p className="font-extrabold text-emerald-700">{user.type === 'B2B' ? '기업/법인 (B2B)' : '개인/아파트 (B2C)'}</p>
-                  </div>
-                  {user.companyName && (
-                    <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
-                      <span className="text-slate-400 font-bold block text-[11px]">회사/법인명</span>
-                      <p className="font-extrabold text-slate-900">{user.companyName}</p>
-                    </div>
-                  )}
-                  {user.businessNumber && (
-                    <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
-                      <span className="text-slate-400 font-bold block text-[11px]">사업자 등록번호</span>
-                      <p className="font-extrabold text-slate-900">{user.businessNumber}</p>
-                    </div>
-                  )}
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    기본 회원 정보
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isEditingInfo) {
+                        if (!editName.trim()) return alert('이름을 입력해 주세요.');
+                        const updated = { ...user, name: editName, email: editEmail };
+                        onUpdateUser?.(updated);
+                        localStorage.setItem('sy_logged_user', JSON.stringify(updated));
+                        setIsEditingInfo(false);
+                        setProfileMessage('✅ 회원 정보가 성공적으로 변경되었습니다!');
+                        setTimeout(() => setProfileMessage(null), 3000);
+                      } else {
+                        setEditName(user.name);
+                        setEditEmail(user.email);
+                        setIsEditingInfo(true);
+                      }
+                    }}
+                    className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 hover:bg-emerald-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    {isEditingInfo ? '저장 완료' : '정보 수정'}
+                  </button>
                 </div>
+
+                {isEditingInfo ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                    <div className="space-y-1">
+                      <label className="text-slate-500 font-bold block text-[11px]">이름 / 담당자</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-500 font-bold block text-[11px]">이메일 주소</label>
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
+                      <span className="text-slate-400 font-bold block text-[11px]">이름 / 담당자</span>
+                      <p className="font-extrabold text-slate-900">{user.name}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
+                      <span className="text-slate-400 font-bold block text-[11px]">이메일 주소</span>
+                      <p className="font-extrabold text-slate-900">{user.email}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
+                      <span className="text-slate-400 font-bold block text-[11px]">회원 구분</span>
+                      <p className="font-extrabold text-emerald-700">{user.type === 'B2B' ? '기업/법인 (B2B)' : '개인/아파트 (B2C)'}</p>
+                    </div>
+                    {user.companyName && (
+                      <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
+                        <span className="text-slate-400 font-bold block text-[11px]">회사/법인명</span>
+                        <p className="font-extrabold text-slate-900">{user.companyName}</p>
+                      </div>
+                    )}
+                    {user.businessNumber && (
+                      <div className="bg-white p-3 rounded-xl border border-slate-150 space-y-1">
+                        <span className="text-slate-400 font-bold block text-[11px]">사업자 등록번호</span>
+                        <p className="font-extrabold text-slate-900">{user.businessNumber}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Action shortcuts */}

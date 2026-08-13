@@ -32,11 +32,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
   const handleSocialLogin = (provider: 'google' | 'kakao' | 'naver') => {
     if (provider === 'naver') {
       const naverClientId = '70CVfYxs3pmZjg_kATOJ';
-      const redirectUri = encodeURIComponent(window.location.origin);
+      const redirectUri = encodeURIComponent(window.location.origin.replace(/\/$/, ''));
       const state = Math.random().toString(36).substring(2, 11);
       sessionStorage.setItem('naver_oauth_state', state);
 
-      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=token&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
       
       // Store flag for callback checking
       sessionStorage.setItem('naver_auth_pending', 'true');
