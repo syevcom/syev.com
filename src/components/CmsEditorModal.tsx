@@ -4675,6 +4675,25 @@ export default function CmsEditorModal({
                         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-stretch">
                           <div className="sm:col-span-8">
                             <div
+                              tabIndex={0}
+                              onPaste={(e) => {
+                                const items = e.clipboardData?.items;
+                                if (!items) return;
+                                for (let i = 0; i < items.length; i++) {
+                                  if (items[i].type.indexOf('image') !== -1) {
+                                    const file = items[i].getAsFile();
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        setRevAfterImg(reader.result as string);
+                                      };
+                                      reader.readAsDataURL(file);
+                                      e.preventDefault();
+                                    }
+                                    break;
+                                  }
+                                }
+                              }}
                               onDragOver={(e) => {
                                 e.preventDefault();
                                 setIsDraggingAfterImg(true);

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Review } from '../types';
 import { REVIEWS } from '../data';
-import { X, Check, Plus, Edit3, Trash2 } from 'lucide-react';
+import { X, Check, Plus, Edit3, Trash2, Upload, Image as ImageIcon, Clipboard } from 'lucide-react';
 
 interface ReviewSectionProps {
   reviews?: Review[];
@@ -42,6 +42,46 @@ export default function ReviewSection({
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [formReview, setFormReview] = useState<Partial<Review>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  // Helper function to process image files into Data URL
+  const handleProcessFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일(PNG, JPG, WEBP 등)만 업로드할 수 있습니다.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.result) {
+        setFormReview((prev) => ({ ...prev, afterImg: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Listen for global Clipboard Paste (Ctrl+V) when modal is open
+  useEffect(() => {
+    if (!editingReview && !isCreating) return;
+
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            handleProcessFile(file);
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, [editingReview, isCreating]);
 
   const handleStartEdit = (rev: Review) => {
     setEditingReview(rev);
@@ -318,14 +358,97 @@ export default function ReviewSection({
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1">대표 시공 이미지 URL</label>
-                <input
-                  type="text"
-                  value={formReview.afterImg || ''}
-                  onChange={(e) => setFormReview({ ...formReview, afterImg: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono text-[11px]"
-                />
+                <label className="block text-slate-700 font-bold mb-1.5 flex items-center justify-between">
+                  <span>대표 시공 이미지</span>
+                  <span className="text-[11px] text-emerald-700 font-extrabold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <Clipboard className="w-3 h-3 text-emerald-600" />
+                    <span>캡처 후 Ctrl+V 가능</span>
+                  </span>
+                </label>
+
+                <div className="space-y-2">
+                  {/* Dropzone & Paste Container */}
+                  <div
+                    tabIndex={0}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDragging(true);
+                    }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) handleProcessFile(file);
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[120px] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                      isDragging
+                        ? 'border-emerald-500 bg-emerald-50/90 scale-[0.99]'
+                        : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100/80 hover:border-emerald-400'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleProcessFile(file);
+                      }}
+                    />
+
+                    {formReview.afterImg ? (
+                      <div className="relative group/preview w-full flex flex-col items-center gap-2">
+                        <img
+                          src={formReview.afterImg}
+                          alt="대표 시공 이미지 미리보기"
+                          className="max-h-40 max-w-full object-cover rounded-xl border border-slate-200 shadow-sm"
+                        />
+                        <div className="flex items-center gap-3 text-[11px]">
+                          <span className="text-emerald-700 font-bold bg-emerald-100/80 px-2.5 py-0.5 rounded-md">
+                            ✓ 이미지 적용됨 (클릭하여 파일 변경 또는 Ctrl+V 캡처 붙여넣기)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormReview({ ...formReview, afterImg: '' });
+                            }}
+                            className="text-rose-600 font-bold hover:underline"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1.5 text-slate-500 py-2">
+                        <div className="w-10 h-10 rounded-2xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-emerald-600">
+                          <Upload className="w-5 h-5" />
+                        </div>
+                        <p className="text-xs font-bold text-slate-800">
+                          캡처 이미지 <span className="text-emerald-600 font-black underline">Ctrl+V 붙여넣기</span> 또는 <span className="text-emerald-600 font-black underline">클릭하여 파일 선택</span>
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          화면 캡처 도구(Win+Shift+S / Cmd+Ctrl+Shift+4) 사용 후 <kbd className="px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded font-mono text-[9px] font-bold">Ctrl + V</kbd>를 누르시면 사진이 자동 첨부됩니다.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Manual URL Input */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[10px] text-slate-400 font-bold shrink-0">또는 이미지 URL 직접 입력:</span>
+                    <input
+                      type="text"
+                      value={formReview.afterImg || ''}
+                      onChange={(e) => setFormReview({ ...formReview, afterImg: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-500 font-mono text-[10px] bg-white"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
