@@ -21,6 +21,7 @@ import CartPage from './components/CartPage';
 import CheckoutPage from './components/CheckoutPage';
 import PaymentModal from './components/PaymentModal';
 import PrintEstimateModal from './components/PrintEstimateModal';
+import { MyProfilePage } from './components/MyProfilePage';
 import AIChatBot from './components/AIChatBot';
 import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './components/HomePopupModal';
 import { AdminPage } from './components/AdminPage';
@@ -1805,8 +1806,7 @@ export default function App() {
   };
 
   const handleOpenMyPageAS = () => {
-    setIsMyPageOpen(true);
-    // Note: We pre-select tab as 'as' inside the modal or let it boot cleanly
+    handlePageChange('mypage');
   };
 
   const handlePageChange = (page: ActivePage) => {
@@ -1992,7 +1992,30 @@ export default function App() {
             onPaymentSuccess={handlePaymentSuccess}
             onPageChange={handlePageChange}
             onOpenAuthModal={() => setIsAuthOpen(true)}
-            onOpenMyPage={() => setIsMyPageOpen(true)}
+            onOpenMyPage={() => handlePageChange('mypage')}
+          />
+        );
+      case 'mypage':
+        return (
+          <MyProfilePage
+            user={user}
+            onLogout={handleLogout}
+            cartItems={cartItems}
+            bookings={bookings}
+            asRequests={asRequests}
+            onPageChange={handlePageChange}
+            onOpenQuoteModal={() => setIsQuoteOpen(true)}
+            isEditMode={isEditMode}
+            onUpdateUserProfileImage={(imgUrl) => {
+              const updated = { ...user, profileImage: imgUrl };
+              setUser(updated);
+              localStorage.setItem('sy_logged_user', JSON.stringify(updated));
+            }}
+            onUpdateUser={(updated) => {
+              setUser(updated);
+              localStorage.setItem('sy_logged_user', JSON.stringify(updated));
+            }}
+            onOpenAuthModal={() => setIsAuthOpen(true)}
           />
         );
       default:
@@ -2067,7 +2090,7 @@ export default function App() {
           activePage={activePage}
           onPageChange={handlePageChange}
           onOpenAuth={() => setIsAuthOpen(true)}
-          onOpenMyPage={() => setIsMyPageOpen(true)}
+          onOpenMyPage={() => handlePageChange('mypage')}
           onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
           onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
           isEditMode={isEditMode}
