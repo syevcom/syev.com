@@ -787,9 +787,14 @@ export default function App() {
     if (savedReviews) {
       try {
         const parsed: Review[] = JSON.parse(savedReviews);
-        const filtered = parsed.filter((r) => r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장');
-        setReviews(filtered);
-        localStorage.setItem('sy_cms_reviews', JSON.stringify(filtered));
+        const filtered = parsed.filter((r) => r && r.title && r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장');
+        if (filtered && filtered.length > 0) {
+          setReviews(filtered);
+          localStorage.setItem('sy_cms_reviews', JSON.stringify(filtered));
+        } else {
+          setReviews(REVIEWS);
+          localStorage.setItem('sy_cms_reviews', JSON.stringify(REVIEWS));
+        }
       } catch (e) {
         console.error(e);
         setReviews(REVIEWS);
@@ -1745,18 +1750,28 @@ export default function App() {
     switch (activePage) {
       case 'home':
         return (
-          <MainHero
-            heroConfig={heroConfig}
-            quickMenuConfig={quickMenuConfig}
-            onPageChange={handlePageChange}
-            isEditMode={isEditMode}
-            onOpenCms={handleOpenCmsTab}
-            onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
-            onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
-            onOpenMyPageAS={handleOpenMyPageAS}
-            onOpenAuth={() => setIsAuthOpen(true)}
-            isLoggedIn={!!user}
-          />
+          <>
+            <MainHero
+              heroConfig={heroConfig}
+              quickMenuConfig={quickMenuConfig}
+              onPageChange={handlePageChange}
+              isEditMode={isEditMode}
+              onOpenCms={handleOpenCmsTab}
+              onOpenQuote={() => handleOpenQuoteWithPurpose('Residential')}
+              onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
+              onOpenMyPageAS={handleOpenMyPageAS}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              isLoggedIn={!!user}
+            />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8">
+              <ReviewSection 
+                reviews={reviews}
+                isEditMode={isEditMode}
+                onOpenCms={handleOpenCmsTab}
+                onDeleteReview={(id) => handleSaveReviews(reviews.filter((r) => r.id !== id))}
+              />
+            </div>
+          </>
         );
       case 'about':
         return (
