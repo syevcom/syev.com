@@ -506,18 +506,11 @@ export default function ProductDetailModal({
                 {(() => {
                   if (isCommercial) {
                     return (
-                      <>
-                        <div className="space-y-0.5">
-                          <div className="text-2xl sm:text-3xl font-black text-rose-600 tracking-tight">
-                            견적문의(전화문의)
-                          </div>
+                      <div className="space-y-0.5">
+                        <div className="text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">
+                          별도문의
                         </div>
-
-                        {/* Circular Discount Rate Badge matching screenshot */}
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
-                          {discountRate}%
-                        </div>
-                      </>
+                      </div>
                     );
                   }
                   return (
@@ -532,9 +525,11 @@ export default function ProductDetailModal({
                       </div>
 
                       {/* Circular Discount Rate Badge matching screenshot 1 */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
-                        {discountRate}%
-                      </div>
+                      {discountRate > 0 && (
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-slate-800">
+                          {discountRate}%
+                        </div>
+                      )}
                     </>
                   );
                 })()}
@@ -546,7 +541,7 @@ export default function ProductDetailModal({
                   <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
                     <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
                     <span className="col-span-9 font-extrabold text-slate-800">
-                      구매 <span className="text-rose-600 font-black">견적문의(전화문의)</span>
+                      구매 <span className="text-blue-600 font-black">별도문의 (상담 시 안내)</span>
                     </span>
                   </div>
 

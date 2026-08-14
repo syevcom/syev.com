@@ -295,6 +295,15 @@ export const HOME_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
   ]
 };
 
+// --- Representative SVG Images for Commercial / BIZ Public Chargers (Matching user catalogue) ---
+export const BIZ_7KW_PLC_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="bodyG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%232b2d35"/><stop offset="50%" stop-color="%2317181c"/><stop offset="100%" stop-color="%230b0c0e"/></linearGradient><linearGradient id="bronzeG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f59e0b"/><stop offset="30%" stop-color="%23fbbf24"/><stop offset="70%" stop-color="%23d97706"/><stop offset="100%" stop-color="%23b45309"/></linearGradient><linearGradient id="screenG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%230f172a"/><stop offset="100%" stop-color="%23020617"/></linearGradient><filter id="sh" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG)"/><g filter="url(%23sh)" transform="translate(160, 60)"><rect x="110" y="380" width="60" height="150" rx="6" fill="%231e293b"/><path d="M 140,510 C 140,560 60,560 60,460 C 60,360 80,480 140,490" fill="none" stroke="%230f172a" stroke-width="18" stroke-linecap="round"/><path d="M 40,60 C 40,10 240,10 240,60 L 255,270 C 255,340 220,380 140,380 C 60,380 25,340 25,270 Z" fill="url(%23bronzeG)"/><path d="M 46,65 C 46,20 234,20 234,65 L 248,265 C 248,330 215,368 140,368 C 65,368 32,330 32,265 Z" fill="url(%23bodyG)"/><rect x="68" y="70" width="144" height="150" rx="14" fill="url(%23screenG)" stroke="%23334155" stroke-width="2"/><circle cx="140" cy="130" r="38" fill="none" stroke="%23334155" stroke-width="6"/><circle cx="140" cy="130" r="38" fill="none" stroke="%2338bdf8" stroke-width="6" stroke-dasharray="160 80"/><text x="140" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="900" fill="%2338bdf8" text-anchor="middle">62%</text><g transform="translate(140, 195)"><circle cx="-36" cy="0" r="8" fill="%2338bdf8" opacity="0.9"/><circle cx="-12" cy="0" r="8" fill="%2322c55e" opacity="0.9"/><circle cx="12" cy="0" r="8" fill="%23eab308" opacity="0.9"/><circle cx="36" cy="0" r="8" fill="%23ef4444" opacity="0.9"/></g><g transform="translate(140, 275)"><rect x="-35" y="-22" width="70" height="44" rx="8" fill="none" stroke="%23ffffff" stroke-width="2.5" opacity="0.7"/><text x="0" y="-3" font-family="sans-serif" font-size="9" font-weight="800" fill="%23ffffff" text-anchor="middle" opacity="0.8">CARD</text><path d="M -15,10 Q 0,2 15,10" fill="none" stroke="%23ffffff" stroke-width="2.5" opacity="0.8"/></g><circle cx="140" cy="335" r="14" fill="%230f172a" stroke="%23475569" stroke-width="2"/><path d="M 137,329 L 143,335 L 137,341" fill="none" stroke="%2338bdf8" stroke-width="2.5" stroke-linecap="round"/></g></svg>`;
+
+export const BIZ_11KW_STORMSHIELD_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="bodyBlue" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231e3a8a"/><stop offset="100%" stop-color="%230f172a"/></linearGradient><filter id="sh2" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.2"/></filter></defs><rect width="600" height="600" fill="url(%23bgG2)"/><g filter="url(%23sh2)" transform="translate(180, 50)"><rect x="90" y="30" width="60" height="490" fill="%230f172a" rx="4"/><rect x="40" y="20" width="160" height="40" rx="8" fill="url(%23bodyBlue)"/><text x="120" y="45" font-family="sans-serif" font-size="13" font-weight="900" fill="%23ffffff" text-anchor="middle">전기차충전소</text><rect x="50" y="80" width="140" height="190" rx="28" fill="%2318181b" stroke="%2338bdf8" stroke-width="3"/><rect x="75" y="105" width="90" height="95" rx="10" fill="%2309090b" stroke="%2327272a" stroke-width="1.5"/><circle cx="120" cy="142" r="22" fill="none" stroke="%2338bdf8" stroke-width="4"/><text x="120" y="147" font-family="sans-serif" font-size="12" font-weight="900" fill="%2338bdf8" text-anchor="middle">11kW</text><g transform="translate(120, 235)"><rect x="-24" y="-14" width="48" height="28" rx="6" fill="none" stroke="%23ffffff" stroke-width="2" opacity="0.6"/><text x="0" y="3" font-family="sans-serif" font-size="8" font-weight="800" fill="%23ffffff" text-anchor="middle" opacity="0.8">RFID</text></g><rect x="70" y="295" width="100" height="60" rx="12" fill="%2327272a" stroke="%233f3f46" stroke-width="2"/><text x="120" y="330" font-family="sans-serif" font-size="10" font-weight="900" fill="%23a1a1aa" text-anchor="middle">KOOL CHARGE</text><path d="M 120,355 C 120,440 40,440 40,360 C 40,290 80,410 120,420" fill="none" stroke="%2309090b" stroke-width="16" stroke-linecap="round"/><rect x="30" y="500" width="180" height="25" rx="6" fill="%231e293b"/></g></svg>`;
+
+export const BIZ_35KW_STORMSHIELD_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="metalBox" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="50%" stop-color="%23f1f5f9"/><stop offset="100%" stop-color="%23cbd5e1"/></linearGradient><filter id="sh3" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG3)"/><g filter="url(%23sh3)" transform="translate(100, 80)"><rect x="0" y="0" width="400" height="440" rx="20" fill="url(%23metalBox)" stroke="%2394a3b8" stroke-width="3"/><g transform="translate(35, 45)"><path d="M 0,0 C 10,-8 20,8 30,0 C 20,8 10,-8 0,0 Z" fill="%23ea580c"/><text x="40" y="6" font-family="'Arial Black', sans-serif" font-size="22" font-weight="900" fill="%23ea580c" letter-spacing="1">KOOL CHARGE</text></g><rect x="35" y="85" width="200" height="150" rx="10" fill="%230f172a" stroke="%23334155" stroke-width="2"/><text x="135" y="145" font-family="sans-serif" font-size="18" font-weight="900" fill="%2338bdf8" text-anchor="middle">35kW BIZ</text><text x="135" y="175" font-family="sans-serif" font-size="13" font-weight="800" fill="%2322c55e" text-anchor="middle">스톰쉴드 공용</text><g transform="translate(260, 95)"><line x1="0" y1="0" x2="100" y2="0" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="20" x2="100" y2="20" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="40" x2="100" y2="40" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="60" x2="100" y2="60" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="80" x2="100" y2="80" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/></g><g transform="translate(135, 275)"><rect x="-70" y="-18" width="140" height="36" rx="8" fill="%231e293b"/><text x="0" y="5" font-family="sans-serif" font-size="11" font-weight="800" fill="%2394a3b8" text-anchor="middle">CARD TOUCH / RFID</text></g><g transform="translate(135, 360)"><circle cx="0" cy="0" r="26" fill="%23ef4444" stroke="%23991b1b" stroke-width="3"/><circle cx="0" cy="0" r="16" fill="%23b91c1c"/><text x="0" y="42" font-family="sans-serif" font-size="9" font-weight="900" fill="%23475569" text-anchor="middle">EMERGENCY SWITCH</text></g><g transform="translate(310, 240)"><rect x="-35" y="0" width="70" height="150" rx="14" fill="%231e293b" stroke="%230f172a" stroke-width="3"/><rect x="-25" y="20" width="50" height="50" rx="8" fill="%230f172a"/><path d="M 0,150 C 0,220 -80,220 -80,180" fill="none" stroke="%230f172a" stroke-width="22" stroke-linecap="round"/></g></g></svg>`;
+
+export const BIZ_50KW_COOLCHARGE_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG4" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="cabinetG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23ffffff"/><stop offset="50%" stop-color="%23f1f5f9"/><stop offset="100%" stop-color="%23e2e8f0"/></linearGradient><linearGradient id="orangeG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f97316"/><stop offset="100%" stop-color="%23ea580c"/></linearGradient><filter id="sh4" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG4)"/><g filter="url(%23sh4)" transform="translate(160, 40)"><rect x="0" y="20" width="280" height="490" rx="16" fill="url(%23cabinetG)" stroke="%2394a3b8" stroke-width="3"/><rect x="20" y="50" width="240" height="30" rx="6" fill="%230f172a"/><text x="140" y="70" font-family="'Arial Black', sans-serif" font-size="13" font-weight="900" fill="%23f97316" text-anchor="middle">KOOL CHARGE</text><rect x="35" y="100" width="210" height="230" rx="12" fill="%231e293b" stroke="%23334155" stroke-width="2"/><rect x="55" y="120" width="170" height="190" rx="8" fill="url(%23orangeG)"/><rect x="62" y="127" width="156" height="176" rx="6" fill="%23020617"/><text x="140" y="195" font-family="sans-serif" font-size="28" font-weight="900" fill="%2338bdf8" text-anchor="middle">50kW</text><text x="140" y="235" font-family="sans-serif" font-size="14" font-weight="800" fill="%23ffffff" text-anchor="middle">급속 1CH</text><g transform="translate(140, 380)"><rect x="-45" y="0" width="90" height="90" rx="12" fill="%230f172a" stroke="%23334155" stroke-width="3"/><circle cx="0" cy="45" r="22" fill="%231e293b" stroke="%23475569" stroke-width="2"/><path d="M 0,90 C 0,160 -80,160 -80,110" fill="none" stroke="%230f172a" stroke-width="20" stroke-linecap="round"/></g><rect x="-10" y="505" width="300" height="20" rx="4" fill="%230f172a"/></g></svg>`;
+
 export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
   '공용 BIZ 충전기': [
     {
@@ -306,7 +315,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       discount: 0,
       power: '7kW',
       serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
+      image: BIZ_7KW_PLC_IMAGE,
       tags: ['BEST', 'HIT'],
       optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
@@ -319,7 +328,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       discount: 0,
       power: '11kW',
       serviceType: 'all',
-      image: SPEEL_11KW_REPRESENTATIVE_IMAGE,
+      image: BIZ_11KW_STORMSHIELD_IMAGE,
       tags: ['BEST', 'HIT'],
       optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
@@ -332,7 +341,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       discount: 0,
       power: '35kW',
       serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
+      image: BIZ_35KW_STORMSHIELD_IMAGE,
       tags: ['MD CHOICE'],
       optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
     },
@@ -345,7 +354,7 @@ export const PARKING_PRODUCTS_DATA: Record<string, SolutionProduct[]> = {
       discount: 0,
       power: '50kW',
       serviceType: 'all',
-      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
+      image: BIZ_50KW_COOLCHARGE_IMAGE,
       tags: ['MD CHOICE', '급속'],
       hasPromoRibbon: true,
       optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
@@ -741,11 +750,33 @@ export default function SolutionsSection({
     return ensureDefaultHomeProducts(HOME_PRODUCTS_DATA);
   });
 
+  const ensureDefaultParkingProducts = (parsed: Record<string, SolutionProduct[]>) => {
+    const result: Record<string, SolutionProduct[]> = { ...parsed };
+    Object.keys(PARKING_PRODUCTS_DATA).forEach((cat) => {
+      const defaultList = PARKING_PRODUCTS_DATA[cat] || [];
+      const currentList = result[cat] || [];
+      // Always update existing 4 biz chargers to ensure 0 discount and accurate names/images
+      const mergedList = defaultList.map(def => {
+        const existing = currentList.find(c => c.id === def.id);
+        return {
+          ...def,
+          ...existing,
+          discount: 0,
+          regularPrice: 0,
+          price: 0,
+          image: def.image || existing?.image
+        };
+      });
+      result[cat] = mergedList;
+    });
+    return result;
+  };
+
   const [parkingProducts, setParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+    const saved = localStorage.getItem('sy_cms_parking_products_v6_fixed');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return ensureDefaultParkingProducts(JSON.parse(saved));
       } catch (e) {
         return PARKING_PRODUCTS_DATA;
       }
@@ -760,9 +791,9 @@ export default function SolutionsSection({
       if (savedHome) {
         try { setHomeProducts(ensureDefaultHomeProducts(JSON.parse(savedHome))); } catch (e) {}
       }
-      const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
       if (savedParking) {
-        try { setParkingProducts(JSON.parse(savedParking)); } catch (e) {}
+        try { setParkingProducts(ensureDefaultParkingProducts(JSON.parse(savedParking))); } catch (e) {}
       }
     };
 
@@ -2577,9 +2608,11 @@ export default function SolutionsSection({
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
                   {activeDetailProduct.name}
                 </h3>
-                <div className="w-10 h-10 rounded-full bg-stone-950 text-white font-extrabold text-xs flex items-center justify-center shadow-md shrink-0">
-                  {activeDetailProduct.discount}%
-                </div>
+                {activeDetailProduct.discount && activeDetailProduct.discount > 0 && !activeDetailProduct.id.startsWith('park-') ? (
+                  <div className="w-10 h-10 rounded-full bg-stone-950 text-white font-extrabold text-xs flex items-center justify-center shadow-md shrink-0">
+                    {activeDetailProduct.discount}%
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -2619,8 +2652,8 @@ export default function SolutionsSection({
 
                     if (isPublicCharger) {
                       return (
-                        <div className="text-rose-600 font-black text-lg sm:text-2xl tracking-tight leading-tight flex items-center gap-2">
-                          <span>견적문의(전화문의)</span>
+                        <div className="text-blue-600 font-black text-lg sm:text-2xl tracking-tight leading-tight flex items-center gap-2">
+                          <span>별도문의</span>
                         </div>
                       );
                     }
@@ -2676,7 +2709,7 @@ export default function SolutionsSection({
                       <>
                         <div className="col-span-3 font-extrabold text-slate-600 self-center">적립혜택</div>
                         <div className="col-span-9 text-slate-800 font-extrabold">
-                          구매 <span className="text-rose-600 font-black">견적문의(전화문의)</span>
+                          구매 <span className="text-blue-600 font-black">별도문의 (상담 시 안내)</span>
                         </div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
@@ -3992,14 +4025,20 @@ export default function SolutionsSection({
 
                                 {/* Body Information */}
                                 <div className="p-4 space-y-2">
-                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
                                     {p.name}
                                   </h5>
                                   
+                                  {p.description && (
+                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-2 leading-relaxed">
+                                      {p.description}
+                                    </p>
+                                  )}
+                                  
                                   {/* Price Section */}
-                                  <div className="pt-1">
-                                    <span className="text-sm sm:text-base font-black text-rose-600 block">
-                                      견적문의(전화문의)
+                                  <div className="pt-1.5">
+                                    <span className="text-sm sm:text-base font-black text-blue-600 block">
+                                      별도문의
                                     </span>
                                   </div>
                                 </div>

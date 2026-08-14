@@ -793,40 +793,25 @@ export default function App() {
         }
 
         if (parsedParking) {
-          let parkingUpdated = false;
           Object.keys(parsedParking).forEach((catKey) => {
             (parsedParking[catKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (existing.image && sp.image !== existing.image) {
-                  sp.image = existing.image;
-                  parkingUpdated = true;
-                } else if (sp.image && existing.image !== sp.image) {
-                  existing.image = sp.image;
-                  changed = true;
-                }
-                if (existing.name && sp.name !== existing.name) {
-                  sp.name = existing.name;
-                  parkingUpdated = true;
-                }
-                if (existing.price !== undefined && sp.price !== existing.price) {
-                  sp.price = existing.price;
-                  parkingUpdated = true;
-                }
-                if (existing.originalPrice !== undefined && sp.regularPrice !== existing.originalPrice) {
-                  sp.regularPrice = existing.originalPrice;
-                  parkingUpdated = true;
-                }
-                if (existing.discountRate !== undefined && sp.discount !== existing.discountRate) {
-                  sp.discount = existing.discountRate;
-                  parkingUpdated = true;
-                }
-                if (sp.optionGroups && sp.optionGroups.length > 0 && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) {
-                  existing.optionGroups = sp.optionGroups;
-                  changed = true;
-                }
+                if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
+                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
+                if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
+                if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
+                if (sp.discount !== undefined && existing.discountRate !== sp.discount) { existing.discountRate = sp.discount; changed = true; }
+                if (sp.replacementPrice !== undefined && (existing as any).replacementPrice !== sp.replacementPrice) { (existing as any).replacementPrice = sp.replacementPrice; changed = true; }
+                if (sp.replacementRegularPrice !== undefined && (existing as any).replacementRegularPrice !== sp.replacementRegularPrice) { (existing as any).replacementRegularPrice = sp.replacementRegularPrice; changed = true; }
+                if (sp.installIncludedPrice !== undefined && (existing as any).installIncludedPrice !== sp.installIncludedPrice) { (existing as any).installIncludedPrice = sp.installIncludedPrice; changed = true; }
+                if (sp.installIncludedRegularPrice !== undefined && (existing as any).installIncludedRegularPrice !== sp.installIncludedRegularPrice) { (existing as any).installIncludedRegularPrice = sp.installIncludedRegularPrice; changed = true; }
+                if (sp.serviceType && existing.serviceType !== sp.serviceType) { existing.serviceType = sp.serviceType; changed = true; }
+                if (sp.optionGroups && JSON.stringify(existing.optionGroups) !== JSON.stringify(sp.optionGroups)) { existing.optionGroups = sp.optionGroups; changed = true; }
+
                 if (changed) {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
@@ -847,7 +832,11 @@ export default function App() {
                   originalPrice: sp.regularPrice || sp.price || 0,
                   discountRate: sp.discount || 0,
                   brand: brandName,
-                  serviceType: 'device',
+                  serviceType: sp.serviceType || 'all',
+                  replacementPrice: sp.replacementPrice,
+                  replacementRegularPrice: sp.replacementRegularPrice,
+                  installIncludedPrice: sp.installIncludedPrice,
+                  installIncludedRegularPrice: sp.installIncludedRegularPrice,
                   optionGroups: sp.optionGroups || JSON.parse(JSON.stringify(PUBLIC_CHARGER_OPTION_GROUPS))
                 };
                 nextProducts.push(newP);
@@ -880,10 +869,8 @@ export default function App() {
     if (savedReviews) {
       try {
         const parsed: Review[] = JSON.parse(savedReviews);
-        const filtered = parsed.filter((r) => r && r.title && r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장');
-        if (filtered && filtered.length > 0) {
-          setReviews(filtered);
-          localStorage.setItem('sy_cms_reviews', JSON.stringify(filtered));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReviews(parsed);
         } else {
           setReviews(REVIEWS);
           localStorage.setItem('sy_cms_reviews', JSON.stringify(REVIEWS));
@@ -1260,11 +1247,106 @@ export default function App() {
       }
     };
 
+    const handleFullSyncReload = () => {
+      try {
+        // Reload Reviews
+        const savedReviews = localStorage.getItem('sy_cms_reviews');
+        if (savedReviews) {
+          try {
+            const parsed = JSON.parse(savedReviews);
+            if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload Notices
+        const savedNotices = localStorage.getItem('sy_cms_notices');
+        if (savedNotices) {
+          try {
+            const parsed = JSON.parse(savedNotices);
+            if (Array.isArray(parsed) && parsed.length > 0) setNotices(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload FAQs
+        const savedFaqs = localStorage.getItem('sy_cms_faqs');
+        if (savedFaqs) {
+          try {
+            const parsed = JSON.parse(savedFaqs);
+            if (Array.isArray(parsed) && parsed.length > 0) setFaqs(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload Solutions
+        const savedSolutions = localStorage.getItem('sy_cms_solutions');
+        if (savedSolutions) {
+          try {
+            const parsed = JSON.parse(savedSolutions);
+            if (Array.isArray(parsed) && parsed.length > 0) setSolutions(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload Brands
+        const savedBrands = localStorage.getItem('sy_cms_brands');
+        if (savedBrands) {
+          try {
+            const parsed = JSON.parse(savedBrands);
+            if (parsed) setBrands(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload Bookings
+        const savedBookings = localStorage.getItem('sy_bookings');
+        if (savedBookings) {
+          try {
+            const parsed = JSON.parse(savedBookings);
+            if (Array.isArray(parsed) && parsed.length > 0) setBookings(parsed);
+          } catch (e) { console.error(e); }
+        }
+
+        // Reload About
+        const savedAbout = localStorage.getItem('sy_cms_about');
+        if (savedAbout) {
+          try { setAboutConfig(JSON.parse(savedAbout)); } catch (e) { console.error(e); }
+        }
+
+        // Reload Logo & Header
+        const savedLogo = localStorage.getItem('sy_cms_logo');
+        if (savedLogo) {
+          try { setLogoConfig(JSON.parse(savedLogo)); } catch (e) { console.error(e); }
+        }
+        const savedHeader = localStorage.getItem('sy_cms_header');
+        if (savedHeader) {
+          try { setHeaderConfig(JSON.parse(savedHeader)); } catch (e) { console.error(e); }
+        }
+        const savedFooter = localStorage.getItem('sy_cms_footer');
+        if (savedFooter) {
+          try { setFooterConfig(JSON.parse(savedFooter)); } catch (e) { console.error(e); }
+        }
+        const savedQuote = localStorage.getItem('sy_cms_quote');
+        if (savedQuote) {
+          try { setQuoteConfig(JSON.parse(savedQuote)); } catch (e) { console.error(e); }
+        }
+
+        handleProductsUpdate();
+        handleHeroUpdate();
+      } catch (err) {
+        console.error('Error during full sync reload:', err);
+      }
+    };
+
+    window.addEventListener('sy_cms_data_sync_completed', handleFullSyncReload);
     window.addEventListener('sy_cms_products_update', handleProductsUpdate);
     window.addEventListener('sy_cms_hero_update', handleHeroUpdate);
+    window.addEventListener('sy_cms_reviews_update', handleFullSyncReload);
+    window.addEventListener('sy_cms_notices_update', handleFullSyncReload);
+    window.addEventListener('sy_cms_faqs_update', handleFullSyncReload);
     return () => {
+      window.removeEventListener('sy_cms_data_sync_completed', handleFullSyncReload);
       window.removeEventListener('sy_cms_products_update', handleProductsUpdate);
       window.removeEventListener('sy_cms_hero_update', handleHeroUpdate);
+      window.removeEventListener('sy_cms_reviews_update', handleFullSyncReload);
+      window.removeEventListener('sy_cms_notices_update', handleFullSyncReload);
+      window.removeEventListener('sy_cms_faqs_update', handleFullSyncReload);
     };
   }, []);
 

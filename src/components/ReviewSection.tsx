@@ -24,14 +24,7 @@ export default function ReviewSection({
   onSaveReviews
 }: ReviewSectionProps) {
   // Fallback to REVIEWS if provided reviews is empty
-  const rawReviews = (reviews && reviews.length > 0) ? reviews : REVIEWS;
-
-  // Filter out any placeholder/test review title
-  const filteredReviews = rawReviews.filter(
-    (r) => r && r.title && r.title !== '새 시공 현장 후기 제목' && !r.title.includes('새 시공 현장 후기') && r.author !== '홍길동 관리소장'
-  );
-
-  const displayReviews = filteredReviews.length > 0 ? filteredReviews : REVIEWS;
+  const displayReviews = (reviews && reviews.length > 0) ? reviews : REVIEWS;
 
   // Sort reviews by date descending (newest first)
   const sortedReviews = [...displayReviews].sort((a, b) => {

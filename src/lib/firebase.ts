@@ -45,16 +45,24 @@ export async function loadFromFirestore(): Promise<void> {
       }
     }
 
-    // Trigger state refresh event across components
+    // Trigger state refresh event across all components
+    window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
     window.dispatchEvent(new Event('sy_cms_products_update'));
     window.dispatchEvent(new Event('sy_cms_hero_update'));
+    window.dispatchEvent(new Event('sy_cms_reviews_update'));
+    window.dispatchEvent(new Event('sy_cms_notices_update'));
+    window.dispatchEvent(new Event('sy_cms_faqs_update'));
   } catch (error) {
     // Graceful fallback if Firestore quota is exceeded or offline
     console.warn('Firestore load notice (falling back to local storage cache):', error);
   } finally {
     isSyncing = false;
+    window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
     window.dispatchEvent(new Event('sy_cms_products_update'));
     window.dispatchEvent(new Event('sy_cms_hero_update'));
+    window.dispatchEvent(new Event('sy_cms_reviews_update'));
+    window.dispatchEvent(new Event('sy_cms_notices_update'));
+    window.dispatchEvent(new Event('sy_cms_faqs_update'));
   }
 }
 

@@ -40,25 +40,12 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     const inputId = adminId.trim();
     const inputPass = password.trim();
 
-    // Support syevcom / syev.com123! as primary credentials, along with standard legacy fallback
-    const isValidId =
-      inputId === 'syevcom' ||
-      inputId === savedId ||
-      inputId === 'admin' ||
-      inputId === 'sy_admin' ||
-      inputId === 'syadmin' ||
-      inputId === 'sy.car.com@gmail.com';
-
-    const isValidPassword =
-      inputPass === 'syev.com123!' ||
-      inputPass === savedPassword ||
-      inputPass === '1234' ||
-      inputPass === 'sy1234' ||
-      inputPass === 'admin1234' ||
-      inputPass === 'sy.car.com';
+    // Strict validation: only exact custom saved credentials or official syevcom credentials
+    const isValidId = inputId === savedId || inputId === 'syevcom';
+    const isValidPassword = inputPass === savedPassword || inputPass === 'syev.com123!';
 
     if (isValidId && isValidPassword) {
-      setSuccess('관리자 전용 계정 인증에 성공했습니다! 관리자 권한이 부여됩니다.');
+      setSuccess('관리자 인증에 성공했습니다.');
       setTimeout(() => {
         onLoginSuccess();
         onClose();
@@ -66,7 +53,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
         setPassword('');
       }, 1000);
     } else {
-      setError('관리자 아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
+      setError('관리자 아이디 또는 비밀번호가 일치하지 않습니다. 올바른 정보를 입력해 주세요.');
     }
   };
 
@@ -74,9 +61,9 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     e.preventDefault();
     setChangeMsg('');
 
-    const savedPassword = localStorage.getItem('sy_admin_password') || '1234';
+    const savedPassword = localStorage.getItem('sy_admin_password') || 'syev.com123!';
 
-    if (currentPass !== savedPassword && currentPass !== '1234' && currentPass !== 'sy1234' && currentPass !== 'admin1234') {
+    if (currentPass !== savedPassword && currentPass !== 'syev.com123!') {
       setChangeMsg('❌ 현재 비밀번호가 올바르지 않습니다.');
       return;
     }
@@ -172,23 +159,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
 
             {/* Admin Password Field */}
             <div className="space-y-1.5 relative">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700">관리자 비밀번호</label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    localStorage.setItem('sy_admin_id', 'syevcom');
-                    localStorage.setItem('sy_admin_password', 'syev.com123!');
-                    setAdminId('syevcom');
-                    setPassword('syev.com123!');
-                    setError('');
-                    setSuccess('관리자 계정이 (syevcom / syev.com123!)으로 설정되었습니다.');
-                  }}
-                  className="text-[11px] font-extrabold text-slate-500 hover:text-blue-600 hover:underline cursor-pointer"
-                >
-                  기본 계정 자동입력
-                </button>
-              </div>
+              <label className="block text-xs font-bold text-slate-700">관리자 비밀번호</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
