@@ -499,7 +499,7 @@ export default function CmsEditorModal({
   // 3. Products Form State
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [prodName, setProdName] = useState('');
-  const [prodType, setProdType] = useState<'완속' | '급속' | '초급속' | '스마트홈'>('완속');
+  const [prodType, setProdType] = useState<'완속' | '급속' | '초급속' | '스마트홈' | '스탠드'>('완속');
   const [prodPower, setProdPower] = useState('');
   const [prodDesc, setProdDesc] = useState('');
   const [prodImage, setProdImage] = useState('');

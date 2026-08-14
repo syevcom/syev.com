@@ -73,6 +73,8 @@ export interface SolutionProduct {
   price: number;
   discount: number;
   power?: string;
+  type?: string;
+  brand?: string;
   replacementPrice?: number;
   replacementRegularPrice?: number;
   replacementDiscount?: number;
@@ -146,8 +148,10 @@ export interface Booking {
   name: string;
   phone: string;
   location: string;
+  address?: string;
   purpose: 'Commercial' | 'Residential' | 'ParkingLot';
   memo?: string;
+  notes?: string;
   status: '접수대기' | '상담예약완료' | '시공설계중' | '시공완료';
   createdAt: string;
   estimateCost?: string;
@@ -156,9 +160,15 @@ export interface Booking {
 export interface ASRequest {
   id: string;
   userId: string;
-  productName: string;
+  userName?: string;
+  phone?: string;
+  productName?: string;
   serialNumber?: string;
-  symptom: string;
+  symptom?: string;
+  issueType?: string;
+  locationAddress?: string;
+  description?: string;
+  date?: string;
   status: '접수완료' | '기사배정' | '처리완료';
   createdAt: string;
 }

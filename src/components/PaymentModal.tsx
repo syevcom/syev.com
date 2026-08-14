@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Landmark, Smartphone, CheckCircle2, ShieldCheck, ArrowRight, User as UserIcon, Phone, MapPin, FileText, Sparkles, ShoppingBag } from 'lucide-react';
+import {
+  X,
+  CheckCircle2,
+  ShieldCheck,
+  User as UserIcon,
+  Phone,
+  MapPin,
+  FileText,
+  Sparkles,
+  ShoppingBag,
+  Search,
+  Headphones,
+  MessageSquare
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartItem, User } from '../types';
+import AddressSearchModal from './AddressSearchModal';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -14,9 +28,11 @@ interface PaymentModalProps {
     items: CartItem[];
     buyerName: string;
     buyerPhone: string;
+    buyerEmail?: string;
     address: string;
     memo: string;
     paymentMethod: string;
+    consultationType?: string;
     taxInvoice: boolean;
   }) => void;
   onOpenMyPage?: () => void;
@@ -36,9 +52,35 @@ export default function PaymentModal({
   const [buyerPhone, setBuyerPhone] = useState(user?.phone || '');
   const [buyerEmail, setBuyerEmail] = useState(user?.email || '');
   const [address, setAddress] = useState('');
+  const [zonecode, setZonecode] = useState('');
+  const [mainAddress, setMainAddress] = useState('');
+  const [detailAddress, setDetailAddress] = useState('');
+  const [isAddressSearchOpen, setIsAddressSearchOpen] = useState(false);
   const [memo, setMemo] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'trans' | 'vbank' | 'kakaopay' | 'naverpay'>('card');
+  const [consultationType, setConsultationType] = useState<'onsite' | 'call' | 'kakao'>('onsite');
   const [taxInvoice, setTaxInvoice] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(true);
+
+  const handleSelectAddress = (data: {
+    zonecode: string;
+    address: string;
+    roadAddress: string;
+    jibunAddress: string;
+    buildingName: string;
+    fullAddress: string;
+  }) => {
+    setZonecode(data.zonecode);
+    setMainAddress(data.fullAddress);
+    const combined = detailAddress.trim() ? `${data.fullAddress} ${detailAddress.trim()}` : data.fullAddress;
+    setAddress(combined);
+  };
+
+  const handleDetailAddressChange = (value: string) => {
+    setDetailAddress(value);
+    const base = mainAddress || address;
+    const combined = value.trim() ? `${base} ${value.trim()}` : base;
+    setAddress(combined);
+  };
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -53,11 +95,11 @@ export default function PaymentModal({
 
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleProcessPayment = (e: React.FormEvent) => {
+  const handleSubmitConsultation = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!buyerName.trim()) {
-      alert('주문자 성함을 입력해 주세요.');
+      alert('신청자 성함을 입력해 주세요.');
       return;
     }
     if (!buyerPhone.trim()) {
@@ -65,30 +107,34 @@ export default function PaymentModal({
       return;
     }
     if (!address.trim()) {
-      alert('설치/배송 희망 주소를 입력해 주세요.');
+      alert('설치 희망지 주소를 검색하여 입력해 주세요.');
+      return;
+    }
+    if (!agreeTerms) {
+      alert('개인정보 수집 및 사전 상담 신청 동의에 체크해 주세요.');
       return;
     }
 
     setIsProcessing(true);
 
     setTimeout(() => {
-      const methodLabels: Record<string, string> = {
-        card: '신용/체크카드 결제',
-        trans: '실시간 계좌이체',
-        vbank: '무통장 입금 (가상계좌)',
-        kakaopay: '카카오페이',
-        naverpay: '네이버페이'
+      const typeLabels: Record<string, string> = {
+        onsite: '1:1 방문 실측 및 무료 현장 상담',
+        call: '전담 엔지니어 전화 상담 및 정밀 견적서 수령',
+        kakao: '카카오톡/온라인 간편 상담',
       };
 
       const orderData = {
-        orderId: `SY-ORD-${Date.now().toString().slice(-7)}`,
+        orderId: `SY-RES-${Date.now().toString().slice(-7)}`,
         totalAmount: totalItemAmount,
         items,
         buyerName,
         buyerPhone,
+        buyerEmail,
         address,
         memo,
-        paymentMethod: methodLabels[paymentMethod] || '신용카드',
+        paymentMethod: '무료 시공 상담 (결제비용 0원)',
+        consultationType: typeLabels[consultationType] || '1:1 방문 실측 및 무료 현장 상담',
         taxInvoice,
         createdAt: new Date().toLocaleString('ko-KR')
       };
@@ -97,7 +143,7 @@ export default function PaymentModal({
       setIsProcessing(false);
       setIsSuccess(true);
       onPaymentSuccess(orderData);
-    }, 1500);
+    }, 1000);
   };
 
   return (
@@ -122,159 +168,118 @@ export default function PaymentModal({
         <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center font-bold">
-              <CreditCard className="w-5 h-5" />
+              <Sparkles className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2">
-                주문 / 결제하기
-                <span className="text-[10px] bg-blue-500 text-white font-black px-2 py-0.5 rounded-full">
-                  안심 결제
-                </span>
-              </h3>
-              <p className="text-[11px] text-slate-300 font-medium">에스와이 차아저 공식 전자상거래 주문 수납 서비스</p>
+              <h2 className="text-base font-black tracking-tight">무료 시공 상담 및 설치 예약</h2>
+              <p className="text-[11px] text-slate-400">결제 비용 0원 · 전문 엔지니어 1:1 방문 실측 및 견적</p>
             </div>
           </div>
-          {!isProcessing && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {isSuccess && completedOrder ? (
-            /* SUCCESS VIEW */
-            <div className="py-6 text-center space-y-6 animate-fadeIn">
-              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                <CheckCircle2 className="w-12 h-12" />
+            /* SUCCESS STATE */
+            <div className="py-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <CheckCircle2 className="w-10 h-10" />
               </div>
-
-              <div className="space-y-2">
-                <span className="inline-block px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-xs rounded-full">
-                  주문 및 결제 신청 완료
+              <div>
+                <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                  접수 완료 (결제비용 0원)
                 </span>
-                <h3 className="text-xl font-black text-slate-900">결제가 성공적으로 접수되었습니다!</h3>
-                <p className="text-xs text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
-                  에스와이 전담 엔지니어가 24시간 이내에 직접 안내 전화를 드려 설치 현장 정밀 진단 및 상세 출고 일정을 안내해 드립니다.
+                <h3 className="text-xl font-black text-slate-900">
+                  무료 시공 상담 및 실측 예약이 완료되었습니다!
+                </h3>
+                <p className="text-xs text-slate-600 font-medium mt-1.5 leading-relaxed">
+                  24시간 이내에 전담 기술 엔지니어가 직접 전화드려 현장 실측 및 설치 일정을 안내해 드립니다.
                 </p>
               </div>
 
-              {/* Summary Box */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-left space-y-3.5 max-w-lg mx-auto">
-                <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
-                  <span className="text-slate-500 font-bold">주문 번호</span>
-                  <span className="font-black text-slate-900 font-mono">{completedOrder.orderId}</span>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left space-y-2.5 max-w-md mx-auto text-xs">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <span className="text-slate-500 font-bold">접수번호</span>
+                  <span className="font-mono font-black text-blue-600">{completedOrder.orderId}</span>
                 </div>
-                <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
-                  <span className="text-slate-500 font-bold">결제 일시</span>
-                  <span className="font-semibold text-slate-800">{completedOrder.createdAt}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-bold">신청 고객</span>
+                  <span className="font-extrabold text-slate-800">{completedOrder.buyerName} ({completedOrder.buyerPhone})</span>
                 </div>
-                <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
-                  <span className="text-slate-500 font-bold">주문자 / 연락처</span>
-                  <span className="font-semibold text-slate-800">{completedOrder.buyerName} ({completedOrder.buyerPhone})</span>
+                <div className="flex justify-between items-start">
+                  <span className="text-slate-500 font-bold shrink-0">설치 장소</span>
+                  <span className="font-bold text-slate-800 text-right">{completedOrder.address}</span>
                 </div>
-                <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
-                  <span className="text-slate-500 font-bold">설치 희망 주소</span>
-                  <span className="font-semibold text-slate-800 truncate max-w-[220px]">{completedOrder.address}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-bold">희망 상담</span>
+                  <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{completedOrder.consultationType}</span>
                 </div>
-                <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
-                  <span className="text-slate-500 font-bold">결제 수단</span>
-                  <span className="font-bold text-blue-600">{completedOrder.paymentMethod}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm pt-1">
-                  <span className="font-black text-slate-900">최종 결제 금액</span>
-                  <span className="font-black text-blue-600 text-lg">
-                    ₩{completedOrder.totalAmount.toLocaleString()}원
-                  </span>
+                <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+                  <span className="font-black text-slate-900">상담 신청 비용</span>
+                  <span className="text-sm font-black text-emerald-600">₩0원 (무료)</span>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 max-w-lg mx-auto">
-                {onOpenMyPage && (
+              <div className="flex justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl transition-colors cursor-pointer"
+                >
+                  확인 완료
+                </button>
+                {user && onOpenMyPage && (
                   <button
                     type="button"
                     onClick={() => {
                       onClose();
                       onOpenMyPage();
                     }}
-                    className="flex-1 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-2xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-black text-xs rounded-xl transition-colors cursor-pointer"
                   >
-                    <span>마이페이지에서 주문 내역 확인</span>
-                    <ArrowRight className="w-4 h-4" />
+                    마이페이지 상담내역
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all cursor-pointer"
-                >
-                  쇼핑 계속하기
-                </button>
               </div>
             </div>
           ) : (
-            /* PAYMENT FORM VIEW */
-            <form onSubmit={handleProcessPayment} className="space-y-6">
-              {/* 1. Order Items Summary */}
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                  <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4 text-blue-600" />
-                    주문 상품 정보 ({totalQuantity}개)
-                  </h4>
-                  <span className="text-xs font-black text-blue-600">
-                    합계: ₩{totalItemAmount.toLocaleString()}원
-                  </span>
+            /* FORM STATE */
+            <form onSubmit={handleSubmitConsultation} className="space-y-5">
+              {/* 1. Item summary */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                    <ShoppingBag className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-500">상담 신청 상품 ({totalQuantity}개)</p>
+                    <p className="text-xs font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
+                      {items.map((i) => i.name).join(', ')}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                  {items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-slate-150">
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" />
-                      ) : (
-                        <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 shrink-0">
-                          ⚡
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h5 className="text-xs font-black text-slate-900 truncate">{item.name}</h5>
-                        <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                          <span className="text-[10px] text-slate-500 font-medium">수량 {item.quantity}개</span>
-                          {item.selectedOptions && item.selectedOptions.length > 0 && (
-                            <span className="text-[10px] text-blue-600 font-bold">
-                              · 옵션: {item.selectedOptions.map(o => o.optionName).join(', ')}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="text-xs font-black text-slate-900">
-                          ₩{((item.price || 0) * item.quantity).toLocaleString()}원
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-500 block">예상 상품가</span>
+                  <span className="text-xs font-black text-slate-900">₩{totalItemAmount.toLocaleString()}원</span>
                 </div>
               </div>
 
-              {/* 2. Customer & Delivery Address Form */}
+              {/* 2. Customer details */}
               <div className="space-y-3">
-                <h4 className="text-xs font-black text-slate-900 flex items-center gap-1.5 border-b border-slate-100 pb-2">
-                  <UserIcon className="w-4 h-4 text-blue-600" />
-                  주문자 및 설치 희망지 정보
-                </h4>
-
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <UserIcon className="w-3.5 h-3.5 text-blue-600" />
+                  <span>신청 고객 정보</span>
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-black text-slate-700 mb-1">
-                      주문자 성함 <span className="text-rose-500">*</span>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      신청자 성함 <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -282,13 +287,12 @@ export default function PaymentModal({
                       value={buyerName}
                       onChange={(e) => setBuyerName(e.target.value)}
                       placeholder="홍길동"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500 focus:bg-white"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-[11px] font-black text-slate-700 mb-1">
-                      연락처 (휴대폰) <span className="text-rose-500">*</span>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      연락처 (휴대폰 번호) <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -296,231 +300,104 @@ export default function PaymentModal({
                       value={buyerPhone}
                       onChange={(e) => setBuyerPhone(e.target.value)}
                       placeholder="010-1234-5678"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500 focus:bg-white"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-black text-slate-700 mb-1">
-                    이메일 주소 (선택)
-                  </label>
-                  <input
-                    type="email"
-                    value={buyerEmail}
-                    onChange={(e) => setBuyerEmail(e.target.value)}
-                    placeholder="example@domain.com"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500 focus:bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-black text-slate-700 mb-1">
-                    설치/배송 희망 주소 <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                    <input
-                      type="text"
-                      required
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="아파트/주택 상세 주소를 입력하세요 (예: 서울시 강남구 테헤란로 123 에스와이타워)"
-                      className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-black text-slate-700 mb-1">
-                    배송 및 설치 요청사항 (선택)
-                  </label>
-                  <input
-                    type="text"
-                    value={memo}
-                    onChange={(e) => setMemo(e.target.value)}
-                    placeholder="예: 방문 전 사전 연락 부탁드립니다 / 아파트 지하주차장 설치"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500 focus:bg-white"
-                  />
                 </div>
               </div>
 
-              {/* 3. Payment Method Selection */}
+              {/* 3. Address */}
               <div className="space-y-3">
-                <h4 className="text-xs font-black text-slate-900 flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-blue-600" />
-                    결제 수단 선택
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-normal">보안 PG 수납 암호화 연결</span>
-                </h4>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                  <span>설치 희망지 주소</span>
+                </h3>
+                <div className="flex gap-2">
+                  <div
+                    onClick={() => setIsAddressSearchOpen(true)}
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 cursor-pointer flex items-center justify-between transition-all"
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <span className={mainAddress || address ? 'text-slate-900' : 'text-slate-400'}>
+                      {mainAddress || address || '주소 검색을 눌러 주소를 찾아주세요'}
+                    </span>
+                    <MapPin className="w-4 h-4 text-blue-600 shrink-0 ml-2" />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('card')}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 ${
-                      paymentMethod === 'card'
-                        ? 'border-blue-600 bg-blue-50/70 text-blue-900 ring-2 ring-blue-500/20'
-                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                    }`}
+                    onClick={() => setIsAddressSearchOpen(true)}
+                    className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black shrink-0 flex items-center gap-1 cursor-pointer transition-colors"
                   >
-                    <CreditCard className={`w-5 h-5 ${paymentMethod === 'card' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    <div>
-                      <div className="text-xs font-black">신용/체크카드</div>
-                      <div className="text-[10px] opacity-75">무이자 할부 지원</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('vbank')}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 ${
-                      paymentMethod === 'vbank'
-                        ? 'border-blue-600 bg-blue-50/70 text-blue-900 ring-2 ring-blue-500/20'
-                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <Landmark className={`w-5 h-5 ${paymentMethod === 'vbank' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    <div>
-                      <div className="text-xs font-black">무통장 입금</div>
-                      <div className="text-[10px] opacity-75">가상계좌 발급</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('kakaopay')}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 ${
-                      paymentMethod === 'kakaopay'
-                        ? 'border-yellow-500 bg-yellow-50 text-yellow-950 ring-2 ring-yellow-400/30'
-                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <Smartphone className={`w-5 h-5 ${paymentMethod === 'kakaopay' ? 'text-yellow-600' : 'text-slate-400'}`} />
-                    <div>
-                      <div className="text-xs font-black">카카오페이</div>
-                      <div className="text-[10px] opacity-75">간편 결제</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('naverpay')}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 ${
-                      paymentMethod === 'naverpay'
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-400/30'
-                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <Sparkles className={`w-5 h-5 ${paymentMethod === 'naverpay' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                    <div>
-                      <div className="text-xs font-black">네이버페이</div>
-                      <div className="text-[10px] opacity-75">네이버 포인트 적립</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('trans')}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-20 col-span-2 sm:col-span-2 ${
-                      paymentMethod === 'trans'
-                        ? 'border-blue-600 bg-blue-50/70 text-blue-900 ring-2 ring-blue-500/20'
-                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <Landmark className={`w-5 h-5 ${paymentMethod === 'trans' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    <div>
-                      <div className="text-xs font-black">실시간 계좌이체</div>
-                      <div className="text-[10px] opacity-75">은행 즉시 이체</div>
-                    </div>
+                    <Search className="w-3.5 h-3.5" />
+                    <span>주소 검색</span>
                   </button>
                 </div>
+                <input
+                  type="text"
+                  value={detailAddress}
+                  onChange={(e) => handleDetailAddressChange(e.target.value)}
+                  placeholder="상세 주소를 입력해 주세요 (동/호수 또는 주차장 위치)"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                />
+                <input
+                  type="text"
+                  value={memo}
+                  onChange={(e) => setMemo(e.target.value)}
+                  placeholder="현장 요청사항 (예: 방문 전 연락, 지하주차장 설치 등)"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                />
+              </div>
 
-                {paymentMethod === 'vbank' && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
-                    <p className="font-extrabold flex items-center gap-1">
-                      🏦 에스와이 입금 전용 계좌 안내
-                    </p>
-                    <p className="text-[11px] font-semibold text-amber-800">
-                      국민은행 <span className="font-mono font-black">812701-04-123456</span> (주)에스와이이비
-                    </p>
-                    <p className="text-[10px] text-amber-700 opacity-90">
-                      * 주문 완료 후 안내된 계좌로 입금해 주시면 확인 즉시 현장 엔지니어가 배정됩니다.
-                    </p>
-                  </div>
-                )}
-
-                {/* Tax Invoice checkbox */}
-                <div className="pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={taxInvoice}
-                      onChange={(e) => setTaxInvoice(e.target.checked)}
-                      className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
-                    />
-                    <span>지출증빙 세금계산서 / 현금영수증 발행 신청</span>
-                  </label>
+              {/* 4. Consultation type */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <Headphones className="w-3.5 h-3.5 text-blue-600" />
+                  <span>희망 상담 방식</span>
+                </h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'onsite', name: '1:1 방문 실측' },
+                    { id: 'call', name: '전화 상세 상담' },
+                    { id: 'kakao', name: '카톡 간편 상담' },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setConsultationType(m.id as any)}
+                      className={`py-2 px-3 rounded-xl border text-xs font-extrabold cursor-pointer transition-all ${
+                        consultationType === m.id
+                          ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* 4. Terms and Refund Policy Agreement */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
-                <div className="bg-emerald-50 border border-emerald-200/80 rounded-lg p-2.5 text-[11px] text-emerald-950 flex flex-col gap-1">
-                  <div className="flex items-start gap-2">
-                    <span className="font-black text-emerald-700 shrink-0">⚡ 직영시공:</span>
-                    <span>결제 후 <strong>3일 이내 전문 상담 연락</strong> 진행 및 <strong>7일 이내 직영 시공 착공</strong> (착공 전 100% 무상 취소)</span>
-                  </div>
-                  <span className="text-[10px] text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded mt-0.5">
-                    ※ 한전 인입 승인 일정 및 현장 여건(장거리 배선 등)에 따라 상호 협의 하에 시공 일정이 조정될 수 있습니다.
-                  </span>
-                </div>
-
+              {/* Terms agreement */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
                 <div className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
                     required
-                    defaultChecked
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
                     id="agreePaymentModal"
-                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 shrink-0 mt-0.5"
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 shrink-0 mt-0.5 cursor-pointer"
                   />
-                  <label htmlFor="agreePaymentModal" className="text-xs text-slate-700 leading-snug cursor-pointer">
-                    <span className="font-bold text-slate-900">[필수] 주문 내용 확인 및 환불·청약철회 정책 동의</span>
+                  <label htmlFor="agreePaymentModal" className="text-slate-700 leading-snug cursor-pointer">
+                    <span className="font-bold text-slate-900">[필수] 무료 시공 상담 및 개인정보 수집 동의</span>
                     <span className="block text-[11px] text-slate-500 mt-0.5">
-                      전자상거래법 제17조 준수 (본사 직영 시공 착공 전 또는 상품 수령 7일 이내 무상 청약철회 가능)
+                      온라인 즉시 결제 없이 100% 무료 현장 실측 및 맞춤 상담으로 진행됩니다.
                     </span>
                   </label>
                 </div>
-
-                {onOpenLegalModal && (
-                  <div className="flex flex-wrap gap-2 pt-1.5 border-t border-slate-200/60 pl-6">
-                    <button
-                      type="button"
-                      onClick={() => onOpenLegalModal('refund')}
-                      className="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50/80 px-2 py-0.5 rounded transition-colors cursor-pointer"
-                    >
-                      🔄 환불정책 전문 보기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onOpenLegalModal('terms')}
-                      className="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 transition-colors cursor-pointer"
-                    >
-                      이용약관
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onOpenLegalModal('privacy')}
-                      className="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 transition-colors cursor-pointer"
-                    >
-                      개인정보처리방침
-                    </button>
-                  </div>
-                )}
               </div>
 
-              {/* 5. Payment Submit Button */}
+              {/* Submit Button */}
               <div className="pt-2 border-t border-slate-100">
                 <button
                   type="submit"
@@ -530,24 +407,32 @@ export default function PaymentModal({
                   {isProcessing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>보안 결제 진행 중입니다...</span>
+                      <span>무료 상담 접수 중입니다...</span>
                     </>
                   ) : (
                     <>
-                      <ShieldCheck className="w-5 h-5" />
-                      <span>총 ₩{totalItemAmount.toLocaleString()}원 안전 결제하기</span>
+                      <Sparkles className="w-5 h-5" />
+                      <span>⚡ 무료 시공 상담 및 예약 신청하기 (0원)</span>
                     </>
                   )}
                 </button>
-                <p className="text-[10px] text-slate-400 font-medium text-center mt-2 flex items-center justify-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                  SSL 256bit 암호화 안전 수납 시스템 적용
+                <p className="text-[11px] text-slate-400 font-medium text-center mt-2 flex items-center justify-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  본사 직영 24시간 내 배정 · 7일 내 책임 착공 보증
                 </p>
               </div>
             </form>
           )}
         </div>
       </motion.div>
+
+      {/* Address Search Modal */}
+      <AddressSearchModal
+        isOpen={isAddressSearchOpen}
+        onClose={() => setIsAddressSearchOpen(false)}
+        onSelectAddress={handleSelectAddress}
+        title="설치 희망지 주소 검색"
+      />
     </div>
   );
 }

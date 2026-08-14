@@ -160,7 +160,10 @@ export default function CartModal({
         {cartItems.length > 0 && (
           <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3">
             <div className="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-200">
-              <span className="text-xs font-bold text-slate-600">총 상품 주문 금액</span>
+              <div>
+                <span className="text-xs font-bold text-slate-600 block">예상 상품 견적 합계</span>
+                <span className="text-[10px] text-emerald-600 font-bold">상담 신청비 0원 (무료 실측)</span>
+              </div>
               <span className="text-base font-black text-blue-600">
                 ₩{totalAmount.toLocaleString()}원
               </span>
@@ -171,14 +174,13 @@ export default function CartModal({
                 onClick={handleRequestQuote}
                 className="flex-1 py-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-extrabold text-xs rounded-2xl cursor-pointer transition-colors"
               >
-                📋 설치 무상 견적 신청
+                📋 무상 견적서 확인
               </button>
               <button
                 onClick={handleProceedPayment}
                 className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs rounded-2xl shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <CreditCard className="w-4 h-4" />
-                <span>⚡ 바로 주문/결제하기</span>
+                <span>⚡ 무료 시공 상담/예약 (0원)</span>
               </button>
             </div>
           </div>

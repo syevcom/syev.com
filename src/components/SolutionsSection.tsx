@@ -1597,7 +1597,7 @@ export default function SolutionsSection({
         };
         onOpenPayment([buyNowItem]);
       } else {
-        setToastMessage('✅ 바로 결제 및 시공 신청 페이지로 이동합니다.');
+        setToastMessage('✅ 바로 무료 시공 상담 및 예약 페이지로 이동합니다.');
         setTimeout(() => {
           onOpenQuoteWithPurpose(productPurpose);
         }, 500);
@@ -2680,9 +2680,9 @@ export default function SolutionsSection({
                         </div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
-                        <div className="col-span-3 font-extrabold text-slate-600 self-center">배송</div>
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">배송/시공</div>
                         <div className="col-span-9 text-slate-800 font-extrabold">
-                          직접배송(주문 시 결제) / <span className="text-slate-500 font-normal">무료배송</span>
+                          본사 직영 배송 및 현장 무료 실측 / <span className="text-emerald-600 font-bold">무료 상담</span>
                         </div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
@@ -2716,7 +2716,7 @@ export default function SolutionsSection({
 
                         <div className="col-span-3 font-extrabold text-slate-600 self-center">시공일정</div>
                         <div className="col-span-9 text-slate-800 font-extrabold">
-                          결제 후 3일 내 상담 · 7일 내 착공
+                          신청 후 24시간 내 엔지니어 1:1 상담 · 7일 내 착공
                           <span className="block text-[10.5px] text-slate-500 font-medium mt-0.5">※ 한전 인입/현장 여건에 따라 협의 조정 가능</span>
                         </div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>

@@ -327,8 +327,7 @@ export default function CartPage({
                     onClick={handleOrderSelected}
                     className="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-colors flex items-center gap-1.5"
                   >
-                    <CreditCard className="w-3.5 h-3.5 text-blue-400" />
-                    <span>선택상품 주문하기</span>
+                    <span>⚡ 선택상품 상담/예약 신청</span>
                   </button>
                 </div>
               </div>
@@ -337,7 +336,7 @@ export default function CartPage({
             {/* RIGHT COLUMN: ORDER SUMMARY SIDEBAR */}
             <div className="lg:col-span-4 sticky top-28 space-y-3">
               <h3 className="text-base font-black text-slate-900 flex items-center justify-between">
-                <span>전체 주문시 금액</span>
+                <span>예상 견적 합계</span>
                 <span className="text-xs font-normal text-slate-500">
                   (선택 {selectedIds.length}개)
                 </span>
@@ -353,19 +352,22 @@ export default function CartPage({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span>총 배송비</span>
-                    <span className="text-emerald-600 font-extrabold">₩0원 (무료)</span>
+                    <span>방문 실측 / 출장 진단</span>
+                    <span className="text-emerald-600 font-extrabold">₩0원 (100% 무료)</span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span>총 할인</span>
-                    <span className="text-slate-900 font-extrabold">₩0원</span>
+                    <span>상담 신청 결제비용</span>
+                    <span className="text-emerald-600 font-extrabold">₩0원 (즉시결제 없음)</span>
                   </div>
                 </div>
 
                 <div className="border-t border-dashed border-slate-300 pt-3">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-xs font-black text-slate-900">총 결제금액</span>
+                    <div>
+                      <span className="text-xs font-black text-slate-900 block">예상 상품 견적</span>
+                      <span className="text-[10px] text-slate-400 font-medium">상담 후 최종 견적 확정</span>
+                    </div>
                     <span className="text-2xl font-black text-blue-600 tracking-tight">
                       ₩{totalAmount.toLocaleString()}원
                     </span>
@@ -374,7 +376,7 @@ export default function CartPage({
 
                 <div className="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl text-[11px] text-emerald-800 font-semibold flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>설치 현장 무상 진단 및 보조금 신청 서비스 지원</span>
+                  <span>설치 현장 무상 진단 및 보조금 100% 매칭 지원</span>
                 </div>
               </div>
 
@@ -394,8 +396,7 @@ export default function CartPage({
                   onClick={handleOrderSelected}
                   className="py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-lg cursor-pointer transition-transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
                 >
-                  <CreditCard className="w-4 h-4" />
-                  <span>전체 주문하기</span>
+                  <span>⚡ 무료 시공 상담/예약</span>
                 </button>
               </div>
             </div>

@@ -334,35 +334,36 @@ export default function LegalTermsModal({
             </div>
           )}
 
-          {/* 4. ESCROW TAB */}
+          {/* 4. ESCROW & DIRECT INSTALLATION WARRANTY TAB */}
           {activeTab === 'escrow' && (
             <div className="space-y-6">
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 space-y-2">
                 <h4 className="text-blue-950 font-black text-sm flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-blue-600" />
-                  포트원 및 결제대행사(PG) 구매안전(에스크로) 서비스 적용
+                  본사 직영 100% 안심 시공 보증 및 사전 무료 상담제
                 </h4>
                 <p className="text-blue-900 text-xs font-medium">
-                  에스와이닷컴은 소비자의 안전한 전자상거래를 위하여 전자상거래법 제24조에 따른 결제대금예치(에스크로) 서비스를 제공하고 있습니다.
+                  에스와이닷컴은 온라인 사전 결제를 강제하지 않으며, <strong>100% 무료 현장 방문 실측 및 1:1 맞춤 기술 상담</strong>을 거쳐 고객님께서 최종 승인하신 후 본사 직영 책임시공을 진행합니다.
                 </p>
               </div>
 
               <section className="space-y-3">
                 <h5 className="font-black text-slate-900 text-sm border-l-4 border-blue-500 pl-3">
-                  구매안전서비스란?
+                  고객 안심 보호 제도
                 </h5>
                 <p className="text-slate-600">
-                  고객님이 결제하신 결제대금을 공신력 있는 금융기관(PG사)이 예치하고 있다가, 상품 배송 및 시공 설치가 안전하게 완료된 후 판매자에게 대금을 지급하는 소비자 안심 결제 보호 제도입니다.
+                  온라인 접수 시 비용은 0원이며, 전문 기술진이 직접 현장을 확인하고 정밀 견적 및 한전 인입 조건을 사전에 충분히 협의한 후에만 안전하게 시공 계약이 체결됩니다.
                 </p>
               </section>
 
               <section className="space-y-3">
                 <h5 className="font-black text-slate-900 text-sm border-l-4 border-blue-500 pl-3">
-                  보호 대상 거래
+                  책임 보증 범위
                 </h5>
                 <ul className="list-disc list-inside space-y-1 text-slate-600 pl-2">
-                  <li>에스와이닷컴 온라인 몰을 통해 진행되는 모든 현금성(계좌이체/가상계좌) 및 카드 결제 건</li>
-                  <li>소비자 피해 보상 보험 가입을 통해 안전한 거래를 100% 보장합니다.</li>
+                  <li>3년 무상 품질 A/S 및 정기 안전점검 지원</li>
+                  <li>영업배상책임보험 10억원 가입을 통한 완벽한 안전시공 보장</li>
+                  <li>외부 하청이나 단순 중개 없는 본사 직영 기술팀 시공</li>
                 </ul>
               </section>
             </div>

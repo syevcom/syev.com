@@ -83,22 +83,20 @@ const REMOVED_PRODUCT_IDS = new Set([
 ]);
 
 export default function App() {
-  const [isSyncing, setIsSyncing] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [activePage, setActivePage] = useState<ActivePage>('home');
   const [user, setUser] = useState<User | null>(null);
 
-  // Sync with Firestore on initial boot
+  // Sync with Firestore on initial boot in the background
   useEffect(() => {
     async function initFirebaseSync() {
       try {
         // Setup interception of localStorage writes
         setupFirebaseStorageSync();
-        // Read existing values from Firestore
+        // Read existing values from Firestore in background
         await loadFromFirestore();
       } catch (err) {
         console.error('Failed to initialize Firebase Sync:', err);
-      } finally {
-        setIsSyncing(false);
       }
     }
     initFirebaseSync();
@@ -1337,8 +1335,8 @@ export default function App() {
       phone: orderData.buyerPhone,
       location: orderData.address,
       purpose: 'Residential' as const,
-      memo: `[주문/결제 완료 #${orderData.orderId}] ${orderData.items.map((i: any) => `${i.name} (${i.quantity}개)`).join(', ')} / 결제수단: ${orderData.paymentMethod}`,
-      estimateCost: `₩${orderData.totalAmount.toLocaleString()}원`
+      memo: `[무료 시공상담/예약 접수 #${orderData.orderId}] ${orderData.items.map((i: any) => `${i.name} (${i.quantity}개)`).join(', ')} / 상담방식: ${orderData.consultationType || orderData.paymentMethod || '무료 현장실측'} / 요청: ${orderData.memo || '없음'}`,
+      estimateCost: `₩${orderData.totalAmount.toLocaleString()}원 (예상 견적)`
     };
     handleAddBooking(newBookingData);
 
@@ -1679,6 +1677,7 @@ export default function App() {
       text: 'SY',
       subtitle: 'SY.com',
       imageUrl: '',
+      height: 48,
       showCompanyName: true,
       companyNameText: '(유)에스와이닷컴',
       companyNameFont: 'noto',
@@ -1693,7 +1692,10 @@ export default function App() {
       products: '가정용',
       solutions: '아파트',
       review: '설치후기',
-      support: '상업시설'
+      support: '상업시설',
+      sol_commercial: '아파트',
+      sol_residential: '가정용 홈',
+      sol_parking: '상업시설 수익형'
     });
 
     setHeaderConfig({
@@ -1797,7 +1799,7 @@ export default function App() {
     setNotices(NOTICES);
   };
 
-  const handleOpenCmsTab = (tab: typeof cmsTab) => {
+  const handleOpenCmsTab = (tab: any) => {
     if (!isEditMode) {
       alert('대표자 프로필 사진 및 콘텐츠 편집은 관리자 전용 기능입니다. 관리자로 로그인해 주세요.');
       setIsAdminLoginOpen(true);
@@ -2346,7 +2348,7 @@ export default function App() {
             <div className="text-center md:text-left space-y-1">
               <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
               <p className="text-[10px] text-emerald-300/80 font-medium">
-                ※ 본사 직영 책임시공 (결제 후 3일 내 상담 · 7일 내 착공) | 전자상거래법 제17조 준수: 착공 전 100% 무상 취소·환불 가능 | 에스크로 구매안전서비스 적용
+                ※ 본사 직영 책임시공 (신청 후 24시간 내 전문 엔지니어 1:1 상담 및 무료 현장 실측 · 7일 내 착공) | 100% 무료 사전 방문 진단 서비스
               </p>
             </div>
             <div className="flex flex-wrap gap-3 items-center justify-center md:justify-end">
