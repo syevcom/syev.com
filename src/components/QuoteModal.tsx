@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { X, Send, Calculator, ShieldCheck, Sparkles, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Booking } from '../types';
+import AddressSearchModal from './AddressSearchModal';
 
 interface CustomField {
   id: string;
@@ -805,31 +806,18 @@ export default function QuoteModal({
         </div>
       </motion.div>
 
-      {/* Daum Postcode Modal Overlay */}
-      {addressSearchFieldId && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 flex flex-col">
-            <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-              <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                📍 주소 검색 (도로명/지번)
-              </span>
-              <button
-                type="button"
-                onClick={() => setAddressSearchFieldId(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded bg-slate-100 cursor-pointer transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-2.5 bg-amber-50 border-b border-amber-100 text-[10px] text-amber-800 font-bold text-center">
-              💡 원하시는 동(읍/면/리) 또는 건물명을 입력해 주세요.
-            </div>
-            <div className="p-2 bg-white min-h-[420px] relative">
-              <div id="daum-postcode-container" className="w-full h-[400px]" />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Address Search Modal */}
+      <AddressSearchModal
+        isOpen={!!addressSearchFieldId}
+        onClose={() => setAddressSearchFieldId(null)}
+        onSelectAddress={(data) => {
+          if (addressSearchFieldId) {
+            handleInputChange(addressSearchFieldId, data.fullAddress);
+          }
+          setAddressSearchFieldId(null);
+        }}
+        title="설치 희망지 주소 검색"
+      />
     </div>
   );
 }
