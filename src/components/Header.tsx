@@ -306,10 +306,10 @@ export default function Header({
               <button
                 onClick={onOpenMyPage}
                 title="마이페이지"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold cursor-pointer shadow-2xs transition-all"
               >
                 <User className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="truncate max-w-[70px]">{user.name}</span>
+                <span>마이페이지</span>
               </button>
             ) : (
               <button

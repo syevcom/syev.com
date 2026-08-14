@@ -57,6 +57,9 @@ export function MyProfilePage({
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
+  const [editType, setEditType] = useState<'B2C' | 'B2B'>(user?.type || 'B2C');
+  const [editCompanyName, setEditCompanyName] = useState(user?.companyName || '');
+  const [editBusinessNumber, setEditBusinessNumber] = useState(user?.businessNumber || '');
   const [selectedBookingForPrint, setSelectedBookingForPrint] = useState<Booking | null>(null);
 
   if (!user) {
@@ -406,7 +409,14 @@ export function MyProfilePage({
                     onClick={() => {
                       if (isEditingInfo) {
                         if (!editName.trim()) return alert('이름을 입력해 주세요.');
-                        const updated = { ...user, name: editName, email: editEmail };
+                        const updated: User = { 
+                          ...user, 
+                          name: editName, 
+                          email: editEmail,
+                          type: editType,
+                          companyName: editType === 'B2B' ? editCompanyName : undefined,
+                          businessNumber: editType === 'B2B' ? editBusinessNumber : undefined
+                        };
                         onUpdateUser?.(updated);
                         localStorage.setItem('sy_logged_user', JSON.stringify(updated));
                         setIsEditingInfo(false);
@@ -415,6 +425,9 @@ export function MyProfilePage({
                       } else {
                         setEditName(user.name);
                         setEditEmail(user.email);
+                        setEditType(user.type || 'B2C');
+                        setEditCompanyName(user.companyName || '');
+                        setEditBusinessNumber(user.businessNumber || '');
                         setIsEditingInfo(true);
                       }
                     }}
@@ -426,25 +439,60 @@ export function MyProfilePage({
                 </div>
 
                 {isEditingInfo ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
-                    <div className="space-y-1.5">
-                      <label className="text-slate-500 font-bold block text-[11px]">이름 / 담당자</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs pt-2">
+                    <div className="space-y-1.5 bg-white p-3.5 rounded-xl border border-slate-200">
+                      <label className="text-slate-500 font-bold block text-[11px]">이름 / 담당자 수정</label>
                       <input
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 shadow-xs"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-slate-500 font-bold block text-[11px]">이메일 주소</label>
+                    <div className="space-y-1.5 bg-white p-3.5 rounded-xl border border-slate-200">
+                      <label className="text-slate-500 font-bold block text-[11px]">이메일 주소 수정</label>
                       <input
                         type="email"
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 shadow-xs"
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
+                    <div className="space-y-1.5 bg-white p-3.5 rounded-xl border border-slate-200">
+                      <label className="text-slate-500 font-bold block text-[11px]">회원 구분 선택</label>
+                      <select
+                        value={editType}
+                        onChange={(e) => setEditType(e.target.value as 'B2C' | 'B2B')}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                      >
+                        <option value="B2C">개인 / 아파트 (B2C)</option>
+                        <option value="B2B">기업 / 법인 (B2B)</option>
+                      </select>
+                    </div>
+                    {editType === 'B2B' && (
+                      <>
+                        <div className="space-y-1.5 bg-white p-3.5 rounded-xl border border-slate-200">
+                          <label className="text-slate-500 font-bold block text-[11px]">회사 / 법인명 입력</label>
+                          <input
+                            type="text"
+                            placeholder="예: 에스와이(주)"
+                            value={editCompanyName}
+                            onChange={(e) => setEditCompanyName(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5 bg-white p-3.5 rounded-xl border border-slate-200">
+                          <label className="text-slate-500 font-bold block text-[11px]">사업자 등록번호 입력</label>
+                          <input
+                            type="text"
+                            placeholder="000-00-00000"
+                            value={editBusinessNumber}
+                            onChange={(e) => setEditBusinessNumber(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
@@ -645,16 +693,22 @@ export function MyProfilePage({
                   {cartItems.map((item) => (
                     <div key={item.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div className="flex items-center gap-4 w-full sm:w-auto">
-                        <img 
-                          src={item.product.image} 
-                          alt={item.product.name} 
-                          className="w-16 h-16 object-cover rounded-xl border border-slate-200 shrink-0 bg-white"
-                        />
+                        {item.image ? (
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-16 h-16 object-cover rounded-xl border border-slate-200 shrink-0 bg-white"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl border border-slate-200 shrink-0 bg-white flex items-center justify-center text-xl">
+                            ⚡
+                          </div>
+                        )}
                         <div>
                           <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                            {item.product.type}
+                            {item.power || '완속'} · {item.type || '충전기'}
                           </span>
-                          <h4 className="font-extrabold text-slate-900 text-sm mt-0.5">{item.product.name}</h4>
+                          <h4 className="font-extrabold text-slate-900 text-sm mt-0.5">{item.name}</h4>
                           <p className="text-xs text-slate-500">수량: {item.quantity}개</p>
                         </div>
                       </div>
@@ -662,7 +716,7 @@ export function MyProfilePage({
                       <div className="text-right w-full sm:w-auto border-t sm:border-0 pt-3 sm:pt-0">
                         <p className="text-xs text-slate-400">금액</p>
                         <p className="font-black text-emerald-700 text-base">
-                          {((item.product.price || 0) * item.quantity).toLocaleString()} 원
+                          {((item.price || 0) * item.quantity).toLocaleString()} 원
                         </p>
                       </div>
                     </div>

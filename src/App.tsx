@@ -120,8 +120,8 @@ export default function App() {
           .then(data => {
             const loggedInUser: User = {
               id: `usr-google-${data.sub || Date.now()}`,
-              email: data.email || 'google_user@gmail.com',
-              name: data.name || data.given_name || '구글 회원님',
+              email: data.email || '',
+              name: data.name || data.given_name || (data.email ? data.email.split('@')[0] : '구글 사용자'),
               profileImage: data.picture || '',
               type: 'B2C'
             };
