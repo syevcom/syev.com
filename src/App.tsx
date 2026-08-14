@@ -25,6 +25,7 @@ import { MyProfilePage } from './components/MyProfilePage';
 import AIChatBot from './components/AIChatBot';
 import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './components/HomePopupModal';
 import { AdminPage } from './components/AdminPage';
+import LegalTermsModal, { LegalTabType } from './components/LegalTermsModal';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
@@ -193,6 +194,13 @@ export default function App() {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [paymentItems, setPaymentItems] = useState<CartItem[]>([]);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState<LegalTabType>('refund');
+
+  const handleOpenLegalModal = (tab: LegalTabType = 'refund') => {
+    setLegalModalTab(tab);
+    setIsLegalModalOpen(true);
+  };
 
   const sanitizePopupConfig = (cfg: HomePopupConfig): HomePopupConfig => {
     const cleaned = { ...cfg };
@@ -1845,6 +1853,19 @@ export default function App() {
               onOpenAuth={() => setIsAuthOpen(true)}
               isLoggedIn={!!user}
             />
+
+            {/* Products & Prices Showcase for E-Commerce & PG Verification */}
+            <div id="products-showcase" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
+              <ProductsSection
+                products={products}
+                isEditMode={isEditMode}
+                onOpenCms={handleOpenCmsTab}
+                onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
+                onAddToCart={handleAddToCart}
+                onOpenPayment={handleOpenPayment}
+              />
+            </div>
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8">
               <ReviewSection 
                 reviews={reviews}
@@ -1993,6 +2014,7 @@ export default function App() {
             onPageChange={handlePageChange}
             onOpenAuthModal={() => setIsAuthOpen(true)}
             onOpenMyPage={() => handlePageChange('mypage')}
+            onOpenLegalModal={handleOpenLegalModal}
           />
         );
       case 'mypage':
@@ -2320,15 +2342,41 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-emerald-500/20 text-center text-xs text-emerald-200/85 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
-            <div className="flex flex-wrap gap-4 items-center">
-              <a href="#privacy" className="hover:text-white hover:underline">개인정보처리방침</a>
-              <a href="#terms" className="hover:text-white hover:underline">이용약관</a>
-              <a href="#standard" className="hover:text-white hover:underline">한전 인입공사 표준</a>
+          <div className="pt-8 border-t border-emerald-500/20 text-xs text-emerald-200/85 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left space-y-1">
+              <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
+              <p className="text-[10px] text-emerald-300/80 font-medium">
+                ※ 전자상거래 등에서의 소비자보호에 관한 법률 제17조 준수: 상품 수령 후 7일 이내 청약철회/환불 가능 | 에스크로 구매안전서비스 적용
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 items-center justify-center md:justify-end">
+              <button
+                onClick={() => handleOpenLegalModal('refund')}
+                className="font-bold text-emerald-300 hover:text-white hover:underline cursor-pointer bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-500/30 text-[11px]"
+              >
+                🔄 환불 / 취소 정책
+              </button>
+              <button
+                onClick={() => handleOpenLegalModal('terms')}
+                className="hover:text-white hover:underline cursor-pointer text-emerald-200/90 text-[11px]"
+              >
+                이용약관
+              </button>
+              <button
+                onClick={() => handleOpenLegalModal('privacy')}
+                className="hover:text-white hover:underline cursor-pointer text-emerald-200/90 text-[11px]"
+              >
+                개인정보처리방침
+              </button>
+              <button
+                onClick={() => handleOpenLegalModal('escrow')}
+                className="hover:text-white hover:underline cursor-pointer text-emerald-200/90 text-[11px]"
+              >
+                구매안전(에스크로) 안내
+              </button>
               <button
                 onClick={() => setIsAdminLoginOpen(true)}
-                className="hover:text-white hover:underline cursor-pointer text-emerald-200/60 hover:text-white flex items-center gap-1 text-[11px]"
+                className="hover:text-white hover:underline cursor-pointer text-emerald-200/60 hover:text-white flex items-center gap-1 text-[11px] ml-2"
                 title="관리자 전용 아이디/비밀번호 로그인"
               >
                 <span>🔒 관리자 로그인</span>
@@ -2340,6 +2388,13 @@ export default function App() {
 
       {/* Modals Container */}
       <AnimatePresence>
+        {isLegalModalOpen && (
+          <LegalTermsModal
+            isOpen={isLegalModalOpen}
+            onClose={() => setIsLegalModalOpen(false)}
+            initialTab={legalModalTab}
+          />
+        )}
         {isAuthOpen && (
           <AuthModal
             isOpen={isAuthOpen}
@@ -2394,6 +2449,7 @@ export default function App() {
             user={user}
             onPaymentSuccess={handlePaymentSuccess}
             onOpenMyPage={() => setIsMyPageOpen(true)}
+            onOpenLegalModal={handleOpenLegalModal}
           />
         )}
 

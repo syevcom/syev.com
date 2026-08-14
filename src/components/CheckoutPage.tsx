@@ -40,6 +40,7 @@ interface CheckoutPageProps {
   onPageChange: (page: ActivePage) => void;
   onOpenAuthModal: () => void;
   onOpenMyPage?: () => void;
+  onOpenLegalModal?: (tab: 'refund' | 'terms' | 'privacy' | 'escrow') => void;
 }
 
 export default function CheckoutPage({
@@ -49,6 +50,7 @@ export default function CheckoutPage({
   onPageChange,
   onOpenAuthModal,
   onOpenMyPage,
+  onOpenLegalModal,
 }: CheckoutPageProps) {
   // Step state: 'choice' (Guest vs Member) | 'form' (Order Form) | 'complete' (Order Success)
   const [step, setStep] = useState<'choice' | 'form' | 'complete'>(() => {
@@ -608,8 +610,8 @@ export default function CheckoutPage({
                 </div>
               </div>
 
-              {/* SECTION 4: Terms */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+              {/* SECTION 4: Terms & Policies */}
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-3">
                 <label className="flex items-start gap-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -620,13 +622,46 @@ export default function CheckoutPage({
                   />
                   <div>
                     <span className="text-xs font-black text-slate-900 block">
-                      구매조건 확인 및 개인정보 수집·이용 동의 (필수)
+                      [필수] 주문 내용 확인 및 환불·청약철회 정책, 이용약관 동의
                     </span>
                     <span className="text-[11px] text-slate-500 font-medium leading-relaxed block mt-1">
-                      주문 제품의 배송, 설치 현장 진단 및 한전 보조금 서류 대행을 위해 주문자 정보가 이용되며, 결제 진행 시 약관에 동의한 것으로 간주합니다.
+                      전자상거래법 제17조에 따라 상품 수령 후 7일 이내 청약철회가 가능하며, 결제 진행 시 주문 조건 및 당사의 환불/개인정보 처리 규정에 동의합니다.
                     </span>
                   </div>
                 </label>
+
+                {onOpenLegalModal && (
+                  <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 pl-8">
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('refund')}
+                      className="text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      🔄 환불 / 취소 정책 보기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('terms')}
+                      className="text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      이용약관 보기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('privacy')}
+                      className="text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      개인정보처리방침
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('escrow')}
+                      className="text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      에스크로 안내
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -592,7 +592,9 @@ export default function ProductDetailModal({
 
                   <div className="grid grid-cols-12 gap-2 py-1">
                     <span className="col-span-3 text-slate-400 font-bold">청약철회</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">불가</span>
+                    <span className="col-span-9 font-extrabold text-slate-800">
+                      전자상거래법 제17조 준수 (배송/착공 전 7일 이내 무상취소 가능)
+                    </span>
                   </div>
                 </div>
               ) : (

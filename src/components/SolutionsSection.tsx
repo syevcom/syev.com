@@ -2711,7 +2711,7 @@ export default function SolutionsSection({
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
                         <div className="col-span-3 font-extrabold text-slate-600 self-center">청약철회</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">불가</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">전자상거래법 준수 (착공 전 7일 이내 무상취소 가능)</div>
                       </>
                     );
                   }

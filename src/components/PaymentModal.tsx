@@ -20,6 +20,7 @@ interface PaymentModalProps {
     taxInvoice: boolean;
   }) => void;
   onOpenMyPage?: () => void;
+  onOpenLegalModal?: (tab: 'refund' | 'terms' | 'privacy' | 'escrow') => void;
 }
 
 export default function PaymentModal({
@@ -29,6 +30,7 @@ export default function PaymentModal({
   user,
   onPaymentSuccess,
   onOpenMyPage,
+  onOpenLegalModal,
 }: PaymentModalProps) {
   const [buyerName, setBuyerName] = useState(user?.name || '');
   const [buyerPhone, setBuyerPhone] = useState(user?.phone || '');
@@ -463,7 +465,52 @@ export default function PaymentModal({
                 </div>
               </div>
 
-              {/* 4. Payment Submit Button */}
+              {/* 4. Terms and Refund Policy Agreement */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                <div className="flex items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    required
+                    defaultChecked
+                    id="agreePaymentModal"
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 shrink-0 mt-0.5"
+                  />
+                  <label htmlFor="agreePaymentModal" className="text-xs text-slate-700 leading-snug cursor-pointer">
+                    <span className="font-bold text-slate-900">[필수] 주문 내용 확인 및 환불·청약철회 정책 동의</span>
+                    <span className="block text-[11px] text-slate-500 mt-0.5">
+                      전자상거래법 제17조 준수 (상품 수령/착공 전 7일 이내 무상 청약철회 가능)
+                    </span>
+                  </label>
+                </div>
+
+                {onOpenLegalModal && (
+                  <div className="flex flex-wrap gap-2 pt-1.5 border-t border-slate-200/60 pl-6">
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('refund')}
+                      className="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50/80 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                    >
+                      🔄 환불정책 전문 보기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('terms')}
+                      className="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 transition-colors cursor-pointer"
+                    >
+                      이용약관
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLegalModal('privacy')}
+                      className="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 transition-colors cursor-pointer"
+                    >
+                      개인정보처리방침
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 5. Payment Submit Button */}
               <div className="pt-2 border-t border-slate-100">
                 <button
                   type="submit"

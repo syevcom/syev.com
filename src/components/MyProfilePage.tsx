@@ -91,8 +91,8 @@ export function MyProfilePage({
   }
 
   // Filter bookings for current user
-  const myBookings = bookings.filter((b) => b.userId === user.id || b.name === user.name || (user.email && b.email === user.email));
-  const myAsRequests = asRequests.filter((a) => a.userId === user.id || a.name === user.name);
+  const myBookings = bookings.filter((b) => b.userId === user.id || b.name === user.name);
+  const myAsRequests = asRequests.filter((a) => a.userId === user.id);
 
   // Social Login Provider Detection
   const getSocialProviderBadge = () => {
@@ -639,11 +639,13 @@ export function MyProfilePage({
                         </div>
                         <div>
                           <span className="text-slate-400 font-bold block">설치희망 주소</span>
-                          <p className="font-extrabold text-slate-900 truncate">{b.location || b.address || '주소 미입력'}</p>
+                          <p className="font-extrabold text-slate-900 truncate">{b.location || '주소 미입력'}</p>
                         </div>
                         <div>
-                          <span className="text-slate-400 font-bold block">희망 수량 / 차종</span>
-                          <p className="font-extrabold text-slate-900">{b.quantity || 1}대 / {b.carModel || '전기차'}</p>
+                          <span className="text-slate-400 font-bold block">신청 구분</span>
+                          <p className="font-extrabold text-slate-900">
+                            {b.purpose === 'Residential' ? '가정용 홈' : b.purpose === 'Commercial' ? '아파트용' : '상업시설 수익형'}
+                          </p>
                         </div>
                       </div>
 
@@ -772,8 +774,10 @@ export function MyProfilePage({
                           {a.status || '접수완료'}
                         </span>
                       </div>
-                      <h4 className="font-extrabold text-slate-900 text-sm">{a.issueType}</h4>
-                      <p className="text-xs text-slate-600">{a.description}</p>
+                      <h4 className="font-extrabold text-slate-900 text-sm">
+                        {a.productName} {a.serialNumber ? `(S/N: ${a.serialNumber})` : ''}
+                      </h4>
+                      <p className="text-xs text-slate-600">증상: {a.symptom}</p>
                     </div>
                   ))}
                 </div>
