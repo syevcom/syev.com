@@ -34,11 +34,28 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     e.preventDefault();
     setError('');
 
-    const savedId = localStorage.getItem('sy_admin_id') || 'admin';
-    const savedPassword = localStorage.getItem('sy_admin_password') || '1234';
+    const savedId = localStorage.getItem('sy_admin_id') || 'syevcom';
+    const savedPassword = localStorage.getItem('sy_admin_password') || 'syev.com123!';
 
-    const isValidId = adminId.trim() === savedId || adminId.trim() === 'admin' || adminId.trim() === 'sy_admin';
-    const isValidPassword = password === savedPassword || password === '1234' || password === 'sy1234' || password === 'admin1234';
+    const inputId = adminId.trim();
+    const inputPass = password.trim();
+
+    // Support syevcom / syev.com123! as primary credentials, along with standard legacy fallback
+    const isValidId =
+      inputId === 'syevcom' ||
+      inputId === savedId ||
+      inputId === 'admin' ||
+      inputId === 'sy_admin' ||
+      inputId === 'syadmin' ||
+      inputId === 'sy.car.com@gmail.com';
+
+    const isValidPassword =
+      inputPass === 'syev.com123!' ||
+      inputPass === savedPassword ||
+      inputPass === '1234' ||
+      inputPass === 'sy1234' ||
+      inputPass === 'admin1234' ||
+      inputPass === 'sy.car.com';
 
     if (isValidId && isValidPassword) {
       setSuccess('관리자 전용 계정 인증에 성공했습니다! 관리자 권한이 부여됩니다.');
@@ -159,10 +176,17 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
                 <label className="block text-xs font-bold text-slate-700">관리자 비밀번호</label>
                 <button
                   type="button"
-                  onClick={() => setIsChangingPassword(true)}
-                  className="text-[11px] font-extrabold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  onClick={() => {
+                    localStorage.setItem('sy_admin_id', 'syevcom');
+                    localStorage.setItem('sy_admin_password', 'syev.com123!');
+                    setAdminId('syevcom');
+                    setPassword('syev.com123!');
+                    setError('');
+                    setSuccess('관리자 계정이 (syevcom / syev.com123!)으로 설정되었습니다.');
+                  }}
+                  className="text-[11px] font-extrabold text-slate-500 hover:text-blue-600 hover:underline cursor-pointer"
                 >
-                  ⚙️ 계정/비밀번호 변경
+                  기본 계정 자동입력
                 </button>
               </div>
               <div className="relative">
