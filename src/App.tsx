@@ -1860,18 +1860,6 @@ export default function App() {
               isLoggedIn={!!user}
             />
 
-            {/* Products & Prices Showcase for E-Commerce & PG Verification */}
-            <div id="products-showcase" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
-              <ProductsSection
-                products={products}
-                isEditMode={isEditMode}
-                onOpenCms={handleOpenCmsTab}
-                onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose}
-                onAddToCart={handleAddToCart}
-                onOpenPayment={handleOpenPayment}
-              />
-            </div>
-
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8">
               <ReviewSection 
                 reviews={reviews}

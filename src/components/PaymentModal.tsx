@@ -6,14 +6,12 @@ import {
   User as UserIcon,
   Phone,
   MapPin,
-  FileText,
   Sparkles,
   ShoppingBag,
   Search,
   Headphones,
-  MessageSquare
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { CartItem, User } from '../types';
 import AddressSearchModal from './AddressSearchModal';
 
@@ -33,7 +31,9 @@ interface PaymentModalProps {
     memo: string;
     paymentMethod: string;
     consultationType?: string;
+    preferredTime?: string;
     taxInvoice: boolean;
+    createdAt: string;
   }) => void;
   onOpenMyPage?: () => void;
   onOpenLegalModal?: (tab: 'refund' | 'terms' | 'privacy' | 'escrow') => void;
@@ -141,16 +141,6 @@ export default function PaymentModal({
       setIsSuccess(true);
       onPaymentSuccess(orderData);
     }, 1000);
-  };� 및 무료 현장 상담',
-        taxInvoice,
-        createdAt: new Date().toLocaleString('ko-KR')
-      };
-
-      setCompletedOrder(orderData);
-      setIsProcessing(false);
-      setIsSuccess(true);
-      onPaymentSuccess(orderData);
-    }, 1000);
   };
 
   return (
@@ -164,7 +154,7 @@ export default function PaymentModal({
         className="absolute inset-0 bg-slate-900/75 backdrop-blur-sm"
       />
 
-      {/* Modal Content */}
+      {/* Modal Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -224,7 +214,7 @@ export default function PaymentModal({
                   <span className="font-bold text-slate-800 text-right">{completedOrder.address}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-bold">희망 상담</span>
+                  <span className="text-slate-500 font-bold">진행 절차</span>
                   <span className="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{completedOrder.consultationType}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-slate-200">
@@ -356,31 +346,54 @@ export default function PaymentModal({
                 />
               </div>
 
-              {/* 4. Consultation type */}
-              <div className="space-y-2">
-                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <Headphones className="w-3.5 h-3.5 text-blue-600" />
-                  <span>희망 상담 방식</span>
-                </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'onsite', name: '1:1 방문 실측' },
-                    { id: 'call', name: '전화 상세 상담' },
-                    { id: 'kakao', name: '카톡 간편 상담' },
-                  ].map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setConsultationType(m.id as any)}
-                      className={`py-2 px-3 rounded-xl border text-xs font-extrabold cursor-pointer transition-all ${
-                        consultationType === m.id
-                          ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      {m.name}
-                    </button>
-                  ))}
+              {/* 4. Consultation & survey process */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                    <Headphones className="w-3.5 h-3.5 text-blue-600" />
+                    <span>진행 절차: 전화 상담 후 방문 실측</span>
+                  </h3>
+                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                    100% 무료
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 text-[11px]">
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
+                    <p className="text-slate-700 font-bold"><strong>1차 전화 상담</strong>: 전담 엔지니어가 현장 전력 및 설치 환경 유선 사전 파악</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
+                    <p className="text-slate-700 font-bold"><strong>2차 현장 무료 실측</strong>: 엔지니어 현장 직접 방문하여 배선 실측 & 최종 견적 확정</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                    📞 희망 통화 시간대
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      '언제나 가능 (빠른 상담)',
+                      '오전 (09:00 ~ 12:00)',
+                      '오후 (13:00 ~ 18:00)',
+                      '저녁 (18:00 이후)',
+                    ].map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setPreferredTime(t)}
+                        className={`py-1.5 px-2 rounded-lg border text-[11px] font-bold cursor-pointer transition-all ${
+                          preferredTime === t
+                            ? 'border-blue-600 bg-blue-50 text-blue-800 ring-2 ring-blue-600/20 font-black'
+                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

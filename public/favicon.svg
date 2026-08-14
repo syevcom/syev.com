@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Background with slight rounded corner -->
+  <rect width="100" height="100" rx="22" fill="#0A192F"/>
+  
+  <!-- Stylized SY Text -->
+  <text x="14" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="44" fill="#FFFFFF" letter-spacing="-2">SY</text>
+  
+  <!-- .com text -->
+  <text x="14" y="82" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="16" fill="#60A5FA" letter-spacing="-0.5">.com</text>
+  
+  <!-- Eco EV Car / Electric Plug Symbol -->
+  <g transform="translate(48, 22)">
+    <!-- Car body silhouette -->
+    <path d="M6 24 C8 16, 12 12, 22 12 L30 12 C36 12, 40 16, 42 24 L44 27 C44 29, 42 30, 39 30 L9 30 C6 30, 4 29, 4 27 Z" fill="#3B82F6"/>
+    <!-- Window -->
+    <path d="M12 22 C14 16, 16 14, 22 14 L28 14 C32 14, 34 16, 36 22 Z" fill="#0A192F"/>
+    <!-- Wheels -->
+    <circle cx="14" cy="30" r="4" fill="#FFFFFF"/>
+    <circle cx="34" cy="30" r="4" fill="#FFFFFF"/>
+    <!-- Eco Leaf -->
+    <path d="M38 10 C46 6, 48 0, 48 0 C48 0, 42 2, 38 10 Z" fill="#10B981"/>
+    <path d="M42 6 C40 1, 35 2, 35 2 C35 2, 37 5, 42 6 Z" fill="#34D399"/>
+    <!-- Charging Bolt -->
+    <path d="M25 4 L21 11 L25 11 L23 18 L29 10 L25 10 Z" fill="#FBBF24"/>
+  </g>
+</svg>

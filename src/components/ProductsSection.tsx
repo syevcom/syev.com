@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Product, CartItem } from '../types';
-import { Check, ShieldCheck, Cpu, Activity, FileDown, ShoppingBag, Eye, Percent } from 'lucide-react';
+import { Check, ShieldCheck, Cpu, Activity, ShoppingBag, Eye, Percent } from 'lucide-react';
 import ProductDetailModal from './ProductDetailModal';
 
 interface ProductsSectionProps {
@@ -316,44 +316,6 @@ export default function ProductsSection({
           </div>
         ))}
       </div>
-
-      {/* Technical Specification Detail Drawer/Table */}
-      {currentSelected && (
-        <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <span className="text-blue-600 font-bold text-sm uppercase tracking-wider block">Spec Comparison</span>
-              <h3 className="text-2xl font-black text-slate-950 mt-1">상세 제원 기술 규격 ({currentSelected.name || '선택된 제품'})</h3>
-            </div>
-            <button
-              type="button"
-              className="px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-1.5 transition-all self-start md:self-center cursor-pointer"
-            >
-              <FileDown className="w-4.5 h-4.5 text-slate-400" />
-              조달청 납품 규격서 다운로드
-            </button>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <table className="w-full text-left text-sm text-slate-600 border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-5 font-extrabold text-slate-700 w-1/3">구분 항목</th>
-                  <th className="p-5 font-extrabold text-slate-800">상세 규격 및 표준</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(currentSelected.specs || {}).map(([key, val], idx) => (
-                  <tr key={key} className={idx % 2 === 0 ? 'bg-white border-b border-slate-100' : 'bg-slate-50/50 border-b border-slate-100'}>
-                    <td className="p-5 font-bold text-slate-600">{key}</td>
-                    <td className="p-5 text-slate-800 font-bold">{val}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
 
       {/* Product Detail & Option Selector Modal */}
       <ProductDetailModal
