@@ -82,7 +82,7 @@ export default function CheckoutPage({
   const [detailAddress, setDetailAddress] = useState('');
   const [isAddressSearchOpen, setIsAddressSearchOpen] = useState(false);
   const [memo, setMemo] = useState('');
-  const [consultationType, setConsultationType] = useState<'onsite' | 'call' | 'kakao'>('onsite');
+  const [preferredTime, setPreferredTime] = useState<string>('언제나 가능 (빠른 상담)');
   const [taxInvoice, setTaxInvoice] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
 
@@ -119,12 +119,14 @@ export default function CheckoutPage({
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
-  const totalItemAmount = items.reduce((sum, item) => {
-    const itemPrice = item.price || 0;
-    return sum + itemPrice * item.quantity;
+  const safeItems = Array.isArray(items) ? items : [];
+
+  const totalItemAmount = safeItems.reduce((sum, item) => {
+    const itemPrice = item?.price || 0;
+    return sum + itemPrice * (item?.quantity || 1);
   }, 0);
 
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = safeItems.reduce((sum, item) => sum + (item?.quantity || 1), 0);
 
   const handleSubmitConsultation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,23 +151,18 @@ export default function CheckoutPage({
     setIsProcessing(true);
 
     setTimeout(() => {
-      const typeLabels: Record<string, string> = {
-        onsite: '1:1 방문 실측 및 무료 현장 상담',
-        call: '전담 엔지니어 전화 상담 및 정밀 견적서 수령',
-        kakao: '카카오톡/온라인 간편 상담',
-      };
-
       const orderData = {
         orderId: `SY-RES-${Date.now().toString().slice(-7)}`,
         totalAmount: totalItemAmount,
-        items,
+        items: safeItems,
         buyerName,
         buyerPhone,
         buyerEmail,
         address,
         memo,
         paymentMethod: '무료 시공 상담 (결제비용 0원)',
-        consultationType: typeLabels[consultationType] || '1:1 방문 실측 및 무료 현장 상담',
+        consultationType: `전화 유선 상담 후 현장 무료 방문 실측 (${preferredTime})`,
+        preferredTime,
         taxInvoice,
         orderType,
         createdAt: new Date().toLocaleString('ko-KR'),
@@ -617,67 +614,89 @@ export default function CheckoutPage({
                 </div>
               </div>
 
-              {/* SECTION 3: Consultation Method */}
+              {/* SECTION 3: Consultation & On-site Survey Workflow */}
               <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-                <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-5">
-                  <Headphones className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-base font-black text-slate-900">3. 희망 상담 및 진행 방식</h2>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                  <div className="flex items-center gap-2">
+                    <Headphones className="w-5 h-5 text-blue-600" />
+                    <h2 className="text-base font-black text-slate-900">3. 상담 및 진행 절차 안내</h2>
+                  </div>
+                  <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60">
+                    무조건 전화 상담 후 현장 방문 실측 (100% 무료)
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                  {[
-                    {
-                      id: 'onsite',
-                      name: '1:1 방문 실측 상담',
-                      desc: '전문 엔지니어가 직접 방문하여 무료 실측 및 최적 배선 설계',
-                      icon: MapPin,
-                      badge: '가장 추천'
-                    },
-                    {
-                      id: 'call',
-                      name: '전화 유선 상세 상담',
-                      desc: '유선으로 현장 사진 확인 후 정밀 견적서 이메일 발송',
-                      icon: Phone,
-                      badge: '빠른 견적'
-                    },
-                    {
-                      id: 'kakao',
-                      name: '카카오톡/간편 상담',
-                      desc: '카카오톡 및 모바일 메신저를 통한 실시간 상담',
-                      icon: MessageSquare,
-                      badge: '간편 진행'
-                    },
-                  ].map((method) => {
-                    const Icon = method.icon;
-                    const isSelected = consultationType === method.id;
-                    return (
-                      <button
-                        key={method.id}
-                        type="button"
-                        onClick={() => setConsultationType(method.id as any)}
-                        className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between h-32 ${
-                          isSelected
-                            ? 'border-blue-600 bg-blue-50/50 text-blue-900 font-extrabold shadow-sm ring-2 ring-blue-600/20'
-                            : 'border-slate-200 bg-white text-slate-700 font-bold hover:border-slate-300 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center w-full">
-                          <div className="flex items-center gap-2">
-                            <Icon className={`w-5 h-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
-                            <span className="text-xs font-black">{method.name}</span>
-                          </div>
-                          {method.badge && (
-                            <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                              {method.badge}
-                            </span>
-                          )}
+                {/* 2-Step Workflow Visual Card */}
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 border border-blue-100/80 rounded-2xl p-5 mb-5 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Step 1 */}
+                    <div className="bg-white p-4 rounded-xl border border-blue-200/70 shadow-xs flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-xs">
+                        1
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Phone className="w-3.5 h-3.5 text-blue-600" />
+                          <h4 className="text-xs font-black text-slate-900">1차 유선 전화 상담 (24시간 이내)</h4>
                         </div>
-                        <p className="text-[11px] text-slate-500 font-normal leading-relaxed">
-                          {method.desc}
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                          전문 기술 엔지니어가 직접 전화드려 전기 용량, 설치 위치, 현장 환경 사진을 사전 검토합니다.
                         </p>
-                      </button>
-                    );
-                  })}
+                      </div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="bg-white p-4 rounded-xl border border-emerald-200/70 shadow-xs flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center shrink-0 text-sm shadow-xs">
+                        2
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                          <h4 className="text-xs font-black text-slate-900">2차 1:1 현장 무료 방문 실측</h4>
+                        </div>
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                          고객님 편하신 일정에 맞춰 엔지니어가 현장 방문하여 분전함 배선 실측 & 최종 정밀 견적서를 산출합니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500 font-medium px-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>방문 실측 및 견적 상담 비용은 <strong>전액 0원(무료)</strong>이며, 견적 확인 후 시공 여부를 자유롭게 결정하실 수 있습니다.</span>
+                  </div>
+                </div>
+
+                {/* Preferred Call Time Selection */}
+                <div className="mb-4">
+                  <label className="block text-xs font-extrabold text-slate-700 mb-2">
+                    📞 원활한 상담을 위한 희망 통화 시간대 선택
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      '언제나 가능 (빠른 상담)',
+                      '오전 (09:00 ~ 12:00)',
+                      '오후 (13:00 ~ 18:00)',
+                      '저녁 (18:00 이후)',
+                    ].map((timeOption) => {
+                      const isSelected = preferredTime === timeOption;
+                      return (
+                        <button
+                          key={timeOption}
+                          type="button"
+                          onClick={() => setPreferredTime(timeOption)}
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold cursor-pointer transition-all text-center ${
+                            isSelected
+                              ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-xs ring-2 ring-blue-600/20 font-black'
+                              : 'border-slate-200 bg-slate-50/50 text-slate-700 hover:border-slate-300 hover:bg-white'
+                          }`}
+                        >
+                          {timeOption}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Tax invoice info option */}
@@ -776,32 +795,36 @@ export default function CheckoutPage({
 
                 {/* Items list */}
                 <div className="max-h-60 overflow-y-auto space-y-3 pr-1 divide-y divide-slate-100">
-                  {items.map((item) => (
-                    <div key={item.id} className="pt-3 first:pt-0 flex items-center gap-3">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center text-slate-400">
-                          <ShoppingBag className="w-5 h-5" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-black text-slate-800 truncate">{item.name}</p>
-                        {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
-                          <p className="text-[10px] text-slate-500 truncate font-medium">
-                            {Object.values(item.selectedOptions).join(', ')}
-                          </p>
+                  {safeItems.length === 0 ? (
+                    <p className="text-xs text-slate-400 py-3 text-center">선택된 상품이 없습니다.</p>
+                  ) : (
+                    safeItems.map((item) => (
+                      <div key={item.id} className="pt-3 first:pt-0 flex items-center gap-3">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center text-slate-400">
+                            <ShoppingBag className="w-5 h-5" />
+                          </div>
                         )}
-                        <p className="text-xs font-extrabold text-blue-600 mt-0.5">
-                          예상가 ₩{item.price.toLocaleString()}원 × {item.quantity}개
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-black text-slate-800 truncate">{item.name}</p>
+                          {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                            <p className="text-[10px] text-slate-500 truncate font-medium">
+                              {Object.values(item.selectedOptions).join(', ')}
+                            </p>
+                          )}
+                          <p className="text-xs font-extrabold text-blue-600 mt-0.5">
+                            예상가 ₩{(item.price || 0).toLocaleString()}원 × {item.quantity || 1}개
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
                 {/* Amount breakdown */}

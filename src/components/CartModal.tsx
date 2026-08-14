@@ -26,17 +26,18 @@ export default function CartModal({
 }: CartModalProps) {
   if (!isOpen) return null;
 
-  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const totalAmount = cartItems.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
+  const safeItems = Array.isArray(cartItems) ? cartItems : [];
+  const totalQuantity = safeItems.reduce((acc, item) => acc + (item?.quantity || 1), 0);
+  const totalAmount = safeItems.reduce((acc, item) => acc + (item?.price || 0) * (item?.quantity || 1), 0);
 
   const handleRequestQuote = () => {
     onClose();
-    onOpenQuoteWithItems(cartItems);
+    onOpenQuoteWithItems(safeItems);
   };
 
   const handleProceedPayment = () => {
     onClose();
-    onOpenPayment?.(cartItems);
+    onOpenPayment?.(safeItems);
   };
 
   return (
@@ -83,7 +84,7 @@ export default function CartModal({
 
         {/* Content Body */}
         <div className="p-5 overflow-y-auto flex-1 space-y-3">
-          {cartItems.length === 0 ? (
+          {safeItems.length === 0 ? (
             <div className="py-12 text-center space-y-3">
               <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
                 <ShoppingBag className="w-8 h-8" />
@@ -103,7 +104,7 @@ export default function CartModal({
                 </button>
               </div>
 
-              {cartItems.map((item) => (
+              {safeItems.map((item) => (
                 <div
                   key={item.id}
                   className="p-3.5 bg-slate-50 rounded-2xl border border-slate-150 flex items-center gap-3.5 hover:border-slate-300 transition-all"
@@ -118,9 +119,9 @@ export default function CartModal({
                       {item.type} · {item.power}
                     </span>
                     <h4 className="text-xs font-black text-slate-900 truncate">{item.name}</h4>
-                    {item.price && (
+                    {item.price !== undefined && (
                       <p className="text-xs font-bold text-slate-600 mt-0.5">
-                        {item.price.toLocaleString()} 원
+                        {(item.price || 0).toLocaleString()} 원
                       </p>
                     )}
                   </div>
@@ -133,7 +134,7 @@ export default function CartModal({
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="text-xs font-black text-slate-800 w-5 text-center">{item.quantity}</span>
+                    <span className="text-xs font-black text-slate-800 w-5 text-center">{item.quantity || 1}</span>
                     <button
                       onClick={() => onUpdateQuantity(item.id, 1)}
                       className="text-slate-500 hover:text-slate-900 cursor-pointer p-0.5"
@@ -157,7 +158,7 @@ export default function CartModal({
         </div>
 
         {/* Footer actions */}
-        {cartItems.length > 0 && (
+        {safeItems.length > 0 && (
           <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3">
             <div className="flex justify-between items-center bg-white p-3 rounded-2xl border border-slate-200">
               <div>

@@ -711,14 +711,14 @@ export function MyProfilePage({
                             {item.power || '완속'} · {item.type || '충전기'}
                           </span>
                           <h4 className="font-extrabold text-slate-900 text-sm mt-0.5">{item.name}</h4>
-                          <p className="text-xs text-slate-500">수량: {item.quantity}개</p>
+                          <p className="text-xs text-slate-500">수량: {item.quantity || 1}개</p>
                         </div>
                       </div>
 
                       <div className="text-right w-full sm:w-auto border-t sm:border-0 pt-3 sm:pt-0">
                         <p className="text-xs text-slate-400">금액</p>
                         <p className="font-black text-emerald-700 text-base">
-                          {((item.price || 0) * item.quantity).toLocaleString()} 원
+                          {((item.price || 0) * (item.quantity || 1)).toLocaleString()} 원
                         </p>
                       </div>
                     </div>
@@ -726,9 +726,9 @@ export function MyProfilePage({
                   <div className="flex justify-end pt-2">
                     <button
                       onClick={() => onPageChange('cart')}
-                      className="px-6 py-3 bg-emerald-600 text-white font-black text-xs rounded-xl shadow-md cursor-pointer"
+                      className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-colors"
                     >
-                      장바구니 전체 결제 진행
+                      장바구니 무료 상담/신청 진행
                     </button>
                   </div>
                 </div>

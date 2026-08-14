@@ -22,20 +22,22 @@ export default function CartPage({
   onOpenPayment,
   onPageChange,
 }: CartPageProps) {
+  const safeItems = Array.isArray(cartItems) ? cartItems : [];
+
   // Track selected item IDs (all selected by default)
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedIds(cartItems.map((item) => item.id));
+    setSelectedIds(safeItems.map((item) => item.id));
   }, [cartItems]);
 
-  const isAllSelected = cartItems.length > 0 && selectedIds.length === cartItems.length;
+  const isAllSelected = safeItems.length > 0 && selectedIds.length === safeItems.length;
 
   const handleToggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(cartItems.map((item) => item.id));
+      setSelectedIds(safeItems.map((item) => item.id));
     }
   };
 
@@ -47,11 +49,11 @@ export default function CartPage({
     }
   };
 
-  const selectedItems = cartItems.filter((item) => selectedIds.includes(item.id));
-  const targetItems = selectedItems.length > 0 ? selectedItems : cartItems;
+  const selectedItems = safeItems.filter((item) => selectedIds.includes(item.id));
+  const targetItems = selectedItems.length > 0 ? selectedItems : safeItems;
 
   const totalAmount = targetItems.reduce(
-    (sum, item) => sum + (item.price || 0) * item.quantity,
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0
   );
 
@@ -96,7 +98,7 @@ export default function CartPage({
           </p>
         </div>
 
-        {cartItems.length === 0 ? (
+        {safeItems.length === 0 ? (
           /* EMPTY CART STATE */
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -136,7 +138,7 @@ export default function CartPage({
                     onChange={handleToggleSelectAll}
                     className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
                   />
-                  <span>전체선택 ({selectedIds.length}/{cartItems.length})</span>
+                  <span>전체선택 ({selectedIds.length}/{safeItems.length})</span>
                 </label>
                 <button
                   onClick={onClearCart}
@@ -163,10 +165,10 @@ export default function CartPage({
 
                 {/* Items List */}
                 <div className="divide-y divide-slate-200">
-                  {cartItems.map((item) => {
+                  {safeItems.map((item) => {
                     const isChecked = selectedIds.includes(item.id);
                     const itemPrice = item.price || 0;
-                    const itemTotalPrice = itemPrice * item.quantity;
+                    const itemTotalPrice = itemPrice * (item.quantity || 1);
 
                     return (
                       <div
@@ -212,19 +214,28 @@ export default function CartPage({
                           </div>
 
                           {/* Selected Options */}
-                          {item.selectedOptions && item.selectedOptions.length > 0 && (
+                          {item.selectedOptions && (
                             <div className="bg-slate-50 border border-slate-150 p-2 rounded-lg text-[11px] text-slate-600 space-y-0.5">
-                              {item.selectedOptions.map((opt, oIdx) => (
-                                <div key={oIdx} className="flex items-center gap-1.5">
-                                  <span className="text-slate-400 font-bold">[{opt.groupTitle}]</span>
-                                  <span className="font-semibold text-slate-800">{opt.optionName}</span>
-                                  {opt.optionPrice > 0 && (
-                                    <span className="text-emerald-600 font-bold ml-auto">
-                                      (+₩{opt.optionPrice.toLocaleString()})
-                                    </span>
-                                  )}
-                                </div>
-                              ))}
+                              {Array.isArray(item.selectedOptions)
+                                ? item.selectedOptions.map((opt: any, oIdx: number) => (
+                                    <div key={oIdx} className="flex items-center gap-1.5">
+                                      {opt?.groupTitle && <span className="text-slate-400 font-bold">[{opt.groupTitle}]</span>}
+                                      <span className="font-semibold text-slate-800">{typeof opt === 'string' ? opt : opt?.optionName || ''}</span>
+                                      {opt?.optionPrice > 0 && (
+                                        <span className="text-emerald-600 font-bold ml-auto">
+                                          (+₩{opt.optionPrice.toLocaleString()})
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))
+                                : typeof item.selectedOptions === 'object'
+                                ? Object.entries(item.selectedOptions).map(([groupTitle, optionName], oIdx) => (
+                                    <div key={oIdx} className="flex items-center gap-1.5">
+                                      <span className="text-slate-400 font-bold">[{groupTitle}]</span>
+                                      <span className="font-semibold text-slate-800">{String(optionName)}</span>
+                                    </div>
+                                  ))
+                                : null}
                             </div>
                           )}
 

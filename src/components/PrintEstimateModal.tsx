@@ -48,8 +48,9 @@ export default function PrintEstimateModal({
   };
 
   // Calculations
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+  const safeItems = Array.isArray(items) ? items : [];
+  const totalQuantity = safeItems.reduce((sum, item) => sum + (item?.quantity || 1), 0);
+  const totalAmount = safeItems.reduce((sum, item) => sum + (item?.price || 0) * (item?.quantity || 1), 0);
   const shippingFee = 0;
   const discountFee = 0;
   const finalPayment = totalAmount + shippingFee - discountFee;
@@ -238,26 +239,31 @@ export default function PrintEstimateModal({
               </tr>
             </thead>
             <tbody>
-              {items.length === 0 ? (
+              {safeItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="border border-slate-400 px-4 py-8 text-center text-slate-500 font-medium">
                     장바구니에 담긴 상품이 없습니다.
                   </td>
                 </tr>
               ) : (
-                items.map((item, idx) => {
-                  const itemTotal = (item.price || 0) * item.quantity;
-                  const optsText = item.selectedOptions && item.selectedOptions.length > 0
-                    ? ` (${item.selectedOptions.map(o => o.optionName).join(', ')})`
-                    : '';
+                safeItems.map((item, idx) => {
+                  const itemTotal = (item.price || 0) * (item.quantity || 1);
+                  let optsText = '';
+                  if (item.selectedOptions) {
+                    if (Array.isArray(item.selectedOptions)) {
+                      optsText = ` (${item.selectedOptions.map((o: any) => typeof o === 'string' ? o : o?.optionName || '').filter(Boolean).join(', ')})`;
+                    } else if (typeof item.selectedOptions === 'object') {
+                      optsText = ` (${Object.values(item.selectedOptions).filter(Boolean).join(', ')})`;
+                    }
+                  }
                   
                   return (
                     <tr key={idx} className="border-b border-slate-300">
                       <td className="border border-slate-400 px-3 py-2 font-medium text-slate-900">
-                        {item.name} {optsText}
+                        {item.name} {optsText !== ' ()' ? optsText : ''}
                       </td>
                       <td className="border border-slate-400 px-2 py-2 text-center font-bold text-slate-800">
-                        {item.quantity}
+                        {item.quantity || 1}
                       </td>
                       <td className="border border-slate-400 px-3 py-2 text-right font-semibold text-slate-900">
                         ₩{itemTotal.toLocaleString()}

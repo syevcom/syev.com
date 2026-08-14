@@ -458,11 +458,11 @@ export default function App() {
     ceoImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600'
   });
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [solutions, setSolutions] = useState<Solution[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [notices, setNotices] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>(() => PRODUCTS || []);
+  const [solutions, setSolutions] = useState<Solution[]>(() => SOLUTIONS || []);
+  const [reviews, setReviews] = useState<Review[]>(() => REVIEWS || []);
+  const [faqs, setFaqs] = useState<FAQ[]>(() => FAQS || []);
+  const [notices, setNotices] = useState<any[]>(() => NOTICES || []);
 
   // Load from LocalStorage
   useEffect(() => {
@@ -479,7 +479,8 @@ export default function App() {
     const savedBookings = localStorage.getItem('sy_bookings');
     if (savedBookings) {
       try {
-        setBookings(JSON.parse(savedBookings));
+        const parsed = JSON.parse(savedBookings);
+        setBookings(Array.isArray(parsed) ? parsed : []);
       } catch (e) {
         console.error('Failed to parse bookings', e);
       }
@@ -505,7 +506,8 @@ export default function App() {
     const savedAS = localStorage.getItem('sy_as');
     if (savedAS) {
       try {
-        setAsRequests(JSON.parse(savedAS));
+        const parsed = JSON.parse(savedAS);
+        setAsRequests(Array.isArray(parsed) ? parsed : []);
       } catch (e) {
         console.error('Failed to parse A/S', e);
       }
@@ -529,9 +531,11 @@ export default function App() {
     const savedCart = localStorage.getItem('sy_cart_items');
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        setCartItems(Array.isArray(parsed) ? parsed : []);
       } catch (e) {
         console.error('Failed to parse cart items', e);
+        setCartItems([]);
       }
     }
 
@@ -2139,7 +2143,7 @@ export default function App() {
           selectedParkingCapacity={selectedParkingCapacity}
           onSelectParkingCapacity={setSelectedParkingCapacity}
           headerConfig={headerConfig}
-          cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+          cartCount={(cartItems || []).reduce((acc, i) => acc + (i?.quantity || 1), 0)}
           onOpenCartModal={() => handlePageChange('cart')}
         />
 

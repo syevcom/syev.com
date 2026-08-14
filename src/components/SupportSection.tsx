@@ -52,9 +52,15 @@ export default function SupportSection({
   const [inquiryError, setInquiryError] = useState('');
 
   // Filter FAQs
-  const filteredFaqs = faqs.filter((faq) => {
-    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+  const safeFaqs = Array.isArray(faqs) ? faqs : [];
+  const safeNotices = Array.isArray(notices) ? notices : [];
+
+  const filteredFaqs = safeFaqs.filter((faq) => {
+    if (!faq) return false;
+    const q = faq.question || '';
+    const a = faq.answer || '';
+    const matchesSearch = q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          a.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = faqCategory === '전체' || faq.category === faqCategory;
     return matchesSearch && matchesCategory;
   });
@@ -105,7 +111,7 @@ export default function SupportSection({
         </h3>
 
         <div className="space-y-3">
-          {notices.map((not) => (
+          {safeNotices.map((not) => (
             <div
               key={not.id}
               className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-100/50 transition-colors"

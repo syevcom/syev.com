@@ -57,7 +57,7 @@ export default function PaymentModal({
   const [detailAddress, setDetailAddress] = useState('');
   const [isAddressSearchOpen, setIsAddressSearchOpen] = useState(false);
   const [memo, setMemo] = useState('');
-  const [consultationType, setConsultationType] = useState<'onsite' | 'call' | 'kakao'>('onsite');
+  const [preferredTime, setPreferredTime] = useState<string>('언제나 가능 (빠른 상담)');
   const [taxInvoice, setTaxInvoice] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
 
@@ -88,12 +88,14 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  const totalItemAmount = items.reduce((sum, item) => {
-    const itemPrice = item.price || 0;
-    return sum + itemPrice * item.quantity;
+  const safeItems = Array.isArray(items) ? items : [];
+
+  const totalItemAmount = safeItems.reduce((sum, item) => {
+    const itemPrice = item?.price || 0;
+    return sum + itemPrice * (item?.quantity || 1);
   }, 0);
 
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = safeItems.reduce((sum, item) => sum + (item?.quantity || 1), 0);
 
   const handleSubmitConsultation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,23 +120,28 @@ export default function PaymentModal({
     setIsProcessing(true);
 
     setTimeout(() => {
-      const typeLabels: Record<string, string> = {
-        onsite: '1:1 방문 실측 및 무료 현장 상담',
-        call: '전담 엔지니어 전화 상담 및 정밀 견적서 수령',
-        kakao: '카카오톡/온라인 간편 상담',
-      };
-
       const orderData = {
         orderId: `SY-RES-${Date.now().toString().slice(-7)}`,
         totalAmount: totalItemAmount,
-        items,
+        items: safeItems,
         buyerName,
         buyerPhone,
         buyerEmail,
         address,
         memo,
         paymentMethod: '무료 시공 상담 (결제비용 0원)',
-        consultationType: typeLabels[consultationType] || '1:1 방문 실측 및 무료 현장 상담',
+        consultationType: `전화 유선 상담 후 현장 무료 방문 실측 (${preferredTime})`,
+        preferredTime,
+        taxInvoice,
+        createdAt: new Date().toLocaleString('ko-KR'),
+      };
+
+      setCompletedOrder(orderData);
+      setIsProcessing(false);
+      setIsSuccess(true);
+      onPaymentSuccess(orderData);
+    }, 1000);
+  };� 및 무료 현장 상담',
         taxInvoice,
         createdAt: new Date().toLocaleString('ko-KR')
       };
@@ -260,7 +267,7 @@ export default function PaymentModal({
                   <div>
                     <p className="text-xs font-bold text-slate-500">상담 신청 상품 ({totalQuantity}개)</p>
                     <p className="text-xs font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
-                      {items.map((i) => i.name).join(', ')}
+                      {safeItems.map((i) => i.name).join(', ') || '선택된 상품 없음'}
                     </p>
                   </div>
                 </div>
