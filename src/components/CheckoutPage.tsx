@@ -611,7 +611,25 @@ export default function CheckoutPage({
               </div>
 
               {/* SECTION 4: Terms & Policies */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-3">
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+                {/* 3일 내 상담 / 7일 내 착공 배너 */}
+                <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-black shrink-0">
+                    ⚡
+                  </div>
+                  <div className="text-xs space-y-1.5">
+                    <p className="font-extrabold text-emerald-950">
+                      [본사 직영 책임시공] 결제 후 3일 내 상담 연락 · 7일 내 착공
+                    </p>
+                    <p className="text-[11px] text-emerald-800 leading-relaxed">
+                      결제 완료 시 영업일 <strong>3일 이내</strong> 전담 기술진이 설치 환경 상담 연락을 드리며, 일정 협의 후 <strong>7일 이내 직영 시공 착공</strong>에 들어갑니다. (착공 전 100% 무상 취소/환불 보장)
+                    </p>
+                    <p className="text-[10.5px] text-amber-800 bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/60 leading-relaxed">
+                      ※ 한전 인입/증설 인허가 승인 일정, 현장 장거리 배선/굴착, 관리사무소 협의 등 현장 여건에 따라 착공 일정이 상호 협의 하에 조정될 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+
                 <label className="flex items-start gap-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -625,7 +643,7 @@ export default function CheckoutPage({
                       [필수] 주문 내용 확인 및 환불·청약철회 정책, 이용약관 동의
                     </span>
                     <span className="text-[11px] text-slate-500 font-medium leading-relaxed block mt-1">
-                      전자상거래법 제17조에 따라 상품 수령 후 7일 이내 청약철회가 가능하며, 결제 진행 시 주문 조건 및 당사의 환불/개인정보 처리 규정에 동의합니다.
+                      전자상거래법 제17조에 따라 상품 수령 또는 착공 전 7일 이내 무상 청약철회가 가능하며, 본사 직영 시공 조건 및 환불 규정에 동의합니다.
                     </span>
                   </div>
                 </label>

@@ -120,11 +120,44 @@ export default function LegalTermsModal({
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-2">
                 <h4 className="text-emerald-950 font-black text-sm flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  전자상거래 등에서의 소비자보호에 관한 법률 제17조 준수
+                  본사 직영 책임시공 및 전자상거래법 제17조 준수
                 </h4>
-                <p className="text-emerald-900 text-xs font-medium">
-                  에스와이닷컴은 관련 법령에 따라 소비자의 정당한 청약철회권 및 환불 권리를 적극 보장합니다.
+                <p className="text-emerald-900 text-xs font-medium leading-relaxed">
+                  에스와이닷컴은 외부 단순 중개/중계 플랫폼이 아닌 <strong>기기 공급부터 전문 기술진의 현장 실측 및 직영 책임 시공 설치까지 전 과정을 직접 책임지고 수행</strong>합니다. 소비자의 정당한 청약철회권과 시공 일정을 적극 보장합니다.
                 </p>
+              </div>
+
+              {/* 시공 및 상담 일정 안내 블록 */}
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 space-y-2.5">
+                <h4 className="text-blue-950 font-black text-sm flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  ⚡ 결제 후 상담 및 시공 일정 프로세스 (약속 보장제)
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                  <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="font-extrabold text-blue-900 block text-xs mb-1">📞 1. 결제 후 3일 이내 전문상담 연락</span>
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      결제 완료 시 영업일 기준 <strong>3일 이내</strong> 전담 기술 담당자가 배정되어 현장 환경 사전 확인 및 방문 일정을 유선 상담으로 안내해 드립니다.
+                    </p>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-2xs">
+                    <span className="font-extrabold text-blue-900 block text-xs mb-1">🛠️ 2. 상담 후 7일 이내 시공 착공</span>
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      유선 상담 및 일정 조율 완료 후 <strong>7일 이내</strong> 본사 직영 시공팀이 현장에 투입되어 안전한 전기 인입 및 충전기 설치 공사를 진행합니다.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 현장 조건에 따른 시공 기간 변동 고지 */}
+                <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3 text-[11px] text-amber-950 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-900">
+                    <span>⚠️</span> 현장 여건 및 한전 인허가에 따른 시공 일정 변동 안내
+                  </p>
+                  <p className="text-amber-800/90 leading-relaxed">
+                    기본 원칙은 7일 이내 착공이나, <strong>한전 계량기 신설·증설 인허가 심사 기간, 아파트 관리사무소/입주자대표회의 협의, 장거리 배관·배선 및 굴착 공사</strong> 등 현장 특수 조건에 따라 상호 협의 하에 시공 일정이 다소 변동·조정될 수 있습니다. 
+                    <span className="block font-bold text-amber-950 mt-0.5">※ 일정이 연장되더라도 실제 현장 착공 전까지는 100% 무상 전액 취소 및 환불이 보장됩니다.</span>
+                  </p>
+                </div>
               </div>
 
               <section className="space-y-3">
@@ -133,7 +166,8 @@ export default function LegalTermsModal({
                 </h5>
                 <ul className="list-disc list-inside space-y-1.5 text-slate-600 pl-2">
                   <li><strong>단품 기기(배송 상품):</strong> 상품을 배송받은 날로부터 <strong>7일 이내</strong> 청약철회(반품/환불)를 신청하실 수 있습니다.</li>
-                  <li><strong>설치/시공 패키지:</strong> 현장 실측 전 또는 시공 공사 착공 전까지는 전액 결제 취소 및 환불이 가능합니다.</li>
+                  <li><strong>본사 직영 설치/시공 패키지:</strong> <strong>현장 실측 전 또는 실제 시공 공사 착공 전까지는 100% 전액 무상 결제 취소 및 환불</strong>이 가능합니다.</li>
+                  <li><strong>결제 후 안내 일정:</strong> 결제 후 <strong>3일 이내 전문 상담 연락</strong>이 진행되며, 일정 조율 후 <strong>7일 이내 본사 직영 착공</strong>에 들어갑니다. (현장 여건 및 한전 인입 승인 일정에 따라 상호 협의 하에 착공 일정 조정 가능, 착공 전 취소 시 위약금 없음)</li>
                   <li><strong>표시·광고 내용과 다른 경우:</strong> 공급받은 날로부터 3개월 이내, 그 사실을 안 날 또는 알 수 있었던 날로부터 30일 이내에 청약철회가 가능합니다.</li>
                 </ul>
               </section>
@@ -220,15 +254,26 @@ export default function LegalTermsModal({
                   제2조 (용어의 정의)
                 </h5>
                 <ul className="list-disc list-inside space-y-1.5 text-slate-600 pl-2">
-                  <li>"서비스"란 회사가 제공하는 충전기 상품 판매, 온라인 견적 산출, 설치 시공 중개 및 유지보수 관리 일체를 말합니다.</li>
+                  <li>"서비스"란 회사가 직접 공급하는 충전기 상품 판매, 온라인 견적 산출, <strong>본사 직영 현장 실측 및 책임 시공 설치</strong>, 한전 서류 대행 및 유지보수 관리 일체를 말합니다.</li>
                   <li>"이용자"란 본 약관에 따라 회사가 제공하는 서비스를 받는 회원 및 비회원을 말합니다.</li>
-                  <li>"구매계약"이란 이용자가 상품 또는 시공 서비스를 주문하고 결제를 완료하여 성립하는 계약을 말합니다.</li>
+                  <li>"구매계약"이란 이용자가 상품 또는 본사 직영 시공 패키지를 주문하고 결제를 완료하여 성립하는 계약을 말합니다.</li>
                 </ul>
               </section>
 
               <section className="space-y-3">
                 <h5 className="font-black text-slate-900 text-sm border-l-4 border-emerald-500 pl-3">
-                  제3조 (주문 및 결제)
+                  제3조 (상담 및 시공 일정 약속과 현장 여건 변동)
+                </h5>
+                <ul className="list-disc list-inside space-y-1.5 text-slate-600 pl-2">
+                  <li>회사는 이용자의 결제 완료 후 <strong>3일 이내에 전문 기술상담 연락</strong>을 취하여 설치 환경 및 일정을 조율합니다.</li>
+                  <li>상담 완료 후 이용자가 지정한 일정에 따라 <strong>7일 이내 본사 직영 시공팀이 현장 착공</strong>을 진행합니다.</li>
+                  <li>단, 한전 계량기 신설·증설 인허가 승인 지연, 현장 장거리 배선/굴착 공사, 공동주택 관리사무소 또는 입주자대표회의 협의 등 불가피한 현장 여건이 발생하는 경우 상호 협의 하에 시공 일정을 연장·조정할 수 있으며, 실제 현장 착공 전까지는 전액 무상 취소할 수 있습니다.</li>
+                </ul>
+              </section>
+
+              <section className="space-y-3">
+                <h5 className="font-black text-slate-900 text-sm border-l-4 border-emerald-500 pl-3">
+                  제4조 (주문 및 결제)
                 </h5>
                 <p className="text-slate-600">
                   이용자는 회사가 제공하는 신용카드, 실시간 계좌이체, 무통장입금(가상계좌), 간편결제(카카오페이, 네이버페이) 등의 결제수단을 통해 구매 대금을 결제할 수 있습니다.
@@ -237,7 +282,7 @@ export default function LegalTermsModal({
 
               <section className="space-y-3">
                 <h5 className="font-black text-slate-900 text-sm border-l-4 border-emerald-500 pl-3">
-                  제4조 (계약의 해제 및 분쟁의 해결)
+                  제5조 (계약의 해제 및 분쟁의 해결)
                 </h5>
                 <p className="text-slate-600">
                   이용자는 전자상거래법에 따라 계약 체결 후 7일 이내에 청약철회를 할 수 있으며, 서비스 이용 중 발생한 분쟁은 관계 법령 및 소비자분쟁해결기준에 따릅니다.

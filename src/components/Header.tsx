@@ -402,145 +402,157 @@ export default function Header({
 
       {/* 5. Mobile Drawer Overlay Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[115px] bottom-0 z-40 bg-white/85 backdrop-blur-lg flex flex-col p-5 space-y-6 overflow-y-auto border-t border-slate-200/80">
-          
-          {/* Mobile User Profile & Cart Header Bar */}
-          <div className="p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-md">
-            {user ? (
+        <div 
+          id="mobile-drawer-menu"
+          className="md:hidden fixed inset-x-0 top-0 bottom-0 z-[999] bg-slate-950/70 backdrop-blur-md flex flex-col justify-end transition-opacity duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsMobileMenuOpen(false);
+            }
+          }}
+        >
+          <div className="bg-white w-full max-h-[85vh] rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+            {/* Drawer Top Header */}
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-                  <User className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-xs">
+                  ⚡
                 </div>
-                <div>
-                  <div className="text-xs font-black text-white">{user.name} 님</div>
-                  <div className="text-[10px] text-slate-300">{user.email}</div>
-                </div>
+                <span className="font-black text-slate-900 text-sm">{logoConfig.subtitle || 'SY.com'} 메뉴</span>
               </div>
-            ) : (
-              <div className="text-xs font-bold text-slate-300">
-                로그인하고 나만의 견적내역과 장바구니를 확인하세요.
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
               <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  if (user) onOpenMyPage();
-                  else onOpenAuth();
-                }}
-                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm cursor-pointer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+                title="메뉴 닫기"
               >
-                {user ? '마이페이지' : '로그인'}
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </div>
 
-          {/* Direct Installation Inquiry 3 Stacked Buttons */}
-          <div className="space-y-2">
-            <span 
-              onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
-              className={`text-[14.5px] sm:text-[15.5px] font-black text-emerald-800 hover:text-white tracking-wider block uppercase bg-emerald-50 hover:bg-yellow-500 border border-emerald-100/60 hover:border-yellow-500 rounded-xl px-2.5 py-2.5 text-center select-none shadow-xs cursor-pointer transition-all duration-200 ${
-                isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
-              }`}
-              title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
-            >
-              {isEditMode ? `✏️ ${headerConfig.inquiryTitleMobile || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitleMobile || '⚡ 전기차충전기 설치문의')}
-            </span>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                onClick={() => handleInquirySelect('Commercial')}
-                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
-              >
-                <span>{headerConfig.shortcutCommercialMobile || '⚡ 아파트 · 공동주택'}</span>
-              </button>
-              <button
-                onClick={() => handleInquirySelect('Residential')}
-                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
-              >
-                <span>{headerConfig.shortcutResidentialMobile || '🏠 가정용 · 개인 홈'}</span>
-              </button>
-              <button
-                onClick={() => handleInquirySelect('ParkingLot')}
-                className="w-full px-4 py-3 bg-emerald-600 hover:bg-yellow-500 text-white hover:text-white border border-emerald-500 hover:border-yellow-500 rounded-xl text-xs font-black flex items-center justify-center gap-1 shadow-sm transition-colors"
-              >
-                <span>{headerConfig.shortcutParkingMobile || '🏢 상업시설 · 수익형'}</span>
-              </button>
-            </div>
-          </div>
+            {/* Drawer Scrollable Content */}
+            <div className="p-5 space-y-6 overflow-y-auto overscroll-contain flex-1">
+              {/* Mobile User Profile & Cart Header Bar */}
+              <div className="p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-md">
+                {user ? (
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-black text-white truncate">{user.name} 님</div>
+                      <div className="text-[10px] text-slate-300 truncate">{user.email}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs font-bold text-slate-300">
+                    로그인하고 내역과 장바구니를 확인하세요.
+                  </div>
+                )}
 
-          {/* Navigation Links */}
-          <div className="space-y-1.5">
-            <span className="text-[10px] font-bold text-stone-500 tracking-wider block uppercase">전체 카테고리</span>
-            {menuItems.map((item) => {
-              const isActive = activePage === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleMenuClick(item.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-black transition-all ${
-                    isActive 
-                      ? 'bg-emerald-600/10 text-emerald-700 border-l-4 border-emerald-600 pl-3' 
-                      : 'text-stone-700 hover:bg-stone-200/50'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* User & Auth Links */}
-          <div className="pt-4 border-t border-stone-200/50 space-y-3">
-            <div className="flex gap-3">
-              {user ? (
-                <>
+                <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => handleMenuClick('home')} // triggers mypage in app
-                    className="flex-1 py-2.5 bg-white hover:bg-stone-50 text-stone-700 hover:text-stone-900 rounded-xl text-xs font-bold border border-stone-200 text-center shadow-sm"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      if (user) onOpenMyPage();
+                      else onOpenAuth();
+                    }}
+                    className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm cursor-pointer"
                   >
-                    마이페이지 ({user.name})
+                    {user ? '마이페이지' : '로그인'}
                   </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => { onOpenAuth(); setIsMobileMenuOpen(false); }}
-                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold text-center shadow-sm"
-                >
-                  로그인 / 회원가입
-                </button>
-              )}
-            </div>
+                </div>
+              </div>
 
-            {/* Social utilities */}
-            <div className="flex justify-center gap-4 pt-2">
-              <a 
-                href={snsConfig.blogUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-stone-600 hover:text-emerald-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white shadow-sm"
-              >
-                네이버 블로그
-              </a>
-              <a 
-                href={snsConfig.youtubeUrl || 'https://www.youtube.com'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-stone-600 hover:text-red-500 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 shadow-sm"
-              >
-                <Youtube className="w-3.5 h-3.5 text-red-500" />
-                유튜브 채널
-              </a>
-              <a 
-                href={`tel:${footerConfig.phone.split(' ')[0]}`}
-                className="text-stone-600 hover:text-emerald-600 text-xs font-black border border-stone-200 px-3 py-1.5 rounded-lg bg-white flex items-center gap-1 shadow-sm"
-              >
-                <Phone className="w-3 h-3 text-emerald-600" />
-                전화문의
-              </a>
+              {/* Direct Installation Inquiry 3 Stacked Buttons */}
+              <div className="space-y-2">
+                <span 
+                  onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
+                  className={`text-[14px] font-black text-emerald-900 tracking-wider block uppercase bg-emerald-50 border border-emerald-200/70 rounded-xl px-3 py-2.5 text-center select-none shadow-xs cursor-pointer transition-all duration-200 ${
+                    isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
+                  }`}
+                  title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
+                >
+                  {isEditMode ? `✏️ ${headerConfig.inquiryTitleMobile || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitleMobile || '⚡ 전기차충전기 설치문의')}
+                </span>
+                <div className="grid grid-cols-1 gap-2">
+                  <button
+                    onClick={() => handleInquirySelect('Commercial')}
+                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>{headerConfig.shortcutCommercialMobile || '⚡ 아파트 · 공동주택'}</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
+                  </button>
+                  <button
+                    onClick={() => handleInquirySelect('Residential')}
+                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>{headerConfig.shortcutResidentialMobile || '🏠 가정용 · 개인 홈'}</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
+                  </button>
+                  <button
+                    onClick={() => handleInquirySelect('ParkingLot')}
+                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>{headerConfig.shortcutParkingMobile || '🏢 상업시설 · 수익형'}</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-stone-500 tracking-wider block uppercase">전체 카테고리</span>
+                {menuItems.map((item) => {
+                  const isActive = activePage === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleMenuClick(item.id)}
+                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-black transition-all flex items-center justify-between cursor-pointer ${
+                        isActive 
+                          ? 'bg-emerald-600 text-white shadow-sm' 
+                          : 'text-stone-800 hover:bg-stone-100 bg-stone-50/80 border border-stone-200/50'
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      <span className={`text-xs ${isActive ? 'text-white' : 'text-stone-400'}`}>›</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* User & Auth Links */}
+              <div className="pt-4 border-t border-stone-200/60 space-y-3">
+                {/* Social utilities */}
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <a 
+                    href={snsConfig.blogUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-stone-700 hover:text-emerald-600 text-xs font-bold border border-stone-200 py-2.5 rounded-xl bg-white shadow-xs text-center flex items-center justify-center"
+                  >
+                    네이버 블로그
+                  </a>
+                  <a 
+                    href={snsConfig.youtubeUrl || 'https://www.youtube.com'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-stone-700 hover:text-red-500 text-xs font-bold border border-stone-200 py-2.5 rounded-xl bg-white flex items-center justify-center gap-1 shadow-xs text-center"
+                  >
+                    <Youtube className="w-3.5 h-3.5 text-red-500" />
+                    유튜브
+                  </a>
+                  <a 
+                    href={`tel:${footerConfig.phone.split(' ')[0]}`}
+                    className="text-emerald-700 hover:text-emerald-800 text-xs font-bold border border-emerald-200 py-2.5 rounded-xl bg-emerald-50/80 flex items-center justify-center gap-1 shadow-xs text-center"
+                  >
+                    <Phone className="w-3 h-3 text-emerald-600" />
+                    전화문의
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-
         </div>
       )}
 

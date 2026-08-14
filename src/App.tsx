@@ -2346,7 +2346,7 @@ export default function App() {
             <div className="text-center md:text-left space-y-1">
               <p>© 2026 {logoConfig.subtitle} Co., Ltd. All Rights Reserved.</p>
               <p className="text-[10px] text-emerald-300/80 font-medium">
-                ※ 전자상거래 등에서의 소비자보호에 관한 법률 제17조 준수: 상품 수령 후 7일 이내 청약철회/환불 가능 | 에스크로 구매안전서비스 적용
+                ※ 본사 직영 책임시공 (결제 후 3일 내 상담 · 7일 내 착공) | 전자상거래법 제17조 준수: 착공 전 100% 무상 취소·환불 가능 | 에스크로 구매안전서비스 적용
               </p>
             </div>
             <div className="flex flex-wrap gap-3 items-center justify-center md:justify-end">
@@ -2385,6 +2385,24 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Floating Bottom Action Bar (Sticky Quick Action for Mobile Conversion) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 px-3 py-2 shadow-2xl flex items-center gap-2">
+        <a
+          href={`tel:${footerConfig.phone.split(' ')[0] || '010-8647-7975'}`}
+          className="flex-1 py-2.5 bg-slate-900 active:bg-slate-800 text-white rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+        >
+          <Phone className="w-3.5 h-3.5 text-emerald-400" />
+          <span>전화상담</span>
+        </a>
+        <button
+          onClick={() => handleOpenQuoteWithPurpose('Residential')}
+          className="flex-[1.5] py-2.5 bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+          <span>⚡ 1분 무료 견적</span>
+        </button>
+      </div>
 
       {/* Modals Container */}
       <AnimatePresence>

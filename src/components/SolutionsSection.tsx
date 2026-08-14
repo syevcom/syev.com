@@ -2710,8 +2710,19 @@ export default function SolutionsSection({
                         <div className="col-span-9 text-slate-800 font-extrabold">신규증설시 옵션선택</div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">시공방식</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold text-emerald-700">본사 직영 책임시공 (외주/중개 없음)</div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
+                        <div className="col-span-3 font-extrabold text-slate-600 self-center">시공일정</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">
+                          결제 후 3일 내 상담 · 7일 내 착공
+                          <span className="block text-[10.5px] text-slate-500 font-medium mt-0.5">※ 한전 인입/현장 여건에 따라 협의 조정 가능</span>
+                        </div>
+                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
+
                         <div className="col-span-3 font-extrabold text-slate-600 self-center">청약철회</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">전자상거래법 준수 (착공 전 7일 이내 무상취소 가능)</div>
+                        <div className="col-span-9 text-slate-800 font-extrabold">전자상거래법 준수 (착공 전 100% 무상취소 가능)</div>
                       </>
                     );
                   }

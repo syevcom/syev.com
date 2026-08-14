@@ -466,7 +466,17 @@ export default function PaymentModal({
               </div>
 
               {/* 4. Terms and Refund Policy Agreement */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                <div className="bg-emerald-50 border border-emerald-200/80 rounded-lg p-2.5 text-[11px] text-emerald-950 flex flex-col gap-1">
+                  <div className="flex items-start gap-2">
+                    <span className="font-black text-emerald-700 shrink-0">⚡ 직영시공:</span>
+                    <span>결제 후 <strong>3일 이내 전문 상담 연락</strong> 진행 및 <strong>7일 이내 직영 시공 착공</strong> (착공 전 100% 무상 취소)</span>
+                  </div>
+                  <span className="text-[10px] text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded mt-0.5">
+                    ※ 한전 인입 승인 일정 및 현장 여건(장거리 배선 등)에 따라 상호 협의 하에 시공 일정이 조정될 수 있습니다.
+                  </span>
+                </div>
+
                 <div className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
@@ -478,7 +488,7 @@ export default function PaymentModal({
                   <label htmlFor="agreePaymentModal" className="text-xs text-slate-700 leading-snug cursor-pointer">
                     <span className="font-bold text-slate-900">[필수] 주문 내용 확인 및 환불·청약철회 정책 동의</span>
                     <span className="block text-[11px] text-slate-500 mt-0.5">
-                      전자상거래법 제17조 준수 (상품 수령/착공 전 7일 이내 무상 청약철회 가능)
+                      전자상거래법 제17조 준수 (본사 직영 시공 착공 전 또는 상품 수령 7일 이내 무상 청약철회 가능)
                     </span>
                   </label>
                 </div>

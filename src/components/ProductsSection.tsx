@@ -31,9 +31,9 @@ export default function ProductsSection({
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [detailModalProduct, setDetailModalProduct] = useState<Product | null>(null);
 
-  const currentSelected = products.find(p => p.id === selectedProductId) || products[0];
+  const currentSelected = products && products.length > 0 ? (products.find(p => p.id === selectedProductId) || products[0]) : null;
 
-  const filteredProducts = products.filter((p) => {
+  const filteredProducts = (products || []).filter((p) => {
     if (filter === '전체') return true;
     return p.detailCategory === filter;
   });
@@ -131,7 +131,7 @@ export default function ProductsSection({
             onClick={() => setSelectedProductId(p.id)}
             id={`card-product-${p.id}`}
             className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer bg-white ${
-              currentSelected.id === p.id
+              currentSelected?.id === p.id
                 ? 'border-blue-600 ring-4 ring-blue-500/10 shadow-lg shadow-blue-500/5'
                 : 'border-slate-200 hover:border-slate-300 shadow-xs'
             }`}
