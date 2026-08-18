@@ -6,6 +6,9 @@ import { compressImage } from '../lib/imageCompressor';
 import { 
   Package, 
   Building2, 
+  Building,
+  Home,
+  Store,
   ClipboardList, 
   Settings, 
   Bell,
@@ -44,6 +47,26 @@ export interface OptionPreset {
   description?: string;
   optionGroups: ProductOptionGroup[];
 }
+
+export const isResidentialProduct = (p: Product) => {
+  const cat = p.detailCategory || '';
+  const pwr = (p.power || '').toLowerCase().replace(/\s+/g, '');
+  const type = (p.type || '').toLowerCase();
+  const name = (p.name || '').toLowerCase();
+  const id = (p.id || '').toLowerCase();
+
+  if (cat === '공용완속' || cat === '급속' || cat === '스탠드') return false;
+  if (pwr.includes('biz') || pwr.includes('50kw') || pwr.includes('100kw') || pwr.includes('200kw')) return false;
+  if (type.includes('급속') || type.includes('초급속')) return false;
+  if (id.startsWith('park-') || id.startsWith('comm-') || id.startsWith('sy-dc') || id.startsWith('sy-fc') || id.startsWith('sy-biz') || id.startsWith('sy-stand')) return false;
+  if ((name.includes('공용') && !name.includes('비공용') && !name.includes('개인용')) || name.includes('수익형') || name.includes('관공서') || name.includes('조달상품') || name.includes('초급속') || name.includes('주차장')) return false;
+
+  return true;
+};
+
+export const isCommercialProduct = (p: Product) => {
+  return !isResidentialProduct(p);
+};
 
 export const INITIAL_OPTION_PRESETS: OptionPreset[] = [
   {
@@ -259,7 +282,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onPreviewPopup,
   onNavigateHome
 }) => {
-  const [adminTab, setAdminTab] = useState<'products' | 'brands' | 'inquiries' | 'settings' | 'popup'>('products');
+  const [adminTab, setAdminTab] = useState<'products' | 'residential' | 'brands' | 'commercial' | 'inquiries' | 'settings' | 'popup'>('products');
   
   // Local working copy of products for batch editing
   const [productList, setProductList] = useState<Product[]>(products);
@@ -760,6 +783,80 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setIsPresetManagerOpen(false);
   };
 
+  // Add New Residential Product
+  const handleAddResidentialProduct = () => {
+    const newProd: Product = {
+      id: `res-prod-${Date.now()}`,
+      name: '새 가정용 7kW 스마트 홈 충전기',
+      type: '완속',
+      power: '7kW',
+      features: ['PLC 화재 차단 기능', '무상 A/S 4년 보장', '스마트폰 앱 연동'],
+      specs: { '설치방식': '벽부형 / 스탠드' },
+      image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800',
+      description: '단독주택 및 빌라, 개인 주차면에 최적화된 가정용 완속 충전기 신규 모델입니다.',
+      plcSupported: true,
+      price: 550000,
+      originalPrice: 650000,
+      discountRate: 15,
+      brand: 'SY.com',
+      manufacturer: '에스와이코리아',
+      detailCategory: '비공용완속',
+      serviceType: 'device',
+      optionGroups: JSON.parse(JSON.stringify(DEFAULT_RESIDENTIAL_OPTION_GROUPS))
+    };
+
+    const updated = [newProd, ...productList];
+    setProductList(updated);
+    onSaveProducts(updated);
+
+    setProductSearch('');
+    setPowerFilter('all');
+    setServiceFilter('all');
+    setDetailCategoryFilter('all');
+
+    setExpandedOptions(prev => ({ ...prev, [newProd.id]: true }));
+    setSaveSuccessMsg(`[${newProd.name}] 가정용 충전기 신규 상품이 추가되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
+    setIsPresetManagerOpen(false);
+  };
+
+  // Add New Commercial Product
+  const handleAddCommercialProduct = () => {
+    const newProd: Product = {
+      id: `comm-prod-${Date.now()}`,
+      name: '새 상업시설 공용 BIZ 스마트 충전기',
+      type: '완속',
+      power: 'BIZ',
+      features: ['공용 과금 및 결제 시스템 연동', '화재 감지 PLC 모뎀 내장', 'KC 형식승인 완료'],
+      specs: { '설치방식': '벽부형 / 스탠드 / 주차타워' },
+      image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800',
+      description: '호텔, 마트, 상가빌딩, 공영주차장 맞춤형 상업시설 수익형 공용 충전기입니다.',
+      plcSupported: true,
+      price: 1200000,
+      originalPrice: 1500000,
+      discountRate: 20,
+      brand: 'SY.com',
+      manufacturer: '에스와이코리아',
+      detailCategory: '공용완속',
+      serviceType: 'install',
+      optionGroups: JSON.parse(JSON.stringify(PUBLIC_CHARGER_OPTION_GROUPS))
+    };
+
+    const updated = [newProd, ...productList];
+    setProductList(updated);
+    onSaveProducts(updated);
+
+    setProductSearch('');
+    setPowerFilter('all');
+    setServiceFilter('all');
+    setDetailCategoryFilter('all');
+
+    setExpandedOptions(prev => ({ ...prev, [newProd.id]: true }));
+    setSaveSuccessMsg(`[${newProd.name}] 상업시설 충전기 신규 상품이 추가되었습니다.`);
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
+    setIsPresetManagerOpen(false);
+  };
+
   // Delete Product
   const handleDeleteProduct = (id: string, e?: React.MouseEvent) => {
     if (e) {
@@ -872,58 +969,83 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     return 'all';
   };
 
-  // Filter products by search, service category (단말기/교체/설치), & power
-  const filteredProducts = productList.filter(p => {
-    const searchLower = productSearch.trim().toLowerCase();
-    const matchesSearch = !searchLower || 
-      (p.name && p.name.toLowerCase().includes(searchLower)) || 
-      (p.modelName && p.modelName.toLowerCase().includes(searchLower)) ||
-      (p.brand && p.brand.toLowerCase().includes(searchLower)) ||
-      (p.description && p.description.toLowerCase().includes(searchLower));
+  // Residential & Commercial counts
+  const residentialCount = productList.filter(isResidentialProduct).length;
+  const commercialCount = productList.filter(isCommercialProduct).length;
 
-    // Service category filter (단말기, 교체, 설치)
-    const st = getProductServiceType(p);
-    let matchesService = true;
-    if (serviceFilter !== 'all') {
-      if (st === 'all') {
-        matchesService = true; // 'all' (모두 호환) matches device, replace, and install
-      } else {
-        matchesService = (st === serviceFilter);
+  // Filter products by mode, search, service category (단말기/교체/설치), & power
+  const getFilteredProductsForMode = (mode: 'all' | 'residential' | 'commercial') => {
+    let baseList = productList;
+    if (mode === 'residential') {
+      baseList = productList.filter(isResidentialProduct);
+    } else if (mode === 'commercial') {
+      baseList = productList.filter(isCommercialProduct);
+    }
+
+    return baseList.filter(p => {
+      const searchLower = productSearch.trim().toLowerCase();
+      const matchesSearch = !searchLower || 
+        (p.name && p.name.toLowerCase().includes(searchLower)) || 
+        (p.modelName && p.modelName.toLowerCase().includes(searchLower)) ||
+        (p.brand && p.brand.toLowerCase().includes(searchLower)) ||
+        (p.description && p.description.toLowerCase().includes(searchLower));
+
+      // Service category filter (단말기, 교체, 설치)
+      const st = getProductServiceType(p);
+      let matchesService = true;
+      if (serviceFilter !== 'all') {
+        if (st === 'all') {
+          matchesService = true; // 'all' (모두 호환) matches device, replace, and install
+        } else {
+          matchesService = (st === serviceFilter);
+        }
       }
-    }
 
-    // Power filter (5kW, 7kW, 11kW, 14kW, BIZ)
-    let matchesPower = true;
-    if (powerFilter !== 'all') {
-      const pPower = (p.power || '').toLowerCase().replace(/\s+/g, '');
-      const pName = (p.name || '').toLowerCase().replace(/\s+/g, '');
-      const pfLower = powerFilter.toLowerCase().replace(/\s+/g, '');
+      // Power filter (5kW, 7kW, 11kW, 14kW, BIZ)
+      let matchesPower = true;
+      if (powerFilter !== 'all') {
+        const pPower = (p.power || '').toLowerCase().replace(/\s+/g, '');
+        const pName = (p.name || '').toLowerCase().replace(/\s+/g, '');
+        const pfLower = powerFilter.toLowerCase().replace(/\s+/g, '');
 
-      if (pfLower === '5kw') {
-        matchesPower = pPower.includes('5kw') || pName.includes('5kw') || pName.includes('5킬로');
-      } else if (pfLower === '7kw') {
-        matchesPower = pPower.includes('7kw') || pName.includes('7kw') || pName.includes('7킬로');
-      } else if (pfLower === '11kw') {
-        matchesPower = pPower.includes('11kw') || pName.includes('11kw') || pName.includes('11킬로');
-      } else if (pfLower === '14kw') {
-        matchesPower = pPower.includes('14kw') || pName.includes('14kw') || pName.includes('14킬로');
-      } else if (pfLower === 'biz') {
-        matchesPower = pPower.includes('biz') || pPower.includes('50kw') || pPower.includes('200kw') || 
-                       (p.type && (p.type.includes('급속') || p.type.includes('초급속'))) || 
-                       (p.detailCategory && p.detailCategory.includes('급속'));
-      } else {
-        matchesPower = pPower.includes(pfLower) || pName.includes(pfLower);
+        if (pfLower === '5kw') {
+          matchesPower = pPower.includes('5kw') || pName.includes('5kw') || pName.includes('5킬로');
+        } else if (pfLower === '7kw') {
+          matchesPower = pPower.includes('7kw') || pName.includes('7kw') || pName.includes('7킬로');
+        } else if (pfLower === '11kw') {
+          matchesPower = pPower.includes('11kw') || pName.includes('11kw') || pName.includes('11킬로');
+        } else if (pfLower === '14kw') {
+          matchesPower = pPower.includes('14kw') || pName.includes('14kw') || pName.includes('14킬로');
+        } else if (pfLower === 'biz') {
+          matchesPower = pPower.includes('biz') || pPower.includes('50kw') || pPower.includes('100kw') || pPower.includes('200kw') || 
+                         (p.type && (p.type.includes('급속') || p.type.includes('초급속'))) || 
+                         (p.detailCategory && (p.detailCategory.includes('급속') || p.detailCategory.includes('공용완속')));
+        } else if (pfLower === '50kw') {
+          matchesPower = pPower.includes('50kw') || pName.includes('50kw');
+        } else if (pfLower === '100kw') {
+          matchesPower = pPower.includes('100kw') || pName.includes('100kw');
+        } else if (pfLower === '200kw') {
+          matchesPower = pPower.includes('200kw') || pName.includes('200kw') || pName.includes('초급속');
+        } else if (pfLower === '스탠드') {
+          matchesPower = p.detailCategory === '스탠드' || p.type === '스탠드' || pName.includes('스탠드');
+        } else {
+          matchesPower = pPower.includes(pfLower) || pName.includes(pfLower);
+        }
       }
-    }
 
-    // Detail Category filter (비공용완속, 비공용중속, 공용완속, 급속, 스탠드)
-    let matchesCategory = true;
-    if (detailCategoryFilter !== 'all') {
-      matchesCategory = p.detailCategory === detailCategoryFilter;
-    }
+      // Detail Category filter (비공용완속, 비공용중속, 공용완속, 급속, 스탠드)
+      let matchesCategory = true;
+      if (detailCategoryFilter !== 'all') {
+        matchesCategory = p.detailCategory === detailCategoryFilter;
+      }
 
-    return matchesSearch && matchesService && matchesPower && matchesCategory;
-  });
+      return matchesSearch && matchesService && matchesPower && matchesCategory;
+    });
+  };
+
+  const filteredProducts = getFilteredProductsForMode(
+    adminTab === 'residential' ? 'residential' : adminTab === 'commercial' ? 'commercial' : 'all'
+  );
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 font-sans pb-24">
@@ -993,81 +1115,144 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         </AnimatePresence>
 
         {/* Dashboard Tab Bar */}
-        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 flex flex-wrap gap-2">
+        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
           <button
-            onClick={() => setAdminTab('products')}
-            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            onClick={() => {
+              setAdminTab('products');
+              setPowerFilter('all');
+              setDetailCategoryFilter('all');
+              setServiceFilter('all');
+            }}
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               adminTab === 'products'
-                ? 'bg-slate-900 text-white shadow-md'
+                ? 'bg-slate-900 text-white shadow-md ring-2 ring-blue-400/50'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Package className="w-4 h-4" />
-            <span>📦 전체 상품 목록 & 사진 관리 ({productList.length})</span>
+            <Package className="w-4 h-4 text-blue-400 shrink-0" />
+            <span className="truncate">📦 전체 상품 ({productList.length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setAdminTab('residential');
+              setPowerFilter('all');
+              setDetailCategoryFilter('all');
+              setServiceFilter('all');
+            }}
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              adminTab === 'residential'
+                ? 'bg-emerald-800 text-white shadow-md ring-2 ring-emerald-400/50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Home className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="truncate">🏠 가정용 충전기 ({residentialCount})</span>
           </button>
 
           <button
             onClick={() => setAdminTab('brands')}
-            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               adminTab === 'brands'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Building2 className="w-4 h-4" />
-            <span>🏢 아파트 브랜드 충전기</span>
+            <Building2 className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="truncate">🏢 아파트 브랜드</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setAdminTab('commercial');
+              setPowerFilter('all');
+              setDetailCategoryFilter('all');
+              setServiceFilter('all');
+            }}
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              adminTab === 'commercial'
+                ? 'bg-blue-800 text-white shadow-md ring-2 ring-blue-400/50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Building className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span className="truncate">🏬 상업시설 수익형 ({commercialCount})</span>
           </button>
 
           <button
             onClick={() => setAdminTab('inquiries')}
-            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               adminTab === 'inquiries'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <ClipboardList className="w-4 h-4" />
-            <span>📋 견적 & A/S 접수 내역 ({bookings.length + asRequests.length})</span>
+            <ClipboardList className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span className="truncate">📋 견적&A/S ({bookings.length + asRequests.length})</span>
           </button>
 
           <button
             onClick={() => setAdminTab('settings')}
-            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               adminTab === 'settings'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Settings className="w-4 h-4" />
-            <span>⚙️ 사이트 정보 & 퀵채널</span>
+            <Settings className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="truncate">⚙️ 사이트 정보</span>
           </button>
 
           <button
             onClick={() => setAdminTab('popup')}
-            className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               adminTab === 'popup'
                 ? 'bg-purple-900 text-white shadow-md'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Bell className="w-4 h-4 text-purple-400" />
-            <span>🔔 홈페이지 팝업 & 네이버폼</span>
+            <Bell className="w-4 h-4 text-purple-400 shrink-0" />
+            <span className="truncate">🔔 팝업&네이버폼</span>
           </button>
         </div>
 
-        {/* TAB 1: BATCH PRODUCTS MANAGER */}
-        {adminTab === 'products' && (
+        {/* TAB 1, 2, 3: PRODUCTS MANAGER (ALL / RESIDENTIAL / COMMERCIAL) */}
+        {(adminTab === 'products' || adminTab === 'residential' || adminTab === 'commercial') && (
           <div className="space-y-6">
             {/* Top Toolbar */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-blue-600" />
-                  전체 상품 일괄 편집 및 이미지 즉시 변경
-                </h2>
-                <p className="text-xs text-slate-500 font-semibold mt-1">
-                  모든 충전기 상품의 대표 이미지 파일(JPG/PNG 업로드), 모델명, 가격, 할인율, PLC 화재차단 여부를 한곳에서 수정할 수 있습니다.
-                </p>
+                {adminTab === 'residential' ? (
+                  <>
+                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Home className="w-5 h-5 text-emerald-600" />
+                      가정용 홈 충전기 전용 관리 (5kW · 7kW · 11kW · 14kW)
+                    </h2>
+                    <p className="text-xs text-slate-500 font-semibold mt-1">
+                      단독주택, 빌라, 개인 전용 주차면에 설치되는 비공용 완속/중속 충전기 상품 목록 및 대표 이미지, 옵션(7종 표준 세트)을 집중 관리합니다.
+                    </p>
+                  </>
+                ) : adminTab === 'commercial' ? (
+                  <>
+                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Building className="w-5 h-5 text-cyan-600" />
+                      상업시설 · 주차장 수익형 충전기 전용 관리 (공용 BIZ · 급속 · 스탠드)
+                    </h2>
+                    <p className="text-xs text-slate-500 font-semibold mt-1">
+                      대형 마트, 호텔, 빌딩, 공영주차장, 사업장에 최적화된 공용 BIZ 완속, 50kW~200kW 급속 충전기 및 스탠드 상품을 집중 관리합니다.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-blue-600" />
+                      전체 상품 일괄 편집 및 이미지 즉시 변경
+                    </h2>
+                    <p className="text-xs text-slate-500 font-semibold mt-1">
+                      모든 충전기 상품의 대표 이미지 파일(JPG/PNG 업로드), 모델명, 가격, 할인율, PLC 화재차단 여부를 한곳에서 수정할 수 있습니다.
+                    </p>
+                  </>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -1082,11 +1267,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </button>
 
                 <button
-                  onClick={handleAddProduct}
+                  onClick={
+                    adminTab === 'residential'
+                      ? handleAddResidentialProduct
+                      : adminTab === 'commercial'
+                      ? handleAddCommercialProduct
+                      : handleAddProduct
+                  }
                   className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>신규 상품 추가</span>
+                  <span>
+                    {adminTab === 'residential'
+                      ? '가정용 신규 상품 추가'
+                      : adminTab === 'commercial'
+                      ? '상업용 신규 상품 추가'
+                      : '신규 상품 추가'}
+                  </span>
                 </button>
 
                 <button
@@ -1178,7 +1375,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 {/* 2. Power Output Filter */}
                 <div className="flex items-center gap-1 flex-wrap">
                   <span className="text-xs font-black text-slate-500 mr-1 shrink-0">⚡ 용량 필터:</span>
-                  {['all', '5kW', '7kW', '11kW', '14kW', 'BIZ'].map((p) => (
+                  {(adminTab === 'residential'
+                    ? ['all', '5kW', '7kW', '11kW', '14kW']
+                    : adminTab === 'commercial'
+                    ? ['all', 'BIZ', '50kW', '100kW', '200kW', '스탠드']
+                    : ['all', '5kW', '7kW', '11kW', '14kW', 'BIZ', '50kW', '100kW', '200kW', '스탠드']
+                  ).map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -1199,14 +1401,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <span className="text-xs font-black text-slate-700 mr-1 shrink-0 flex items-center gap-1">
                     📂 용도/카테고리 필터:
                   </span>
-                  {[
-                    { id: 'all', label: '전체 카테고리' },
-                    { id: '비공용완속', label: '🏠 비공용완속' },
-                    { id: '비공용중속', label: '🏠 비공용중속' },
-                    { id: '공용완속', label: '🏢 공용완속(견적문의)' },
-                    { id: '급속', label: '⚡ 급속(견적문의)' },
-                    { id: '스탠드', label: '🛡️ 스탠드/부스' },
-                  ].map((cat) => (
+                  {(adminTab === 'residential'
+                    ? [
+                        { id: 'all', label: '전체 카테고리' },
+                        { id: '비공용완속', label: '🏠 비공용완속 (5kW / 7kW)' },
+                        { id: '비공용중속', label: '🏠 비공용중속 (11kW / 14kW)' },
+                      ]
+                    : adminTab === 'commercial'
+                    ? [
+                        { id: 'all', label: '전체 카테고리' },
+                        { id: '공용완속', label: '🏢 공용완속 (견적문의)' },
+                        { id: '급속', label: '⚡ 급속 (견적문의)' },
+                        { id: '스탠드', label: '🛡️ 스탠드/부스' },
+                      ]
+                    : [
+                        { id: 'all', label: '전체 카테고리' },
+                        { id: '비공용완속', label: '🏠 비공용완속' },
+                        { id: '비공용중속', label: '🏠 비공용중속' },
+                        { id: '공용완속', label: '🏢 공용완속(견적문의)' },
+                        { id: '급속', label: '⚡ 급속(견적문의)' },
+                        { id: '스탠드', label: '🛡️ 스탠드/부스' },
+                      ]
+                  ).map((cat) => (
                     <button
                       key={cat.id}
                       type="button"
@@ -1462,13 +1678,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between px-1 flex-wrap gap-2">
                 <p className="text-xs font-black text-slate-700">
-                  총 <span className="text-blue-600 font-extrabold">{filteredProducts.length}개</span> 상품 표시 중 (전체 {productList.length}개)
+                  {adminTab === 'residential' ? '🏠 가정용 홈 충전기: ' : adminTab === 'commercial' ? '🏬 상업시설 · 수익형 충전기: ' : '📦 전체 상품: '}
+                  총 <span className="text-blue-600 font-extrabold">{filteredProducts.length}개</span> 표시 중 (
+                  {adminTab === 'residential' ? `가정용 총 ${residentialCount}개` : adminTab === 'commercial' ? `상업용 총 ${commercialCount}개` : `전체 ${productList.length}개`}
+                  )
                 </p>
                 <div className="flex items-center gap-2">
-                  {(powerFilter !== 'all' || serviceFilter !== 'all' || productSearch) && (
+                  {(powerFilter !== 'all' || serviceFilter !== 'all' || detailCategoryFilter !== 'all' || productSearch) && (
                     <button
                       type="button"
-                      onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
+                      onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setDetailCategoryFilter('all'); setProductSearch(''); }}
                       className="text-xs font-bold text-slate-500 hover:text-blue-600 underline cursor-pointer"
                     >
                       필터 전체 해제
@@ -1476,11 +1695,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   )}
                   <button
                     type="button"
-                    onClick={handleAddProduct}
+                    onClick={
+                      adminTab === 'residential'
+                        ? handleAddResidentialProduct
+                        : adminTab === 'commercial'
+                        ? handleAddCommercialProduct
+                        : handleAddProduct
+                    }
                     className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1 transition-all cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>신규 상품 추가</span>
+                    <span>
+                      {adminTab === 'residential' ? '가정용 상품 추가' : adminTab === 'commercial' ? '상업용 상품 추가' : '신규 상품 추가'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1495,7 +1722,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </p>
                   <button
                     type="button"
-                    onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setProductSearch(''); }}
+                    onClick={() => { setPowerFilter('all'); setServiceFilter('all'); setDetailCategoryFilter('all'); setProductSearch(''); }}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                   >
                     전체 상품 보기 (필터 초기화)
@@ -1504,6 +1731,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               ) : (
                 filteredProducts.map((product) => {
                   const realIndex = productList.findIndex(p => p.id === product.id);
+                  const isCommercial = isCommercialProduct(product);
                   return (
                   <div
                     key={product.id}
@@ -1511,7 +1739,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   >
                     {/* Card Top Action Header */}
                     <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="px-2.5 py-0.5 bg-slate-900 text-amber-400 rounded-md text-[11px] font-black tracking-tight">
                           ID: {product.id}
                         </span>
@@ -1521,13 +1749,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-extrabold border border-blue-200">
                           {product.type} ({product.power || '7kW'})
                         </span>
-                        {((product.detailCategory === '공용완속' || product.detailCategory === '급속' || product.type === '급속' || (product.name.includes('공용') && !product.name.includes('개인용')) || product.name.includes('수익형') || product.name.includes('관공서') || product.name.includes('조달상품') || product.id.startsWith('park-')) && !product.name.includes('개인용') && !product.name.includes('가정용')) ? (
+                        {isCommercial ? (
                           <span className="px-2 py-0.5 bg-rose-50 text-rose-700 rounded text-[10px] font-extrabold border border-rose-200">
-                            🏢 공용 (견적문의)
+                            🏢 상업시설 · 공용 (견적문의)
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[10px] font-extrabold border border-emerald-200">
-                            🏠 비공용 / 가정용
+                            🏠 비공용 · 가정용
                           </span>
                         )}
                       </div>

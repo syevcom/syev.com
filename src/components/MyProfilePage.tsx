@@ -96,6 +96,14 @@ export function MyProfilePage({
 
   // Social Login Provider Detection
   const getSocialProviderBadge = () => {
+    if (user.isAdmin || user.role === 'admin' || user.email === 'sy.car.com@gmail.com') {
+      return (
+        <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full text-[11px] font-black shadow-2xs">
+          <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+          최고 관리자
+        </span>
+      );
+    }
     if (user.id.includes('google')) {
       return (
         <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold">
@@ -260,6 +268,14 @@ export function MyProfilePage({
 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 md:pt-0 md:border-0">
+            {user.isAdmin && (
+              <button
+                onClick={() => onPageChange('admin')}
+                className="flex-1 sm:flex-none px-4 py-3 bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold rounded-2xl text-xs shadow-md border border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>🔧 관리자 대시보드</span>
+              </button>
+            )}
             <button
               onClick={onOpenQuoteModal}
               className="flex-1 sm:flex-none px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-2xl text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"

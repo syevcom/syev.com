@@ -476,6 +476,14 @@ export const LOTTE_EVSIS_OPTION_GROUPS: ProductOptionGroup[] = [
 export const SPEEL_5KW_REPRESENTATIVE_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%"><defs><linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%23ebebeb"/><stop offset="100%" stop-color="%23e5e5e5"/></linearGradient><linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%233a3d43"/><stop offset="35%" stop-color="%23232529"/><stop offset="100%" stop-color="%23131416"/></linearGradient><linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%231e2024"/><stop offset="100%" stop-color="%230f1012"/></linearGradient><filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="%23000000" flood-opacity="0.18"/></filter><filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="%23000000" flood-opacity="0.08"/></filter><filter id="blueGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="800" height="800" fill="url(%23bgGrad)"/><g transform="translate(140, 130)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23ecebff"/><circle cx="0" cy="0" r="54" fill="%236862f6"/><text x="0" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="%23ffffff" text-anchor="middle">5kW</text></g><g transform="translate(140, 310)" filter="url(%23badgeShadow)"><circle cx="0" cy="0" r="76" fill="%23ffffff"/><circle cx="0" cy="0" r="66" fill="%23fde8ea"/><circle cx="0" cy="0" r="54" fill="%23f75466"/><text x="0" y="-6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="19" font-weight="800" fill="%23ffffff" text-anchor="middle">무상A/S</text><text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="900" fill="%23ffffff" text-anchor="middle">4년</text></g><g transform="translate(35, 755)" opacity="0.45"><circle cx="0" cy="0" r="11" fill="none" stroke="%23333333" stroke-width="2.5"/><line x1="8" y1="8" x2="16" y2="16" stroke="%23333333" stroke-width="3" stroke-linecap="round"/></g><rect x="425" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><rect x="495" y="650" width="34" height="150" fill="%231c1d20" rx="4"/><g filter="url(%23dropShadow)"><path d="M 330,200 Q 480,140 630,200 Q 660,215 660,250 L 660,600 Q 660,670 595,695 L 480,725 L 365,695 Q 300,670 300,600 L 300,250 Q 300,215 330,200 Z" fill="url(%23bodyGrad)" stroke="%23454850" stroke-width="1.5"/><path d="M 330,200 Q 480,140 630,200" fill="none" stroke="%23606470" stroke-width="2" opacity="0.6"/><path d="M 335,225 Q 480,175 625,225 Q 640,240 640,270 L 640,580 Q 640,645 580,675 L 480,700 L 380,675 Q 320,645 320,580 L 320,270 Q 320,240 335,225 Z" fill="url(%23faceGrad)" stroke="%2318191c" stroke-width="2"/><path d="M 340,240 Q 480,190 620,240 L 620,380 Q 480,540 480,540 Q 480,540 340,380 Z" fill="%23151619" stroke="%2326282d" stroke-width="1.5" opacity="0.8"/><g transform="translate(480, 310)"><rect x="-44" y="-28" width="88" height="56" rx="10" fill="none" stroke="%23ffffff" stroke-width="4.5"/><text x="18" y="-4" font-family="Arial, sans-serif" font-size="12" font-weight="900" fill="%23ffffff" text-anchor="middle" letter-spacing="0.5">CARD</text><path d="M -22,14 Q -12,4 -2,14" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -27,20 Q -12,6 3,20" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/><path d="M -32,26 Q -12,8 8,26" fill="none" stroke="%23ffffff" stroke-width="3.5" stroke-linecap="round"/></g><g transform="translate(480, 440)"><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%230075ff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" filter="url(%23blueGlow)"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%2300b0ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M -60,-80 L 0,-10 L 60,-80 M 0,-10 L 0,90" fill="none" stroke="%23e0f4ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(605, 620)"><path d="M -28,-14 L -18,-14 L -23,-3 L -15,-3 L -26,14 L -21,3 L -29,3 Z" fill="%23ffffff"/><text x="-5" y="4" font-family="'Arial Black', sans-serif" font-size="28" font-style="italic" font-weight="900" fill="%23ffffff" text-anchor="start">e</text><text x="-20" y="20" font-family="sans-serif" font-size="10" font-weight="800" fill="%23b0b5c0" text-anchor="start" letter-spacing="2">CHARGER</text></g></g></svg>`;
 export const SPEEL_11KW_REPRESENTATIVE_IMAGE = 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=800';
 
+export const BIZ_7KW_PLC_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="bodyG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%232b2d35"/><stop offset="50%" stop-color="%2317181c"/><stop offset="100%" stop-color="%230b0c0e"/></linearGradient><linearGradient id="bronzeG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f59e0b"/><stop offset="30%" stop-color="%23fbbf24"/><stop offset="70%" stop-color="%23d97706"/><stop offset="100%" stop-color="%23b45309"/></linearGradient><linearGradient id="screenG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%230f172a"/><stop offset="100%" stop-color="%23020617"/></linearGradient><filter id="sh" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG)"/><g filter="url(%23sh)" transform="translate(160, 60)"><rect x="110" y="380" width="60" height="150" rx="6" fill="%231e293b"/><path d="M 140,510 C 140,560 60,560 60,460 C 60,360 80,480 140,490" fill="none" stroke="%230f172a" stroke-width="18" stroke-linecap="round"/><path d="M 40,60 C 40,10 240,10 240,60 L 255,270 C 255,340 220,380 140,380 C 60,380 25,340 25,270 Z" fill="url(%23bronzeG)"/><path d="M 46,65 C 46,20 234,20 234,65 L 248,265 C 248,330 215,368 140,368 C 65,368 32,330 32,265 Z" fill="url(%23bodyG)"/><rect x="68" y="70" width="144" height="150" rx="14" fill="url(%23screenG)" stroke="%23334155" stroke-width="2"/><circle cx="140" cy="130" r="38" fill="none" stroke="%23334155" stroke-width="6"/><circle cx="140" cy="130" r="38" fill="none" stroke="%2338bdf8" stroke-width="6" stroke-dasharray="160 80"/><text x="140" y="138" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="900" fill="%2338bdf8" text-anchor="middle">62%</text><g transform="translate(140, 195)"><circle cx="-36" cy="0" r="8" fill="%2338bdf8" opacity="0.9"/><circle cx="-12" cy="0" r="8" fill="%2322c55e" opacity="0.9"/><circle cx="12" cy="0" r="8" fill="%23eab308" opacity="0.9"/><circle cx="36" cy="0" r="8" fill="%23ef4444" opacity="0.9"/></g><g transform="translate(140, 275)"><rect x="-35" y="-22" width="70" height="44" rx="8" fill="none" stroke="%23ffffff" stroke-width="2.5" opacity="0.7"/><text x="0" y="-3" font-family="sans-serif" font-size="9" font-weight="800" fill="%23ffffff" text-anchor="middle" opacity="0.8">CARD</text><path d="M -15,10 Q 0,2 15,10" fill="none" stroke="%23ffffff" stroke-width="2.5" opacity="0.8"/></g><circle cx="140" cy="335" r="14" fill="%230f172a" stroke="%23475569" stroke-width="2"/><path d="M 137,329 L 143,335 L 137,341" fill="none" stroke="%2338bdf8" stroke-width="2.5" stroke-linecap="round"/></g></svg>`;
+
+export const BIZ_11KW_STORMSHIELD_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="bodyBlue" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231e3a8a"/><stop offset="100%" stop-color="%230f172a"/></linearGradient><filter id="sh2" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.2"/></filter></defs><rect width="600" height="600" fill="url(%23bgG2)"/><g filter="url(%23sh2)" transform="translate(180, 50)"><rect x="90" y="30" width="60" height="490" fill="%230f172a" rx="4"/><rect x="40" y="20" width="160" height="40" rx="8" fill="url(%23bodyBlue)"/><text x="120" y="45" font-family="sans-serif" font-size="13" font-weight="900" fill="%23ffffff" text-anchor="middle">전기차충전소</text><rect x="50" y="80" width="140" height="190" rx="28" fill="%2318181b" stroke="%2338bdf8" stroke-width="3"/><rect x="75" y="105" width="90" height="95" rx="10" fill="%2309090b" stroke="%2327272a" stroke-width="1.5"/><circle cx="120" cy="142" r="22" fill="none" stroke="%2338bdf8" stroke-width="4"/><text x="120" y="147" font-family="sans-serif" font-size="12" font-weight="900" fill="%2338bdf8" text-anchor="middle">11kW</text><g transform="translate(120, 235)"><rect x="-24" y="-14" width="48" height="28" rx="6" fill="none" stroke="%23ffffff" stroke-width="2" opacity="0.6"/><text x="0" y="3" font-family="sans-serif" font-size="8" font-weight="800" fill="%23ffffff" text-anchor="middle" opacity="0.8">RFID</text></g><rect x="70" y="295" width="100" height="60" rx="12" fill="%2327272a" stroke="%233f3f46" stroke-width="2"/><text x="120" y="330" font-family="sans-serif" font-size="10" font-weight="900" fill="%23a1a1aa" text-anchor="middle">KOOL CHARGE</text><path d="M 120,355 C 120,440 40,440 40,360 C 40,290 80,410 120,420" fill="none" stroke="%2309090b" stroke-width="16" stroke-linecap="round"/><rect x="30" y="500" width="180" height="25" rx="6" fill="%231e293b"/></g></svg>`;
+
+export const BIZ_35KW_STORMSHIELD_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="metalBox" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="50%" stop-color="%23f1f5f9"/><stop offset="100%" stop-color="%23cbd5e1"/></linearGradient><filter id="sh3" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG3)"/><g filter="url(%23sh3)" transform="translate(100, 80)"><rect x="0" y="0" width="400" height="440" rx="20" fill="url(%23metalBox)" stroke="%2394a3b8" stroke-width="3"/><g transform="translate(35, 45)"><path d="M 0,0 C 10,-8 20,8 30,0 C 20,8 10,-8 0,0 Z" fill="%23ea580c"/><text x="40" y="6" font-family="'Arial Black', sans-serif" font-size="22" font-weight="900" fill="%23ea580c" letter-spacing="1">KOOL CHARGE</text></g><rect x="35" y="85" width="200" height="150" rx="10" fill="%230f172a" stroke="%23334155" stroke-width="2"/><text x="135" y="145" font-family="sans-serif" font-size="18" font-weight="900" fill="%2338bdf8" text-anchor="middle">35kW BIZ</text><text x="135" y="175" font-family="sans-serif" font-size="13" font-weight="800" fill="%2322c55e" text-anchor="middle">스톰쉴드 공용</text><g transform="translate(260, 95)"><line x1="0" y1="0" x2="100" y2="0" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="20" x2="100" y2="20" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="40" x2="100" y2="40" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="60" x2="100" y2="60" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="80" x2="100" y2="80" stroke="%2364748b" stroke-width="4" stroke-linecap="round"/></g><g transform="translate(135, 275)"><rect x="-70" y="-18" width="140" height="36" rx="8" fill="%231e293b"/><text x="0" y="5" font-family="sans-serif" font-size="11" font-weight="800" fill="%2394a3b8" text-anchor="middle">CARD TOUCH / RFID</text></g><g transform="translate(135, 360)"><circle cx="0" cy="0" r="26" fill="%23ef4444" stroke="%23991b1b" stroke-width="3"/><circle cx="0" cy="0" r="16" fill="%23b91c1c"/><text x="0" y="42" font-family="sans-serif" font-size="9" font-weight="900" fill="%23475569" text-anchor="middle">EMERGENCY SWITCH</text></g><g transform="translate(310, 240)"><rect x="-35" y="0" width="70" height="150" rx="14" fill="%231e293b" stroke="%230f172a" stroke-width="3"/><rect x="-25" y="20" width="50" height="50" rx="8" fill="%230f172a"/><path d="M 0,150 C 0,220 -80,220 -80,180" fill="none" stroke="%230f172a" stroke-width="22" stroke-linecap="round"/></g></g></svg>`;
+
+export const BIZ_50KW_COOLCHARGE_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%"><defs><radialGradient id="bgG4" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23f8fafc"/><stop offset="100%" stop-color="%23e2e8f0"/></radialGradient><linearGradient id="cabinetG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23ffffff"/><stop offset="50%" stop-color="%23f1f5f9"/><stop offset="100%" stop-color="%23e2e8f0"/></linearGradient><linearGradient id="orangeG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f97316"/><stop offset="100%" stop-color="%23ea580c"/></linearGradient><filter id="sh4" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="%23000000" flood-opacity="0.25"/></filter></defs><rect width="600" height="600" fill="url(%23bgG4)"/><g filter="url(%23sh4)" transform="translate(160, 40)"><rect x="0" y="20" width="280" height="490" rx="16" fill="url(%23cabinetG)" stroke="%2394a3b8" stroke-width="3"/><rect x="20" y="50" width="240" height="30" rx="6" fill="%230f172a"/><text x="140" y="70" font-family="'Arial Black', sans-serif" font-size="13" font-weight="900" fill="%23f97316" text-anchor="middle">KOOL CHARGE</text><rect x="35" y="100" width="210" height="230" rx="12" fill="%231e293b" stroke="%23334155" stroke-width="2"/><rect x="55" y="120" width="170" height="190" rx="8" fill="url(%23orangeG)"/><rect x="62" y="127" width="156" height="176" rx="6" fill="%23020617"/><text x="140" y="195" font-family="sans-serif" font-size="28" font-weight="900" fill="%2338bdf8" text-anchor="middle">50kW</text><text x="140" y="235" font-family="sans-serif" font-size="14" font-weight="800" fill="%23ffffff" text-anchor="middle">급속 1CH</text><g transform="translate(140, 380)"><rect x="-45" y="0" width="90" height="90" rx="12" fill="%230f172a" stroke="%23334155" stroke-width="3"/><circle cx="0" cy="45" r="22" fill="%231e293b" stroke="%23475569" stroke-width="2"/><path d="M 0,90 C 0,160 -80,160 -80,110" fill="none" stroke="%230f172a" stroke-width="20" stroke-linecap="round"/></g><rect x="-10" y="505" width="300" height="20" rx="4" fill="%230f172a"/></g></svg>`;
+
 export const PRODUCTS: Product[] = [
   // --- 5kW Products ---
   {
@@ -753,96 +761,94 @@ export const PRODUCTS: Product[] = [
     optionGroups: ELECTREE_OPTION_GROUPS
   },
 
-  // --- 14kW & BIZ / 급속 Products ---
+  // --- 공용 BIZ / 상업시설 수익형 충전기 (정확히 4개만 구성 및 동기화) ---
   {
-    id: 'sy-ac11',
-    name: '롯데 이브이시스 11kW 공용 완속 충전기',
+    id: 'park-7kw-plc-biz',
+    name: '스마트제어 완속 충전기 PLC 7kW BIZ 전기차 공용',
     type: '완속',
-    power: '11kW',
-    price: 1250000,
-    originalPrice: 1450000,
-    discountRate: 14,
-    brand: '롯데 이브이시스',
-    manufacturer: 'EVSIS(주)',
+    power: '7kW',
+    price: 0,
+    originalPrice: 0,
+    discountRate: 0,
+    brand: '스마트제어',
+    manufacturer: '스마트제어(주)',
     origin: '대한민국',
-    modelName: 'EVSIS-COM-11',
+    modelName: 'PLC-7KW-BIZ',
     deliveryInfo: '무료배송 (전문 시공팀 방문)',
     componentsInfo: '공용 완속 스탠드 / 벽걸이 호환',
     detailCategory: '공용완속',
-    serviceType: 'install',
-    features: ['속도가 빠른 11kW 화재감지형', '과열 감지 스마트 디스플레이', 'RFID / 모바일 앱 원격 결제'],
-    image: 'https://images.unsplash.com/photo-1695653422718-97d137aac987?auto=format&fit=crop&q=80&w=600',
-    description: '오피스 빌딩, 상업 주차장에 적합한 고성능 11kW 충전기입니다.',
+    serviceType: 'all',
+    features: ['BEST', 'HIT', '화재감지 PLC 모뎀 탑재', '무인운영 충전사업형 모델'],
+    image: BIZ_7KW_PLC_IMAGE,
+    description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
     plcSupported: true,
     optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
-    id: 'park-11kw-convenient',
-    name: '편리 11kW 수익형 스마트 완속 충전기',
+    id: 'park-11kw-stormshield',
+    name: '11kW BIZ 공용 전기차 충전기 쿨차지 스톰쉴드',
     type: '완속',
     power: '11kW',
-    price: 980000,
-    originalPrice: 1120000,
-    discountRate: 12,
-    brand: '편리',
-    manufacturer: '편리전기',
+    price: 0,
+    originalPrice: 0,
+    discountRate: 0,
+    brand: '쿨차지',
+    manufacturer: '쿨차지(주)',
     origin: '대한민국',
-    modelName: 'PNL-BIZ-11',
+    modelName: 'COOL-11KW-STORM',
     deliveryInfo: '무료배송 (전문 시공팀 방문)',
     componentsInfo: '공용 완속 스탠드 / 벽걸이 호환',
     detailCategory: '공용완속',
-    serviceType: 'install',
-    features: ['상업용 간편 QR 정산 연동', '소상공인 펜션 식당 주차장 설치 시 부가수익'],
-    image: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=600',
-    description: '상업용 간편 QR 정산 연동, 소상공인 펜션 식당 주차장 설치 시 최강의 부가수익 창출',
+    serviceType: 'all',
+    features: ['BEST', 'HIT', '스톰쉴드 옥외 특화 방수방진', '스마트 QR/RFID 원격 결제'],
+    image: BIZ_11KW_STORMSHIELD_IMAGE,
+    description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+    plcSupported: true,
     optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
   },
   {
-    id: 'sy-dc50',
-    name: 'SY-DC50 슬림형 공용 급속 충전기',
+    id: 'park-35kw-stormshield',
+    name: '35kW BIZ 공용 전기차 충전기 쿨차지 스톰쉴드',
+    type: '완속',
+    power: '35kW',
+    price: 0,
+    originalPrice: 0,
+    discountRate: 0,
+    brand: '쿨차지',
+    manufacturer: '쿨차지(주)',
+    origin: '대한민국',
+    modelName: 'COOL-35KW-STORM',
+    deliveryInfo: '무료배송 (전문 시공팀 방문)',
+    componentsInfo: '공용 중급속 스탠드 / 벽걸이 호환',
+    detailCategory: '공용완속',
+    serviceType: 'all',
+    features: ['MD CHOICE', '35kW 고출력 중속 충전', '비상정지 스위치 / 스톰쉴드 강화 외장'],
+    image: BIZ_35KW_STORMSHIELD_IMAGE,
+    description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+    plcSupported: true,
+    optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
+  },
+  {
+    id: 'park-50kw-1ch-coolcharge',
+    name: '전기차 급속 충전기 50kW 1CH 쿨차지',
     type: '급속',
     power: '50kW',
-    price: 9800000,
-    originalPrice: 11500000,
-    discountRate: 14,
-    brand: 'SY',
-    manufacturer: 'SY.com',
+    price: 0,
+    originalPrice: 0,
+    discountRate: 0,
+    brand: '쿨차지',
+    manufacturer: '쿨차지(주)',
+    origin: '대한민국',
+    modelName: 'COOL-50KW-1CH',
+    deliveryInfo: '무료배송 (전문 시공팀 방문)',
+    componentsInfo: '공용 급속 일체형 캐비닛',
     detailCategory: '급속',
-    serviceType: 'install',
-    features: ['30분 내 80% 쾌속 충전', '10인치 대형 터치스크린 탑재', '카드/회원권/소셜 페이 결제 모듈'],
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=600',
-    description: '도심지 빌딩, 마트, 소형 휴게소에 적합한 공간절약형 급속 충전기입니다.',
+    serviceType: 'all',
+    features: ['MD CHOICE', '급속', '30분 80% 고속 충전', '수익성 최고 충전사업자 솔루션'],
+    image: BIZ_50KW_COOLCHARGE_IMAGE,
+    description: '펜션,카페,모텔,상가,식당,주차장,공공시설,상업시설,숙박시설,주차시설,창고시설 등 무인운영 충전사업형 모델',
+    plcSupported: true,
     optionGroups: PUBLIC_CHARGER_OPTION_GROUPS
-  },
-  {
-    id: 'sy-fc200',
-    name: 'SY-FC200 하이퍼 초급속 충전기',
-    type: '급속',
-    power: '200kW',
-    price: 24000000,
-    originalPrice: 28000000,
-    discountRate: 14,
-    brand: 'SY',
-    manufacturer: 'SY.com',
-    detailCategory: '급속',
-    serviceType: 'install',
-    features: ['듀얼 디스펜서 100kW+100kW 동시 충전', '15분 이내 완벽 완충 설계', '수랭식 케이블 발열 최소화'],
-    image: 'https://images.unsplash.com/photo-1620859309999-ed665c53a1ed?auto=format&fit=crop&q=80&w=600',
-    description: '고속도로 휴게소, 물류허브, 공영 차고지 전용 하이퍼 초급속 충전 모델입니다.'
-  },
-
-  // --- Accessories / Stand ---
-  {
-    id: 'sy-stand-01',
-    name: '프리미엄 세이프티 싱글형 스탠드 케이스',
-    type: '스탠드',
-    power: '7~11kW 호환',
-    price: 250000,
-    detailCategory: '스탠드',
-    serviceType: 'device',
-    features: ['부식방지 특수 분체도장', '실외 우천 보호 빗물받이', '충전 케이블 권취형 행거'],
-    image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600',
-    description: '야외 주차장이나 마당에 충전기를 독립형 스탠드로 세워 고정할 때 필수적인 전용 정품 스탠드 프레임입니다.'
   }
 ];
 

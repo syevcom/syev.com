@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Product, CartItem } from '../types';
-import { Check, ShieldCheck, Cpu, Activity, ShoppingBag, Eye, Percent } from 'lucide-react';
+import { Check, ShieldCheck, Cpu, Activity, ShoppingBag, Eye, Building2, Home, LayoutGrid, Sparkles } from 'lucide-react';
 import ProductDetailModal from './ProductDetailModal';
 
 interface ProductsSectionProps {
@@ -18,6 +18,24 @@ interface ProductsSectionProps {
   onOpenPayment?: (items: CartItem[]) => void;
 }
 
+export const isResidentialProduct = (p: Product) => {
+  const cat = p.detailCategory || '';
+  const pwr = (p.power || '').toLowerCase().replace(/\s+/g, '');
+  const type = (p.type || '').toLowerCase();
+  const name = (p.name || '').toLowerCase();
+  const id = (p.id || '').toLowerCase();
+
+  if (cat === '공용완속' || cat === '급속' || cat === '스탠드') return false;
+  if (pwr.includes('biz') || pwr.includes('35kw') || pwr.includes('50kw') || pwr.includes('100kw') || pwr.includes('200kw')) return false;
+  if (type.includes('급속') || type.includes('초급속')) return false;
+  if (id.startsWith('park-') || id.startsWith('comm-') || id.startsWith('sy-dc') || id.startsWith('sy-fc') || id.startsWith('sy-biz') || id.startsWith('sy-stand')) return false;
+  if ((name.includes('공용') && !name.includes('비공용') && !name.includes('개인용')) || name.includes('수익형') || name.includes('관공서') || name.includes('조달상품') || name.includes('초급속') || name.includes('주차장')) return false;
+
+  return true;
+};
+
+export const isCommercialProduct = (p: Product) => !isResidentialProduct(p);
+
 export default function ProductsSection({ 
   onOpenQuoteWithPurpose,
   products,
@@ -27,7 +45,9 @@ export default function ProductsSection({
   onPageChange,
   onOpenPayment
 }: ProductsSectionProps) {
-  const [filter, setFilter] = useState<'전체' | '비공용완속' | '비공용중속' | '공용완속' | '급속' | '스탠드'>('전체');
+  // Main Category Tab: 'residential' (아파트/가정용) vs 'commercial' (상업시설/공용) vs 'all' (전체)
+  const [mainTab, setMainTab] = useState<'all' | 'residential' | 'commercial'>('all');
+  const [subFilter, setSubFilter] = useState<string>('전체');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [detailModalProduct, setDetailModalProduct] = useState<Product | null>(null);
 
@@ -36,17 +56,15 @@ export default function ProductsSection({
     ? (safeProducts.find(p => p && p.id === selectedProductId) || safeProducts[0]) 
     : null;
 
-  const filteredProducts = safeProducts.filter((p) => {
-    if (!p) return false;
-    if (filter === '전체') return true;
-    return p.detailCategory === filter;
-  });
+  const residentialProducts = safeProducts.filter(isResidentialProduct);
+  const commercialProducts = safeProducts.filter(isCommercialProduct);
 
-  const getPurposeByProductType = (type: string) => {
+  const getPurposeByProductType = (type: string, isComm?: boolean) => {
+    if (isComm) return 'Commercial';
     if (type === '스마트홈') return 'Residential';
     if (type === '완속') return 'Residential';
     if (type === '급속' || type === '초급속') return 'ParkingLot';
-    return 'Commercial';
+    return 'Residential';
   };
 
   const formatPrice = (price?: number) => {
@@ -57,13 +75,216 @@ export default function ProductsSection({
   const getPowerBadgeColor = (power: string) => {
     if (power.includes('7kW')) return 'bg-indigo-600';
     if (power.includes('11kW')) return 'bg-cyan-600';
+    if (power.includes('35kW')) return 'bg-amber-600';
     if (power.includes('50kW')) return 'bg-teal-600';
     if (power.includes('200kW')) return 'bg-pink-600';
     return 'bg-slate-700';
   };
 
+  // Sub-filter options based on mainTab
+  const getSubFilterOptions = () => {
+    if (mainTab === 'residential') {
+      return [
+        { key: '전체', label: '전체 가정용' },
+        { key: '7kW', label: '7kW 완속' },
+        { key: '11kW', label: '11kW 완속' },
+        { key: '14kW', label: '14kW 중속' },
+      ];
+    }
+    if (mainTab === 'commercial') {
+      return [
+        { key: '전체', label: '전체 상업용 (4종)' },
+        { key: '7kW', label: '7kW BIZ' },
+        { key: '11kW', label: '11kW BIZ' },
+        { key: '35kW', label: '35kW 중속' },
+        { key: '50kW', label: '50kW 급속' },
+      ];
+    }
+    return [
+      { key: '전체', label: '전체상품' },
+      { key: '비공용완속', label: '비공용완속' },
+      { key: '비공용중속', label: '비공용중속' },
+      { key: '공용완속', label: '공용완속' },
+      { key: '급속', label: '급속충전기' },
+    ];
+  };
+
+  const filterProductList = (list: Product[]) => {
+    if (subFilter === '전체') return list;
+    return list.filter((p) => {
+      if (mainTab === 'residential' || mainTab === 'commercial') {
+        const pwr = (p.power || '').toLowerCase().replace(/\s+/g, '');
+        const target = subFilter.toLowerCase().replace(/\s+/g, '');
+        return pwr.includes(target) || (p.name && p.name.toLowerCase().includes(target));
+      }
+      return p.detailCategory === subFilter || (p.power && p.power.includes(subFilter));
+    });
+  };
+
+  // Render individual product card
+  const renderProductCard = (p: Product, isCommercial: boolean) => (
+    <div
+      key={p.id}
+      onClick={() => setSelectedProductId(p.id)}
+      id={`card-product-${p.id}`}
+      className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer bg-white ${
+        currentSelected?.id === p.id
+          ? 'border-blue-600 ring-4 ring-blue-500/10 shadow-lg shadow-blue-500/5'
+          : 'border-slate-200 hover:border-slate-300 shadow-xs'
+      }`}
+    >
+      <div>
+        {/* Product Image Box */}
+        <div className="relative h-56 bg-slate-50 overflow-hidden flex items-center justify-center p-3">
+          <img
+            src={p.image}
+            alt={p.name}
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+          />
+          
+          {/* Brand Logo / Category indicator - Top Right overlay */}
+          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+            <span className={`font-black text-[11px] px-2.5 py-1 rounded shadow-sm border flex items-center gap-1 tracking-tight ${
+              isCommercial 
+                ? 'bg-amber-500 text-white border-amber-600' 
+                : 'bg-[#e8f321] text-slate-950 border-yellow-300'
+            }`}>
+              {isCommercial ? '🏬 상업시설 BIZ' : '🏠 아파트·가정용'}
+            </span>
+          </div>
+
+          {/* Circular Power Badge - Overlaps Bottom Left corner */}
+          <div className={`absolute bottom-3 left-3 w-14 h-14 flex flex-col items-center justify-center text-xs text-white font-black rounded-full shadow-md backdrop-blur-xs ${getPowerBadgeColor(p.power)}`}>
+            <span className="leading-none text-xs">{p.power}</span>
+          </div>
+
+          {p.plcSupported && (
+            <span className="absolute top-3 left-3 bg-red-600 text-white font-extrabold text-xs px-2 py-1 rounded flex items-center gap-1 shadow-sm">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              PLC 화재예방
+            </span>
+          )}
+        </div>
+
+        {/* Product Body */}
+        <div className="p-5 space-y-3">
+          <h4 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+            {p.name}
+          </h4>
+          
+          {/* Price Label */}
+          <div className="pt-1 pb-1 space-y-0.5">
+            {isCommercial ? (
+              <div className="text-base sm:text-lg font-black text-rose-600 flex items-baseline gap-1">
+                <span>견적문의 (수익형/구축 상담)</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  {p.originalPrice && (
+                    <span className="text-xs text-slate-400 font-bold line-through">
+                      ₩{p.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                  {p.discountRate && (
+                    <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full">
+                      {p.discountRate}% OFF
+                    </span>
+                  )}
+                </div>
+                <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
+                  <span>{formatPrice(p.price)}</span>
+                  {p.price ? <span className="text-xs text-slate-400 font-normal">(설치 포함)</span> : null}
+                </div>
+              </>
+            )}
+            <div className={`w-8 h-0.5 mt-1 rounded-full ${isCommercial ? 'bg-amber-500' : 'bg-blue-500'}`}></div>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed line-clamp-2 font-medium">
+            {p.description}
+          </p>
+
+          {/* Option Groups count indicator if available */}
+          {p.optionGroups && p.optionGroups.length > 0 && (
+            <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center justify-between">
+              <span>🛠️ 세부 옵션: {p.optionGroups.length}개 항목</span>
+              <span className="text-[10px] text-emerald-600 font-black">선택하기 &gt;</span>
+            </div>
+          )}
+
+          {/* Features short-bullets */}
+          <div className="pt-2 border-t border-slate-100 space-y-1.5">
+            {p.features.slice(0, 3).map((f) => (
+              <div key={f} className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 font-bold">
+                <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="truncate">{f}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions Footer */}
+      <div className="p-5 pt-0 mt-1 space-y-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDetailModalProduct(p);
+          }}
+          className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer border border-blue-200 flex items-center justify-center gap-1.5"
+        >
+          <Eye className="w-4 h-4 text-blue-600" />
+          <span>옵션선택 / 상세정보 보기</span>
+        </button>
+
+        <div className="flex gap-2">
+          {isCommercial ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenQuoteWithPurpose('Commercial', `[상업시설/주차장] ${p.name} 무료 견적 문의`);
+              }}
+              id={`btn-product-quote-${p.id}`}
+              className="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm"
+            >
+              📋 상업시설 무료 견적 요청
+            </button>
+          ) : (
+            <>
+              {onAddToCart && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDetailModalProduct(p);
+                  }}
+                  className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
+                  title="옵션선택 및 담기"
+                >
+                  <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                  <span>담기</span>
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenQuoteWithPurpose(getPurposeByProductType(p.type, false), `[가정용/아파트] ${p.name} 무료 견적 문의`);
+                }}
+                id={`btn-product-quote-${p.id}`}
+                className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+              >
+                무료 견적 요청
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-12 py-12 relative group/products">
+    <div className="space-y-10 py-12 relative group/products">
       {isEditMode && onOpenCms && (
         <button
           onClick={() => onOpenCms('products')}
@@ -81,10 +302,10 @@ export default function ProductsSection({
           </span>
           <h3 className="text-2xl md:text-3xl font-black tracking-tight leading-tight">
             화재 감지 알람 및 차세대 PLC 모뎀 기본 탑재! <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300">속도가 빠르고 안전한 완속/급속 충전 라인업</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300">아파트·가정용 & 상업시설 맞춤 충전 라인업</span>
           </h3>
           <p className="text-slate-200 text-sm md:text-base leading-relaxed max-w-2xl font-bold">
-            전기자동차 충전 중 발생하는 과열 및 과충전 트러블을 실시간 감시하는 PLC(Power Line Communication) 모뎀을 장착하여, 화재 우려 없는 100% 안심 환경을 제공합니다.
+            전기자동차 충전 중 발생하는 과열 및 과충전 트러블을 실시간 감시하는 PLC 모뎀을 장착하여, 가정집부터 대형 상업 주차장까지 화재 우려 없는 100% 안심 환경을 제공합니다.
           </p>
         </div>
 
@@ -102,220 +323,138 @@ export default function ProductsSection({
         </div>
       </section>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-1.5 justify-center border-b border-slate-200 pb-2 md:pb-0">
-        {[
-          { key: '전체', label: '전체상품' },
-          { key: '비공용완속', label: '비공용완속충전기' },
-          { key: '비공용중속', label: '비공용중속충전기' },
-          { key: '공용완속', label: '공용완속충전기' },
-          { key: '급속', label: '급속충전기' },
-          { key: '스탠드', label: '스탠드(캐노피)' }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key as any)}
-            id={`btn-product-filter-${tab.key}`}
-            className={`px-4 py-2.5 text-xs sm:text-sm font-extrabold border-b-2 transition-all -mb-[1px] cursor-pointer ${
-              filter === tab.key
-                ? 'border-blue-600 text-blue-600 font-black'
-                : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-200'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Main Category Selector (Segmented Control: 아파트/가정용 vs 상업시설 vs 전체) */}
+      <div className="space-y-4">
+        <div className="flex justify-center">
+          <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex flex-wrap gap-2 max-w-2xl w-full">
+            <button
+              onClick={() => { setMainTab('residential'); setSubFilter('전체'); }}
+              id="btn-tab-residential"
+              className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                mainTab === 'residential'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Home className="w-4 h-4" />
+              <span>🏠 아파트 · 가정용 ({residentialProducts.length})</span>
+            </button>
+
+            <button
+              onClick={() => { setMainTab('commercial'); setSubFilter('전체'); }}
+              id="btn-tab-commercial"
+              className={`flex-1 min-w-[140px] py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                mainTab === 'commercial'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>🏬 상업시설 · 공용 (4종)</span>
+            </button>
+
+            <button
+              onClick={() => { setMainTab('all'); setSubFilter('전체'); }}
+              id="btn-tab-all"
+              className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                mainTab === 'all'
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span>📦 전체보기 ({safeProducts.length})</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Sub-filter chips */}
+        <div className="flex flex-wrap gap-2 justify-center items-center pt-1">
+          {getSubFilterOptions().map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setSubFilter(tab.key)}
+              id={`btn-subfilter-${tab.key}`}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer border ${
+                subFilter === tab.key
+                  ? mainTab === 'commercial' 
+                    ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                    : 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Grid of Products */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((p) => (
-          <div
-            key={p.id}
-            onClick={() => setSelectedProductId(p.id)}
-            id={`card-product-${p.id}`}
-            className={`group rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between cursor-pointer bg-white ${
-              currentSelected?.id === p.id
-                ? 'border-blue-600 ring-4 ring-blue-500/10 shadow-lg shadow-blue-500/5'
-                : 'border-slate-200 hover:border-slate-300 shadow-xs'
-            }`}
-          >
-            <div>
-              {/* Product Image Box */}
-              <div className="relative h-56 bg-slate-50 overflow-hidden flex items-center justify-center p-3">
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Brand Logo - Top Right overlay */}
-                <span className="absolute top-3 right-3 bg-[#e8f321] text-slate-950 font-black text-xs px-2.5 py-1 rounded shadow-sm border border-yellow-300 flex items-center gap-0.5 tracking-tighter">
-                  ⚡ EVMoA
+      {/* Grid Display Area */}
+      {mainTab === 'all' && subFilter === '전체' ? (
+        // Divided Sections when in "All" view
+        <div className="space-y-12">
+          {/* 1. Apartment / Residential Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b-2 border-blue-500/20 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-black">
+                  <Home className="w-4 h-4" />
                 </span>
-
-                {/* Circular Power Badge - Overlaps Bottom Left corner */}
-                <div className={`absolute bottom-3 left-3 w-14 h-14 flex flex-col items-center justify-center text-xs text-white font-black rounded-full shadow-md backdrop-blur-xs ${getPowerBadgeColor(p.power)}`}>
-                  <span className="leading-none text-xs">{p.power}</span>
-                </div>
-
-                {p.plcSupported && (
-                  <span className="absolute top-3 left-3 bg-red-600 text-white font-extrabold text-xs px-2 py-1 rounded flex items-center gap-1 shadow-sm">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    PLC 화재예방
-                  </span>
-                )}
-              </div>
-
-              {/* Product Body */}
-              <div className="p-5 space-y-3">
-                <h4 className="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
-                  {p.name}
-                </h4>
-                
-                {/* Price Label displaying Original Strikethrough & Discounted Price */}
-                <div className="pt-1 pb-1 space-y-0.5">
-                  {(() => {
-                    const isPublic = (
-                      p.detailCategory === '공용완속' ||
-                      p.detailCategory === '급속' ||
-                      p.type === '급속' ||
-                      (p.name.includes('공용') && !p.name.includes('개인용')) ||
-                      p.name.includes('수익형') ||
-                      p.name.includes('관공서') ||
-                      p.name.includes('조달상품') ||
-                      p.id.startsWith('park-')
-                    ) && !p.name.includes('개인용') && !p.name.includes('가정용');
-                    if (isPublic) {
-                      return (
-                        <div className="text-base sm:text-lg font-black text-rose-600 flex items-baseline gap-1">
-                          <span>견적문의(전화문의)</span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <>
-                        <div className="flex items-center gap-2">
-                          {p.originalPrice && (
-                            <span className="text-xs text-slate-400 font-bold line-through">
-                              ₩{p.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                          {p.discountRate && (
-                            <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full">
-                              {p.discountRate}% OFF
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-base sm:text-lg font-black text-slate-950 flex items-baseline gap-1">
-                          <span>{formatPrice(p.price)}</span>
-                          {p.price ? <span className="text-xs text-slate-400 font-normal">(설치 포함)</span> : null}
-                        </div>
-                      </>
-                    );
-                  })()}
-                  <div className="w-8 h-0.5 bg-blue-500 mt-1 rounded-full"></div>
-                </div>
-
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed line-clamp-2 font-medium">
-                  {p.description}
-                </p>
-
-                {/* Option Groups count indicator if available */}
-                {p.optionGroups && p.optionGroups.length > 0 && (
-                  <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center justify-between">
-                    <span>🛠️ 선택 가능 옵션: {p.optionGroups.length}개 항목</span>
-                    <span className="text-[10px] text-emerald-600 font-black">자세히보기 &gt;</span>
-                  </div>
-                )}
-
-                {/* Features short-bullets */}
-                <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                  {p.features.slice(0, 3).map((f) => (
-                    <div key={f} className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 font-bold">
-                      <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span className="truncate">{f}</span>
-                    </div>
-                  ))}
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900">🏠 아파트 · 단독주택 가정용 충전기</h3>
+                  <p className="text-xs text-slate-500 font-bold">개인 전용 완속/중속 충전기 (단말기 단품 구매 및 신규설치 가능)</p>
                 </div>
               </div>
+              <button 
+                onClick={() => { setMainTab('residential'); setSubFilter('전체'); }}
+                className="text-xs font-black text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-1"
+              >
+                가정용만 모아보기 &gt;
+              </button>
             </div>
 
-            {/* Actions Footer */}
-            <div className="p-5 pt-0 mt-1 space-y-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDetailModalProduct(p);
-                }}
-                className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer border border-blue-200 flex items-center justify-center gap-1.5"
-              >
-                <Eye className="w-4 h-4 text-blue-600" />
-                <span>옵션선택 / 상세정보 보기</span>
-              </button>
-
-              <div className="flex gap-2">
-                {(() => {
-                  const isPublic = (
-                    p.detailCategory === '공용완속' ||
-                    p.detailCategory === '급속' ||
-                    p.type === '급속' ||
-                    (p.name.includes('공용') && !p.name.includes('개인용')) ||
-                    p.name.includes('수익형') ||
-                    p.name.includes('관공서') ||
-                    p.name.includes('조달상품') ||
-                    p.id.startsWith('park-')
-                  ) && !p.name.includes('개인용') && !p.name.includes('가정용');
-
-                  if (isPublic) {
-                    return (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
-                        }}
-                        id={`btn-product-quote-${p.id}`}
-                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm"
-                      >
-                        📋 무료 견적 요청
-                      </button>
-                    );
-                  }
-
-                  return (
-                    <>
-                      {onAddToCart && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDetailModalProduct(p);
-                          }}
-                          className="px-3 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-200 flex items-center gap-1 shrink-0"
-                          title="옵션선택 및 담기"
-                        >
-                          <ShoppingBag className="w-4 h-4 text-emerald-600" />
-                          <span>담기</span>
-                        </button>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenQuoteWithPurpose(getPurposeByProductType(p.type));
-                        }}
-                        id={`btn-product-quote-${p.id}`}
-                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
-                      >
-                        무료 견적 요청
-                      </button>
-                    </>
-                  );
-                })()}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {residentialProducts.map((p) => renderProductCard(p, false))}
             </div>
           </div>
-        ))}
-      </div>
+
+          {/* 2. Commercial / Business Section */}
+          <div className="space-y-6 pt-4">
+            <div className="flex items-center justify-between border-b-2 border-amber-500/20 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-black">
+                  <Building2 className="w-4 h-4" />
+                </span>
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900">🏬 상업시설 · 주차장 공용 BIZ 충전기 (4종)</h3>
+                  <p className="text-xs text-slate-500 font-bold">수익형 매장, 상가, 빌딩, 관공서 주차장 전용 공용완속/중속/급속 라인업</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { setMainTab('commercial'); setSubFilter('전체'); }}
+                className="text-xs font-black text-amber-600 hover:text-amber-800 cursor-pointer flex items-center gap-1"
+              >
+                상업시설만 모아보기 &gt;
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {commercialProducts.map((p) => renderProductCard(p, true))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Filtered Grid Display
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filterProductList(
+            mainTab === 'residential' 
+              ? residentialProducts 
+              : mainTab === 'commercial' 
+                ? commercialProducts 
+                : safeProducts
+          ).map((p) => renderProductCard(p, isCommercialProduct(p)))}
+        </div>
+      )}
 
       {/* Product Detail & Option Selector Modal */}
       <ProductDetailModal
@@ -329,3 +468,4 @@ export default function ProductsSection({
     </div>
   );
 }
+

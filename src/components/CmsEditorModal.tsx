@@ -95,6 +95,9 @@ interface CmsEditorModalProps {
     commercialBlueText?: string;
     residentialBlueText?: string;
     parkingBlueText?: string;
+    commercialImage?: string;
+    residentialImage?: string;
+    parkingImage?: string;
     quickContact1?: string;
     quickContact2?: string;
     quickContact3?: string;
@@ -363,6 +366,9 @@ export default function CmsEditorModal({
   const [heroCommercialBlueText, setHeroCommercialBlueText] = useState(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
   const [heroResidentialBlueText, setHeroResidentialBlueText] = useState(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
   const [heroParkingBlueText, setHeroParkingBlueText] = useState(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
+  const [heroCommercialImage, setHeroCommercialImage] = useState(heroConfig.commercialImage || '');
+  const [heroResidentialImage, setHeroResidentialImage] = useState(heroConfig.residentialImage || '');
+  const [heroParkingImage, setHeroParkingImage] = useState(heroConfig.parkingImage || '');
   const [heroQuick1, setHeroQuick1] = useState(heroConfig.quickContact1 || '환경부지원 아파트 무상설치 문의 ⚡');
   const [heroQuick2, setHeroQuick2] = useState(heroConfig.quickContact2 || '가정용 · 홈 충전기 설치문의 🏠');
   const [heroQuick3, setHeroQuick3] = useState(heroConfig.quickContact3 || '상업시설 · 수익형 충전기 설치문의 🏢');
@@ -466,6 +472,9 @@ export default function CmsEditorModal({
       setHeroCommercialBlueText(heroConfig.commercialBlueText || '회사 사옥, 물류창고, 공장, 관공서 전용');
       setHeroResidentialBlueText(heroConfig.residentialBlueText || '단독주택, 빌라, 아파트(개인/공용) 전용');
       setHeroParkingBlueText(heroConfig.parkingBlueText || '대형 마트, 호텔, 빌딩, 공영주차장 맞춤');
+      setHeroCommercialImage(heroConfig.commercialImage || '');
+      setHeroResidentialImage(heroConfig.residentialImage || '');
+      setHeroParkingImage(heroConfig.parkingImage || '');
       setHeroQuick1(heroConfig.quickContact1 || '환경부지원 아파트 무상설치 문의 ⚡');
       setHeroQuick2(heroConfig.quickContact2 || '가정용 · 홈 충전기 설치문의 🏠');
       setHeroQuick3(heroConfig.quickContact3 || '상업시설 · 수익형 충전기 설치문의 🏢');
@@ -555,7 +564,7 @@ export default function CmsEditorModal({
 
   // Commercial / Parking Lot & Home Chargers states for CMS
   const [cmsParkingProducts, setCmsParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+    const saved = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -576,7 +585,7 @@ export default function CmsEditorModal({
       if (savedHome) {
         try { setCmsHomeProducts(JSON.parse(savedHome)); } catch (e) {}
       }
-      const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
       if (savedParking) {
         try { setCmsParkingProducts(JSON.parse(savedParking)); } catch (e) {}
       }
@@ -677,6 +686,7 @@ export default function CmsEditorModal({
       updated[solProdCategory] = list;
       setCmsParkingProducts(updated);
       localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(updated));
+      localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(updated));
     } else {
       const updated = { ...cmsHomeProducts };
       const list = updated[solProdCategory] ? [...updated[solProdCategory]] : [];
@@ -784,6 +794,7 @@ export default function CmsEditorModal({
         updated[category] = updated[category].filter(item => item.id !== id);
         setCmsParkingProducts(updated);
         localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(updated));
+        localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(updated));
       }
     } else {
       const updated = { ...cmsHomeProducts };
@@ -922,6 +933,9 @@ export default function CmsEditorModal({
       commercialBlueText: heroCommercialBlueText,
       residentialBlueText: heroResidentialBlueText,
       parkingBlueText: heroParkingBlueText,
+      commercialImage: heroCommercialImage,
+      residentialImage: heroResidentialImage,
+      parkingImage: heroParkingImage,
       quickContact1: heroQuick1,
       quickContact2: heroQuick2,
       quickContact3: heroQuick3
@@ -2674,6 +2688,239 @@ export default function CmsEditorModal({
                           className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
                           placeholder="대형 마트, 호텔, 빌딩, 공영주차장 맞춤"
                         />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1-3-2. CUSTOM SOLUTION CARDS MAIN IMAGE CONFIG (아파트 / 가정용 / 상업시설 수익형) */}
+                <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl space-y-4 mt-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <span className="block text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                        🖼️ 메인화면 용도별 맞춤 솔루션 카드 3종 이미지(사진) 설정
+                      </span>
+                      <p className="text-[10px] text-slate-500 font-bold leading-normal mt-0.5">
+                        메인 화면의 3개 대표 카드(가정용 홈, 아파트, 상업시설 수익형)에 들어가는 메인 이미지/사진을 직접 첨부하거나 변경할 수 있습니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Card 1: 가정용 홈 */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                            🏠 가정용 홈 메인 이미지
+                          </span>
+                          {heroResidentialImage && (
+                            <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              적용중
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative aspect-video rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                          {heroResidentialImage ? (
+                            <img
+                              src={heroResidentialImage}
+                              alt="Residential Hero Card Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="text-center p-2 text-slate-400 text-[10px] font-bold">
+                              <ImageIcon className="w-5 h-5 mx-auto mb-1 opacity-50" />
+                              <span>기본 일러스트 모드</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[9px] font-bold text-slate-500">이미지 URL 직접 입력</label>
+                          <input
+                            type="text"
+                            value={heroResidentialImage}
+                            onChange={(e) => setHeroResidentialImage(e.target.value)}
+                            placeholder="https://..."
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5 pt-1">
+                        <label className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black text-center cursor-pointer flex items-center justify-center gap-1 transition-all">
+                          <Upload className="w-3 h-3" />
+                          <span>사진 파일 첨부</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const compressed = await compressImage(file, 1200, 800, 0.85);
+                                setHeroResidentialImage(compressed);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        {heroResidentialImage && (
+                          <button
+                            type="button"
+                            onClick={() => setHeroResidentialImage('')}
+                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                          >
+                            초기화
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card 2: 아파트 */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                            🏢 아파트 메인 이미지
+                          </span>
+                          {heroCommercialImage && (
+                            <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              적용중
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative aspect-video rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                          {heroCommercialImage ? (
+                            <img
+                              src={heroCommercialImage}
+                              alt="Commercial Hero Card Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="text-center p-2 text-slate-400 text-[10px] font-bold">
+                              <ImageIcon className="w-5 h-5 mx-auto mb-1 opacity-50" />
+                              <span>기본 일러스트 모드</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[9px] font-bold text-slate-500">이미지 URL 직접 입력</label>
+                          <input
+                            type="text"
+                            value={heroCommercialImage}
+                            onChange={(e) => setHeroCommercialImage(e.target.value)}
+                            placeholder="https://..."
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5 pt-1">
+                        <label className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black text-center cursor-pointer flex items-center justify-center gap-1 transition-all">
+                          <Upload className="w-3 h-3" />
+                          <span>사진 파일 첨부</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const compressed = await compressImage(file, 1200, 800, 0.85);
+                                setHeroCommercialImage(compressed);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        {heroCommercialImage && (
+                          <button
+                            type="button"
+                            onClick={() => setHeroCommercialImage('')}
+                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                          >
+                            초기화
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card 3: 상업시설 수익형 */}
+                    <div className="bg-white p-3.5 rounded-2xl border-2 border-emerald-400 shadow-sm space-y-2.5 flex flex-col justify-between ring-2 ring-emerald-500/10">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-emerald-950 flex items-center gap-1">
+                            🅿️ 상업시설 수익형 메인 이미지
+                          </span>
+                          {heroParkingImage ? (
+                            <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                              적용중
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                              수정 가능
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative aspect-video rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                          {heroParkingImage ? (
+                            <img
+                              src={heroParkingImage}
+                              alt="Parking Hero Card Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="text-center p-2 text-slate-400 text-[10px] font-bold">
+                              <ImageIcon className="w-5 h-5 mx-auto mb-1 opacity-50" />
+                              <span>기본 일러스트 모드</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[9px] font-bold text-slate-500">이미지 URL 직접 입력</label>
+                          <input
+                            type="text"
+                            value={heroParkingImage}
+                            onChange={(e) => setHeroParkingImage(e.target.value)}
+                            placeholder="https://..."
+                            className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono text-emerald-800 font-semibold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5 pt-1">
+                        <label className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black text-center cursor-pointer flex items-center justify-center gap-1 transition-all shadow-sm">
+                          <Upload className="w-3 h-3" />
+                          <span>상업시설 사진 파일 첨부</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const compressed = await compressImage(file, 1200, 800, 0.85);
+                                setHeroParkingImage(compressed);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        {heroParkingImage && (
+                          <button
+                            type="button"
+                            onClick={() => setHeroParkingImage('')}
+                            className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                          >
+                            초기화
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

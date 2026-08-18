@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { X, Mail, Lock, User, Building, Landmark, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Mail, Lock, User, Building, Landmark, Check, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { User as UserType } from '../types';
 
@@ -20,12 +20,32 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
   const [userType, setUserType] = useState<'B2C' | 'B2B'>('B2C');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [businessNumber, setBusinessNumber] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Auto-fill remembered credentials on modal open
+  useEffect(() => {
+    if (isOpen) {
+      const savedId = localStorage.getItem('sy_saved_login_id');
+      const savedPass = localStorage.getItem('sy_saved_login_password');
+      if (savedId) {
+        setEmail(savedId);
+      }
+      if (savedPass) {
+        setPassword(savedPass);
+      }
+      const savedRemember = localStorage.getItem('sy_remember_auth');
+      if (savedRemember !== null) {
+        setRememberMe(savedRemember === 'true');
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -109,8 +129,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('이메일과 비밀번호를 모두 입력해 주세요.');
+    const inputId = email.trim();
+    const inputPass = password.trim();
+
+    if (!inputId || !inputPass) {
+      setError('아이디(이메일)와 비밀번호를 모두 입력해 주세요.');
       return;
     }
 
@@ -129,20 +152,90 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
       }
     }
 
+    // Check Admin Credentials
+    const savedAdminId = (localStorage.getItem('sy_admin_id') || 'syevcom').toLowerCase();
+    const savedAdminPassword = localStorage.getItem('sy_admin_password') || 'syev.com123!';
+    const normalizedInputId = inputId.toLowerCase();
+
+    const isAdminLogin = 
+      normalizedInputId === 'sy.car.com@gmail.com' ||
+      normalizedInputId === savedAdminId ||
+      normalizedInputId === 'syevcom' ||
+      normalizedInputId === 'admin';
+
+    const isValidAdminPass = 
+      inputPass === savedAdminPassword ||
+      inputPass === 'syev.com123!';
+
+    if (isLogin && isAdminLogin) {
+      if (!isValidAdminPass) {
+        setError('관리자 비밀번호가 일치하지 않습니다.');
+        return;
+      }
+
+      const adminUser: UserType = {
+        id: 'usr-admin-sycom',
+        email: normalizedInputId.includes('@') ? normalizedInputId : 'sy.car.com@gmail.com',
+        name: 'SY.com 최고 관리자',
+        type: 'B2B',
+        companyName: '(유)에스와이닷컴',
+        isAdmin: true,
+        role: 'admin'
+      };
+
+      if (rememberMe) {
+        localStorage.setItem('sy_saved_login_id', inputId);
+        localStorage.setItem('sy_saved_login_password', inputPass);
+        localStorage.setItem('sy_remember_auth', 'true');
+      } else {
+        localStorage.removeItem('sy_saved_login_id');
+        localStorage.removeItem('sy_saved_login_password');
+        localStorage.removeItem('sy_remember_auth');
+      }
+
+      localStorage.setItem('sy_logged_user', JSON.stringify(adminUser));
+      onLoginSuccess(adminUser);
+      setSuccess('관리자 인증에 성공했습니다. 관리자 메뉴가 활성화됩니다.');
+      setTimeout(() => {
+        onClose();
+        setSuccess('');
+      }, 800);
+      return;
+    }
+
     // Get stored accounts or create a clean real session
     const storedUsersStr = localStorage.getItem('sy_registered_users');
     const storedUsers: Record<string, any> = storedUsersStr ? JSON.parse(storedUsersStr) : {};
 
     if (isLogin) {
       // Check registered users
-      const existing = storedUsers[email.toLowerCase()];
+      const existing = storedUsers[normalizedInputId];
       if (existing) {
-        if (existing.password !== password) {
+        if (existing.password !== inputPass) {
           setError('비밀번호가 일치하지 않습니다.');
           return;
         }
-        onLoginSuccess(existing.user);
-        setSuccess('성공적으로 로그인되었습니다.');
+
+        const isUserAdmin = existing.user.isAdmin || normalizedInputId === 'sy.car.com@gmail.com';
+        const loggedUser: UserType = {
+          ...existing.user,
+          isAdmin: isUserAdmin,
+          role: isUserAdmin ? 'admin' : 'user'
+        };
+
+        if (rememberMe) {
+          localStorage.setItem('sy_saved_login_id', inputId);
+          localStorage.setItem('sy_saved_login_password', inputPass);
+          localStorage.setItem('sy_remember_auth', 'true');
+        } else {
+          localStorage.removeItem('sy_saved_login_id');
+          localStorage.removeItem('sy_saved_login_password');
+          localStorage.removeItem('sy_remember_auth');
+        }
+
+        localStorage.setItem('sy_logged_user', JSON.stringify(loggedUser));
+        onLoginSuccess(loggedUser);
+        setSuccess(loggedUser.isAdmin ? '관리자 권한으로 로그인되었습니다.' : '성공적으로 로그인되었습니다.');
         setTimeout(() => {
           onClose();
           setSuccess('');
@@ -150,34 +243,58 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
         return;
       }
 
-      // Default real email login
+      // Default real email/account login
+      const isOwnerEmail = normalizedInputId === 'sy.car.com@gmail.com';
       const loggedUser: UserType = {
         id: `usr-${Date.now()}`,
-        email,
-        name: email.split('@')[0],
-        type: 'B2C'
+        email: inputId.includes('@') ? inputId : `${inputId}@sy.com`,
+        name: inputId.includes('@') ? inputId.split('@')[0] : inputId,
+        type: 'B2C',
+        isAdmin: isOwnerEmail,
+        role: isOwnerEmail ? 'admin' : 'user'
       };
-      
+
+      if (rememberMe) {
+        localStorage.setItem('sy_saved_login_id', inputId);
+        localStorage.setItem('sy_saved_login_password', inputPass);
+        localStorage.setItem('sy_remember_auth', 'true');
+      } else {
+        localStorage.removeItem('sy_saved_login_id');
+        localStorage.removeItem('sy_saved_login_password');
+        localStorage.removeItem('sy_remember_auth');
+      }
+
+      localStorage.setItem('sy_logged_user', JSON.stringify(loggedUser));
       onLoginSuccess(loggedUser);
-      setSuccess('성공적으로 로그인되었습니다.');
+      setSuccess(isOwnerEmail ? '관리자 권한으로 로그인되었습니다.' : '성공적으로 로그인되었습니다.');
       setTimeout(() => {
         onClose();
         setSuccess('');
       }, 800);
     } else {
       // Register
+      const isOwnerEmail = normalizedInputId === 'sy.car.com@gmail.com';
       const newUser: UserType = {
         id: `usr-${Date.now()}`,
-        email,
+        email: inputId,
         name,
         type: userType,
         companyName: userType === 'B2B' ? companyName : undefined,
-        businessNumber: userType === 'B2B' ? businessNumber : undefined
+        businessNumber: userType === 'B2B' ? businessNumber : undefined,
+        isAdmin: isOwnerEmail,
+        role: isOwnerEmail ? 'admin' : 'user'
       };
 
-      storedUsers[email.toLowerCase()] = { password, user: newUser };
+      storedUsers[normalizedInputId] = { password: inputPass, user: newUser };
       localStorage.setItem('sy_registered_users', JSON.stringify(storedUsers));
       
+      if (rememberMe) {
+        localStorage.setItem('sy_saved_login_id', inputId);
+        localStorage.setItem('sy_saved_login_password', inputPass);
+        localStorage.setItem('sy_remember_auth', 'true');
+      }
+
+      localStorage.setItem('sy_logged_user', JSON.stringify(newUser));
       onLoginSuccess(newUser);
       setSuccess('SY.com 회원가입이 완료되었습니다!');
       setTimeout(() => {
@@ -316,18 +433,20 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
               </div>
             )}
 
-            {/* Email input */}
+            {/* Email / ID input */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">이메일 주소</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                {isLogin ? '아이디 또는 이메일 주소' : '이메일 주소'}
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
                   <Mail className="h-4 w-4" />
                 </span>
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder={isLogin ? '아이디 또는 이메일 입력' : 'name@example.com'}
                   id="input-auth-email"
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-xs font-bold transition-all"
                 />
@@ -336,13 +455,23 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
 
             {/* Password input */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">비밀번호</label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-xs font-bold text-slate-700">비밀번호</label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-slate-400 hover:text-slate-600 flex items-center gap-1 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showPassword ? '숨기기' : '표시'}</span>
+                </button>
+              </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
                   <Lock className="h-4 w-4" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
@@ -351,6 +480,23 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
                 />
               </div>
             </div>
+
+            {/* Remember Me Checkbox */}
+            {isLogin && (
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="text-xs font-bold text-slate-600">
+                    아이디 · 비밀번호 기억하기 (자동 로그인)
+                  </span>
+                </label>
+              </div>
+            )}
 
             {/* Registration Additional Fields */}
             {!isLogin && (
@@ -465,22 +611,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
               </p>
             )}
           </div>
-
-          {/* Admin Login Link */}
-          {onOpenAdminLogin && (
-            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAdminLogin();
-                }}
-                className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors cursor-pointer inline-flex items-center gap-1"
-              >
-                <span>🔒 관리자 전용 계정 로그인</span>
-              </button>
-            </div>
-          )}
         </div>
       </motion.div>
     </div>

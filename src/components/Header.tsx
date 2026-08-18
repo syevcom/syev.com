@@ -18,7 +18,8 @@ import {
   ChevronDown, 
   BookOpen,
   Search,
-  ShoppingBag
+  ShoppingBag,
+  ShieldCheck
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig } from '../types';
 import { SearchModal } from './SearchModal';
@@ -322,15 +323,19 @@ export default function Header({
               </button>
             )}
 
-            {/* Admin control buttons */}
-            {isEditMode ? (
+            {/* Admin control buttons: Visible ONLY when logged in as Admin or in Edit Mode */}
+            {(user?.isAdmin || isEditMode) && (
               <div className="flex items-center gap-1">
                 <button
                   onClick={onToggleEditMode}
-                  className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md animate-pulse"
-                  title="관리자 수정모드 (클릭시 비활성화)"
+                  className={`w-6 h-6 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                    isEditMode 
+                      ? 'bg-amber-500 hover:bg-amber-600 text-white animate-pulse' 
+                      : 'bg-slate-700 hover:bg-slate-600 text-amber-300'
+                  }`}
+                  title={isEditMode ? "관리자 수정모드 (클릭시 비활성화)" : "실시간 편집모드 켜기"}
                 >
-                  <Settings className="w-3 h-3 animate-spin" />
+                  <Settings className={`w-3 h-3 ${isEditMode ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   onClick={() => onPageChange('admin')}
@@ -340,15 +345,6 @@ export default function Header({
                   <span>🔧 관리자</span>
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={onToggleEditMode}
-                className="bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-lg font-bold text-[10.5px] px-2 py-1 cursor-pointer transition-all shrink-0 flex items-center gap-1"
-                title="관리자 로그인"
-              >
-                <Settings className="w-3 h-3 text-stone-500" />
-                <span className="hidden xl:inline">관리자</span>
-              </button>
             )}
           </div>
 
@@ -379,14 +375,14 @@ export default function Header({
             <Search className="w-4 h-4" />
           </button>
 
-          {/* Admin Toggle on Mobile (Visible ONLY when isEditMode is true) */}
-          {isEditMode && (
+          {/* Admin Toggle on Mobile (Visible ONLY when logged in as admin or isEditMode) */}
+          {(user?.isAdmin || isEditMode) && (
             <button
-              onClick={onToggleEditMode}
-              className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-md cursor-pointer animate-pulse"
-              title="관리자 모드 활성화됨"
+              onClick={() => onPageChange('admin')}
+              className="w-8 h-8 rounded-full bg-slate-900 text-amber-400 border border-slate-700 flex items-center justify-center shadow-md cursor-pointer"
+              title="관리자 센터"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className={`w-4 h-4 ${isEditMode ? 'animate-spin text-amber-400' : ''}`} />
             </button>
           )}
 
@@ -523,6 +519,33 @@ export default function Header({
 
               {/* User & Auth Links */}
               <div className="pt-4 border-t border-stone-200/60 space-y-3">
+                {/* Admin Quick Action (Only if admin logged in) */}
+                {(user?.isAdmin || isEditMode) && (
+                  <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-amber-600" />
+                        <span>관리자 전용 메뉴</span>
+                      </span>
+                      <button
+                        onClick={onToggleEditMode}
+                        className="text-[10.5px] font-bold px-2 py-0.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-md cursor-pointer transition-colors"
+                      >
+                        {isEditMode ? '편집 끄기' : '실시간 편집'}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onPageChange('admin');
+                      }}
+                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                    >
+                      <span>🔧 관리자 센터 이동</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Social utilities */}
                 <div className="grid grid-cols-3 gap-2 pt-1">
                   <a 

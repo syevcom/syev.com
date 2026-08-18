@@ -280,20 +280,12 @@ export default function QuoteModal({
       estimateCost: activeTab === 'calc' ? `${calculateFinalCost().toLocaleString()}원` : undefined
     });
 
-    // Also update states for final success screen
-    setName(bookingName);
-    setPhone(bookingPhone);
-    setLocation(bookingLocation);
-
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setName('');
-      setPhone('');
-      setMemo('');
-      setFormValues({});
-      onClose();
-    }, 2500);
+    setName('');
+    setPhone('');
+    setMemo('');
+    setFormValues({});
+    setSubmitted(false);
+    onClose();
   };
 
   // Helper calculation for 1-minute custom quotation

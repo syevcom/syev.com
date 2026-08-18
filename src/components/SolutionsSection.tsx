@@ -381,12 +381,14 @@ interface SolutionsSectionProps {
   onAddToCart?: (product: any, selectedOptions?: { groupTitle: string; optionName: string; optionPrice: number }[], customPrice?: number, customQuantity?: number) => void;
   onOpenCartModal?: () => void;
   onOpenPayment?: (items: any[]) => void;
+  user?: any;
 }
 
 export default function SolutionsSection({ 
   onOpenQuoteWithPurpose,
   solutions,
   isEditMode = false,
+  user,
   onOpenCms,
   onPageChange,
   defaultActiveTab = 'ALL',
@@ -402,6 +404,40 @@ export default function SolutionsSection({
   onOpenCartModal,
   onOpenPayment
  }: SolutionsSectionProps) {
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
+    try {
+      const u = localStorage.getItem('sy_user') || localStorage.getItem('sy_logged_user');
+      if (u) {
+        const parsed = JSON.parse(u);
+        return Boolean(parsed.isAdmin || parsed.email === 'sy.car.com@gmail.com' || parsed.role === 'admin');
+      }
+    } catch (e) {}
+    return false;
+  });
+
+  useEffect(() => {
+    const checkAdmin = () => {
+      try {
+        const u = localStorage.getItem('sy_user') || localStorage.getItem('sy_logged_user');
+        if (u) {
+          const parsed = JSON.parse(u);
+          setIsAdminLoggedIn(Boolean(parsed.isAdmin || parsed.email === 'sy.car.com@gmail.com' || parsed.role === 'admin'));
+          return;
+        }
+      } catch (e) {}
+      setIsAdminLoggedIn(false);
+    };
+    checkAdmin();
+    window.addEventListener('storage', checkAdmin);
+    window.addEventListener('sy_auth_state_changed', checkAdmin);
+    return () => {
+      window.removeEventListener('storage', checkAdmin);
+      window.removeEventListener('sy_auth_state_changed', checkAdmin);
+    };
+  }, []);
+
+  const canEdit = isEditMode || isAdminLoggedIn || Boolean(user?.isAdmin || user?.email === 'sy.car.com@gmail.com' || user?.role === 'admin');
+
   const [activeTab, setActiveTab] = useState<'ALL' | 'Commercial' | 'Residential' | 'ParkingLot'>(defaultActiveTab);
   const [selectedProductIds, setSelectedProductIds] = useState<Record<string, string>>({});
   const [visualViewerMode, setVisualViewerMode] = useState<Record<string, 'product' | 'catalog'>>({});
@@ -467,11 +503,14 @@ export default function SolutionsSection({
 
   const getCardImage = (prod: SolutionProduct | null): string => {
     if (!prod) return '';
+    if (prod.image && prod.image.trim()) {
+      return prod.image;
+    }
     try {
       const savedMain = localStorage.getItem('sy_cms_products_v12');
       if (savedMain) {
         const parsedMain = JSON.parse(savedMain);
-        const matched = parsedMain.find((mp: any) => mp.id && prod.id && mp.id === prod.id);
+        const matched = parsedMain.find((mp: any) => mp.id && prod.id && (mp.id === prod.id || (mp.name && prod.name && mp.name.trim() === prod.name.trim())));
         if (matched?.image) {
           return matched.image;
         }
@@ -751,37 +790,93 @@ export default function SolutionsSection({
   });
 
   const ensureDefaultParkingProducts = (parsed: Record<string, SolutionProduct[]>) => {
-    const result: Record<string, SolutionProduct[]> = { ...parsed };
+    const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
+    const deletedSet = new Set<string>(savedDeleted ? JSON.parse(savedDeleted) : []);
+    const REMOVED_SET = new Set([
+      'sy-ac11',
+      'park-11kw-convenient',
+      'sy-fc200'
+    ]);
+
+    const result: Record<string, SolutionProduct[]> = {};
+    let modified = false;
+
     Object.keys(PARKING_PRODUCTS_DATA).forEach((cat) => {
       const defaultList = PARKING_PRODUCTS_DATA[cat] || [];
-      const currentList = result[cat] || [];
-      // Always update existing 4 biz chargers to ensure 0 discount and accurate names/images
-      const mergedList = defaultList.map(def => {
-        const existing = currentList.find(c => c.id === def.id);
-        return {
-          ...def,
-          ...existing,
-          discount: 0,
-          regularPrice: 0,
-          price: 0,
-          image: def.image || existing?.image
-        };
+      const rawCurrent = parsed && parsed[cat] ? parsed[cat] : defaultList;
+      const cleanedCurrent = rawCurrent.filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id));
+
+      if (cleanedCurrent.length !== rawCurrent.length) {
+        modified = true;
+      }
+
+      const mergedList: SolutionProduct[] = [];
+      const seenIds = new Set<string>();
+
+      // Preserve existing user customizations (including custom images!)
+      cleanedCurrent.forEach(existing => {
+        if (!existing) return;
+        const normalizedExisting = { ...existing };
+        if (normalizedExisting.id === 'sy-dc50') {
+          normalizedExisting.id = 'park-50kw-1ch-coolcharge';
+        }
+        if (seenIds.has(normalizedExisting.id)) return;
+        seenIds.add(normalizedExisting.id);
+        const def = defaultList.find(d => 
+          d.id === normalizedExisting.id || 
+          (d.name && normalizedExisting.name && d.name.trim() === normalizedExisting.name.trim()) ||
+          ((d.id === 'park-50kw-1ch-coolcharge' || d.id === 'sy-dc50') && (normalizedExisting.id === 'park-50kw-1ch-coolcharge' || normalizedExisting.id === 'sy-dc50' || (normalizedExisting.name && normalizedExisting.name.includes('50kW'))))
+        );
+        if (def) {
+          seenIds.add(def.id);
+        }
+        mergedList.push({
+          ...(def || {}),
+          ...normalizedExisting,
+          image: normalizedExisting.image && normalizedExisting.image.trim() ? normalizedExisting.image : (def?.image || ''),
+          discount: normalizedExisting.discount !== undefined ? normalizedExisting.discount : (def?.discount || 0),
+          regularPrice: normalizedExisting.regularPrice !== undefined ? normalizedExisting.regularPrice : (def?.regularPrice || 0),
+          price: normalizedExisting.price !== undefined ? normalizedExisting.price : (def?.price || 0)
+        });
       });
+
+      // Add default chargers if they haven't been added yet and aren't deleted
+      defaultList.forEach(def => {
+        const isAlreadyAdded = seenIds.has(def.id) || mergedList.some(m => 
+          m.id === def.id || 
+          (m.name && def.name && m.name.trim() === def.name.trim()) ||
+          ((def.id === 'park-50kw-1ch-coolcharge' || def.id === 'sy-dc50') && (m.id === 'park-50kw-1ch-coolcharge' || m.id === 'sy-dc50' || (m.name && m.name.includes('50kW'))))
+        );
+        if (!REMOVED_SET.has(def.id) && !deletedSet.has(def.id) && !isAlreadyAdded) {
+          seenIds.add(def.id);
+          mergedList.push({ ...def });
+          modified = true;
+        }
+      });
+
       result[cat] = mergedList;
     });
+
+    if (modified) {
+      try {
+        localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(result));
+        localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(result));
+      } catch (e) {}
+    }
+
     return result;
   };
 
   const [parkingProducts, setParkingProducts] = useState<Record<string, SolutionProduct[]>>(() => {
-    const saved = localStorage.getItem('sy_cms_parking_products_v6_fixed');
+    const saved = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
     if (saved) {
       try {
         return ensureDefaultParkingProducts(JSON.parse(saved));
       } catch (e) {
-        return PARKING_PRODUCTS_DATA;
+        return ensureDefaultParkingProducts(PARKING_PRODUCTS_DATA);
       }
     }
-    return PARKING_PRODUCTS_DATA;
+    return ensureDefaultParkingProducts(PARKING_PRODUCTS_DATA);
   });
 
   // Real-time synchronization listener for CMS updates
@@ -831,16 +926,15 @@ export default function SolutionsSection({
     if (activeDetailProduct) {
       // Find up-to-date info if it was edited
       let found: SolutionProduct | undefined = undefined;
-      if (activeDetailProduct.id.startsWith('res-') || activeDetailProduct.id.startsWith('sy-') || !activeDetailProduct.id.startsWith('park-')) {
-        Object.values(homeProducts).forEach((arr) => {
-          const typedArr = arr as SolutionProduct[];
-          const match = typedArr.find(p => p.id === activeDetailProduct.id);
-          if (match) found = match;
-        });
-      } else {
+      Object.values(homeProducts).forEach((arr) => {
+        const typedArr = arr as SolutionProduct[];
+        const match = typedArr.find(p => p.id === activeDetailProduct.id || (p.name && activeDetailProduct.name && p.name.trim() === activeDetailProduct.name.trim()));
+        if (match) found = match;
+      });
+      if (!found) {
         Object.values(parkingProducts).forEach((arr) => {
           const typedArr = arr as SolutionProduct[];
-          const match = typedArr.find(p => p.id === activeDetailProduct.id);
+          const match = typedArr.find(p => p.id === activeDetailProduct.id || (p.name && activeDetailProduct.name && p.name.trim() === activeDetailProduct.name.trim()));
           if (match) found = match;
         });
       }
@@ -871,6 +965,7 @@ export default function SolutionsSection({
     setParkingProducts(data);
     try {
       localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(data));
+      localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(data));
       window.dispatchEvent(new Event('sy_cms_products_update'));
     } catch (e) {
       console.error('Failed to save parking products to localStorage:', e);
@@ -878,47 +973,71 @@ export default function SolutionsSection({
   };
 
   const updateProductDetails = (productId: string, updatedFields: Partial<SolutionProduct>) => {
-    if (productId.startsWith('res-') || productId.startsWith('sy-')) {
-      const updated = { ...homeProducts };
-      let found = false;
-      Object.keys(updated).forEach((category) => {
-        const arr = [...(updated[category] || [])];
-        const index = arr.findIndex(p => p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()));
-        if (index !== -1) {
-          arr[index] = { ...arr[index], ...updatedFields };
-          updated[category] = arr;
-          found = true;
-        }
-      });
-      if (found) {
-        saveHomeProducts(updated);
-        setActiveDetailProduct(prev => prev && prev.id === productId ? { ...prev, ...updatedFields } : prev);
+    let foundInHome = false;
+    let foundInParking = false;
+
+    // Check homeProducts
+    const updatedHome = { ...homeProducts };
+    Object.keys(updatedHome).forEach((category) => {
+      const arr = [...(updatedHome[category] || [])];
+      const index = arr.findIndex(p => 
+        p.id === productId || 
+        (p.name && updatedFields.name && p.name.trim() === updatedFields.name.trim()) || 
+        (activeDetailProduct && (p.id === activeDetailProduct.id || (p.name && activeDetailProduct.name && p.name.trim() === activeDetailProduct.name.trim()))) ||
+        ((productId === 'sy-ac11-bi' || productId === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil'))
+      );
+      if (index !== -1) {
+        arr[index] = { ...arr[index], ...updatedFields };
+        updatedHome[category] = arr;
+        foundInHome = true;
       }
-    } else {
-      const updated = { ...parkingProducts };
-      let found = false;
-      Object.keys(updated).forEach((category) => {
-        const arr = [...(updated[category] || [])];
-        const index = arr.findIndex(p => p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()));
-        if (index !== -1) {
-          arr[index] = { ...arr[index], ...updatedFields };
-          updated[category] = arr;
-          found = true;
-        }
-      });
-      if (found) {
-        saveParkingProducts(updated);
-        setActiveDetailProduct(prev => prev && prev.id === productId ? { ...prev, ...updatedFields } : prev);
-      }
+    });
+    if (foundInHome) {
+      saveHomeProducts(updatedHome);
     }
 
-    // Sync to sy_cms_products_v12
+    // Check parkingProducts
+    const updatedParking = { ...parkingProducts };
+    Object.keys(updatedParking).forEach((category) => {
+      const arr = [...(updatedParking[category] || [])];
+      const index = arr.findIndex(p => 
+        p.id === productId || 
+        (p.name && updatedFields.name && p.name.trim() === updatedFields.name.trim()) || 
+        (activeDetailProduct && (p.id === activeDetailProduct.id || (p.name && activeDetailProduct.name && p.name.trim() === activeDetailProduct.name.trim()))) ||
+        ((productId === 'park-50kw-1ch-coolcharge' || productId === 'sy-dc50' || (activeDetailProduct && (activeDetailProduct.id === 'park-50kw-1ch-coolcharge' || activeDetailProduct.name?.includes('50kW')))) && (p.id === 'park-50kw-1ch-coolcharge' || p.id === 'sy-dc50' || (p.name && p.name.includes('50kW'))))
+      );
+      if (index !== -1) {
+        arr[index] = { ...arr[index], ...updatedFields };
+        updatedParking[category] = arr;
+        foundInParking = true;
+      }
+    });
+    if (foundInParking) {
+      saveParkingProducts(updatedParking);
+    }
+
+    setActiveDetailProduct(prev => {
+      if (!prev) return prev;
+      const isMatch = prev.id === productId || 
+        (prev.name && updatedFields.name && prev.name.trim() === updatedFields.name.trim()) ||
+        (activeDetailProduct && (prev.id === activeDetailProduct.id || (prev.name && activeDetailProduct.name && prev.name.trim() === activeDetailProduct.name.trim()))) ||
+        ((productId === 'park-50kw-1ch-coolcharge' || productId === 'sy-dc50') && (prev.id === 'park-50kw-1ch-coolcharge' || prev.id === 'sy-dc50' || (prev.name && prev.name.includes('50kW'))));
+      return isMatch ? { ...prev, ...updatedFields } : prev;
+    });
+
+    // Sync to sy_cms_products_v12 and sy_cms_products
     try {
       const savedProds = localStorage.getItem('sy_cms_products_v12');
       if (savedProds) {
         const parsedProds: any[] = JSON.parse(savedProds);
         const updatedProds = parsedProds.map(p => {
-          if (p.id === productId || (p.name && p.name.trim() === updatedFields.name?.trim()) || ((productId === 'sy-ac11-bi' || productId === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil'))) {
+          if (
+            p.id === productId || 
+            (p.name && updatedFields.name && p.name.trim() === updatedFields.name.trim()) || 
+            (activeDetailProduct && (p.id === activeDetailProduct.id || (p.name && p.name.trim() === activeDetailProduct.name.trim()))) || 
+            ((productId === 'sy-ac11-bi' || productId === 'res-11kw-spil') && (p.id === 'sy-ac11-bi' || p.id === 'res-11kw-spil')) ||
+            ((productId === 'park-50kw-1ch-coolcharge' || productId === 'sy-dc50' || (activeDetailProduct && (activeDetailProduct.id === 'park-50kw-1ch-coolcharge' || activeDetailProduct.name?.includes('50kW')))) && (p.id === 'park-50kw-1ch-coolcharge' || p.id === 'sy-dc50' || (p.name && p.name.includes('50kW'))))
+          ) {
             return {
               ...p,
               name: updatedFields.name !== undefined ? updatedFields.name : p.name,
@@ -941,6 +1060,7 @@ export default function SolutionsSection({
           return p;
         });
         localStorage.setItem('sy_cms_products_v12', JSON.stringify(updatedProds));
+        localStorage.setItem('sy_cms_products', JSON.stringify(updatedProds));
       }
     } catch (e) {
       console.error('Error syncing updateProductDetails to sy_cms_products_v12:', e);
@@ -1314,9 +1434,14 @@ export default function SolutionsSection({
         }
       } else {
         const updated = { ...parkingProducts };
-        if (updated[editingCategory]) {
-          updated[editingCategory] = updated[editingCategory].map(p => {
-            if (p.id === editingProduct.id) {
+        let found = false;
+        Object.keys(updated).forEach(cat => {
+          updated[cat] = updated[cat].map(p => {
+            const isMatch = p.id === editingProduct.id || 
+              (p.name && editingProduct.name && p.name.trim() === editingProduct.name.trim()) || 
+              ((editingProduct.id === 'park-50kw-1ch-coolcharge' || editingProduct.id === 'sy-dc50') && (p.id === 'park-50kw-1ch-coolcharge' || p.id === 'sy-dc50' || (p.name && p.name.includes('50kW'))));
+            if (isMatch) {
+              found = true;
               return {
                 ...p,
                 name: prodFormName,
@@ -1338,8 +1463,8 @@ export default function SolutionsSection({
             }
             return p;
           });
-          saveParkingProducts(updated);
-        }
+        });
+        saveParkingProducts(updated);
       }
     } else {
       // Add mode
@@ -2514,7 +2639,7 @@ export default function SolutionsSection({
                           <img src={thumbUrl} alt={`gallery thumbnail ${tIdx + 1}`} className="w-full h-full object-contain" />
 
                           {/* Hover Action Overlay in Edit Mode */}
-                          {isEditMode && (
+                          {canEdit && (
                             <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between p-1 z-20">
                               <button
                                 type="button"
@@ -2541,7 +2666,7 @@ export default function SolutionsSection({
                     })}
 
                     {/* Add Image Button in Edit Mode */}
-                    {isEditMode && (
+                    {canEdit && (
                       <button
                         type="button"
                         onClick={() => document.getElementById('left-image-add-gallery-file-input')?.click()}
@@ -2565,7 +2690,7 @@ export default function SolutionsSection({
                   </button>
 
                   {/* Image Change Trigger Button in Gallery Row (Admin Only) */}
-                  {isEditMode && (
+                  {canEdit && (
                     <button
                       type="button"
                       onClick={() => setIsLeftImagePickerOpen(!isLeftImagePickerOpen)}
@@ -2584,7 +2709,7 @@ export default function SolutionsSection({
             {/* Top Row: Breadcrumb & Title */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-[11px] text-slate-400 font-extrabold tracking-wider">
-                {isEditMode ? (
+                {canEdit ? (
                   <button
                     type="button"
                     onClick={(e) => {
@@ -3754,7 +3879,7 @@ export default function SolutionsSection({
                             총 {sortedProducts.length}개의 상품이 있습니다.
                           </span>
                           
-                          {isEditMode && (
+                          {canEdit && (
                             <button
                               type="button"
                               onClick={() => startAddProduct('home', selectedHomePower)}
@@ -3897,7 +4022,7 @@ export default function SolutionsSection({
                                   </div>
                                 )}
 
-                                {isEditMode && (
+                                {canEdit && (
                                   <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">
                                     <button
                                       onClick={(e) => startEditProduct(p, 'home', selectedHomePower, e)}
@@ -3951,7 +4076,7 @@ export default function SolutionsSection({
                             총 {sortedProducts.length}개의 상품이 있습니다.
                           </span>
                           
-                          {isEditMode && (
+                          {canEdit && (
                             <button
                               type="button"
                               onClick={() => startAddProduct('parking', selectedParkingCapacity)}

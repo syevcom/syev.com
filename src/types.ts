@@ -14,6 +14,8 @@ export interface User {
   profileImage?: string;
   businessNumber?: string;
   companyName?: string;
+  isAdmin?: boolean;
+  role?: 'admin' | 'user';
 }
 
 export interface ProductOptionItem {

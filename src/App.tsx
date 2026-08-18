@@ -13,6 +13,7 @@ import ReviewSection from './components/ReviewSection';
 import SupportSection from './components/SupportSection';
 import AuthModal from './components/AuthModal';
 import QuoteModal from './components/QuoteModal';
+import ConsultationSuccessModal, { ConsultationSuccessData } from './components/ConsultationSuccessModal';
 import MyPageModal from './components/MyPageModal';
 import CmsEditorModal from './components/CmsEditorModal';
 import AdminLoginModal from './components/AdminLoginModal';
@@ -79,13 +80,31 @@ const REMOVED_PRODUCT_IDS = new Set([
   'res-5kw-evsis',
   'sy-home07',
   'res-7kw-evsis',
-  'res-11kw-evsis'
+  'res-11kw-evsis',
+  'sy-ac11',
+  'park-11kw-convenient',
+  'sy-fc200'
 ]);
 
 export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [activePage, setActivePage] = useState<ActivePage>('home');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const savedUserStr = localStorage.getItem('sy_logged_user') || localStorage.getItem('sy_user');
+      if (savedUserStr) {
+        const parsed = JSON.parse(savedUserStr);
+        if (parsed.email === 'sy.car.com@gmail.com' || parsed.isAdmin) {
+          parsed.isAdmin = true;
+          parsed.role = 'admin';
+        }
+        return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return null;
+  });
 
   // Sync with Firestore on initial boot in the background
   useEffect(() => {
@@ -270,6 +289,10 @@ export default function App() {
   
   // Custom default purpose for Quote Modal
   const [quoteDefaultPurpose, setQuoteDefaultPurpose] = useState<'Commercial' | 'Residential' | 'ParkingLot'>('Residential');
+
+  // Consultation Success Celebratory Modal state
+  const [isConsultationSuccessOpen, setIsConsultationSuccessOpen] = useState(false);
+  const [consultationSuccessData, setConsultationSuccessData] = useState<ConsultationSuccessData | null>(null);
 
   // Bookings and A/S records stored persistently in localStorage
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -467,10 +490,14 @@ export default function App() {
   // Load from LocalStorage
   useEffect(() => {
     if (isSyncing) return;
-    const savedUser = localStorage.getItem('sy_user');
+    const savedUser = localStorage.getItem('sy_user') || localStorage.getItem('sy_logged_user');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        if (parsed.isAdmin || parsed.email === 'sy.car.com@gmail.com' || parsed.role === 'admin') {
+          setIsEditMode(true);
+        }
       } catch (e) {
         console.error('Failed to parse user', e);
       }
@@ -668,6 +695,8 @@ export default function App() {
           if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
           if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
           if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
+          if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
+          if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
           return false;
         };
 
@@ -679,7 +708,7 @@ export default function App() {
         const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
         const parsedHome = savedHome ? JSON.parse(savedHome) : null;
 
-        const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+        const savedParking = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
         const parsedParking = savedParking ? JSON.parse(savedParking) : null;
 
         let isModified = false;
@@ -793,7 +822,35 @@ export default function App() {
         }
 
         if (parsedParking) {
+          let parkingUpdated = false;
+          Object.keys(PARKING_PRODUCTS_DATA).forEach((catKey) => {
+            if (!parsedParking[catKey]) {
+              parsedParking[catKey] = [...PARKING_PRODUCTS_DATA[catKey]];
+              parkingUpdated = true;
+            } else {
+              PARKING_PRODUCTS_DATA[catKey].forEach((defItem) => {
+                if (!REMOVED_PRODUCT_IDS.has(defItem.id) && !deletedSet.has(defItem.id)) {
+                  const hasItem = parsedParking[catKey].some((p: any) => checkIsMatch(p, defItem as any));
+                  if (!hasItem) {
+                    parsedParking[catKey].push({ ...defItem });
+                    parkingUpdated = true;
+                  }
+                }
+              });
+            }
+          });
+
           Object.keys(parsedParking).forEach((catKey) => {
+            const seenNames = new Set<string>();
+            parsedParking[catKey] = (parsedParking[catKey] || []).filter((sp: any) => {
+              if (!sp || REMOVED_PRODUCT_IDS.has(sp.id) || deletedSet.has(sp.id)) return false;
+              if (sp.id === 'sy-dc50') sp.id = 'park-50kw-1ch-coolcharge';
+              const nameKey = (sp.name || '').trim();
+              if (seenNames.has(nameKey)) return false;
+              seenNames.add(nameKey);
+              return true;
+            });
+
             (parsedParking[catKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
@@ -816,7 +873,7 @@ export default function App() {
                   nextProducts[matchIdx] = { ...existing };
                   isModified = true;
                 }
-              } else {
+              } else if (!REMOVED_PRODUCT_IDS.has(sp.id) && !deletedSet.has(sp.id)) {
                 // Brand new product added in Commercial / Parking section
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
@@ -844,6 +901,11 @@ export default function App() {
               }
             });
           });
+
+          if (parkingUpdated) {
+            localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(parsedParking));
+            localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(parsedParking));
+          }
         }
 
         setProducts(nextProducts);
@@ -1024,6 +1086,8 @@ export default function App() {
           if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
           if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
           if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
+          if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
+          if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
           return false;
         };
 
@@ -1062,7 +1126,7 @@ export default function App() {
         const savedHome = localStorage.getItem('sy_cms_home_products_v6_fixed');
         const parsedHome = savedHome ? JSON.parse(savedHome) : null;
 
-        const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+        const savedParking = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
         const parsedParking = savedParking ? JSON.parse(savedParking) : null;
 
         let isModified = false;
@@ -1165,7 +1229,34 @@ export default function App() {
 
         if (parsedParking) {
           let parkingUpdated = false;
+          Object.keys(PARKING_PRODUCTS_DATA).forEach((catKey) => {
+            if (!parsedParking[catKey]) {
+              parsedParking[catKey] = [...PARKING_PRODUCTS_DATA[catKey]];
+              parkingUpdated = true;
+            } else {
+              PARKING_PRODUCTS_DATA[catKey].forEach((defItem) => {
+                if (!REMOVED_PRODUCT_IDS.has(defItem.id) && !deletedSet.has(defItem.id)) {
+                  const hasItem = parsedParking[catKey].some((p: any) => checkIsMatch(p, defItem as any));
+                  if (!hasItem) {
+                    parsedParking[catKey].push({ ...defItem });
+                    parkingUpdated = true;
+                  }
+                }
+              });
+            }
+          });
+
           Object.keys(parsedParking).forEach((catKey) => {
+            const seenNames = new Set<string>();
+            parsedParking[catKey] = (parsedParking[catKey] || []).filter((sp: any) => {
+              if (!sp || REMOVED_PRODUCT_IDS.has(sp.id) || deletedSet.has(sp.id)) return false;
+              if (sp.id === 'sy-dc50') sp.id = 'park-50kw-1ch-coolcharge';
+              const nameKey = (sp.name || '').trim();
+              if (seenNames.has(nameKey)) return false;
+              seenNames.add(nameKey);
+              return true;
+            });
+
             (parsedParking[catKey] || []).forEach((sp: any) => {
               const matchIdx = nextProducts.findIndex((mp) => checkIsMatch(sp, mp));
               if (matchIdx !== -1) {
@@ -1194,7 +1285,7 @@ export default function App() {
                 // Reverse sync from existing back to sp if sp was missing values
                 if (existing.replacementPrice !== undefined && sp.replacementPrice === undefined) { sp.replacementPrice = existing.replacementPrice; parkingUpdated = true; }
                 if (existing.installIncludedPrice !== undefined && sp.installIncludedPrice === undefined) { sp.installIncludedPrice = existing.installIncludedPrice; parkingUpdated = true; }
-              } else {
+              } else if (!REMOVED_PRODUCT_IDS.has(sp.id) && !deletedSet.has(sp.id)) {
                 const brandMatch = sp.name ? sp.name.match(/^\[([^\]]+)\]/) : null;
                 const brandName = brandMatch ? brandMatch[1] : (sp.name ? sp.name.split(' ')[0] : '에스와이');
                 const newP: Product = {
@@ -1223,6 +1314,7 @@ export default function App() {
           });
           if (parkingUpdated) {
             localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(parsedParking));
+            localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(parsedParking));
           }
         }
 
@@ -1352,14 +1444,28 @@ export default function App() {
 
   // Sync state helpers
   const handleLogin = (newUser: User) => {
-    setUser(newUser);
-    localStorage.setItem('sy_user', JSON.stringify(newUser));
+    const isOwner = newUser.email === 'sy.car.com@gmail.com' || newUser.isAdmin || newUser.role === 'admin';
+    const finalUser: User = {
+      ...newUser,
+      isAdmin: isOwner,
+      role: isOwner ? 'admin' : 'user'
+    };
+    setUser(finalUser);
+    if (isOwner) {
+      setIsEditMode(true);
+    }
+    localStorage.setItem('sy_logged_user', JSON.stringify(finalUser));
+    localStorage.setItem('sy_user', JSON.stringify(finalUser));
+    window.dispatchEvent(new Event('sy_auth_state_changed'));
   };
 
   const handleLogout = () => {
     setUser(null);
+    setIsEditMode(false);
     localStorage.removeItem('sy_user');
+    localStorage.removeItem('sy_logged_user');
     setIsMyPageOpen(false);
+    window.dispatchEvent(new Event('sy_auth_state_changed'));
   };
 
   // Cart & Payment management handlers
@@ -1469,6 +1575,19 @@ export default function App() {
     const updated = [freshBooking, ...bookings];
     setBookings(updated);
     localStorage.setItem('sy_bookings', JSON.stringify(updated));
+
+    // Launch celebratory consultation confirmation modal with roadmap
+    setConsultationSuccessData({
+      name: freshBooking.name,
+      phone: freshBooking.phone,
+      location: freshBooking.location,
+      purpose: freshBooking.purpose,
+      memo: freshBooking.memo,
+      bookingId: freshBooking.id,
+      estimateCost: freshBooking.estimateCost,
+      createdAt: freshBooking.createdAt
+    });
+    setIsConsultationSuccessOpen(true);
   };
 
   const handleAddASRequest = (newASData: Omit<ASRequest, 'id' | 'userId' | 'createdAt' | 'status'>) => {
@@ -1562,7 +1681,7 @@ export default function App() {
       const parsedHome = savedHome ? JSON.parse(savedHome) : JSON.parse(JSON.stringify(HOME_PRODUCTS_DATA));
 
       // 2. Sync Parking / Commercial Chargers (상업시설 충전기)
-      const savedParking = localStorage.getItem('sy_cms_parking_products_v5_fixed');
+      const savedParking = localStorage.getItem('sy_cms_parking_products_v6_fixed') || localStorage.getItem('sy_cms_parking_products_v5_fixed');
       const parsedParking = savedParking ? JSON.parse(savedParking) : JSON.parse(JSON.stringify(PARKING_PRODUCTS_DATA));
 
       const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
@@ -1575,10 +1694,24 @@ export default function App() {
         if ((item.id === 'res-7kw-spil' || item.id === 'sy-ac07') && (np.id === 'res-7kw-spil' || np.id === 'sy-ac07')) return true;
         if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
         if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
+        if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
+        if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
         return false;
       };
 
-      const REMOVED_SET = new Set(['sy-canopy-01', 'sy-stand-01', 'res-7kw-convenient', 'res-7kw-safe', 'res-7kw-hyundai', 'res-7kw-pylon', 'res-5kw-convenient', 'res-5kw-safe']);
+      const REMOVED_SET = new Set([
+        'sy-canopy-01',
+        'sy-stand-01',
+        'res-7kw-convenient',
+        'res-7kw-safe',
+        'res-7kw-hyundai',
+        'res-7kw-pylon',
+        'res-5kw-convenient',
+        'res-5kw-safe',
+        'sy-ac11',
+        'park-11kw-convenient',
+        'sy-fc200'
+      ]);
 
       // Prune deleted items & legacy aliases
       Object.keys(parsedHome).forEach((powerKey) => {
@@ -1599,6 +1732,7 @@ export default function App() {
         const seenNames = new Set<string>();
         parsedParking[catKey] = (parsedParking[catKey] || []).filter((item: any) => {
           if (!item || REMOVED_SET.has(item.id) || deletedSet.has(item.id)) return false;
+          if (item.id === 'sy-dc50') item.id = 'park-50kw-1ch-coolcharge';
           const nameKey = (item.name || '').trim();
           if (seenNames.has(nameKey)) return false;
           seenNames.add(nameKey);
@@ -1711,6 +1845,7 @@ export default function App() {
 
       localStorage.setItem('sy_cms_home_products_v6_fixed', JSON.stringify(parsedHome));
       localStorage.setItem('sy_cms_parking_products_v5_fixed', JSON.stringify(parsedParking));
+      localStorage.setItem('sy_cms_parking_products_v6_fixed', JSON.stringify(parsedParking));
 
       // Dispatch event for real-time component updates
       window.dispatchEvent(new Event('sy_cms_products_update'));
@@ -1979,6 +2114,7 @@ export default function App() {
             key="sol_residential"
             solutions={solutions}
             isEditMode={isEditMode}
+            user={user}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={handlePageChange}
@@ -1998,6 +2134,7 @@ export default function App() {
             key="sol_commercial"
             solutions={solutions}
             isEditMode={isEditMode}
+            user={user}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={handlePageChange}
@@ -2015,6 +2152,7 @@ export default function App() {
             key="sol_parking"
             solutions={solutions}
             isEditMode={isEditMode}
+            user={user}
             onOpenCms={handleOpenCmsTab}
             onOpenQuoteWithPurpose={handleOpenQuoteWithPurpose} 
             onPageChange={handlePageChange}
@@ -2450,13 +2588,15 @@ export default function App() {
               >
                 구매안전(에스크로) 안내
               </button>
-              <button
-                onClick={() => setIsAdminLoginOpen(true)}
-                className="hover:text-white hover:underline cursor-pointer text-emerald-200/60 hover:text-white flex items-center gap-1 text-[11px] ml-2"
-                title="관리자 전용 아이디/비밀번호 로그인"
-              >
-                <span>🔒 관리자 로그인</span>
-              </button>
+              {user?.isAdmin && (
+                <button
+                  onClick={() => handlePageChange('admin')}
+                  className="hover:text-white hover:underline cursor-pointer text-emerald-200/90 hover:text-white flex items-center gap-1 text-[11px] ml-2 font-bold"
+                  title="관리자 센터 이동"
+                >
+                  <span>🔧 관리자 대시보드</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -2510,6 +2650,15 @@ export default function App() {
             quoteConfig={quoteConfig}
           />
         )}
+
+        <ConsultationSuccessModal
+          isOpen={isConsultationSuccessOpen}
+          onClose={() => {
+            setIsConsultationSuccessOpen(false);
+            setConsultationSuccessData(null);
+          }}
+          data={consultationSuccessData}
+        />
 
         {isCartOpen && (
           <CartModal
