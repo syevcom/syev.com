@@ -26,24 +26,26 @@ export default function AboutSection({
   onOpenCms
 }: AboutSectionProps) {
   return (
-    <div className="space-y-16 py-12">
+    <div className="space-y-10 sm:space-y-16 py-6 sm:py-12 pb-24 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Intro Hero banner */}
-      <section className="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-10 md:p-14 border border-slate-800 shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900 text-white p-6 sm:p-10 md:p-14 border border-slate-800 shadow-xl">
         <div className="absolute inset-0 opacity-15 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-400 via-emerald-950 to-slate-950" />
-        <div className="relative max-w-4xl space-y-5">
-          <span className="text-emerald-400 font-bold text-sm uppercase tracking-wider">Corporate Profile</span>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
-            대한민국 전기차 충전 인프라의 기준, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">SY.com이 만들어 가고 있습니다.</span>
+        <div className="relative max-w-4xl space-y-3 sm:space-y-5">
+          <span className="text-emerald-400 font-bold text-xs sm:text-sm uppercase tracking-wider block">Corporate Profile</span>
+          <h2 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tight leading-snug sm:leading-tight">
+            대한민국 전기차 충전 인프라의 기준,{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+              SY.com이 만들어 가고 있습니다.
+            </span>
           </h2>
-          <p className="text-slate-200 text-base md:text-lg leading-relaxed font-semibold">
+          <p className="text-slate-200 text-xs sm:text-base md:text-lg leading-relaxed font-medium sm:font-semibold">
             SY.com은 충전기 하드웨어 설계부터 정부 무상 보조금 지원 컨설팅, 한전 배선 허가, 정밀 시공 및 전국 실시간 AS망 구축까지 모든 단계를 원스톱으로 제공하는 친환경 모빌리티 솔루션 전문 기업입니다.
           </p>
         </div>
       </section>
 
       {/* CEO Message */}
-      <section className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center relative group/about">
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 items-center relative group/about">
         {isEditMode && onOpenCms && (
           <button
             onClick={() => onOpenCms('about')}
@@ -53,23 +55,23 @@ export default function AboutSection({
           </button>
         )}
 
-        <div className="md:col-span-5 relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-80 md:h-[420px]">
+        <div className="md:col-span-5 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-64 sm:h-80 md:h-[420px]">
           <img 
             src={aboutConfig.ceoImage} 
             alt="SY.com CEO" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-6 text-white">
-            <p className="font-extrabold text-xl">{aboutConfig.ceoName}</p>
-            <p className="text-sm text-emerald-400 font-bold">{aboutConfig.ceoRole}</p>
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-5 sm:p-6 text-white">
+            <p className="font-extrabold text-lg sm:text-xl">{aboutConfig.ceoName}</p>
+            <p className="text-xs sm:text-sm text-emerald-400 font-bold">{aboutConfig.ceoRole}</p>
           </div>
         </div>
-        <div className="md:col-span-7 space-y-6">
-          <span className="text-emerald-600 font-bold text-sm tracking-wider uppercase block">CEO Greeting</span>
-          <h3 className="text-3xl font-black text-slate-950 tracking-tight leading-snug">
+        <div className="md:col-span-7 space-y-4 sm:space-y-6">
+          <span className="text-emerald-600 font-bold text-xs sm:text-sm tracking-wider uppercase block">CEO Greeting</span>
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 tracking-tight leading-snug">
             {aboutConfig.ceoGreeting}
           </h3>
-          <div className="text-slate-700 text-base md:text-lg leading-relaxed space-y-5 font-bold">
+          <div className="text-slate-700 text-xs sm:text-base md:text-lg leading-relaxed space-y-3 sm:space-y-5 font-semibold sm:font-bold">
             <p>{aboutConfig.ceoMessage1}</p>
             <p>{aboutConfig.ceoMessage2}</p>
             <p>{aboutConfig.ceoMessage3}</p>

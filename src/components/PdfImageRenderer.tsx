@@ -29,6 +29,21 @@ const PRESET_ZOOM_LEVELS = [50, 75, 100, 125, 150, 180, 200, 250, 300];
 
 // 1. Native Image Viewer (for JPG, PNG uploads)
 function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageUrl: string; fileName: string; brandName: string; isAdmin: boolean }) {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [zoom, setZoom] = useState<number>(() => {
     const saved = localStorage.getItem('sy_catalog_zoom_percent');
     return saved ? Math.min(Math.max(Number(saved), 30), 400) : 100;
@@ -72,12 +87,13 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
 
   // 1-A. Non-Admin View: Pure clean image output without control bars or dark borders
+  // On mobile: 100% full width edge-to-edge without fixed scaling (홈페이지는 기존 배율/고정 설정 유지)
   if (!isAdmin) {
     return (
-      <div className="w-full flex justify-center py-1">
+      <div className="w-full flex justify-center py-0 sm:py-1">
         <div 
-          className="w-full rounded-2xl bg-white overflow-hidden"
-          style={isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
+          className="w-full rounded-none sm:rounded-2xl bg-white overflow-hidden"
+          style={!isMobile && isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
         >
           <img
             src={imageUrl}
@@ -91,7 +107,7 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
   }
 
   return (
-    <div className="relative border border-slate-800 bg-slate-950/60 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+    <div className="relative border border-slate-800 bg-slate-950/60 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col">
       {/* Toast Notification */}
       {toastMsg && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-xl border border-emerald-300 flex items-center gap-1.5 animate-fadeIn">
@@ -100,7 +116,7 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
       )}
 
       {/* Header Controls */}
-      <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3">
+      <div className="px-3 sm:px-4 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-[9px] font-black uppercase">
             IMAGE
@@ -182,10 +198,10 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
       </div>
 
       {/* Main Image Stage - Unlimited height for natural vertical scrolling */}
-      <div className="bg-slate-900/40 p-4 overflow-visible flex items-center justify-center min-h-[400px] h-auto relative">
+      <div className="bg-slate-900/40 p-2 sm:p-4 overflow-visible flex items-center justify-center min-h-[300px] sm:min-h-[400px] h-auto relative">
         <div 
           className="transition-all duration-200 ease-out shadow-2xl rounded-lg bg-white overflow-hidden"
-          style={{ width: `${zoom}%`, maxWidth: '100%', minWidth: '30%' }}
+          style={!isMobile ? { width: `${zoom}%`, maxWidth: '100%', minWidth: '30%' } : { width: '100%' }}
         >
           <img
             src={imageUrl}
@@ -627,6 +643,21 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
   const [rendered, setRendered] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
 
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -655,7 +686,8 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
         const pageRatio = baseViewport.width / baseViewport.height;
         setAspectRatio(pageRatio);
 
-        const renderScale = 2.0 * (zoom / 100);
+        const effectiveZoom = isMobile ? 100 : zoom;
+        const renderScale = 2.0 * (effectiveZoom / 100);
         const viewport = page.getViewport({ scale: renderScale });
 
         const canvas = canvasRef.current;
@@ -702,13 +734,13 @@ function ScrollPageItem({ pdfDoc, pageNum, zoom, brandName, isAdmin }: { pdfDoc:
         }
       }
     };
-  }, [pdfDoc, pageNum, zoom]);
+  }, [pdfDoc, pageNum, zoom, isMobile]);
 
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center w-full">
         <div 
-          className="w-full rounded-xl bg-white overflow-hidden select-none relative shadow-sm"
+          className="w-full rounded-none sm:rounded-xl bg-white overflow-hidden select-none relative shadow-sm"
           style={aspectRatio ? { aspectRatio: `${aspectRatio}` } : undefined}
         >
           <canvas ref={canvasRef} className="block w-full h-auto object-contain" />

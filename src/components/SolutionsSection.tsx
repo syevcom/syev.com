@@ -1818,7 +1818,7 @@ export default function SolutionsSection({
     };
 
     return (
-      <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 animate-fadeIn relative">
+      <div className="py-4 sm:py-8 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 animate-fadeIn relative">
         {/* Floating Toast Notification */}
         <AnimatePresence>
           {toastMessage && (
@@ -3166,8 +3166,8 @@ export default function SolutionsSection({
         )}
 
         {/* BOTTOM: Long Catalog Brochure Details */}
-        <div className="border-t border-slate-200/80 pt-6">
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-6 space-y-4 shadow-sm">
+        <div className="border-t border-slate-200/80 pt-4 sm:pt-6">
+          <div className="bg-white rounded-xl sm:rounded-3xl border-0 sm:border border-slate-200/80 p-0 sm:p-6 space-y-4 shadow-none sm:shadow-sm overflow-hidden">
             {(() => {
               const detailUrls: string[] = detailData?.pdfUrls && detailData.pdfUrls.length > 0
                 ? detailData.pdfUrls
@@ -3462,28 +3462,28 @@ export default function SolutionsSection({
       )}
 
       {/* Category detail block cards */}
-      <div className="space-y-16">
+      <div className="space-y-10 sm:space-y-16">
         {filteredSolutions.map((sol, index) => {
           return (
             <section
               key={sol.id}
               id={`solution-section-${sol.id}`}
-              className="p-8 md:p-10 bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="p-3 sm:p-8 md:p-10 bg-white border-0 sm:border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-none sm:shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               <div className="space-y-6">
                 {/* 1. Header Text & Benefits Block (Top) */}
-                <div className="space-y-4">
+                <div className="space-y-4 px-1 sm:px-0">
                   <div className="space-y-1.5">
                     <span className="text-emerald-700 font-bold text-xs sm:text-sm tracking-wider uppercase block">
                       {sol.category === 'Commercial' ? '🏢 아파트·공동주택·공용시설 맞춤' : sol.category === 'Residential' ? '🏡 가정용·홈·개인소유지' : '🅿️ 상업시설·수익형 주차장'}
                     </span>
-                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-snug">
+                    <h3 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight leading-snug">
                       {sol.title}
                     </h3>
                   </div>
                   
                   {sol.category === 'ParkingLot' && (
-                    <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal whitespace-pre-line max-w-3xl pt-1">
+                    <p className="text-sm sm:text-lg text-slate-600 leading-relaxed font-normal whitespace-pre-line max-w-3xl pt-1">
                       {sol.description}
                     </p>
                   )}
@@ -3492,9 +3492,9 @@ export default function SolutionsSection({
                 {sol.category === 'Commercial' && (() => {
                   const brandData = brands[selectedAptBrand] || brands['sk일렉링크'];
                   return (
-                    <div id="apt-brand-section" className="p-6 sm:p-8 bg-white text-slate-900 rounded-3xl border border-slate-200/90 space-y-6 shadow-2xs relative overflow-hidden group/brand">
+                    <div id="apt-brand-section" className="p-3 sm:p-6 md:p-8 bg-white text-slate-900 rounded-2xl sm:rounded-3xl border-0 sm:border border-slate-200/90 space-y-4 sm:space-y-6 shadow-none sm:shadow-2xs relative overflow-hidden group/brand">
                       {/* Top Gradient Line Accent */}
-                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
+                      <div className="absolute top-0 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
                       
                       <div className="space-y-4 border-b border-slate-200/80 pb-5 relative z-10">
                         {/* Top Info Row */}
@@ -3613,7 +3613,7 @@ export default function SolutionsSection({
                       </div>
 
                       {/* Brand PDF Catalog & Inline Document Viewer */}
-                      <div className="border border-slate-200/80 bg-slate-50/50 rounded-2xl p-4 space-y-4 relative z-10">
+                      <div className="border-0 sm:border border-slate-200/80 bg-transparent sm:bg-slate-50/50 rounded-none sm:rounded-2xl p-0 sm:p-4 space-y-4 relative z-10">
                         {isEditMode && brandData.pdfUrl && (
                           <div className="flex justify-end border-b border-slate-200 pb-2">
                             <button
@@ -3772,41 +3772,43 @@ export default function SolutionsSection({
                   });
 
                   return (
-                    <div className="space-y-6 pt-2">
-                      {/* Step 1 & Step 2 Category Selection Box */}
-                      <div id="home-options-section" className="bg-white text-slate-900 rounded-3xl p-5 md:p-6 shadow-2xs border border-slate-200/90 space-y-5 relative overflow-hidden">
+                    <div className="space-y-4 pt-1">
+                      {/* Step 1 & Step 2 Category Selection Box (Shortened, icons removed for sleek mobile view) */}
+                      <div id="home-options-section" className="bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 md:p-6 shadow-2xs border border-slate-200/90 space-y-3 sm:space-y-4 relative overflow-hidden">
                         {/* Accent Top Gradient Line */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
+                        <div className="absolute top-0 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600"></div>
 
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4 pt-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5 sm:pb-3 pt-0.5">
                           <div>
-                            <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
-                              가정용 홈충전기 맞춤 옵션 선택
-                            </span>
-                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mt-1 text-slate-900">
-                              원하시는 시공 방식과 충전 용량을 선택하세요
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] sm:text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                가정용 맞춤 옵션
+                              </span>
+                            </div>
+                            <h4 className="text-sm sm:text-lg md:text-xl font-black tracking-tight mt-1 text-slate-900">
+                              시공 방식과 충전 용량을 선택하세요
                             </h4>
                           </div>
-                          <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80 self-start md:self-auto">
-                            <span className="text-sm font-medium text-slate-600 px-1">선택 옵션:</span>
-                            <span className="text-sm font-bold text-emerald-800 bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shadow-2xs">
+                          <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200/80 self-start sm:self-auto text-xs">
+                            <span className="text-[11px] font-medium text-slate-500">선택:</span>
+                            <span className="text-xs font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-lg border border-emerald-200 shadow-2xs">
                               {selectedHomeServiceType} • {selectedHomePower}
                             </span>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                           {/* Service / Price Category Selector */}
-                          <div className="space-y-2.5">
-                            <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shrink-0">1</span>
-                              구매 및 시공 구분 선택 (가격 기준)
+                          <div className="space-y-1.5">
+                            <label className="text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center shrink-0">1</span>
+                              구매 및 시공 방식
                             </label>
-                            <div className="grid grid-cols-3 gap-2.5">
+                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                               {[
-                                { id: '단말기 단품', name: '단말기 단품', desc: '기기 본체만 구매', icon: '📦' },
-                                { id: '교체 시공', name: '교체 시공', desc: '기존 충전기 교체', icon: '🛠️' },
-                                { id: '신규 설치 포함', name: '설치 포함 (신규)', desc: '한전대행+전체시공', icon: '⚡' },
+                                { id: '단말기 단품', name: '단말기 단품', desc: '기기만 구매' },
+                                { id: '교체 시공', name: '교체 시공', desc: '기존 기기 교체' },
+                                { id: '신규 설치 포함', name: '설치 포함 (신규)', desc: '한전+전체시공' },
                               ].map((st) => {
                                 const active = selectedHomeServiceType === st.id;
                                 return (
@@ -3824,22 +3826,16 @@ export default function SolutionsSection({
                                         }
                                       }, 50);
                                     }}
-                                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                    className={`py-2 px-1.5 sm:py-2.5 sm:px-2 rounded-xl border transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
                                       active
-                                        ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs shadow-emerald-600/20 scale-[1.02]'
+                                        ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-2xs scale-[1.02]'
                                         : 'bg-slate-50 hover:bg-emerald-50/60 text-slate-700 hover:text-emerald-800 border-slate-200/90'
                                     }`}
                                   >
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-base sm:text-lg">{st.icon}</span>
-                                      {active && <Check className="w-5 h-5 text-white shrink-0" />}
-                                    </div>
-                                    <div className="mt-2">
-                                      <span className="text-sm sm:text-base font-bold block leading-tight">{st.name}</span>
-                                      <span className={`text-xs block mt-1 ${active ? 'text-emerald-100 font-medium' : 'text-slate-500'}`}>
-                                        {st.desc}
-                                      </span>
-                                    </div>
+                                    <span className="text-xs sm:text-sm font-bold block leading-tight truncate w-full">{st.name}</span>
+                                    <span className={`text-[10px] block mt-0.5 leading-none ${active ? 'text-emerald-100' : 'text-slate-400'}`}>
+                                      {st.desc}
+                                    </span>
                                   </button>
                                 );
                               })}
@@ -3847,16 +3843,16 @@ export default function SolutionsSection({
                           </div>
 
                           {/* Power Capacity Selector */}
-                          <div className="space-y-2.5">
-                            <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-xs font-black flex items-center justify-center shrink-0">2</span>
-                              충전 용량 선택 (킬로와트)
+                          <div className="space-y-1.5">
+                            <label className="text-xs sm:text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                              <span className="w-4 h-4 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shrink-0">2</span>
+                              충전 용량
                             </label>
-                            <div className="grid grid-cols-3 gap-2.5">
+                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                               {[
-                                { kw: '5kW', label: '5kW', desc: '승압 부담 완화 실속형' },
-                                { kw: '7kW', label: '7kW', desc: '가정용 표준 완속 충전' },
-                                { kw: '11kW', label: '11kW', desc: '고성능 3상 초고속 충전' },
+                                { kw: '5kW', label: '5kW', desc: '실속형' },
+                                { kw: '7kW', label: '7kW', desc: '표준 완속' },
+                                { kw: '11kW', label: '11kW', desc: '3상 고속' },
                               ].map((pow) => {
                                 const active = selectedHomePower === pow.kw;
                                 return (
@@ -3874,21 +3870,16 @@ export default function SolutionsSection({
                                         }
                                       }, 50);
                                     }}
-                                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                                    className={`py-2 px-1.5 sm:py-2.5 sm:px-2 rounded-xl border transition-all text-center flex flex-col items-center justify-center cursor-pointer ${
                                       active
-                                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold shadow-xs shadow-amber-500/20 scale-[1.02]'
+                                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold shadow-2xs scale-[1.02]'
                                         : 'bg-slate-50 hover:bg-amber-50/60 text-slate-700 hover:text-amber-800 border-slate-200/90'
                                     }`}
                                   >
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm sm:text-base font-bold">⚡ {pow.label}</span>
-                                      {active && <Check className="w-5 h-5 text-slate-950 shrink-0" />}
-                                    </div>
-                                    <div className="mt-2">
-                                      <span className={`text-xs block ${active ? 'text-slate-900 font-bold' : 'text-slate-500'}`}>
-                                        {pow.desc}
-                                      </span>
-                                    </div>
+                                    <span className="text-xs sm:text-sm font-bold block leading-tight">{pow.label}</span>
+                                    <span className={`text-[10px] block mt-0.5 leading-none ${active ? 'text-slate-900 font-semibold' : 'text-slate-400'}`}>
+                                      {pow.desc}
+                                    </span>
                                   </button>
                                 );
                               })}
@@ -3898,26 +3889,26 @@ export default function SolutionsSection({
                       </div>
 
                       {/* Product Section Header */}
-                      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-xl font-black text-slate-950 tracking-tight flex items-center gap-2">
+                          <h4 className="text-base sm:text-xl font-black text-slate-950 tracking-tight flex items-center gap-1.5">
                             <span>홈충전기 {selectedHomePower}</span>
-                            <span className="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200">
+                            <span className="text-[10px] sm:text-xs font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200">
                               {selectedHomeServiceType}
                             </span>
                           </h4>
-                          <span className="text-xs text-slate-500 font-extrabold bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                            총 {sortedProducts.length}개의 상품이 있습니다.
+                          <span className="text-[11px] text-slate-500 font-bold bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                            총 {sortedProducts.length}개 상품
                           </span>
                           
                           {canEdit && (
                             <button
                               type="button"
                               onClick={() => startAddProduct('home', selectedHomePower)}
-                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black flex items-center gap-1 transition-all shadow-md shadow-blue-600/10 cursor-pointer ml-2"
+                              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-black flex items-center gap-1 transition-all shadow-xs cursor-pointer ml-1"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              새 {selectedHomePower} 충전기 추가
+                              추가
                             </button>
                           )}
                         </div>
@@ -3927,7 +3918,7 @@ export default function SolutionsSection({
                           <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as any)}
-                            className="px-3.5 py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                            className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
                           >
                             <option value="new">신상품</option>
                             <option value="popular">인기상품순</option>
@@ -3937,8 +3928,8 @@ export default function SolutionsSection({
                         </div>
                       </div>
 
-                      {/* Products Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {/* Products Grid: 2 per row on mobile (grid-cols-2) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
                         {sortedProducts.map((p) => {
                           const pricing = getProductPricing(p);
                           const cardImg = getCardImage(p);
@@ -3957,11 +3948,11 @@ export default function SolutionsSection({
                                   description: `[${selectedHomeServiceType} • ${selectedHomePower}] ${p.description || ''}`
                                 });
                               }}
-                              className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                              className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
                                 {/* Top Image Area */}
-                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
+                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
                                     src={cardImg}
@@ -3971,59 +3962,59 @@ export default function SolutionsSection({
                                   />
                                   
                                   {/* Round Power Badge (Left overlay) */}
-                                  <div className="absolute top-3 left-3 w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-extrabold text-[11px] flex items-center justify-center border border-blue-200 shadow-xs ring-4 ring-blue-500/10">
+                                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-blue-50 text-blue-600 font-extrabold text-[9px] sm:text-[11px] flex items-center justify-center border border-blue-200 shadow-2xs ring-2 sm:ring-4 ring-blue-500/10">
                                     {selectedHomePower}
                                   </div>
 
                                   {/* Black discount circular badge (Right overlay) */}
-                                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
+                                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-slate-900 text-white font-extrabold text-[9px] sm:text-[11px] flex items-center justify-center shadow-xs">
                                     {pricing.discount}%
                                   </div>
 
                                   {/* Service Type Ribbon Badge */}
-                                  <div className="absolute bottom-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10 flex items-center gap-1">
+                                  <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 bg-emerald-600 text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded shadow-2xs z-10 flex items-center gap-1">
                                     <span>{pricing.label}</span>
                                   </div>
 
                                   {/* Left visual ribbons/badges */}
                                   {p.hasASBadge && (
-                                    <div className="absolute top-15 left-3 bg-rose-500 text-white font-black text-[9px] px-2 py-1 rounded shadow-sm z-10 animate-pulse">
+                                    <div className="absolute top-10 sm:top-15 left-2 sm:left-3 bg-rose-500 text-white font-black text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded shadow-2xs z-10 animate-pulse">
                                       무상A/S 4년
                                     </div>
                                   )}
                                 </div>
 
                                 {/* Body Information */}
-                                <div className="p-4 space-y-2">
-                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                <div className="p-2.5 sm:p-4 space-y-1 sm:space-y-2">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[40px]">
                                     {p.name}
                                   </h5>
                                   
                                   {/* Price Section */}
-                                  <div className="pt-1">
+                                  <div className="pt-0.5">
                                     {(p.name.includes('공용') || p.name.includes('수익형') || p.name.includes('관공서') || p.name.includes('조달상품')) && !p.name.includes('개인용') && !p.name.includes('가정용') ? (
-                                      <div className="flex items-baseline gap-1.5">
-                                        <span className="text-sm sm:text-base font-black text-rose-600">
-                                          견적문의(전화문의)
+                                      <div className="flex items-baseline gap-1">
+                                        <span className="text-xs sm:text-base font-black text-rose-600">
+                                          견적문의
                                         </span>
                                       </div>
                                     ) : (
                                       <>
                                         {pricing.regularPrice > pricing.price ? (
-                                          <span className="text-[10px] text-slate-400 font-medium line-through block leading-none mb-1">
+                                          <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium line-through block leading-none mb-0.5">
                                             ₩{pricing.regularPrice.toLocaleString()}
                                           </span>
                                         ) : (
-                                          <span className="text-[10px] text-transparent block leading-none mb-1 select-none">
+                                          <span className="text-[9px] sm:text-[10px] text-transparent block leading-none mb-0.5 select-none">
                                             -
                                           </span>
                                         )}
-                                        <div className="flex items-baseline gap-1.5">
-                                          <span className="text-sm sm:text-base font-black text-rose-600">
+                                        <div className="flex flex-wrap items-baseline gap-1">
+                                          <span className="text-xs sm:text-base font-black text-rose-600">
                                             ₩{pricing.price.toLocaleString()}
                                           </span>
-                                          <span className="text-[10px] font-bold text-emerald-600">
-                                            ({selectedHomeServiceType})
+                                          <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600">
+                                            ({selectedHomeServiceType === '단말기 단품' ? '단품' : selectedHomeServiceType === '교체 시공' ? '교체' : '설치'})
                                           </span>
                                         </div>
                                       </>
@@ -4033,13 +4024,13 @@ export default function SolutionsSection({
                               </div>
 
                               {/* Footer Badges and Direct CTA */}
-                              <div className="p-4 pt-0 space-y-3">
+                              <div className="p-2.5 sm:p-4 pt-0 space-y-1.5 sm:space-y-3">
                                 {p.tags && p.tags.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-3">
+                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-1.5 sm:pt-3">
                                     {p.tags.map((tag) => (
                                       <span
                                         key={tag}
-                                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                                        className={`text-[8px] sm:text-[9px] font-extrabold px-1 sm:px-1.5 py-0.5 rounded ${
                                           tag === 'MD CHOICE'
                                             ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                             : tag === 'HIT'
@@ -4054,19 +4045,19 @@ export default function SolutionsSection({
                                 )}
 
                                 {canEdit && (
-                                  <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">
+                                  <div className="flex gap-1 mt-1 pt-1 border-t border-slate-100">
                                     <button
                                       onClick={(e) => startEditProduct(p, 'home', selectedHomePower, e)}
-                                      className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                      className="flex-1 py-1 sm:py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[9px] sm:text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                                     >
-                                      <Edit3 className="w-3 h-3" />
+                                      <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                       수정
                                     </button>
                                     <button
                                       onClick={(e) => deleteProduct(p.id, 'home', selectedHomePower, e)}
-                                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                      className="flex-1 py-1 sm:py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[9px] sm:text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                                     >
-                                      <Trash2 className="w-3 h-3" />
+                                      <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                       삭제
                                     </button>
                                   </div>
@@ -4096,25 +4087,25 @@ export default function SolutionsSection({
                   });
 
                   return (
-                    <div className="space-y-6 pt-2">
+                    <div className="space-y-4 pt-1">
                       {/* Product Section Header */}
-                      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-xl font-black text-slate-950 tracking-tight">
+                          <h4 className="text-base sm:text-xl font-black text-slate-950 tracking-tight">
                             수익형 충전기 {selectedParkingCapacity}
                           </h4>
-                          <span className="text-xs text-slate-500 font-extrabold bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                            총 {sortedProducts.length}개의 상품이 있습니다.
+                          <span className="text-[11px] text-slate-500 font-bold bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                            총 {sortedProducts.length}개 상품
                           </span>
                           
                           {canEdit && (
                             <button
                               type="button"
                               onClick={() => startAddProduct('parking', selectedParkingCapacity)}
-                              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black flex items-center gap-1 transition-all shadow-md shadow-indigo-600/10 cursor-pointer ml-2"
+                              className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-black flex items-center gap-1 transition-all shadow-xs cursor-pointer ml-1"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              새 {selectedParkingCapacity} 수익형 충전기 추가
+                              추가
                             </button>
                           )}
                         </div>
@@ -4124,7 +4115,7 @@ export default function SolutionsSection({
                           <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as any)}
-                            className="px-3.5 py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                            className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 border border-slate-300 rounded-xl text-xs font-black bg-white text-slate-700 shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
                           >
                             <option value="new">신상품</option>
                             <option value="popular">인기상품순</option>
@@ -4134,8 +4125,8 @@ export default function SolutionsSection({
                         </div>
                       </div>
 
-                      {/* Products Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {/* Products Grid: 2 per row on mobile (grid-cols-2) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
                         {sortedProducts.map((p) => {
                           const formatPrice = (val: number) => val.toLocaleString() + '원';
                           const cardImg = getCardImage(p);
@@ -4146,11 +4137,11 @@ export default function SolutionsSection({
                                 if ((e.target as HTMLElement).closest('button, a, input, select')) return;
                                 setActiveDetailProduct({ ...p, image: cardImg });
                               }}
-                              className="group bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                              className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-300 flex flex-col justify-between cursor-pointer"
                             >
                               <div>
                                 {/* Top Image Area */}
-                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-6 overflow-hidden border-b border-slate-100">
+                                <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
                                     src={cardImg}
@@ -4160,40 +4151,40 @@ export default function SolutionsSection({
                                   />
                                   
                                   {/* Round Power Badge (Left overlay) */}
-                                  <div className="absolute top-3 left-3 px-2.5 h-10 rounded-full bg-blue-50 text-indigo-600 font-extrabold text-[10px] flex items-center justify-center border border-indigo-200 shadow-xs ring-4 ring-indigo-500/10 whitespace-nowrap">
+                                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-1.5 sm:px-2.5 h-7 sm:h-10 rounded-full bg-blue-50 text-indigo-600 font-extrabold text-[8px] sm:text-[10px] flex items-center justify-center border border-indigo-200 shadow-2xs ring-2 sm:ring-4 ring-indigo-500/10 whitespace-nowrap">
                                     {p.power || p.name.match(/\d+kW/i)?.[0] || selectedParkingCapacity.split(' ')[0]}
                                   </div>
 
                                   {/* Black discount circular badge (Right overlay) */}
                                   {p.discount && p.discount > 0 ? (
-                                    <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-[11px] flex items-center justify-center shadow-md">
+                                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-slate-900 text-white font-extrabold text-[9px] sm:text-[11px] flex items-center justify-center shadow-xs">
                                       {p.discount}%
                                     </div>
                                   ) : null}
 
                                   {/* Left visual ribbons/badges */}
                                   {p.hasPromoRibbon && (
-                                    <div className="absolute bottom-2 left-2 bg-indigo-600 text-white text-[9px] font-black px-2.5 py-1 rounded shadow-sm z-10">
+                                    <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded shadow-2xs z-10">
                                       수익성 최고
                                     </div>
                                   )}
                                 </div>
 
                                 {/* Body Information */}
-                                <div className="p-4 space-y-2">
-                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                                <div className="p-2.5 sm:p-4 space-y-1 sm:space-y-2">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[40px]">
                                     {p.name}
                                   </h5>
                                   
                                   {p.description && (
-                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-2 leading-relaxed">
+                                    <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium line-clamp-1 sm:line-clamp-2 leading-relaxed">
                                       {p.description}
                                     </p>
                                   )}
                                   
                                   {/* Price Section */}
-                                  <div className="pt-1.5">
-                                    <span className="text-sm sm:text-base font-black text-blue-600 block">
+                                  <div className="pt-0.5">
+                                    <span className="text-xs sm:text-base font-black text-blue-600 block">
                                       별도문의
                                     </span>
                                   </div>
@@ -4201,13 +4192,13 @@ export default function SolutionsSection({
                               </div>
 
                               {/* Footer Badges and Direct CTA */}
-                              <div className="p-4 pt-0 space-y-3">
+                              <div className="p-2.5 sm:p-4 pt-0 space-y-1.5 sm:space-y-3">
                                 {p.tags && p.tags.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-3">
+                                  <div className="flex flex-wrap gap-1 border-t border-slate-100 pt-1.5 sm:pt-3">
                                     {p.tags.map((tag) => (
                                       <span
                                         key={tag}
-                                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${
+                                        className={`text-[8px] sm:text-[9px] font-extrabold px-1 sm:px-1.5 py-0.5 rounded ${
                                           tag === 'BEST'
                                             ? 'bg-amber-100 text-amber-800 border border-amber-200'
                                             : tag === 'HIT'
@@ -4220,23 +4211,21 @@ export default function SolutionsSection({
                                     ))}
                                   </div>
                                 )}
-                                
-                                {/* 상세보기 버튼 제거 (카드 클릭으로 상세페이지 이동 대체) */}
 
                                 {isEditMode && (
-                                  <div className="flex gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100">
+                                  <div className="flex gap-1 mt-1 pt-1 border-t border-slate-100">
                                     <button
                                       onClick={(e) => startEditProduct(p, 'parking', selectedParkingCapacity, e)}
-                                      className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                      className="flex-1 py-1 sm:py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-800 rounded-lg text-[9px] sm:text-[10px] font-black border border-amber-200/50 flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                                     >
-                                      <Edit3 className="w-3 h-3" />
+                                      <Edit3 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                       수정
                                     </button>
                                     <button
                                       onClick={(e) => deleteProduct(p.id, 'parking', selectedParkingCapacity, e)}
-                                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                      className="flex-1 py-1 sm:py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg text-[9px] sm:text-[10px] font-black border border-rose-200/50 flex items-center justify-center gap-0.5 transition-colors cursor-pointer"
                                     >
-                                      <Trash2 className="w-3 h-3" />
+                                      <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                       삭제
                                     </button>
                                   </div>

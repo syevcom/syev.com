@@ -156,7 +156,7 @@ export default function AIChatBot({ onOpenQuote, onNavigateToSol, onNavigateToPr
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-16 sm:bottom-6 right-3 sm:right-6 z-40 flex flex-col items-end">
       {/* Floating Chat Trigger Button */}
       <AnimatePresence>
         {!isOpen && (
@@ -174,10 +174,10 @@ export default function AIChatBot({ onOpenQuote, onNavigateToSol, onNavigateToPr
             <button
               onClick={() => setIsOpen(true)}
               id="btn-ai-chat-open"
-              className="relative p-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white rounded-full shadow-2xl shadow-emerald-500/40 transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+              className="relative p-3 sm:p-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white rounded-full shadow-2xl shadow-emerald-500/40 transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
               aria-label="Open AI 1:1 Live Chat"
             >
-              <Sparkles className="w-6 h-6 animate-spin-slow" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white"></span>

@@ -228,15 +228,15 @@ export default function MainHero({
             transition={{ duration: 0.6, delay: 0.15 }}
             className={`${
               isMobile
-                ? mobileDesignConfig?.heroMobileTitleSize === 'sm' ? 'text-2xl sm:text-3xl' :
-                  mobileDesignConfig?.heroMobileTitleSize === 'lg' ? 'text-3.5xl sm:text-4xl' :
-                  mobileDesignConfig?.heroMobileTitleSize === 'xl' ? 'text-4xl sm:text-5xl' :
-                  'text-3xl sm:text-4xl'
+                ? mobileDesignConfig?.heroMobileTitleSize === 'sm' ? 'text-xl sm:text-2xl' :
+                  mobileDesignConfig?.heroMobileTitleSize === 'lg' ? 'text-3xl sm:text-4xl' :
+                  mobileDesignConfig?.heroMobileTitleSize === 'xl' ? 'text-3.5xl sm:text-4xl' :
+                  'text-2xl sm:text-3.5xl'
                 : heroConfig.titleSize === 'small' ? 'text-3xl md:text-5xl' :
                   heroConfig.titleSize === 'medium' ? 'text-4xl md:text-6xl' :
                   heroConfig.titleSize === 'xlarge' ? 'text-6xl md:text-8xl' :
                   'text-5xl md:text-7xl'
-            } font-black tracking-tight leading-tight md:leading-tight text-white drop-shadow-md`}
+            } font-black tracking-tight leading-snug md:leading-tight text-white drop-shadow-md break-keep`}
             dangerouslySetInnerHTML={{ __html: heroConfig.title }}
           />
 
@@ -248,11 +248,11 @@ export default function MainHero({
               isMobile
                 ? mobileDesignConfig?.heroMobileDescSize === 'sm' ? 'text-xs sm:text-sm' :
                   mobileDesignConfig?.heroMobileDescSize === 'lg' ? 'text-base sm:text-lg' :
-                  'text-sm sm:text-base'
+                  'text-xs sm:text-base'
                 : heroConfig.descriptionSize === 'small' ? 'text-sm md:text-base' :
                   heroConfig.descriptionSize === 'large' ? 'text-lg md:text-xl' :
                   'text-base md:text-lg'
-            } text-slate-100 leading-relaxed font-bold max-w-2xl drop-shadow-sm`}
+            } text-slate-100 leading-relaxed font-semibold sm:font-bold max-w-2xl drop-shadow-sm break-keep`}
           >
             {heroConfig.description}
           </motion.p>
@@ -277,20 +277,23 @@ export default function MainHero({
       {/* Boxed Content Area for the rest of the page */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-8">
 
-      {/* Hand-crafted 3-Column Premium Category Shortcuts (As requested by user in image mockup) */}
-      <section className="py-8 sm:py-12 bg-white rounded-3xl border border-slate-100/80 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-stretch">
+      {/* Hand-crafted 3-Column Premium Category Shortcuts (As requested by user: 3 visible at once on mobile) */}
+      <section className="py-5 sm:py-8 md:py-12 bg-white rounded-2xl sm:rounded-3xl border border-slate-100/80 shadow-xs">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4 md:px-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 items-stretch">
             
             {/* Column 1: 가정용 홈 */}
-            <div className="flex flex-col items-center text-center space-y-4 group">
+            <div 
+              onClick={() => onPageChange?.('sol_residential')}
+              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+            >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-2xl">
+              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
                 {heroConfig.residentialImage ? (
                   <img
                     src={heroConfig.residentialImage}
                     alt="가정용 홈 메인 이미지"
-                    className="w-full h-full object-cover rounded-2xl shadow-sm border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
@@ -348,17 +351,21 @@ export default function MainHero({
                 )}
               </div>
               
-              <div className="space-y-2">
-                <h4 className="text-xl font-black text-emerald-950 tracking-tight">가정용 홈</h4>
-                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  단독주택, 빌라, 개인용 주차장{"\n"}7kW 개인 완속 스마트홈 홈충전기
+              <div className="space-y-1 sm:space-y-1.5">
+                <h4 className="text-xs sm:text-base md:text-xl font-black text-emerald-950 tracking-tight break-keep">가정용 홈</h4>
+                <p className="text-[9.5px] sm:text-xs md:text-sm font-semibold text-slate-500 leading-tight sm:leading-relaxed break-keep">
+                  단독주택 · 빌라 · 개인용{"\n"}7kW 개인 완속 충전기
                 </p>
               </div>
               
-              <div className="pt-2">
+              <div className="pt-0.5 sm:pt-1">
                 <button
-                  onClick={() => onPageChange?.('sol_residential')}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPageChange?.('sol_residential');
+                  }}
+                  className="px-2.5 sm:px-4 md:px-6 py-1 sm:py-1.5 md:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shadow-emerald-600/20 hover:shadow-md hover:scale-105 cursor-pointer whitespace-nowrap"
                 >
                   자세히 보기
                 </button>
@@ -366,14 +373,17 @@ export default function MainHero({
             </div>
 
             {/* Column 2: 아파트 */}
-            <div className="flex flex-col items-center text-center space-y-4 group">
+            <div 
+              onClick={() => onPageChange?.('sol_commercial')}
+              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+            >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-2xl">
+              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
                 {heroConfig.commercialImage ? (
                   <img
                     src={heroConfig.commercialImage}
                     alt="아파트 메인 이미지"
-                    className="w-full h-full object-cover rounded-2xl shadow-sm border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
@@ -446,17 +456,21 @@ export default function MainHero({
                 )}
               </div>
               
-              <div className="space-y-2">
-                <h4 className="text-xl font-black text-emerald-950 tracking-tight">아파트</h4>
-                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  아파트 단지, 입주민 공용{"\n"}환경부 무상 보조금 최적 설계
+              <div className="space-y-1 sm:space-y-1.5">
+                <h4 className="text-xs sm:text-base md:text-xl font-black text-emerald-950 tracking-tight break-keep">아파트</h4>
+                <p className="text-[9.5px] sm:text-xs md:text-sm font-semibold text-slate-500 leading-tight sm:leading-relaxed break-keep">
+                  아파트 단지 · 입주민 공용{"\n"}환경부 무상 보조금 최적화
                 </p>
               </div>
               
-              <div className="pt-2">
+              <div className="pt-0.5 sm:pt-1">
                 <button
-                  onClick={() => onPageChange?.('sol_commercial')}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPageChange?.('sol_commercial');
+                  }}
+                  className="px-2.5 sm:px-4 md:px-6 py-1 sm:py-1.5 md:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shadow-emerald-600/20 hover:shadow-md hover:scale-105 cursor-pointer whitespace-nowrap"
                 >
                   자세히 보기
                 </button>
@@ -464,14 +478,17 @@ export default function MainHero({
             </div>
 
             {/* Column 3: 상업시설 수익형 */}
-            <div className="flex flex-col items-center text-center space-y-4 group">
+            <div 
+              onClick={() => onPageChange?.('sol_parking')}
+              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+            >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-2xl">
+              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
                 {heroConfig.parkingImage ? (
                   <img
                     src={heroConfig.parkingImage}
                     alt="상업시설 수익형 메인 이미지"
-                    className="w-full h-full object-cover rounded-2xl shadow-sm border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
@@ -531,17 +548,21 @@ export default function MainHero({
                 )}
               </div>
               
-              <div className="space-y-2">
-                <h4 className="text-xl font-black text-emerald-950 tracking-tight">상업시설 수익형</h4>
-                <p className="text-sm font-semibold text-slate-500 leading-relaxed whitespace-pre-line">
-                  호텔, 마트, 대형 상가 빌딩{"\n"}수익형 완속/급속 충전소 구축
+              <div className="space-y-1 sm:space-y-1.5">
+                <h4 className="text-xs sm:text-base md:text-xl font-black text-emerald-950 tracking-tight break-keep">상업시설 수익형</h4>
+                <p className="text-[9.5px] sm:text-xs md:text-sm font-semibold text-slate-500 leading-tight sm:leading-relaxed break-keep">
+                  호텔 · 마트 · 대형 상가{"\n"}수익형 완속/급속 충전소
                 </p>
               </div>
               
-              <div className="pt-2">
+              <div className="pt-0.5 sm:pt-1">
                 <button
-                  onClick={() => onPageChange?.('sol_parking')}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:scale-105 cursor-pointer"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPageChange?.('sol_parking');
+                  }}
+                  className="px-2.5 sm:px-4 md:px-6 py-1 sm:py-1.5 md:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shadow-emerald-600/20 hover:shadow-md hover:scale-105 cursor-pointer whitespace-nowrap"
                 >
                   자세히 보기
                 </button>

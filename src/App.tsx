@@ -2378,7 +2378,7 @@ export default function App() {
           cartCount={(cartItems || []).reduce((acc, i) => acc + (i?.quantity || 1), 0)}
           onOpenCartModal={() => handlePageChange('cart')}
           mobileDesignConfig={mobileDesignConfig}
-          onOpenMobileDesignCenter={() => setIsMobileDesignCenterOpen(true)}
+          onOpenMobileDesignCenter={(user?.isAdmin || isEditMode) ? () => setIsMobileDesignCenterOpen(true) : undefined}
         />
 
 
@@ -2387,9 +2387,9 @@ export default function App() {
 
       {/* Main Container */}
       <main className={`flex-grow w-full ${
-        activePage === 'home' 
-          ? 'py-0' 
-          : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'
+        activePage === 'home' || activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking' || activePage === 'products'
+          ? 'py-0 pb-12 sm:pb-8 px-0 sm:px-6 lg:px-8 max-w-7xl mx-auto' 
+          : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-12 sm:pb-8'
       }`}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -2406,7 +2406,7 @@ export default function App() {
 
       {/* Floating SNS & Quick Navigation Bar on the Right side (Collapsible & Mobile Optimized) */}
       {snsConfig.showFloatingSns && (
-        <div className="fixed right-3 bottom-20 sm:right-6 sm:bottom-28 z-40 flex flex-col gap-2 items-end">
+        <div className="fixed right-3 bottom-30 sm:right-6 sm:bottom-28 z-40 flex flex-col gap-2 items-end">
           {/* Collapsed Compact State */}
           {isQuickPanelCollapsed ? (
             <motion.div 
@@ -2414,14 +2414,16 @@ export default function App() {
               animate={{ scale: 1, opacity: 1 }}
               className="flex items-center gap-1.5"
             >
-              {/* Quick Design Center shortcut */}
-              <button
-                onClick={() => setIsMobileDesignCenterOpen(true)}
-                title="모바일 디자인 설정 열기"
-                className="bg-slate-900/90 hover:bg-slate-900 text-emerald-300 p-2.5 rounded-full shadow-lg border border-slate-700 backdrop-blur-md flex items-center justify-center cursor-pointer transition-all hover:scale-105"
-              >
-                <Sliders className="w-4 h-4" />
-              </button>
+              {/* Quick Design Center shortcut (Only for Admin / Edit Mode) */}
+              {(user?.isAdmin || isEditMode) && (
+                <button
+                  onClick={() => setIsMobileDesignCenterOpen(true)}
+                  title="모바일 디자인 설정 열기"
+                  className="bg-slate-900/90 hover:bg-slate-900 text-emerald-300 p-2.5 rounded-full shadow-lg border border-slate-700 backdrop-blur-md flex items-center justify-center cursor-pointer transition-all hover:scale-105"
+                >
+                  <Sliders className="w-4 h-4" />
+                </button>
+              )}
 
               {/* Expand Quick Panel Button */}
               <button
@@ -2507,14 +2509,16 @@ export default function App() {
                   <span className="text-sm">📜</span>
                 </button>
 
-                {/* Design Center shortcut */}
-                <button
-                  onClick={() => setIsMobileDesignCenterOpen(true)}
-                  title="모바일 화면 디자인 센터"
-                  className="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-700 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-emerald-400/40"
-                >
-                  <Sliders className="w-4 h-4" />
-                </button>
+                {/* Design Center shortcut (Only for Admin / Edit Mode) */}
+                {(user?.isAdmin || isEditMode) && (
+                  <button
+                    onClick={() => setIsMobileDesignCenterOpen(true)}
+                    title="모바일 화면 디자인 센터"
+                    className="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-700 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-emerald-400/40"
+                  >
+                    <Sliders className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               {/* Quick Scroll Top / Bottom buttons */}
@@ -2882,8 +2886,8 @@ export default function App() {
           />
         )}
 
-        {/* Mobile Design Center Modal (Self-service design controls for mobile) */}
-        {isMobileDesignCenterOpen && (
+        {/* Mobile Design Center Modal (Visible ONLY to Admin / Edit Mode) */}
+        {isMobileDesignCenterOpen && (user?.isAdmin || isEditMode) && (
           <MobileDesignCenterModal
             isOpen={isMobileDesignCenterOpen}
             onClose={() => setIsMobileDesignCenterOpen(false)}

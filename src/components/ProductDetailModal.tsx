@@ -330,19 +330,19 @@ export default function ProductDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden my-auto border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-y-auto bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-4xl bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden my-0 sm:my-auto min-h-screen sm:min-h-0 border-0 sm:border border-slate-200">
         
         {/* Header Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors cursor-pointer shadow-xs"
           title="닫기"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-5 sm:p-7 md:p-8 space-y-6 max-h-[88vh] overflow-y-auto">
+        <div className="p-4 sm:p-7 md:p-8 space-y-6 max-h-screen sm:max-h-[88vh] overflow-y-auto">
           
           {/* Top Breadcrumb & Category Quick Bar (Screenshot 1 top right: 홈 / 가정용 홈 충전기) */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 pr-10">
