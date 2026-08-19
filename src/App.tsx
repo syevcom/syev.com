@@ -27,12 +27,13 @@ import AIChatBot from './components/AIChatBot';
 import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './components/HomePopupModal';
 import { AdminPage } from './components/AdminPage';
 import LegalTermsModal, { LegalTabType } from './components/LegalTermsModal';
+import { MobileDesignCenterModal } from './components/MobileDesignCenterModal';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from './data';
-import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem } from './types';
-import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight } from 'lucide-react';
+import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from './types';
+import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight, Sliders, Smartphone, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 const DEFAULT_FIELDS = {
@@ -408,6 +409,28 @@ export default function App() {
       quickContact3: '상업시설 · 수익형 충전기 설치문의 🏢'
     };
   });
+
+  // Mobile Design Center Config State (User Self-Service for Mobile UI)
+  const [mobileDesignConfig, setMobileDesignConfig] = useState<MobileDesignConfig>(() => {
+    const saved = localStorage.getItem('sy_mobile_design_config_v1');
+    if (saved) {
+      try {
+        return { ...DEFAULT_MOBILE_DESIGN_CONFIG, ...JSON.parse(saved) };
+      } catch (e) {
+        console.error('Error parsing sy_mobile_design_config_v1:', e);
+      }
+    }
+    return DEFAULT_MOBILE_DESIGN_CONFIG;
+  });
+
+  const [isMobileDesignCenterOpen, setIsMobileDesignCenterOpen] = useState(false);
+  const [isQuickPanelCollapsed, setIsQuickPanelCollapsed] = useState<boolean>(true);
+
+  const handleSaveMobileDesignConfig = (newConfig: MobileDesignConfig) => {
+    setMobileDesignConfig(newConfig);
+    localStorage.setItem('sy_mobile_design_config_v1', JSON.stringify(newConfig));
+    window.dispatchEvent(new Event('sy_mobile_design_update'));
+  };
 
   const [quoteConfig, setQuoteConfig] = useState<{
     badge: string;
@@ -2075,6 +2098,7 @@ export default function App() {
               onOpenMyPageAS={handleOpenMyPageAS}
               onOpenAuth={() => setIsAuthOpen(true)}
               isLoggedIn={!!user}
+              mobileDesignConfig={mobileDesignConfig}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8">
@@ -2353,6 +2377,8 @@ export default function App() {
           headerConfig={headerConfig}
           cartCount={(cartItems || []).reduce((acc, i) => acc + (i?.quantity || 1), 0)}
           onOpenCartModal={() => handlePageChange('cart')}
+          mobileDesignConfig={mobileDesignConfig}
+          onOpenMobileDesignCenter={() => setIsMobileDesignCenterOpen(true)}
         />
 
 
@@ -2378,83 +2404,138 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Floating SNS & Quick Navigation Bar on the Right side (EVC1 Style but unique design) */}
+      {/* Floating SNS & Quick Navigation Bar on the Right side (Collapsible & Mobile Optimized) */}
       {snsConfig.showFloatingSns && (
-        <div className="fixed right-4 bottom-24 sm:right-6 sm:bottom-28 z-40 flex flex-col gap-3 items-center">
-          {/* Box Wrapper with elegant glassmorphism and shadow */}
-          <div className="bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-slate-200/60 shadow-xl flex flex-col gap-2.5 items-center">
-            
-            {/* KakaoTalk URL */}
-            <a
-              href={snsConfig.kakaoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="카카오톡 실시간 상담"
-              className="w-10 h-10 rounded-full bg-[#FEE500] hover:scale-110 active:scale-95 flex items-center justify-center text-[#191919] font-black shadow-md transition-all cursor-pointer"
+        <div className="fixed right-3 bottom-20 sm:right-6 sm:bottom-28 z-40 flex flex-col gap-2 items-end">
+          {/* Collapsed Compact State */}
+          {isQuickPanelCollapsed ? (
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex items-center gap-1.5"
             >
-              <MessageSquare className="w-5 h-5 animate-pulse" />
-            </a>
+              {/* Quick Design Center shortcut */}
+              <button
+                onClick={() => setIsMobileDesignCenterOpen(true)}
+                title="모바일 디자인 설정 열기"
+                className="bg-slate-900/90 hover:bg-slate-900 text-emerald-300 p-2.5 rounded-full shadow-lg border border-slate-700 backdrop-blur-md flex items-center justify-center cursor-pointer transition-all hover:scale-105"
+              >
+                <Sliders className="w-4 h-4" />
+              </button>
 
-            {/* Instagram URL */}
-            <a
-              href={snsConfig.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="인스타그램 방문"
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+              {/* Expand Quick Panel Button */}
+              <button
+                onClick={() => setIsQuickPanelCollapsed(false)}
+                title="빠른 상담 & SNS 패널 펼치기"
+                className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold text-xs px-3.5 py-2 rounded-full shadow-xl flex items-center gap-1.5 transition-all border border-emerald-400 cursor-pointer animate-pulse hover:animate-none"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>빠른상담</span>
+                <ChevronUp className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          ) : (
+            /* Expanded Panel with Full Options */
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="flex flex-col gap-2.5 items-center"
             >
-              <Instagram className="w-5 h-5" />
-            </a>
+              {/* Box Wrapper with elegant glassmorphism and shadow */}
+              <div className="bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-slate-200/80 shadow-2xl flex flex-col gap-2.5 items-center relative">
+                {/* Fold button */}
+                <button
+                  onClick={() => setIsQuickPanelCollapsed(true)}
+                  title="패널 접기"
+                  className="w-full py-1 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] font-black flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                >
+                  <span>접기</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
 
-            {/* YouTube URL */}
-            <a
-              href={snsConfig.youtubeUrl || 'https://www.youtube.com/'}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="유튜브 채널 방문"
-              className="w-10 h-10 rounded-full bg-[#FF0000] hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
-            >
-              <Youtube className="w-5 h-5" />
-            </a>
+                {/* KakaoTalk URL */}
+                <a
+                  href={snsConfig.kakaoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="카카오톡 실시간 상담"
+                  className="w-10 h-10 rounded-full bg-[#FEE500] hover:scale-110 active:scale-95 flex items-center justify-center text-[#191919] font-black shadow-md transition-all cursor-pointer"
+                >
+                  <MessageSquare className="w-5 h-5 animate-pulse" />
+                </a>
 
-            {/* Naver Blog URL */}
-            <a
-              href={snsConfig.blogUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="공식 블로그 방문"
-              className="w-10 h-10 rounded-full bg-[#03C75A] hover:scale-110 active:scale-95 flex items-center justify-center text-white text-[10px] font-black shadow-md transition-all cursor-pointer font-mono"
-            >
-              blog
-            </a>
+                {/* Instagram URL */}
+                <a
+                  href={snsConfig.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="인스타그램 방문"
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
 
-            {/* Re-open Warranty / Popup Button */}
-            <button
-              onClick={() => setIsHomePopupOpen(true)}
-              title="품질보증서 / 정품등록 팝업 열기"
-              className="w-10 h-10 rounded-full bg-purple-800 hover:bg-purple-900 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-purple-400/40"
-            >
-              <span className="text-sm">📜</span>
-            </button>
-          </div>
+                {/* YouTube URL */}
+                <a
+                  href={snsConfig.youtubeUrl || 'https://www.youtube.com/'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="유튜브 채널 방문"
+                  className="w-10 h-10 rounded-full bg-[#FF0000] hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
 
-          {/* Quick Scroll Top / Bottom buttons */}
-          <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-800 shadow-xl flex flex-col gap-1.5 items-center">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              title="맨 위로 가기"
-              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-              title="맨 아래로 가기"
-              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
-            >
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
+                {/* Naver Blog URL */}
+                <a
+                  href={snsConfig.blogUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="공식 블로그 방문"
+                  className="w-10 h-10 rounded-full bg-[#03C75A] hover:scale-110 active:scale-95 flex items-center justify-center text-white text-[10px] font-black shadow-md transition-all cursor-pointer font-mono"
+                >
+                  blog
+                </a>
+
+                {/* Re-open Warranty / Popup Button */}
+                <button
+                  onClick={() => setIsHomePopupOpen(true)}
+                  title="품질보증서 / 정품등록 팝업 열기"
+                  className="w-10 h-10 rounded-full bg-purple-800 hover:bg-purple-900 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-purple-400/40"
+                >
+                  <span className="text-sm">📜</span>
+                </button>
+
+                {/* Design Center shortcut */}
+                <button
+                  onClick={() => setIsMobileDesignCenterOpen(true)}
+                  title="모바일 화면 디자인 센터"
+                  className="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-700 hover:scale-110 active:scale-95 flex items-center justify-center text-white shadow-md transition-all cursor-pointer border border-emerald-400/40"
+                >
+                  <Sliders className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Quick Scroll Top / Bottom buttons */}
+              <div className="bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-800 shadow-xl flex flex-col gap-1.5 items-center">
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  title="맨 위로 가기"
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+                  title="맨 아래로 가기"
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
         </div>
       )}
 
@@ -2798,6 +2879,16 @@ export default function App() {
             onClose={() => setIsHomePopupOpen(false)}
             config={homePopupConfig}
             onOpenQuoteModal={() => setIsQuoteOpen(true)}
+          />
+        )}
+
+        {/* Mobile Design Center Modal (Self-service design controls for mobile) */}
+        {isMobileDesignCenterOpen && (
+          <MobileDesignCenterModal
+            isOpen={isMobileDesignCenterOpen}
+            onClose={() => setIsMobileDesignCenterOpen(false)}
+            config={mobileDesignConfig}
+            onSave={handleSaveMobileDesignConfig}
           />
         )}
 

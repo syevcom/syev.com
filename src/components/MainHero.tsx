@@ -8,6 +8,7 @@ import * as Icons from 'lucide-react';
 import { CalendarDays, Calculator, MapPin, Wrench, ShieldCheck, Sparkles, Building, Home, ParkingSquare, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { compressImage } from '../lib/imageCompressor';
+import { MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 
 interface MainHeroProps {
   onOpenQuote: () => void;
@@ -43,6 +44,7 @@ interface MainHeroProps {
   onPageChange?: (page: any) => void;
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support' | 'brand') => void;
+  mobileDesignConfig?: MobileDesignConfig;
 }
 
 const QuickMenuIcon = ({ iconName, className = "w-6 h-6" }: { iconName: string; className?: string }) => {
@@ -63,10 +65,21 @@ export default function MainHero({
   quickMenuConfig,
   onPageChange,
   isEditMode = false,
-  onOpenCms
+  onOpenCms,
+  mobileDesignConfig = DEFAULT_MOBILE_DESIGN_CONFIG
 }: MainHeroProps) {
   // Mechanical Counting live state
   const [count, setCount] = useState(heroConfig.liveCountStart || 14520);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const getBlueSizeClass = (size?: 'small' | 'medium' | 'large' | 'xlarge') => {
     switch (size) {
@@ -124,8 +137,12 @@ export default function MainHero({
       
       {/* 100% FULL-WIDTH CINEMATIC HERO BANNER */}
       <div 
-        className="relative rounded-none overflow-hidden flex items-center bg-slate-950 group/hero w-full"
-        style={{ minHeight: `${heroConfig.height || 750}px` }}
+        className="relative rounded-none overflow-hidden flex items-center bg-slate-950 group/hero w-full transition-all duration-300"
+        style={{ 
+          minHeight: isMobile 
+            ? `${mobileDesignConfig?.heroMobileHeight || 480}px` 
+            : `${heroConfig.height || 750}px` 
+        }}
       >
         {isEditMode && (
           <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
@@ -165,29 +182,40 @@ export default function MainHero({
           <img 
             src={heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"} 
             alt="Eco-friendly EV Charging Cinematic Background" 
-            className="w-full h-full object-cover brightness-[1.15] contrast-[1.15] saturate-[1.1] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
+            className="w-full h-full object-cover brightness-[1.12] contrast-[1.12] saturate-[1.08] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
             referrerPolicy="no-referrer"
           />
-          {/* Focused Left Gradient overlay to protect left text readability while keeping the right side bright & crystal clear */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/40 via-40% to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+          {/* Dynamic Mobile Background Overlay */}
+          <div 
+            className="absolute inset-0 transition-opacity duration-300 pointer-events-none" 
+            style={{
+              backgroundColor: `rgba(2, 6, 23, ${(isMobile ? (mobileDesignConfig?.heroMobileBgOverlay || 55) : 45) / 100})`
+            }}
+          />
+          {/* Focused Left Gradient overlay to protect left text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/40 via-50% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
         </div>
 
         {/* Content Container */}
         <div 
-          className="relative z-10 max-w-4xl px-8 md:px-14 text-white space-y-7"
+          className="relative z-10 max-w-4xl px-5 sm:px-8 md:px-14 text-white space-y-4 sm:space-y-6 md:space-y-7"
           style={{ 
-            paddingTop: `${heroConfig.paddingTop !== undefined ? heroConfig.paddingTop : 120}px`, 
-            paddingBottom: `${heroConfig.paddingBottom !== undefined ? heroConfig.paddingBottom : 120}px` 
+            paddingTop: isMobile
+              ? `${mobileDesignConfig?.heroMobilePaddingY || 36}px`
+              : `${heroConfig.paddingTop !== undefined ? heroConfig.paddingTop : 120}px`, 
+            paddingBottom: isMobile
+              ? `${mobileDesignConfig?.heroMobilePaddingY || 36}px`
+              : `${heroConfig.paddingBottom !== undefined ? heroConfig.paddingBottom : 120}px` 
           }}
         >
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-extrabold uppercase tracking-wider"
+            className="inline-flex items-center gap-2 py-1 px-3 sm:py-1.5 sm:px-4 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-extrabold uppercase tracking-wider"
           >
-            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 animate-pulse" />
             {heroConfig.badge}
           </motion.div>
 
@@ -196,10 +224,15 @@ export default function MainHero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             className={`${
-              heroConfig.titleSize === 'small' ? 'text-3xl md:text-5xl' :
-              heroConfig.titleSize === 'medium' ? 'text-4xl md:text-6xl' :
-              heroConfig.titleSize === 'xlarge' ? 'text-6xl md:text-8xl' :
-              'text-5xl md:text-7xl'
+              isMobile
+                ? mobileDesignConfig?.heroMobileTitleSize === 'sm' ? 'text-2xl sm:text-3xl' :
+                  mobileDesignConfig?.heroMobileTitleSize === 'lg' ? 'text-3.5xl sm:text-4xl' :
+                  mobileDesignConfig?.heroMobileTitleSize === 'xl' ? 'text-4xl sm:text-5xl' :
+                  'text-3xl sm:text-4xl'
+                : heroConfig.titleSize === 'small' ? 'text-3xl md:text-5xl' :
+                  heroConfig.titleSize === 'medium' ? 'text-4xl md:text-6xl' :
+                  heroConfig.titleSize === 'xlarge' ? 'text-6xl md:text-8xl' :
+                  'text-5xl md:text-7xl'
             } font-black tracking-tight leading-tight md:leading-tight text-white drop-shadow-md`}
             dangerouslySetInnerHTML={{ __html: heroConfig.title }}
           />
@@ -209,9 +242,13 @@ export default function MainHero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className={`${
-              heroConfig.descriptionSize === 'small' ? 'text-sm md:text-base' :
-              heroConfig.descriptionSize === 'large' ? 'text-lg md:text-xl' :
-              'text-base md:text-lg'
+              isMobile
+                ? mobileDesignConfig?.heroMobileDescSize === 'sm' ? 'text-xs sm:text-sm' :
+                  mobileDesignConfig?.heroMobileDescSize === 'lg' ? 'text-base sm:text-lg' :
+                  'text-sm sm:text-base'
+                : heroConfig.descriptionSize === 'small' ? 'text-sm md:text-base' :
+                  heroConfig.descriptionSize === 'large' ? 'text-lg md:text-xl' :
+                  'text-base md:text-lg'
             } text-slate-100 leading-relaxed font-bold max-w-2xl drop-shadow-sm`}
           >
             {heroConfig.description}

@@ -21,7 +21,7 @@ import {
   ShoppingBag,
   ShieldCheck
 } from 'lucide-react';
-import { User as UserType, ActivePage, HeaderConfig } from '../types';
+import { User as UserType, ActivePage, HeaderConfig, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 import { SearchModal } from './SearchModal';
 
 interface HeaderProps {
@@ -80,6 +80,8 @@ interface HeaderProps {
   headerConfig?: HeaderConfig;
   cartCount?: number;
   onOpenCartModal?: () => void;
+  mobileDesignConfig?: MobileDesignConfig;
+  onOpenMobileDesignCenter?: () => void;
 }
 
 export default function Header({
@@ -118,6 +120,8 @@ export default function Header({
   },
   cartCount = 0,
   onOpenCartModal,
+  mobileDesignConfig = DEFAULT_MOBILE_DESIGN_CONFIG,
+  onOpenMobileDesignCenter,
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
@@ -178,7 +182,7 @@ export default function Header({
 
       <div className="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-x-4 relative">
         
-        {/* 1. Left side: Brand Logo Container (Sleek, compact height) */}
+        {/* 1. Left side: Brand Logo Container (Sleek, responsive height) */}
         <div 
           onClick={() => handleMenuClick('home')}
           id="logo-container"
@@ -188,13 +192,13 @@ export default function Header({
             <img 
               src={logoConfig.imageUrl} 
               alt={logoConfig.subtitle} 
-              style={{ height: logoConfig.height ? `${Math.min(logoConfig.height, 36)}px` : '34px' }}
-              className="max-w-[180px] object-contain transition-transform group-hover:scale-103 shrink-0"
+              style={{ height: `${mobileDesignConfig?.headerMobileLogoHeight || logoConfig.height || 36}px` }}
+              className="max-w-[200px] object-contain transition-transform group-hover:scale-103 shrink-0"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-              <span className="font-black text-white text-sm tracking-tighter">{logoConfig.text}</span>
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
+              <span className="font-black text-white text-base tracking-tighter">{logoConfig.text}</span>
             </div>
           )}
           
@@ -351,14 +355,14 @@ export default function Header({
         </div>
 
         {/* 4. Mobile Hamburger Button & Search Button */}
-        <div className="flex md:hidden items-center gap-1.5">
+        <div className="flex md:hidden items-center gap-1.5 sm:gap-2">
           {/* Mobile Cart button */}
           <button
             onClick={onOpenCartModal}
-            className="relative w-8 h-8 rounded-full bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center shadow-xs cursor-pointer"
+            className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-transform"
             title="장바구니"
           >
-            <ShoppingBag className="w-4 h-4" />
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-emerald-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
                 {cartCount}
@@ -369,28 +373,56 @@ export default function Header({
           {/* Mobile Search button */}
           <button
             onClick={() => setIsSearchModalOpen(true)}
-            className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-xs cursor-pointer"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-transform"
             title="충전기 검색"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
           </button>
+
+          {/* Mobile Design Center Direct Button */}
+          {onOpenMobileDesignCenter && (
+            <button
+              onClick={onOpenMobileDesignCenter}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-transform"
+              title="모바일 디자인센터 (크기 조절)"
+            >
+              <span className="text-sm">🎨</span>
+            </button>
+          )}
 
           {/* Admin Toggle on Mobile (Visible ONLY when logged in as admin or isEditMode) */}
           {(user?.isAdmin || isEditMode) && (
             <button
               onClick={() => onPageChange('admin')}
-              className="w-8 h-8 rounded-full bg-slate-900 text-amber-400 border border-slate-700 flex items-center justify-center shadow-md cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 text-amber-400 border border-slate-700 flex items-center justify-center shadow-md cursor-pointer active:scale-95 transition-transform"
               title="관리자 센터"
             >
               <Settings className={`w-4 h-4 ${isEditMode ? 'animate-spin text-amber-400' : ''}`} />
             </button>
           )}
 
+          {/* High-Visibility Hamburger Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="w-9 h-9 bg-stone-100 text-stone-800 border border-stone-200 rounded-lg flex items-center justify-center hover:bg-stone-200 transition-colors cursor-pointer shadow-sm"
+            className={`cursor-pointer transition-all active:scale-95 flex items-center justify-center shadow-md ${
+              mobileDesignConfig?.headerMobileMenuBtnSize === 'xl'
+                ? 'w-13 h-11 px-2.5 rounded-2xl bg-slate-950 text-white border-2 border-emerald-400 ring-2 ring-emerald-500/20'
+                : mobileDesignConfig?.headerMobileMenuBtnSize === 'lg'
+                ? 'w-11 h-10 px-2 rounded-xl bg-slate-900 text-white border border-slate-700 ring-1 ring-slate-800'
+                : mobileDesignConfig?.headerMobileMenuBtnSize === 'sm'
+                ? 'w-9 h-9 rounded-lg bg-slate-900 text-white'
+                : 'w-10 h-10 rounded-xl bg-slate-900 text-white border border-slate-700'
+            }`}
+            title="전체 메뉴 열기"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5 text-white" />
+            ) : (
+              <div className="flex items-center gap-1">
+                <Menu className="w-5 h-5 text-white" />
+                <span className="text-[11px] font-black tracking-tighter text-emerald-400 hidden sm:inline">메뉴</span>
+              </div>
+            )}
           </button>
         </div>
 
@@ -519,6 +551,28 @@ export default function Header({
 
               {/* User & Auth Links */}
               <div className="pt-4 border-t border-stone-200/60 space-y-3">
+                {/* Mobile Design Center Entry (Always accessible for easy self-customization) */}
+                {onOpenMobileDesignCenter && (
+                  <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">🎨</span>
+                      <div>
+                        <div className="text-xs font-black text-emerald-950">모바일 디자인 센터</div>
+                        <div className="text-[10px] text-emerald-700">홈 크기, 메뉴바 크기, 퀵패널 직접 조절</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onOpenMobileDesignCenter();
+                      }}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-xs cursor-pointer active:scale-95 transition-all"
+                    >
+                      설정 열기 →
+                    </button>
+                  </div>
+                )}
+
                 {/* Admin Quick Action (Only if admin logged in) */}
                 {(user?.isAdmin || isEditMode) && (
                   <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2">

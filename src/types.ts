@@ -199,3 +199,54 @@ export interface HeaderConfig {
   shortcutParkingMobile: string;
   syncMobileWithPc: boolean;
 }
+
+export interface MobileDesignConfig {
+  // Hero & Background
+  heroMobileHeight: number; // in px (e.g. 480)
+  heroMobilePaddingY: number; // in px (e.g. 36)
+  heroMobileTitleSize: 'sm' | 'md' | 'lg' | 'xl';
+  heroMobileDescSize: 'sm' | 'md' | 'lg';
+  heroMobileBgOverlay: number; // 0 to 90 %
+  heroMobileBgPosition: 'center' | 'top' | 'bottom';
+  
+  // Header & Menu Bar
+  headerMobileHeight: number; // in px (e.g. 64)
+  headerMobileLogoHeight: number; // in px (e.g. 38)
+  headerMobileMenuBtnSize: 'sm' | 'md' | 'lg' | 'xl';
+  headerMobileFontSize: 'sm' | 'md' | 'lg';
+  
+  // Quick Floating SNS / Action Panel
+  quickPanelDefaultCollapsed: boolean;
+  quickPanelMobileSize: 'sm' | 'md' | 'lg';
+  quickPanelPosition: 'right-bottom' | 'right-center' | 'right-top';
+  
+  // Layout & Cards
+  mobileContentPadding: number; // in px (e.g. 16)
+  mobileCardColumns: 1 | 2;
+  mobileCardSpacing: number; // in px (e.g. 16)
+  
+  // Bottom Sticky Bar
+  showMobileStickyBottom: boolean;
+  mobileStickyBottomHeight: number; // in px (e.g. 60)
+}
+
+export const DEFAULT_MOBILE_DESIGN_CONFIG: MobileDesignConfig = {
+  heroMobileHeight: 480,
+  heroMobilePaddingY: 36,
+  heroMobileTitleSize: 'md',
+  heroMobileDescSize: 'sm',
+  heroMobileBgOverlay: 55,
+  heroMobileBgPosition: 'center',
+  headerMobileHeight: 64,
+  headerMobileLogoHeight: 36,
+  headerMobileMenuBtnSize: 'lg',
+  headerMobileFontSize: 'md',
+  quickPanelDefaultCollapsed: true,
+  quickPanelMobileSize: 'md',
+  quickPanelPosition: 'right-bottom',
+  mobileContentPadding: 16,
+  mobileCardColumns: 1,
+  mobileCardSpacing: 16,
+  showMobileStickyBottom: true,
+  mobileStickyBottomHeight: 60
+};
