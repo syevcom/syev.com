@@ -16,10 +16,16 @@ import {
   Youtube, 
   Phone, 
   ChevronDown, 
+  ChevronUp,
+  ChevronRight,
   BookOpen,
   Search,
   ShoppingBag,
-  ShieldCheck
+  ShoppingCart,
+  Truck,
+  Headphones,
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 import { SearchModal } from './SearchModal';
@@ -126,6 +132,9 @@ export default function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isHomeSubmenuOpen, setIsHomeSubmenuOpen] = useState(true);
+  const [isBizSubmenuOpen, setIsBizSubmenuOpen] = useState(false);
+  const [isAccessorySubmenuOpen, setIsAccessorySubmenuOpen] = useState(false);
 
   const getMenuLabel = (id: ActivePage) => {
     switch (id) {
@@ -428,207 +437,421 @@ export default function Header({
 
       </div>
 
-      {/* 5. Mobile Drawer Overlay Menu */}
+      {/* 5. Mobile Drawer Overlay Menu (Right Side Drawer Layout) */}
       {isMobileMenuOpen && (
         <div 
           id="mobile-drawer-menu"
-          className="md:hidden fixed inset-x-0 top-0 bottom-0 z-[999] bg-slate-950/70 backdrop-blur-md flex flex-col justify-end transition-opacity duration-200"
+          className="md:hidden fixed inset-0 z-[999] bg-black/60 backdrop-blur-xs flex justify-end transition-opacity duration-300"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setIsMobileMenuOpen(false);
             }
           }}
         >
-          <div className="bg-white w-full max-h-[85vh] rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
-            {/* Drawer Top Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-xs">
-                  ⚡
+          <div className="bg-white w-[300px] sm:w-[340px] max-w-[86vw] h-full shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
+            {/* Top Area */}
+            <div>
+              {/* Top Auth & Action Bar */}
+              <div className="p-4 pt-5 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div>
+                  {user ? (
+                    <div className="text-xs font-black text-slate-900 truncate max-w-[120px]">
+                      {user.name || user.email?.split('@')[0]} 님
+                    </div>
+                  ) : (
+                    <div className="text-xs font-semibold text-slate-500">
+                      로그인하세요.
+                    </div>
+                  )}
                 </div>
-                <span className="font-black text-slate-900 text-sm">{logoConfig.subtitle || 'SY.com'} 메뉴</span>
+
+                <div className="flex items-center gap-1.5">
+                  {user ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenMyPage();
+                        }}
+                        className="px-2.5 py-1 text-[11px] font-bold border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        MY쇼핑
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenAuth();
+                        }}
+                        className="px-2 py-1 text-[11px] font-bold border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        로그아웃
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenAuth();
+                        }}
+                        className="px-2.5 py-1 text-[11px] font-bold border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        로그인
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onOpenAuth();
+                        }}
+                        className="px-2.5 py-1 text-[11px] font-bold border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        회원가입
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer ml-1"
+                    title="메뉴 닫기"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
-                title="메뉴 닫기"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {/* Drawer Scrollable Content */}
-            <div className="p-5 space-y-6 overflow-y-auto overscroll-contain flex-1">
-              {/* Mobile User Profile & Cart Header Bar */}
-              <div className="p-3.5 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-md">
-                {user ? (
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-black text-white truncate">{user.name} 님</div>
-                      <div className="text-[10px] text-slate-300 truncate">{user.email}</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-xs font-bold text-slate-300">
-                    로그인하고 내역과 장바구니를 확인하세요.
-                  </div>
-                )}
+              {/* Search Icon row */}
+              <div className="px-4 py-2.5 flex justify-end border-b border-slate-100">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsSearchModalOpen(true);
+                  }}
+                  className="text-slate-700 hover:text-emerald-700 p-1 flex items-center gap-1.5 cursor-pointer text-xs font-semibold"
+                  title="충전기 검색"
+                >
+                  <span>충전기 모델 검색</span>
+                  <Search className="w-4 h-4 text-slate-600" />
+                </button>
+              </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+              {/* 4 Quick Icons Grid (주문조회, MY쇼핑, 1:1문의, 장바구니) */}
+              <div className="grid grid-cols-4 py-3.5 px-2 border-b border-slate-200 text-center bg-slate-50/50">
+                {/* 주문조회 */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenMyPage();
+                  }}
+                  className="flex flex-col items-center justify-center gap-1.5 py-1 cursor-pointer group"
+                >
+                  <Truck className="w-5 h-5 text-slate-600 group-hover:text-emerald-700 transition-colors" />
+                  <span className="text-[11px] font-bold text-slate-700 group-hover:text-emerald-700">주문조회</span>
+                </button>
+
+                {/* MY쇼핑 */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenMyPage();
+                  }}
+                  className="flex flex-col items-center justify-center gap-1.5 py-1 cursor-pointer group"
+                >
+                  <User className="w-5 h-5 text-slate-600 group-hover:text-emerald-700 transition-colors" />
+                  <span className="text-[11px] font-bold text-slate-700 group-hover:text-emerald-700">MY쇼핑</span>
+                </button>
+
+                {/* 1:1문의 */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenQuote();
+                  }}
+                  className="flex flex-col items-center justify-center gap-1.5 py-1 cursor-pointer group"
+                >
+                  <Headphones className="w-5 h-5 text-slate-600 group-hover:text-emerald-700 transition-colors" />
+                  <span className="text-[11px] font-bold text-slate-700 group-hover:text-emerald-700">1:1문의</span>
+                </button>
+
+                {/* 장바구니 */}
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenCartModal();
+                  }}
+                  className="relative flex flex-col items-center justify-center gap-1.5 py-1 cursor-pointer group"
+                >
+                  <div className="relative">
+                    <ShoppingCart className="w-5 h-5 text-slate-600 group-hover:text-emerald-700 transition-colors" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-2 bg-emerald-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-700 group-hover:text-emerald-700">장바구니</span>
+                </button>
+              </div>
+
+              {/* Vertical Navigation Items (Accordion structure) */}
+              <div className="px-5 py-4 space-y-4">
+                {/* 브랜드소개 */}
+                <div>
+                  <button
+                    onClick={() => handleMenuClick('about')}
+                    className="w-full text-left font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    브랜드소개
+                  </button>
+                </div>
+
+                {/* 홈 충전기 (Accordion) */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setIsHomeSubmenuOpen(!isHomeSubmenuOpen)}
+                    className="w-full flex items-center justify-between font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    <span>홈 충전기</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isHomeSubmenuOpen ? 'rotate-180 text-emerald-600' : ''}`} />
+                  </button>
+                  {isHomeSubmenuOpen && (
+                    <div className="pl-3 space-y-2 border-l-2 border-emerald-500/30 text-xs font-semibold text-slate-600 animate-in fade-in duration-200">
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          onSelectHomeServiceType?.('단말기 단품');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 단말기 단품 (5kW / 7kW / 11kW)
+                      </button>
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          onSelectHomeServiceType?.('교체 시공');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 교체 시공
+                      </button>
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          onSelectHomeServiceType?.('신규 설치 포함');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 신규 설치 포함 (완속)
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* BIZ 충전기 (Accordion) */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setIsBizSubmenuOpen(!isBizSubmenuOpen)}
+                    className="w-full flex items-center justify-between font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    <span>BIZ 충전기</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isBizSubmenuOpen ? 'rotate-180 text-emerald-600' : ''}`} />
+                  </button>
+                  {isBizSubmenuOpen && (
+                    <div className="pl-3 space-y-2 border-l-2 border-emerald-500/30 text-xs font-semibold text-slate-600 animate-in fade-in duration-200">
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_commercial');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 아파트 · 공동주택 충전기
+                      </button>
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_parking');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 상업시설 · 수익형 급속충전기
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 액세서리 (Accordion) */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setIsAccessorySubmenuOpen(!isAccessorySubmenuOpen)}
+                    className="w-full flex items-center justify-between font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    <span>액세서리</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isAccessorySubmenuOpen ? 'rotate-180 text-emerald-600' : ''}`} />
+                  </button>
+                  {isAccessorySubmenuOpen && (
+                    <div className="pl-3 space-y-2 border-l-2 border-emerald-500/30 text-xs font-semibold text-slate-600 animate-in fade-in duration-200">
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          setIsMobileMenuOpen(false);
+                          setTimeout(() => {
+                            document.getElementById('residential-products-list')?.scrollIntoView({ behavior: 'smooth' });
+                          }, 100);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 충전기 전용 스탠드 / 거치대
+                      </button>
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          setIsMobileMenuOpen(false);
+                          setTimeout(() => {
+                            document.getElementById('residential-products-list')?.scrollIntoView({ behavior: 'smooth' });
+                          }, 100);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 방수 캐노피 / 보호 케이스
+                      </button>
+                      <button
+                        onClick={() => {
+                          onPageChange('sol_residential');
+                          setIsMobileMenuOpen(false);
+                          setTimeout(() => {
+                            document.getElementById('residential-products-list')?.scrollIntoView({ behavior: 'smooth' });
+                          }, 100);
+                        }}
+                        className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
+                      >
+                        • 충전 케이블 및 커넥터 홀더
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 공지사항 */}
+                <div>
+                  <button
+                    onClick={() => {
+                      handleMenuClick('home');
+                      setTimeout(() => {
+                        document.getElementById('notice-faq-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 150);
+                    }}
+                    className="w-full text-left font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    공지사항
+                  </button>
+                </div>
+
+                {/* 설치후기 */}
+                <div>
+                  <button
+                    onClick={() => handleMenuClick('review')}
+                    className="w-full text-left font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    설치후기
+                  </button>
+                </div>
+
+                {/* 충전기문의 */}
+                <div>
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      if (user) onOpenMyPage();
-                      else onOpenAuth();
+                      onOpenQuote();
                     }}
-                    className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow-sm cursor-pointer"
+                    className="w-full text-left font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
                   >
-                    {user ? '마이페이지' : '로그인'}
+                    충전기문의
+                  </button>
+                </div>
+
+                {/* 자료실 */}
+                <div>
+                  <button
+                    onClick={() => {
+                      handleMenuClick('home');
+                      setTimeout(() => {
+                        document.getElementById('notice-faq-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 150);
+                    }}
+                    className="w-full text-left font-extrabold text-[14px] text-slate-800 hover:text-emerald-700 transition-colors cursor-pointer py-1"
+                  >
+                    자료실
                   </button>
                 </div>
               </div>
 
-              {/* Direct Installation Inquiry 3 Stacked Buttons */}
-              <div className="space-y-2">
-                <span 
-                  onClick={() => isEditMode ? onOpenCms?.('brand') : onOpenQuote()}
-                  className={`text-[14px] font-black text-emerald-900 tracking-wider block uppercase bg-emerald-50 border border-emerald-200/70 rounded-xl px-3 py-2.5 text-center select-none shadow-xs cursor-pointer transition-all duration-200 ${
-                    isEditMode ? 'border-dashed border-2 animate-pulse border-emerald-500 bg-yellow-50 text-emerald-900' : ''
-                  }`}
-                  title={isEditMode ? '설치문의 실시간 편집 (관리자)' : '클릭하시면 무료 설치 상담 팝업창이 열립니다.'}
-                >
-                  {isEditMode ? `✏️ ${headerConfig.inquiryTitleMobile || '설치문의 실시간 편집'}` : (headerConfig.inquiryTitleMobile || '⚡ 전기차충전기 설치문의')}
-                </span>
-                <div className="grid grid-cols-1 gap-2">
-                  <button
-                    onClick={() => handleInquirySelect('Commercial')}
-                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
-                  >
-                    <span>{headerConfig.shortcutCommercialMobile || '⚡ 아파트 · 공동주택'}</span>
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
-                  </button>
-                  <button
-                    onClick={() => handleInquirySelect('Residential')}
-                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
-                  >
-                    <span>{headerConfig.shortcutResidentialMobile || '🏠 가정용 · 개인 홈'}</span>
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
-                  </button>
-                  <button
-                    onClick={() => handleInquirySelect('ParkingLot')}
-                    className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center justify-between shadow-xs transition-colors cursor-pointer"
-                  >
-                    <span>{headerConfig.shortcutParkingMobile || '🏢 상업시설 · 수익형'}</span>
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md">상담신청 →</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Navigation Links */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-bold text-stone-500 tracking-wider block uppercase">전체 카테고리</span>
-                {menuItems.map((item) => {
-                  const isActive = activePage === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleMenuClick(item.id)}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-black transition-all flex items-center justify-between cursor-pointer ${
-                        isActive 
-                          ? 'bg-emerald-600 text-white shadow-sm' 
-                          : 'text-stone-800 hover:bg-stone-100 bg-stone-50/80 border border-stone-200/50'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      <span className={`text-xs ${isActive ? 'text-white' : 'text-stone-400'}`}>›</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* User & Auth Links */}
-              <div className="pt-4 border-t border-stone-200/60 space-y-3">
-                {/* Mobile Design Center Entry (Always accessible for easy self-customization) */}
-                {onOpenMobileDesignCenter && (
-                  <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xl">🎨</span>
-                      <div>
-                        <div className="text-xs font-black text-emerald-950">모바일 디자인 센터</div>
-                        <div className="text-[10px] text-emerald-700">홈 크기, 메뉴바 크기, 퀵패널 직접 조절</div>
-                      </div>
-                    </div>
+              {/* Mobile Design Center & Admin Quick Links */}
+              {(onOpenMobileDesignCenter || user?.isAdmin || isEditMode) && (
+                <div className="px-5 pt-2 pb-4 space-y-2 border-t border-slate-100">
+                  {onOpenMobileDesignCenter && (
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         onOpenMobileDesignCenter();
                       }}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-xs cursor-pointer active:scale-95 transition-all"
+                      className="w-full py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      설정 열기 →
+                      <span>🎨 모바일 디자인 센터</span>
                     </button>
-                  </div>
-                )}
+                  )}
 
-                {/* Admin Quick Action (Only if admin logged in) */}
-                {(user?.isAdmin || isEditMode) && (
-                  <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
-                        <ShieldCheck className="w-4 h-4 text-amber-600" />
-                        <span>관리자 전용 메뉴</span>
-                      </span>
+                  {(user?.isAdmin || isEditMode) && (
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={onToggleEditMode}
-                        className="text-[10.5px] font-bold px-2 py-0.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-md cursor-pointer transition-colors"
+                        className="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-lg text-xs font-bold cursor-pointer"
                       >
-                        {isEditMode ? '편집 끄기' : '실시간 편집'}
+                        {isEditMode ? '✏️ 편집 끄기' : '✏️ 실시간 편집'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          onPageChange('admin');
+                        }}
+                        className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 rounded-lg text-xs font-bold cursor-pointer"
+                      >
+                        🔧 관리자
                       </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        onPageChange('admin');
-                      }}
-                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors"
-                    >
-                      <span>🔧 관리자 센터 이동</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Social utilities */}
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  <a 
-                    href={snsConfig.blogUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-stone-700 hover:text-emerald-600 text-xs font-bold border border-stone-200 py-2.5 rounded-xl bg-white shadow-xs text-center flex items-center justify-center"
-                  >
-                    네이버 블로그
-                  </a>
-                  <a 
-                    href={snsConfig.youtubeUrl || 'https://www.youtube.com'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-stone-700 hover:text-red-500 text-xs font-bold border border-stone-200 py-2.5 rounded-xl bg-white flex items-center justify-center gap-1 shadow-xs text-center"
-                  >
-                    <Youtube className="w-3.5 h-3.5 text-red-500" />
-                    유튜브
-                  </a>
-                  <a 
-                    href={`tel:${footerConfig.phone.split(' ')[0]}`}
-                    className="text-emerald-700 hover:text-emerald-800 text-xs font-bold border border-emerald-200 py-2.5 rounded-xl bg-emerald-50/80 flex items-center justify-center gap-1 shadow-xs text-center"
-                  >
-                    <Phone className="w-3 h-3 text-emerald-600" />
-                    전화문의
-                  </a>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
+
+            {/* Bottom CS CENTER Box */}
+            <div className="p-5 border-t border-slate-200 bg-white">
+              <div className="text-[11px] font-extrabold text-slate-800 tracking-wider">CS CENTER</div>
+              <a 
+                href={`tel:${footerConfig.phone.split(' ')[0] || '1644-7595'}`}
+                className="block text-2xl font-black text-slate-900 tracking-tight my-1 hover:text-emerald-700 transition-colors"
+              >
+                {footerConfig.phone.split(' ')[0] || '1644-7595'}
+              </a>
+              <div className="text-[10px] text-slate-400 font-medium space-y-0.5 leading-tight mb-3.5">
+                <div>MON-FRI : AM 09:00 ~ PM 06:00</div>
+                <div>LUNCH : PM 12:00 ~ PM 01:00</div>
+                <div>SAT, SUN, HOLIDAY OFF</div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenQuote();
+                }}
+                className="w-full py-2.5 bg-[#374151] hover:bg-[#1f2937] text-white text-xs font-bold rounded-lg text-center shadow-xs cursor-pointer transition-colors"
+              >
+                고객센터
+              </button>
+            </div>
+
           </div>
         </div>
       )}

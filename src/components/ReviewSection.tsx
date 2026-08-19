@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Review } from '../types';
 import { REVIEWS } from '../data';
 import { X, Check, Plus, Edit3, Trash2, Upload, Image as ImageIcon, Clipboard } from 'lucide-react';
+import { compressImage } from '../lib/imageCompressor';
 
 interface ReviewSectionProps {
   reviews?: Review[];
@@ -38,19 +39,24 @@ export default function ReviewSection({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  // Helper function to process image files into Data URL
-  const handleProcessFile = (file: File) => {
+  // Helper function to process image files into Data URL with compression
+  const handleProcessFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
       alert('이미지 파일(PNG, JPG, WEBP 등)만 업로드할 수 있습니다.');
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (reader.result) {
-        setFormReview((prev) => ({ ...prev, afterImg: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, 1200, 900, 0.85);
+      setFormReview((prev) => ({ ...prev, afterImg: compressed }));
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          setFormReview((prev) => ({ ...prev, afterImg: reader.result as string }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Listen for global Clipboard Paste (Ctrl+V) when modal is open
@@ -119,12 +125,16 @@ export default function ReviewSection({
       updatedList = displayReviews.map((r) => (r.id === editingReview.id ? ({ ...r, ...formReview } as Review) : r));
     }
 
+    try {
+      localStorage.setItem('sy_cms_reviews', JSON.stringify(updatedList));
+    } catch (err) {
+      console.warn('Failed to save to localStorage', err);
+    }
     if (onSaveReviews) {
       onSaveReviews(updatedList);
-    } else {
-      localStorage.setItem('sy_cms_reviews', JSON.stringify(updatedList));
-      window.dispatchEvent(new Event('sy_cms_products_update'));
     }
+    window.dispatchEvent(new Event('sy_cms_products_update'));
+    window.dispatchEvent(new Event('storage'));
 
     setEditingReview(null);
     setIsCreating(false);
