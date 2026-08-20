@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { Award, ShieldCheck, Network } from 'lucide-react';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 interface AboutSectionProps {
   aboutConfig: {
@@ -57,9 +58,12 @@ export default function AboutSection({
 
         <div className="md:col-span-5 relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-slate-200 h-64 sm:h-80 md:h-[420px]">
           <img 
-            src={aboutConfig.ceoImage} 
+            src={getOptimizedImageUrl(aboutConfig.ceoImage, { width: 800, format: 'webp' })} 
             alt="SY.com CEO" 
             className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-5 sm:p-6 text-white">
             <p className="font-extrabold text-lg sm:text-xl">{aboutConfig.ceoName}</p>

@@ -156,79 +156,97 @@ export default function AIChatBot({ onOpenQuote, onNavigateToSol, onNavigateToPr
   };
 
   return (
-    <div className="fixed bottom-16 sm:bottom-6 right-3 sm:right-6 z-40 flex flex-col items-end">
-      {/* Floating Chat Trigger Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="flex items-center gap-2 group"
-          >
-            <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-xs font-bold shadow-lg border border-slate-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>AI 24시 실시간 상담</span>
-            </div>
-
-            <button
-              onClick={() => setIsOpen(true)}
-              id="btn-ai-chat-open"
-              className="relative p-3 sm:p-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white rounded-full shadow-2xl shadow-emerald-500/40 transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-              aria-label="Open AI 1:1 Live Chat"
-            >
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
-              <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white"></span>
-              </span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Expanded AI Chat Window */}
+    <>
+      {/* Mobile Backdrop to close by tapping outside */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.25 }}
-            className="w-[92vw] sm:w-[390px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden"
-          >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-4 flex items-center justify-between shadow-md">
-              <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
-                  <Bot className="w-5 h-5" />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-900"></span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-black tracking-tight flex items-center gap-1.5">
-                    SY.com AI 24시 고객센터
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300 border border-emerald-500/40">LIVE</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-300 font-medium">실시간 충전기 & 보조금 상담원</p>
-                </div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black/35 backdrop-blur-[2px] z-[85] sm:hidden"
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="fixed bottom-16 sm:bottom-6 right-2.5 sm:right-6 z-[90] flex flex-col items-end">
+        {/* Floating Chat Trigger Button */}
+        <AnimatePresence>
+          {!isOpen && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="flex items-center gap-2 group"
+            >
+              <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 bg-slate-900/90 backdrop-blur-md text-white rounded-full text-xs font-bold shadow-lg border border-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>AI 24시 실시간 상담</span>
               </div>
 
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={handleResetChat}
-                  title="대화 초기화"
-                  className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+              <button
+                onClick={() => setIsOpen(true)}
+                id="btn-ai-chat-open"
+                className="relative p-3 sm:p-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white rounded-full shadow-2xl shadow-emerald-500/40 transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+                aria-label="Open AI 1:1 Live Chat"
+              >
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
+                <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white"></span>
+                </span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Expanded AI Chat Window */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              className="w-[calc(100vw-20px)] max-w-[345px] sm:w-[380px] h-[450px] max-h-[64vh] sm:h-[530px] sm:max-h-[78vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden ring-1 ring-black/10"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-3.5 sm:px-4 py-3 flex items-center justify-between shadow-md shrink-0">
+                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                  <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
+                    <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-400 rounded-full border border-slate-900"></span>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-1 truncate">
+                      <span>SY.com AI 24시 상담</span>
+                      <span className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 shrink-0">LIVE</span>
+                    </h3>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 font-medium truncate">실시간 충전기 & 보조금 상담</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={handleResetChat}
+                    title="대화 초기화"
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    id="btn-ai-chat-close"
+                    className="flex items-center gap-1 px-2.5 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-white border border-red-500/30 rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                    title="상담창 닫기"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span className="text-[11px]">닫기</span>
+                  </button>
+                </div>
               </div>
-            </div>
 
             {/* Chat Body */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/70">
@@ -330,5 +348,6 @@ export default function AIChatBot({ onOpenQuote, onNavigateToSol, onNavigateToPr
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 }

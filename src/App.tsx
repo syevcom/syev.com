@@ -2387,7 +2387,9 @@ export default function App() {
 
       {/* Main Container */}
       <main className={`flex-grow w-full ${
-        activePage === 'home' || activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking' || activePage === 'products'
+        activePage === 'home'
+          ? 'py-0 pb-12 sm:pb-8 px-0 w-full'
+          : activePage === 'sol_commercial' || activePage === 'sol_residential' || activePage === 'sol_parking' || activePage === 'products'
           ? 'py-0 pb-12 sm:pb-8 px-0 sm:px-6 lg:px-8 max-w-7xl mx-auto' 
           : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-12 sm:pb-8'
       }`}>
@@ -2455,17 +2457,6 @@ export default function App() {
                   <span>접기</span>
                   <ChevronDown className="w-3 h-3" />
                 </button>
-
-                {/* KakaoTalk URL */}
-                <a
-                  href={snsConfig.kakaoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="카카오톡 실시간 상담"
-                  className="w-10 h-10 rounded-full bg-[#FEE500] hover:scale-110 active:scale-95 flex items-center justify-center text-[#191919] font-black shadow-md transition-all cursor-pointer"
-                >
-                  <MessageSquare className="w-5 h-5 animate-pulse" />
-                </a>
 
                 {/* Instagram URL */}
                 <a

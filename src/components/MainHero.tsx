@@ -8,6 +8,7 @@ import * as Icons from 'lucide-react';
 import { CalendarDays, Calculator, MapPin, Wrench, ShieldCheck, Sparkles, Building, Home, ParkingSquare, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { compressImage } from '../lib/imageCompressor';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 import { MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 
 interface MainHeroProps {
@@ -183,10 +184,12 @@ export default function MainHero({
         {/* Cinematic Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
-            src={heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1920&auto=format&fit=crop"} 
+            src={getOptimizedImageUrl(heroConfig.imageUrl || "https://images.unsplash.com/photo-1563720223185-11003d516935", { width: 1920, format: 'webp', quality: 80 })} 
             alt="Eco-friendly EV Charging Cinematic Background" 
             className="w-full h-full object-cover brightness-[1.12] contrast-[1.12] saturate-[1.08] scale-100 group-hover/hero:scale-[1.03] transition-transform duration-1000"
             referrerPolicy="no-referrer"
+            loading="eager"
+            decoding="async"
           />
           {/* Dynamic Mobile Background Overlay */}
           <div 
@@ -202,7 +205,7 @@ export default function MainHero({
 
         {/* Content Container */}
         <div 
-          className="relative z-10 max-w-4xl px-5 sm:px-8 md:px-14 text-white space-y-4 sm:space-y-6 md:space-y-7"
+          className="relative z-10 max-w-5xl px-5 sm:px-8 md:px-14 lg:px-20 xl:px-28 2xl:px-36 text-white space-y-4 sm:space-y-6 md:space-y-7"
           style={{ 
             paddingTop: isMobile
               ? `${mobileDesignConfig?.heroMobilePaddingY || 36}px`
@@ -274,27 +277,29 @@ export default function MainHero({
         </div>
       </div>
 
-      {/* Boxed Content Area for the rest of the page */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-8">
+      {/* Full-width Content Area for the rest of the page */}
+      <div className="w-full space-y-8 sm:space-y-12 pt-4 sm:pt-6">
 
-      {/* Hand-crafted 3-Column Premium Category Shortcuts (As requested by user: 3 visible at once on mobile) */}
-      <section className="py-5 sm:py-8 md:py-12 bg-white rounded-2xl sm:rounded-3xl border border-slate-100/80 shadow-xs">
-        <div className="max-w-6xl mx-auto px-2 sm:px-4 md:px-6">
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 items-stretch">
+      {/* Hand-crafted 3-Column Premium Category Shortcuts (Edge-to-edge full width on PC, 3 visible on mobile) */}
+      <section className="py-4 sm:py-6 md:py-8 lg:py-12 bg-white border-y border-slate-100/90 shadow-2xs w-full">
+        <div className="w-full px-2.5 sm:px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 mx-auto">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 items-stretch">
             
             {/* Column 1: 가정용 홈 */}
             <div 
               onClick={() => onPageChange?.('sol_residential')}
-              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+              className="w-full flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1 sm:p-2 md:p-3 rounded-xl sm:rounded-2xl md:rounded-3xl hover:bg-slate-50/80 transition-all"
             >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
+              <div className="w-full h-[75px] sm:h-[130px] md:h-[260px] lg:h-[340px] xl:h-[420px] 2xl:h-[480px] flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl bg-slate-50/50">
                 {heroConfig.residentialImage ? (
                   <img
-                    src={heroConfig.residentialImage}
+                    src={getOptimizedImageUrl(heroConfig.residentialImage, { width: 800, format: 'webp' })}
                     alt="가정용 홈 메인 이미지"
-                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -375,16 +380,18 @@ export default function MainHero({
             {/* Column 2: 아파트 */}
             <div 
               onClick={() => onPageChange?.('sol_commercial')}
-              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+              className="w-full flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1 sm:p-2 md:p-3 rounded-xl sm:rounded-2xl md:rounded-3xl hover:bg-slate-50/80 transition-all"
             >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
+              <div className="w-full h-[75px] sm:h-[130px] md:h-[260px] lg:h-[340px] xl:h-[420px] 2xl:h-[480px] flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl bg-slate-50/50">
                 {heroConfig.commercialImage ? (
                   <img
-                    src={heroConfig.commercialImage}
+                    src={getOptimizedImageUrl(heroConfig.commercialImage, { width: 800, format: 'webp' })}
                     alt="아파트 메인 이미지"
-                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -480,16 +487,18 @@ export default function MainHero({
             {/* Column 3: 상업시설 수익형 */}
             <div 
               onClick={() => onPageChange?.('sol_parking')}
-              className="flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1.5 sm:p-2 rounded-xl sm:rounded-2xl hover:bg-slate-50/80 transition-all"
+              className="w-full flex flex-col items-center text-center space-y-2 sm:space-y-3 md:space-y-4 group cursor-pointer p-1 sm:p-2 md:p-3 rounded-xl sm:rounded-2xl md:rounded-3xl hover:bg-slate-50/80 transition-all"
             >
               {/* Custom Image or Vector Illustration */}
-              <div className="w-full max-w-[280px] h-[75px] sm:h-[130px] md:h-[200px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50/50">
+              <div className="w-full h-[75px] sm:h-[130px] md:h-[260px] lg:h-[340px] xl:h-[420px] 2xl:h-[480px] flex items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl bg-slate-50/50">
                 {heroConfig.parkingImage ? (
                   <img
-                    src={heroConfig.parkingImage}
+                    src={getOptimizedImageUrl(heroConfig.parkingImage, { width: 800, format: 'webp' })}
                     alt="상업시설 수익형 메인 이미지"
-                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xs border border-slate-200/80"
+                    className="w-full h-full object-cover rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xs border border-slate-200/80"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <svg viewBox="0 0 350 250" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">

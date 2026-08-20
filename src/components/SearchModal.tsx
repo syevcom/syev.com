@@ -7,6 +7,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, X, Zap, Check, ArrowRight, ShieldCheck, Flame, ExternalLink } from 'lucide-react';
 import { PRODUCTS } from '../data';
 import { HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './SolutionsSection';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 import { ActivePage } from '../types';
 
 interface SearchModalProps {
@@ -266,9 +267,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                 >
                   <div className="w-20 h-20 rounded-xl bg-white p-1.5 border border-slate-200 shrink-0 overflow-hidden flex items-center justify-center">
                     <img
-                      src={p.image}
+                      src={getOptimizedImageUrl(p.image, { width: 160, format: 'webp' })}
                       alt={p.name}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                     />
                   </div>

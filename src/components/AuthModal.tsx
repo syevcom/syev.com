@@ -49,7 +49,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
 
   if (!isOpen) return null;
 
-  const handleSocialLogin = (provider: 'google' | 'kakao' | 'naver') => {
+  const handleSocialLogin = (provider: 'google') => {
     if (provider === 'google') {
       const googleClientId = '889311235329-ovmo1867vanikg7ert7gero2d75k9f06.apps.googleusercontent.com';
 
@@ -95,24 +95,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
         window.location.href = googleAuthUrl;
         return;
       }
-    }
-
-    if (provider === 'naver') {
-      const naverClientId = '70CVfYxs3pmZjg_kATOJ';
-      const redirectUri = encodeURIComponent(window.location.origin.replace(/\/$/, ''));
-      const state = Math.random().toString(36).substring(2, 11);
-      sessionStorage.setItem('naver_oauth_state', state);
-
-      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naverClientId}&redirect_uri=${redirectUri}&state=${state}`;
-      
-      sessionStorage.setItem('naver_auth_pending', 'true');
-      window.location.href = naverAuthUrl;
-      return;
-    }
-
-    if (provider === 'kakao') {
-      alert('카카오 로그인은 현재 서비스 준비 중입니다. 네이버 또는 구글 로그인을 이용해 주세요.');
-      return;
     }
   };
 
@@ -350,38 +332,18 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
           {/* Social Logins */}
           {isLogin && (
             <div className="mb-6">
-              <div className="grid grid-cols-3 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin('naver')}
-                  id="btn-naver-login"
-                  className="flex items-center justify-center py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
-                >
-                  <span className="w-5 h-5 bg-[#03C75A] text-white font-bold flex items-center justify-center text-[10px] rounded-full mr-1.5">N</span>
-                  네이버
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin('kakao')}
-                  id="btn-kakao-login"
-                  className="flex items-center justify-center py-2.5 px-3 rounded-xl border border-slate-200 bg-[#FEE500] hover:bg-[#FCD800] text-xs font-bold text-slate-900 transition-colors cursor-pointer"
-                >
-                  <span className="w-5 h-5 bg-[#3C1E1E] text-[#FEE500] font-bold flex items-center justify-center text-[10px] rounded-full mr-1.5">K</span>
-                  카카오
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin('google')}
-                  id="btn-google-login"
-                  className="flex items-center justify-center py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
-                >
-                  <span className="w-5 h-5 bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-[10px] rounded-full mr-1.5">G</span>
-                  구글
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => handleSocialLogin('google')}
+                id="btn-google-login"
+                className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors cursor-pointer shadow-2xs gap-2"
+              >
+                <span className="w-5 h-5 bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-[11px] rounded-full">G</span>
+                <span>Google 계정으로 빠른 로그인</span>
+              </button>
               <div className="relative flex py-4 items-center">
                 <div className="flex-grow border-t border-slate-100"></div>
-                <span className="flex-shrink mx-4 text-[10px] text-slate-400 font-bold">또는 이메일 계정</span>
+                <span className="flex-shrink mx-4 text-[10px] text-slate-400 font-bold">또는 이메일 계정 로그인</span>
                 <div className="flex-grow border-t border-slate-100"></div>
               </div>
             </div>

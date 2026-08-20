@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 import { SearchModal } from './SearchModal';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 interface HeaderProps {
   user: UserType | null;
@@ -133,8 +134,6 @@ export default function Header({
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isHomeSubmenuOpen, setIsHomeSubmenuOpen] = useState(false);
-  const [isAptSubmenuOpen, setIsAptSubmenuOpen] = useState(false);
-  const [isBizSubmenuOpen, setIsBizSubmenuOpen] = useState(false);
 
   const getMenuLabel = (id: ActivePage) => {
     switch (id) {
@@ -200,11 +199,13 @@ export default function Header({
         >
           {logoConfig.imageUrl ? (
             <img 
-              src={logoConfig.imageUrl} 
+              src={getOptimizedImageUrl(logoConfig.imageUrl, { width: 400, format: 'webp' })} 
               alt={logoConfig.subtitle} 
               style={{ height: `${mobileDesignConfig?.headerMobileLogoHeight || logoConfig.height || 36}px` }}
               className="max-w-[200px] object-contain transition-transform group-hover:scale-103 shrink-0"
               referrerPolicy="no-referrer"
+              loading="eager"
+              decoding="async"
             />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
@@ -890,110 +891,28 @@ export default function Header({
                 )}
               </div>
 
-              {/* 아파트 충전기 (Accordion & Direct Link) */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-1">
-                  <button
-                    onClick={() => handleMenuClick('sol_commercial')}
-                    className={`font-extrabold text-[14px] text-left transition-colors cursor-pointer ${
-                      activePage === 'sol_commercial' ? 'text-emerald-700 font-black' : 'text-slate-800 hover:text-emerald-700'
-                    }`}
-                  >
-                    아파트 충전기
-                  </button>
-                  <button
-                    onClick={() => setIsAptSubmenuOpen(!isAptSubmenuOpen)}
-                    className="p-1 text-slate-500 hover:text-emerald-600 cursor-pointer"
-                  >
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isAptSubmenuOpen ? 'rotate-180 text-emerald-600' : ''}`} />
-                  </button>
-                </div>
-                {isAptSubmenuOpen && (
-                  <div className="pl-3 space-y-2 border-l-2 border-emerald-500/30 text-xs font-semibold text-slate-600 animate-in fade-in duration-200">
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_commercial');
-                        onSelectAptBrand?.('sk일렉링크');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
-                    >
-                      • SK일렉링크 완속/급속
-                    </button>
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_commercial');
-                        onSelectAptBrand?.('이지차저');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
-                    >
-                      • 이지차저 스마트 충전기
-                    </button>
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_commercial');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer font-bold text-emerald-600"
-                    >
-                      • 환경부 무상보조금 전액지원
-                    </button>
-                  </div>
-                )}
+              {/* 아파트 충전기 */}
+              <div>
+                <button
+                  onClick={() => handleMenuClick('sol_commercial')}
+                  className={`w-full text-left font-extrabold text-[14px] transition-colors cursor-pointer py-1 ${
+                    activePage === 'sol_commercial' ? 'text-emerald-700 font-black' : 'text-slate-800 hover:text-emerald-700'
+                  }`}
+                >
+                  아파트 충전기
+                </button>
               </div>
 
-              {/* 상업시설 충전기 (Accordion & Direct Link) */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-1">
-                  <button
-                    onClick={() => handleMenuClick('sol_parking')}
-                    className={`font-extrabold text-[14px] text-left transition-colors cursor-pointer ${
-                      activePage === 'sol_parking' ? 'text-emerald-700 font-black' : 'text-slate-800 hover:text-emerald-700'
-                    }`}
-                  >
-                    상업시설 충전기
-                  </button>
-                  <button
-                    onClick={() => setIsBizSubmenuOpen(!isBizSubmenuOpen)}
-                    className="p-1 text-slate-500 hover:text-emerald-600 cursor-pointer"
-                  >
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isBizSubmenuOpen ? 'rotate-180 text-emerald-600' : ''}`} />
-                  </button>
-                </div>
-                {isBizSubmenuOpen && (
-                  <div className="pl-3 space-y-2 border-l-2 border-emerald-500/30 text-xs font-semibold text-slate-600 animate-in fade-in duration-200">
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_parking');
-                        onSelectParkingCapacity?.('50kW 급속');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
-                    >
-                      • 50kW 급속 충전기
-                    </button>
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_parking');
-                        onSelectParkingCapacity?.('100kW 급속');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer"
-                    >
-                      • 100kW / 200kW 초급속 충전기
-                    </button>
-                    <button
-                      onClick={() => {
-                        onPageChange('sol_parking');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left py-1 text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer font-bold text-emerald-600"
-                    >
-                      • 빌딩/주차장 수익형 사업모델
-                    </button>
-                  </div>
-                )}
+              {/* 상업시설 충전기 */}
+              <div>
+                <button
+                  onClick={() => handleMenuClick('sol_parking')}
+                  className={`w-full text-left font-extrabold text-[14px] transition-colors cursor-pointer py-1 ${
+                    activePage === 'sol_parking' ? 'text-emerald-700 font-black' : 'text-slate-800 hover:text-emerald-700'
+                  }`}
+                >
+                  상업시설 충전기
+                </button>
               </div>
 
               {/* 설치후기 */}

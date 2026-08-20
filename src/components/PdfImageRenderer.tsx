@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, FileText, LayoutGrid, List, Sparkles, RefreshCw, Lock, Unlock, Check } from 'lucide-react';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 interface PdfImageRendererProps {
   fileUrl: string;
@@ -96,10 +97,12 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
           style={!isMobile && isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
         >
           <img
-            src={imageUrl}
+            src={getOptimizedImageUrl(imageUrl, { width: 1400, format: 'webp' })}
             alt={`${brandName} 카탈로그`}
             className="w-full h-auto object-contain block"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
@@ -204,10 +207,12 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
           style={!isMobile ? { width: `${zoom}%`, maxWidth: '100%', minWidth: '30%' } : { width: '100%' }}
         >
           <img
-            src={imageUrl}
+            src={getOptimizedImageUrl(imageUrl, { width: 1400, format: 'webp' })}
             alt={`${brandName} 카탈로그 이미지`}
             className="w-full h-auto object-contain block pointer-events-none"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
@@ -236,10 +241,12 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
           </div>
           <div className="flex-1 overflow-auto flex items-center justify-center p-6">
             <img
-              src={imageUrl}
+              src={getOptimizedImageUrl(imageUrl, { width: 1600, format: 'webp' })}
               alt="Full Catalog"
               className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>

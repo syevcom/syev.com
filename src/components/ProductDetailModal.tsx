@@ -4,9 +4,12 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
+import { X, Share2, Heart, Star, Check, ShoppingBag, ShieldCheck, ChevronRight, ChevronLeft, Plus, FileText, Info } from 'lucide-react';
 import { Product, CartItem, ProductOptionGroup } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, DEVICE_ONLY_OPTION_GROUPS, REPLACEMENT_OPTION_GROUPS, INSTALLATION_OPTION_GROUPS } from '../data';
+import { resolveDetailData, loadUnifiedProductDetails, DEFAULT_PRODUCT_DETAILS, ProductDetailItem } from '../lib/detailPagesData';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
+import PdfImageRenderer from './PdfImageRenderer';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -37,6 +40,39 @@ export default function ProductDetailModal({
   const [addedSuccessMsg, setAddedSuccessMsg] = useState(false);
 
   const [selectedDisplayImage, setSelectedDisplayImage] = useState<string>(product?.image || '');
+  const [unifiedDetailsMap, setUnifiedDetailsMap] = useState<Record<string, ProductDetailItem>>(() => DEFAULT_PRODUCT_DETAILS);
+
+  // Load merged product details
+  useEffect(() => {
+    let isMounted = true;
+    loadUnifiedProductDetails().then((data) => {
+      if (isMounted) {
+        setUnifiedDetailsMap(data);
+      }
+    });
+
+    const handleSync = () => {
+      loadUnifiedProductDetails().then((data) => {
+        if (isMounted) {
+          setUnifiedDetailsMap(data);
+        }
+      });
+    };
+
+    window.addEventListener('sy_cms_product_details_update', handleSync);
+    window.addEventListener('sy_cms_data_sync_completed', handleSync);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('sy_cms_product_details_update', handleSync);
+      window.removeEventListener('sy_cms_data_sync_completed', handleSync);
+    };
+  }, []);
+
+  const resolvedDetail = useMemo(() => {
+    if (!product) return {};
+    return resolveDetailData(product, unifiedDetailsMap);
+  }, [product, unifiedDetailsMap]);
 
   useEffect(() => {
     if (product) {
@@ -378,13 +414,13 @@ export default function ProductDetailModal({
           </div>
 
           {/* Top Title & Subtitle matching Screenshot 1 */}
-          <div className="space-y-2 border-b border-slate-100 pb-4 pr-10">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+          <div className="space-y-2 border-b border-slate-100 pb-4 pr-8 sm:pr-10">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug break-words whitespace-normal">
               {product.name}
             </h2>
-            <div className="text-xs sm:text-sm text-slate-500 font-bold flex flex-wrap items-center justify-between gap-2">
-              <span>{descriptionTag}</span>
-              <div className="flex items-center gap-3 shrink-0">
+            <div className="text-xs sm:text-sm text-slate-500 font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="break-words whitespace-normal leading-relaxed text-slate-600 font-medium">{descriptionTag}</span>
+              <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
                 <button 
                   onClick={() => alert('상품 링크가 복사되었습니다!')} 
                   className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-xs"
@@ -409,9 +445,11 @@ export default function ProductDetailModal({
             <div className="md:col-span-5 space-y-4">
               <div className="relative aspect-square bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center p-4">
                 <img
-                  src={selectedDisplayImage || product.image}
+                  src={getOptimizedImageUrl(selectedDisplayImage || product.image, { width: 800, format: 'webp' })}
                   alt={product.name}
                   referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain"
                 />
                 
@@ -466,7 +504,14 @@ export default function ProductDetailModal({
                             }`}
                             title="클릭하여 이미지 크게 보기"
                           >
-                            <img src={imgUrl} alt={`gallery thumbnail ${idx + 1}`} className="w-full h-full object-contain" />
+                            <img 
+                              src={getOptimizedImageUrl(imgUrl, { width: 120, format: 'webp' })} 
+                              alt={`gallery thumbnail ${idx + 1}`} 
+                              referrerPolicy="no-referrer"
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-contain" 
+                            />
                           </div>
                         );
                       })}
@@ -538,120 +583,120 @@ export default function ProductDetailModal({
               {/* Metadata Details Table matching screenshot 1 & user commercial screenshot */}
               {isCommercial ? (
                 <div className="space-y-2.5 text-xs sm:text-sm text-slate-700">
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">적립혜택</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">
                       구매 <span className="text-blue-600 font-black">별도문의 (상담 시 안내)</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100 items-start">
-                    <span className="col-span-3 text-slate-400 font-bold">배송</span>
-                    <div className="col-span-9 space-y-0.5">
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">배송</span>
+                    <div className="col-span-8 sm:col-span-9 space-y-0.5 break-words whitespace-normal leading-relaxed">
                       <div className="font-extrabold text-slate-800">직접배송(주문 시 결제)</div>
-                      <div className="text-slate-500 font-bold text-xs">무료배송</div>
+                      <div className="text-slate-500 font-bold text-xs">무료배송 / 본사 직영 시공</div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">상품정보</span>
-                    <span className="col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900">
-                      우측 '자세히' 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">상품정보</span>
+                    <span className="col-span-8 sm:col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900 break-words whitespace-normal">
+                      하단 공식 사양서 및 카탈로그 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">브랜드</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{brandName}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">브랜드</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{brandName}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">운영료품목</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">월 전기기본료,월 통신료, 월 관제이용료</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">운영료품목</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">월 전기기본료, 월 통신료, 월 관제이용료</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">운영료선택</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">일시납,매월납 옵션선택</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">운영료선택</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">일시납, 매월납 옵션선택</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">옵션선택</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">캐노피,I볼라드,스토퍼 옵션선택</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">옵션선택</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">캐노피, I볼라드, 스토퍼 옵션선택</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">한전불입금</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">신규증설시 옵션선택</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">한전불입금</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">신규증설 시 현장 실측 후 안내</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1">
-                    <span className="col-span-3 text-slate-400 font-bold">청약철회</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">
+                  <div className="grid grid-cols-12 gap-2 py-1.5 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">청약철회</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">
                       전자상거래법 제17조 준수 (배송/착공 전 7일 이내 무상취소 가능)
                     </span>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2.5 text-xs sm:text-sm text-slate-700">
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">적립혜택</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{rewardPointsInfo}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">적립혜택</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">{rewardPointsInfo}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100 items-start">
-                    <span className="col-span-3 text-slate-400 font-bold">배송</span>
-                    <div className="col-span-9 space-y-0.5">
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">배송</span>
+                    <div className="col-span-8 sm:col-span-9 space-y-0.5 break-words whitespace-normal leading-relaxed">
                       <div className="font-extrabold text-slate-800">{deliveryInfo}</div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">상품정보</span>
-                    <span className="col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900">
-                      우측 '자세히' 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">상품정보</span>
+                    <span className="col-span-8 sm:col-span-9 text-slate-600 font-medium flex items-center gap-1 cursor-pointer hover:text-slate-900 break-words whitespace-normal">
+                      하단 공식 사양서 및 카탈로그 참조 <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">상품후기</span>
-                    <span className="col-span-9 font-extrabold text-slate-800 flex items-center gap-1">
-                      1명
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">상품후기</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 flex flex-wrap items-center gap-1">
+                      <span>1명</span>
                       <span className="flex text-amber-400">
                         {'★'.repeat(5)}
                       </span>
-                      <span className="text-slate-500 font-bold text-xs">(5/5)</span>
+                      <span className="text-slate-500 font-bold text-xs">(5/5 만점 리뷰)</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">브랜드</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{brandName}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">브랜드</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{brandName}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">구성품</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{componentsInfo}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">구성품</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">{componentsInfo}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">원산지</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{origin}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">원산지</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{origin}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">제조사</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{manufacturer}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">제조사</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{manufacturer}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1 border-b border-slate-100">
-                    <span className="col-span-3 text-slate-400 font-bold">모델명</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{modelName}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">모델명</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{modelName}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1">
-                    <span className="col-span-3 text-slate-400 font-bold">인증번호</span>
-                    <span className="col-span-9 font-extrabold text-slate-800">{certNumber}</span>
+                  <div className="grid grid-cols-12 gap-2 py-1.5 items-start">
+                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">인증번호</span>
+                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{certNumber}</span>
                   </div>
                 </div>
               )}
@@ -910,6 +955,65 @@ export default function ProductDetailModal({
                 </button>
               </div>
             )}
+
+          </div>
+
+          {/* Detailed Product Specifications & High-Resolution Catalog Brochure */}
+          <div className="pt-8 border-t-2 border-slate-900/10 space-y-6">
+            
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-slate-900 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-600 shrink-0" />
+                <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                  상품 공식 상세페이지 및 제원 사양서
+                </h3>
+              </div>
+              <span className="text-xs font-bold text-slate-500">
+                {product.power ? `${product.power} 고효율 안심 충전 라인업` : '환경부/한전 표준 규격'}
+              </span>
+            </div>
+
+            {/* Detailed Spec Table */}
+            {resolvedDetail.specs && Object.keys(resolvedDetail.specs).length > 0 && (
+              <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200 space-y-3">
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+                  <Info className="w-4 h-4 text-blue-600" />
+                  <span>공식 상세 제원표 (Specification)</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                  {Object.entries(resolvedDetail.specs).map(([specKey, specVal]) => (
+                    <div key={specKey} className="bg-white p-3 rounded-xl border border-slate-200/80 flex flex-col justify-center">
+                      <span className="text-[11px] font-bold text-slate-400">{specKey}</span>
+                      <span className="font-extrabold text-slate-800 break-words whitespace-normal mt-0.5 leading-snug">{specVal}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Detail Catalog & Multi-page PDF/Images Renderer */}
+            {(() => {
+              const detailUrls = (resolvedDetail.pdfUrls && resolvedDetail.pdfUrls.length > 0)
+                ? resolvedDetail.pdfUrls
+                : (resolvedDetail.pdfUrl ? [resolvedDetail.pdfUrl] : [product.image]);
+              const detailNames = resolvedDetail.pdfNames || [];
+
+              return (
+                <div className="space-y-4">
+                  {detailUrls.map((url, idx) => (
+                    <div key={idx} className="w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+                      <PdfImageRenderer
+                        fileUrl={url}
+                        fileName={detailNames[idx] || `${product.name} 상세페이지 이미지 ${idx + 1}`}
+                        brandName={product.name}
+                        isAdmin={false}
+                      />
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
 
           </div>
 

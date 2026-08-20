@@ -11,6 +11,7 @@ import { PRODUCTS, SPEEL_5KW_REPRESENTATIVE_IMAGE, SPEEL_11KW_REPRESENTATIVE_IMA
 import PdfImageRenderer from './PdfImageRenderer';
 import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb';
 import { compressImage } from '../lib/imageCompressor';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 import { OptionPreset, INITIAL_OPTION_PRESETS } from './AdminPage';
 
 export const BRAND_METADATA: Record<string, {
@@ -1166,8 +1167,18 @@ export default function SolutionsSection({
       }
     };
     loadPdfs();
+
+    const handleDetailsUpdate = () => {
+      loadPdfs();
+    };
+
+    window.addEventListener('sy_cms_product_details_update', handleDetailsUpdate);
+    window.addEventListener('sy_cms_data_sync_completed', handleDetailsUpdate);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('sy_cms_product_details_update', handleDetailsUpdate);
+      window.removeEventListener('sy_cms_data_sync_completed', handleDetailsUpdate);
     };
   }, []);
 
@@ -1213,7 +1224,9 @@ export default function SolutionsSection({
           pdfName: updatedNames[0]
         };
 
-        saveBrandPdf(key, updatedObj).catch(dbErr => {
+        saveBrandPdf(key, updatedObj).then(() => {
+          window.dispatchEvent(new Event('sy_cms_product_details_update'));
+        }).catch(dbErr => {
           console.error('Failed to save product detail to IndexedDB:', dbErr);
         });
 
@@ -1245,7 +1258,9 @@ export default function SolutionsSection({
       const updatedNames = existingNames.filter((_, i) => i !== index);
 
       if (updatedUrls.length === 0) {
-        deleteBrandPdf(key).catch(err => console.error(err));
+        deleteBrandPdf(key).then(() => {
+          window.dispatchEvent(new Event('sy_cms_product_details_update'));
+        }).catch(err => console.error(err));
         const next = { ...prev };
         delete next[key];
         return next;
@@ -1256,7 +1271,9 @@ export default function SolutionsSection({
           pdfUrl: updatedUrls[0],
           pdfName: updatedNames[0]
         };
-        saveBrandPdf(key, updatedObj).catch(err => console.error(err));
+        saveBrandPdf(key, updatedObj).then(() => {
+          window.dispatchEvent(new Event('sy_cms_product_details_update'));
+        }).catch(err => console.error(err));
         return {
           ...prev,
           [key]: updatedObj
@@ -1288,7 +1305,9 @@ export default function SolutionsSection({
         pdfUrl: existingUrls[0],
         pdfName: existingNames[0]
       };
-      saveBrandPdf(key, updatedObj).catch(err => console.error(err));
+      saveBrandPdf(key, updatedObj).then(() => {
+        window.dispatchEvent(new Event('sy_cms_product_details_update'));
+      }).catch(err => console.error(err));
       return {
         ...prev,
         [key]: updatedObj
@@ -1305,6 +1324,7 @@ export default function SolutionsSection({
         delete updated[key];
         return updated;
       });
+      window.dispatchEvent(new Event('sy_cms_product_details_update'));
     } catch (dbError) {
       console.error('Failed to delete product detail from IndexedDB:', dbError);
     }
@@ -1683,7 +1703,24 @@ export default function SolutionsSection({
     const isResidentialProduct = activeDetailProduct.id.startsWith('res-') || activeDetailProduct.id.startsWith('sy-') || activeDetailProduct.name.includes('개인용') || activeDetailProduct.name.includes('가정용') || !activeDetailProduct.id.startsWith('park-');
     const productPurpose = isResidentialProduct ? 'Residential' : 'ParkingLot';
     const detailKey = `product-${activeDetailProduct.id}`;
-    const detailData = productDetails[detailKey];
+    let detailData = productDetails[detailKey];
+
+    if (!detailData) {
+      if (activeDetailProduct.id === 'sy-ac07' || activeDetailProduct.id === 'res-7kw-spil') {
+        detailData = productDetails['product-sy-ac07'] || productDetails['product-res-7kw-spil'];
+      } else if (activeDetailProduct.id === 'sy-ac05' || activeDetailProduct.id === 'res-5kw-spil' || activeDetailProduct.id === 'res-5kw-coolcharge') {
+        detailData = productDetails['product-sy-ac05'] || productDetails['product-res-5kw-spil'] || productDetails['product-res-5kw-coolcharge'];
+      } else if (activeDetailProduct.id === 'sy-ac11-bi' || activeDetailProduct.id === 'res-11kw-spil') {
+        detailData = productDetails['product-sy-ac11-bi'] || productDetails['product-res-11kw-spil'];
+      } else if (activeDetailProduct.id === 'park-50kw-1ch-coolcharge' || activeDetailProduct.id === 'sy-dc50') {
+        detailData = productDetails['product-park-50kw-1ch-coolcharge'] || productDetails['product-sy-dc50'];
+      }
+    }
+
+    if (!detailData && activeDetailProduct.name) {
+      const nameKey = `product-${activeDetailProduct.name.trim()}`;
+      detailData = productDetails[nameKey];
+    }
     
     // Extract power to display correct specs dynamically
     let powerKey = '7kW';
@@ -1926,10 +1963,12 @@ export default function SolutionsSection({
                   {editImage ? (
                     <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center p-4">
                       <img 
-                        src={editImage} 
+                        src={getOptimizedImageUrl(editImage, { width: 400, format: 'webp' })} 
                         alt="Preview" 
                         className="max-h-40 object-contain rounded-lg"
                         referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
@@ -2437,9 +2476,11 @@ export default function SolutionsSection({
               }`}
             >
               <img
-                src={selectedDisplayImage || activeDetailProduct.image}
+                src={getOptimizedImageUrl(selectedDisplayImage || activeDetailProduct.image, { width: 800, format: 'webp' })}
                 alt={activeDetailProduct.name}
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain max-h-[380px] hover:scale-105 transition-transform duration-300"
               />
               
@@ -2593,7 +2634,14 @@ export default function SolutionsSection({
                     ].map((preset, idx) => (
                       <div key={idx} className="bg-slate-800 border border-slate-700 rounded-xl p-1.5 flex flex-col items-center gap-1 group">
                         <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center p-1">
-                          <img src={preset.url} alt={preset.name} className="w-full h-full object-contain" />
+                          <img 
+                            src={getOptimizedImageUrl(preset.url, { width: 200, format: 'webp' })} 
+                            alt={preset.name} 
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-contain" 
+                          />
                         </div>
                         <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center">{preset.name}</span>
                         <div className="flex gap-1 w-full pt-0.5">
@@ -2667,7 +2715,14 @@ export default function SolutionsSection({
                           }`}
                           title="클릭하여 크게 보기"
                         >
-                          <img src={thumbUrl} alt={`gallery thumbnail ${tIdx + 1}`} className="w-full h-full object-contain" />
+                          <img 
+                            src={getOptimizedImageUrl(thumbUrl, { width: 140, format: 'webp' })} 
+                            alt={`gallery thumbnail ${tIdx + 1}`} 
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-contain" 
+                          />
 
                           {/* Hover Action Overlay in Edit Mode */}
                           {canEdit && (
@@ -2761,7 +2816,7 @@ export default function SolutionsSection({
               </div>
               
               <div className="flex items-start justify-between gap-4">
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug break-words whitespace-normal">
                   {activeDetailProduct.name}
                 </h3>
                 {activeDetailProduct.discount && activeDetailProduct.discount > 0 && !activeDetailProduct.id.startsWith('park-') ? (
@@ -2778,8 +2833,8 @@ export default function SolutionsSection({
             {/* Specification Grid (Matches styling from user screenshot) */}
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-12 gap-y-3.5 text-xs">
-                <div className="col-span-3 font-extrabold text-slate-600 self-start">상품요약정보</div>
-                <div className="col-span-9 text-slate-700 font-medium leading-relaxed">
+                <div className="col-span-3 font-extrabold text-slate-600 self-start shrink-0">상품요약정보</div>
+                <div className="col-span-9 text-slate-700 font-medium leading-relaxed break-words whitespace-normal">
                   {activeDetailProduct.description || `${powerKey} 고안전 초고속 탑재 스마트 전기차 충전 솔루션`}
                 </div>
 
@@ -3832,7 +3887,7 @@ export default function SolutionsSection({
                                         : 'bg-slate-50 hover:bg-emerald-50/60 text-slate-700 hover:text-emerald-800 border-slate-200/90'
                                     }`}
                                   >
-                                    <span className="text-xs sm:text-sm font-bold block leading-tight truncate w-full">{st.name}</span>
+                                    <span className="text-xs sm:text-sm font-bold block leading-tight break-words whitespace-normal w-full">{st.name}</span>
                                     <span className={`text-[10px] block mt-0.5 leading-none ${active ? 'text-emerald-100' : 'text-slate-400'}`}>
                                       {st.desc}
                                     </span>
@@ -3955,9 +4010,11 @@ export default function SolutionsSection({
                                 <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
-                                    src={cardImg}
+                                    src={getOptimizedImageUrl(cardImg, { width: 500, format: 'webp' })}
                                     alt={p.name}
                                     referrerPolicy="no-referrer"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                                   />
                                   
@@ -3986,7 +4043,7 @@ export default function SolutionsSection({
 
                                 {/* Body Information */}
                                 <div className="p-2.5 sm:p-4 space-y-1 sm:space-y-2">
-                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[40px]">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-snug break-words whitespace-normal">
                                     {p.name}
                                   </h5>
                                   
@@ -4144,9 +4201,11 @@ export default function SolutionsSection({
                                 <div className="relative aspect-square bg-slate-100/60 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-hidden border-b border-slate-100">
                                   {/* Dynamic Image */}
                                   <img
-                                    src={cardImg}
+                                    src={getOptimizedImageUrl(cardImg, { width: 500, format: 'webp' })}
                                     alt={p.name}
                                     referrerPolicy="no-referrer"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                                   />
                                   
@@ -4172,12 +4231,12 @@ export default function SolutionsSection({
 
                                 {/* Body Information */}
                                 <div className="p-2.5 sm:p-4 space-y-1 sm:space-y-2">
-                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[40px]">
+                                  <h5 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-snug break-words whitespace-normal">
                                     {p.name}
                                   </h5>
                                   
                                   {p.description && (
-                                    <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium line-clamp-1 sm:line-clamp-2 leading-relaxed">
+                                    <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-relaxed break-words whitespace-normal">
                                       {p.description}
                                     </p>
                                   )}
@@ -4553,9 +4612,11 @@ export default function SolutionsSection({
                     <div className="mt-2 flex items-center gap-3 p-2 bg-white rounded-xl border border-slate-200">
                       <div className="w-16 h-16 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
                         <img
-                          src={prodFormImage}
+                          src={getOptimizedImageUrl(prodFormImage, { width: 200, format: 'webp' })}
                           alt="Preview"
                           referrerPolicy="no-referrer"
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             (e.target as any).src = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=240';

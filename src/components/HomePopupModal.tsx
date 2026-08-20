@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, Award, FileText, CheckCircle2 } from 'lucide-react';
 import { SPEEL_11KW_REPRESENTATIVE_IMAGE } from '../data';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 export interface HomePopupConfig {
   enabled: boolean;
@@ -126,9 +127,12 @@ export const HomePopupModal: React.FC<HomePopupModalProps> = ({
             <div className="flex justify-center mb-3">
               <div className="relative w-36 h-36 sm:w-44 sm:h-44 bg-slate-950 rounded-xl overflow-hidden border border-amber-500/30 shadow-inner flex items-center justify-center p-2 group">
                 <img
-                  src={config.imageUrl || SPEEL_11KW_REPRESENTATIVE_IMAGE}
+                  src={getOptimizedImageUrl(config.imageUrl || SPEEL_11KW_REPRESENTATIVE_IMAGE, { width: 350, format: 'webp' })}
                   alt="품질보증서 대상 충전기"
                   className="w-full h-full object-contain filter drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute top-1.5 right-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
                   4년 무상 A/S

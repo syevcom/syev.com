@@ -8,6 +8,7 @@ import { Review } from '../types';
 import { REVIEWS } from '../data';
 import { X, Check, Plus, Edit3, Trash2, Upload, Image as ImageIcon, Clipboard } from 'lucide-react';
 import { compressImage } from '../lib/imageCompressor';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 interface ReviewSectionProps {
   reviews?: Review[];
@@ -192,9 +193,11 @@ export default function ReviewSection({
                   {/* Blog / Case Study Thumbnail Cover Image */}
                   <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
                     <img
-                      src={rev.afterImg}
+                      src={getOptimizedImageUrl(rev.afterImg, { width: 600, format: 'webp' })}
                       alt={rev.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                     />
                     {rev.isBlogImported ? (

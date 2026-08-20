@@ -2,6 +2,7 @@ import React from 'react';
 import { X, ShoppingBag, Trash2, ArrowRight, Plus, Minus, ShieldCheck, CheckCircle2, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CartItem } from '../types';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 
 interface CartModalProps {
   isOpen: boolean;
@@ -110,8 +111,11 @@ export default function CartModal({
                   className="p-3.5 bg-slate-50 rounded-2xl border border-slate-150 flex items-center gap-3.5 hover:border-slate-300 transition-all"
                 >
                   <img
-                    src={item.image}
+                    src={getOptimizedImageUrl(item.image, { width: 140, format: 'webp' })}
                     alt={item.name}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                     className="w-16 h-16 object-cover rounded-xl border border-slate-200 bg-white shrink-0"
                   />
                   <div className="flex-1 min-w-0">

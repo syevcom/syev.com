@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Product, CartItem } from '../types';
 import { Check, ShieldCheck, Cpu, Activity, ShoppingBag, Eye, Building2, Home, LayoutGrid, Sparkles } from 'lucide-react';
+import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 import ProductDetailModal from './ProductDetailModal';
 
 interface ProductsSectionProps {
@@ -137,9 +138,11 @@ export default function ProductsSection({
         {/* Product Image Box */}
         <div className="relative h-36 sm:h-56 bg-slate-50 overflow-hidden flex items-center justify-center p-2 sm:p-3">
           <img
-            src={p.image}
+            src={getOptimizedImageUrl(p.image, { width: 600, format: 'webp' })}
             alt={p.name}
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
           
@@ -169,7 +172,7 @@ export default function ProductsSection({
 
         {/* Product Body */}
         <div className="p-2.5 sm:p-5 space-y-1.5 sm:space-y-3">
-          <h4 className="text-xs sm:text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[32px] sm:min-h-[40px]">
+          <h4 className="text-xs sm:text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors break-words whitespace-normal leading-snug">
             {p.name}
           </h4>
           
@@ -202,7 +205,7 @@ export default function ProductsSection({
             <div className={`w-6 sm:w-8 h-0.5 mt-0.5 sm:mt-1 rounded-full ${isCommercial ? 'bg-amber-500' : 'bg-blue-500'}`}></div>
           </div>
 
-          <p className="text-[10px] sm:text-sm text-slate-500 leading-relaxed line-clamp-1 sm:line-clamp-2 font-medium">
+          <p className="text-[10px] sm:text-sm text-slate-500 leading-relaxed font-medium break-words whitespace-normal">
             {p.description}
           </p>
 
@@ -211,7 +214,7 @@ export default function ProductsSection({
             {p.features.slice(0, 2).map((f) => (
               <div key={f} className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
                 <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="truncate">{f}</span>
+                <span className="break-words whitespace-normal">{f}</span>
               </div>
             ))}
           </div>
