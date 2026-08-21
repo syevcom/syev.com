@@ -536,20 +536,20 @@ export default function SolutionsSection({
         const parsedMain = JSON.parse(savedMain);
         const matched = parsedMain.find((mp: any) => 
           (mp.id && prod.id && mp.id === prod.id) || 
-          (mp.name && prod.name && mp.name.trim() === prod.name.trim()) ||
-          ((prod.id === 'park-50kw-1ch-coolcharge' || prod.id === 'sy-dc50' || (prod.name && prod.name.includes('50kW'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.includes('50kW')))) ||
-          ((prod.id === 'sy-ac11-bi' || prod.id === 'res-11kw-spil') && (mp.id === 'sy-ac11-bi' || mp.id === 'res-11kw-spil'))
+          (mp.name && prod.name && mp.name.trim().toLowerCase() === prod.name.trim().toLowerCase()) ||
+          ((prod.id === 'park-50kw-1ch-coolcharge' || prod.id === 'sy-dc50' || (prod.name && prod.name.toLowerCase().includes('50kw'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.toLowerCase().includes('50kw')))) ||
+          ((prod.id === 'sy-ac11-bi' || prod.id === 'res-11kw-spil') && (mp.id === 'sy-ac11-bi' || mp.id === 'res-11kw-spil')) ||
+          ((prod.id === 'sy-ac07' || prod.id === 'res-7kw-spil') && (mp.id === 'sy-ac07' || mp.id === 'res-7kw-spil')) ||
+          ((prod.id === 'sy-ac05' || prod.id === 'res-5kw-spil') && (mp.id === 'sy-ac05' || mp.id === 'res-5kw-spil'))
         );
         if (matched?.image && matched.image.trim()) {
-          if (!matched.image.startsWith('data:image/svg') || !prod.image || prod.image.startsWith('data:image/svg')) {
-            return matched.image;
-          }
+          return matched.image.trim();
         }
       }
     } catch (e) {}
 
     if (prod.image && prod.image.trim()) {
-      return prod.image;
+      return prod.image.trim();
     }
     return '';
   };
@@ -774,10 +774,37 @@ export default function SolutionsSection({
     const result: Record<string, SolutionProduct[]> = {};
     let modified = false;
 
+    let savedMainList: any[] = [];
+    try {
+      const savedMain = localStorage.getItem('sy_cms_products_v12');
+      if (savedMain) savedMainList = JSON.parse(savedMain);
+    } catch (e) {}
+
+    const findMainImage = (prodId: string, prodName?: string) => {
+      if (!savedMainList.length) return '';
+      const m = savedMainList.find((mp: any) =>
+        (mp.id && prodId && mp.id === prodId) ||
+        (mp.name && prodName && mp.name.trim().toLowerCase() === prodName.trim().toLowerCase()) ||
+        ((prodId === 'sy-ac11-bi' || prodId === 'res-11kw-spil') && (mp.id === 'sy-ac11-bi' || mp.id === 'res-11kw-spil')) ||
+        ((prodId === 'sy-ac07' || prodId === 'res-7kw-spil') && (mp.id === 'sy-ac07' || mp.id === 'res-7kw-spil')) ||
+        ((prodId === 'sy-ac05' || prodId === 'res-5kw-spil') && (mp.id === 'sy-ac05' || mp.id === 'res-5kw-spil'))
+      );
+      return m?.image?.trim() || '';
+    };
+
     Object.keys(HOME_PRODUCTS_DATA).forEach((cat) => {
       // First clean up any removed items in existing parsed list
       const existingRaw = parsed[cat] || HOME_PRODUCTS_DATA[cat] || [];
-      const cleanedExisting = existingRaw.filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p));
+      const cleanedExisting = existingRaw
+        .filter(p => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p))
+        .map(p => {
+          const mainImg = findMainImage(p.id, p.name);
+          if (mainImg && p.image !== mainImg) {
+            modified = true;
+            return { ...p, image: mainImg };
+          }
+          return p;
+        });
       
       if (cleanedExisting.length !== existingRaw.length) {
         modified = true;
@@ -794,13 +821,25 @@ export default function SolutionsSection({
             ((defaultProd.id === 'sy-ac05' || defaultProd.id === 'res-5kw-spil') && (p.id === 'sy-ac05' || p.id === 'res-5kw-spil'))
           );
           if (!exists) {
-            existingList.unshift(defaultProd);
+            const mainImg = findMainImage(defaultProd.id, defaultProd.name);
+            existingList.unshift({
+              ...defaultProd,
+              image: mainImg || defaultProd.image
+            });
             modified = true;
           }
         }
       });
       result[cat] = existingList;
     });
+
+    if (parsed) {
+      Object.keys(parsed).forEach((cat) => {
+        if (!result[cat]) {
+          result[cat] = (parsed[cat] || []).filter((p: any) => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id) && !isLotteProduct(p));
+        }
+      });
+    }
 
     if (modified) {
       try {
@@ -874,7 +913,7 @@ export default function SolutionsSection({
             const m = parsedMain.find((mp: any) =>
               (mp.id && normalizedExisting.id && mp.id === normalizedExisting.id) ||
               (mp.name && normalizedExisting.name && mp.name.trim() === normalizedExisting.name.trim()) ||
-              ((normalizedExisting.id === 'park-50kw-1ch-coolcharge' || normalizedExisting.id === 'sy-dc50' || (normalizedExisting.name && normalizedExisting.name.includes('50kW'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.includes('50kW'))))
+              ((normalizedExisting.id === 'park-50kw-1ch-coolcharge' || normalizedExisting.id === 'sy-dc50' || (normalizedExisting.name && normalizedExisting.name.toLowerCase().includes('50kw'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.toLowerCase().includes('50kw'))))
             );
             if (m?.image && m.image.trim()) {
               customImgFromMain = m.image.trim();
@@ -882,9 +921,7 @@ export default function SolutionsSection({
           }
         } catch (e) {}
 
-        const finalImage = (normalizedExisting.image && !normalizedExisting.image.startsWith('data:image/svg'))
-          ? normalizedExisting.image
-          : (customImgFromMain || normalizedExisting.image || def?.image || '');
+        const finalImage = customImgFromMain || normalizedExisting.image || def?.image || '';
 
         mergedList.push({
           ...(def || {}),
@@ -901,7 +938,7 @@ export default function SolutionsSection({
         const isAlreadyAdded = seenIds.has(def.id) || mergedList.some(m => 
           m.id === def.id || 
           (m.name && def.name && m.name.trim() === def.name.trim()) ||
-          ((def.id === 'park-50kw-1ch-coolcharge' || def.id === 'sy-dc50') && (m.id === 'park-50kw-1ch-coolcharge' || m.id === 'sy-dc50' || (m.name && m.name.includes('50kW'))))
+          ((def.id === 'park-50kw-1ch-coolcharge' || def.id === 'sy-dc50') && (m.id === 'park-50kw-1ch-coolcharge' || m.id === 'sy-dc50' || (m.name && m.name.toLowerCase().includes('50kw'))))
         );
         if (!REMOVED_SET.has(def.id) && !deletedSet.has(def.id) && !isAlreadyAdded) {
           seenIds.add(def.id);
@@ -912,6 +949,14 @@ export default function SolutionsSection({
 
       result[cat] = mergedList;
     });
+
+    if (parsed) {
+      Object.keys(parsed).forEach((cat) => {
+        if (!result[cat]) {
+          result[cat] = (parsed[cat] || []).filter((p: any) => p && !REMOVED_SET.has(p.id) && !deletedSet.has(p.id));
+        }
+      });
+    }
 
     if (modified) {
       try {
@@ -1611,7 +1656,7 @@ export default function SolutionsSection({
           ((targetId === 'sy-ac07' || targetId === 'res-7kw-spil') && (mp.id === 'sy-ac07' || mp.id === 'res-7kw-spil')) ||
           ((targetId === 'sy-ac05' || targetId === 'res-5kw-spil') && (mp.id === 'sy-ac05' || mp.id === 'res-5kw-spil')) ||
           ((targetId === 'sy-ac11-bi' || targetId === 'res-11kw-spil') && (mp.id === 'sy-ac11-bi' || mp.id === 'res-11kw-spil')) ||
-          ((targetId === 'park-50kw-1ch-coolcharge' || targetId === 'sy-dc50' || (prodFormName && prodFormName.includes('50kW'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.includes('50kW'))))
+          ((targetId === 'park-50kw-1ch-coolcharge' || targetId === 'sy-dc50' || (prodFormName && prodFormName.toLowerCase().includes('50kw'))) && (mp.id === 'park-50kw-1ch-coolcharge' || mp.id === 'sy-dc50' || (mp.name && mp.name.toLowerCase().includes('50kw'))))
         );
         if (matchIdx !== -1) {
           mainArr[matchIdx] = {
@@ -1625,11 +1670,31 @@ export default function SolutionsSection({
             installIncludedPrice: Number(prodFormInstallIncludedPrice),
             installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
             serviceType: 'all',
-            image: prodFormImage,
+            image: prodFormImage || mainArr[matchIdx].image,
           };
-          localStorage.setItem('sy_cms_products_v12', JSON.stringify(mainArr));
-          localStorage.setItem('sy_cms_products', JSON.stringify(mainArr));
+        } else {
+          mainArr.push({
+            id: targetId,
+            name: prodFormName,
+            type: editingProductType === 'parking' ? '급속' : '완속',
+            power: editingCategory || '7kW',
+            features: prodFormTags ? prodFormTags.split(',').map(t => t.trim()).filter(Boolean) : ['MD CHOICE'],
+            image: prodFormImage || 'https://images.unsplash.com/photo-1558441719-670b357029b7?auto=format&fit=crop&q=80&w=800',
+            description: '',
+            price: Number(prodFormPrice),
+            originalPrice: Number(prodFormRegularPrice),
+            discountRate: calculatedDiscount,
+            replacementPrice: Number(prodFormReplacementPrice),
+            replacementRegularPrice: Number(prodFormReplacementRegularPrice),
+            installIncludedPrice: Number(prodFormInstallIncludedPrice),
+            installIncludedRegularPrice: Number(prodFormInstallIncludedRegularPrice),
+            brand: '에스와이',
+            serviceType: 'all',
+            optionGroups: []
+          });
         }
+        localStorage.setItem('sy_cms_products_v12', JSON.stringify(mainArr));
+        localStorage.setItem('sy_cms_products', JSON.stringify(mainArr));
       }
     } catch (err) {}
 

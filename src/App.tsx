@@ -719,7 +719,7 @@ export default function App() {
           if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
           if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
           if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
-          if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
+          if (item.name && np.name && item.name.toLowerCase().includes('50kw') && np.name.toLowerCase().includes('50kw')) return true;
           return false;
         };
 
@@ -778,7 +778,10 @@ export default function App() {
               if (matchIdx !== -1) {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
-                if (sp.image && existing.image !== sp.image) {
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  homeUpdated = true;
+                } else if (sp.image && !existing.image) {
                   existing.image = sp.image;
                   changed = true;
                 }
@@ -880,7 +883,13 @@ export default function App() {
                 const existing = nextProducts[matchIdx];
                 let changed = false;
                 if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  parkingUpdated = true;
+                } else if (sp.image && !existing.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
                 if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
                 if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
                 if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
@@ -1110,7 +1119,7 @@ export default function App() {
           if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
           if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
           if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
-          if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
+          if (item.name && np.name && item.name.toLowerCase().includes('50kw') && np.name.toLowerCase().includes('50kw')) return true;
           return false;
         };
 
@@ -1198,7 +1207,13 @@ export default function App() {
 
                 // Sync all fields symmetrically
                 if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  homeUpdated = true;
+                } else if (sp.image && !existing.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
                 if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
                 if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
                 if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
@@ -1288,7 +1303,13 @@ export default function App() {
 
                 // Sync all fields symmetrically
                 if (sp.name && existing.name !== sp.name) { existing.name = sp.name; changed = true; }
-                if (sp.image && existing.image !== sp.image) { existing.image = sp.image; changed = true; }
+                if (existing.image && sp.image !== existing.image) {
+                  sp.image = existing.image;
+                  parkingUpdated = true;
+                } else if (sp.image && !existing.image) {
+                  existing.image = sp.image;
+                  changed = true;
+                }
                 if (sp.description && existing.description !== sp.description) { existing.description = sp.description; changed = true; }
                 if (sp.price !== undefined && existing.price !== sp.price) { existing.price = sp.price; changed = true; }
                 if (sp.regularPrice !== undefined && existing.originalPrice !== sp.regularPrice) { existing.originalPrice = sp.regularPrice; changed = true; }
@@ -1683,9 +1704,15 @@ export default function App() {
   };
 
   const handleSaveProducts = (newProducts: Product[]) => {
-    setProducts(newProducts);
+    // Validate that every product has a clean, non-empty image
+    const validatedProducts = newProducts.map(p => ({
+      ...p,
+      image: (p.image && p.image.trim()) ? p.image.trim() : 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800'
+    }));
+
+    setProducts(validatedProducts);
     try {
-      const dataStr = JSON.stringify(newProducts);
+      const dataStr = JSON.stringify(validatedProducts);
       localStorage.setItem('sy_cms_products_v12', dataStr);
       localStorage.setItem('sy_cms_products', dataStr);
       // Clean up legacy duplicated key versions to save quota space
@@ -1718,7 +1745,7 @@ export default function App() {
         if ((item.id === 'res-5kw-spil' || item.id === 'sy-ac05') && (np.id === 'res-5kw-spil' || np.id === 'sy-ac05')) return true;
         if ((item.id === 'res-11kw-spil' || item.id === 'sy-ac11-bi') && (np.id === 'res-11kw-spil' || np.id === 'sy-ac11-bi')) return true;
         if ((item.id === 'park-50kw-1ch-coolcharge' || item.id === 'sy-dc50') && (np.id === 'park-50kw-1ch-coolcharge' || np.id === 'sy-dc50')) return true;
-        if (item.name && np.name && item.name.includes('50kW') && np.name.includes('50kW')) return true;
+        if (item.name && np.name && item.name.toLowerCase().includes('50kw') && np.name.toLowerCase().includes('50kw')) return true;
         return false;
       };
 
@@ -1763,9 +1790,10 @@ export default function App() {
         });
       });
 
-      newProducts.forEach((np) => {
+      validatedProducts.forEach((np) => {
         if (!np || REMOVED_SET.has(np.id) || deletedSet.has(np.id)) return;
         let matched = false;
+        const targetImg = (np.image && np.image.trim()) ? np.image.trim() : '';
 
         Object.keys(parsedHome).forEach((powerKey) => {
           parsedHome[powerKey] = parsedHome[powerKey].map((item: any) => {
@@ -1785,7 +1813,7 @@ export default function App() {
                 installIncludedRegularPrice: np.installIncludedRegularPrice !== undefined ? np.installIncludedRegularPrice : item.installIncludedRegularPrice,
                 installIncludedDiscount: np.installIncludedDiscount !== undefined ? np.installIncludedDiscount : item.installIncludedDiscount,
                 serviceType: np.serviceType || item.serviceType,
-                image: np.image || item.image,
+                image: targetImg || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
                 optionGroups: np.optionGroups || item.optionGroups,
@@ -1812,7 +1840,7 @@ export default function App() {
                 installIncludedRegularPrice: np.installIncludedRegularPrice,
                 installIncludedDiscount: np.installIncludedDiscount,
                 serviceType: np.serviceType || item.serviceType,
-                image: np.image || item.image,
+                image: targetImg || item.image,
                 description: np.description || item.description,
                 plcSupported: np.plcSupported !== undefined ? np.plcSupported : item.plcSupported,
                 optionGroups: np.optionGroups || item.optionGroups,
@@ -1839,11 +1867,11 @@ export default function App() {
             optionGroups: np.optionGroups || []
           };
 
-          if (np.type === '급속' || np.type === '초급속') {
-            const targetCat = Object.keys(parsedParking)[0] || '100kW+ 급속충전기';
+          if (np.type === '급속' || np.type === '초급속' || (np.power && ['50kW', '100kW', '200kW', '35kW', '50kw', '100kw', '200kw', '35kw'].some(k => np.power?.includes(k)))) {
+            const targetCat = '공용 BIZ 충전기';
             if (!parsedParking[targetCat]) parsedParking[targetCat] = [];
             parsedParking[targetCat].push(newItem);
-          } else if (np.type === '완속' || ['5kW', '7kW', '11kW'].some(k => (np.power || '').includes(k))) {
+          } else if (np.type === '완속' || ['5kW', '7kW', '11kW', '5kw', '7kw', '11kw'].some(k => (np.power || '').includes(k))) {
             const targetPower = (np.power && parsedHome[np.power]) ? np.power : '7kW';
             if (!parsedHome[targetPower]) parsedHome[targetPower] = [];
             parsedHome[targetPower].push(newItem);

@@ -285,6 +285,173 @@ interface AdminPageProps {
   onNavigateHome: () => void;
 }
 
+interface ProductImageControlProps {
+  product: Product;
+  realIndex: number;
+  onImageChange: (index: number, newUrl: string) => void;
+  onFileUpload: (index: number, file: File) => void;
+  onShowToast: (msg: string) => void;
+}
+
+const ProductImageControl: React.FC<ProductImageControlProps> = ({
+  product,
+  realIndex,
+  onImageChange,
+  onFileUpload,
+  onShowToast
+}) => {
+  const isData = product.image?.startsWith('data:') || false;
+  const [urlInput, setUrlInput] = useState(() => (isData ? '' : (product.image || '')));
+  const [isUrlMode, setIsUrlMode] = useState(() => !isData);
+  const [hasLoadError, setHasLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!product.image?.startsWith('data:')) {
+      setUrlInput(product.image || '');
+    }
+  }, [product.image]);
+
+  const handleApplyUrl = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) {
+      alert('적용할 이미지 URL을 입력해주세요.');
+      return;
+    }
+    setHasLoadError(false);
+    onImageChange(realIndex, trimmed);
+    onShowToast(`'${product.name}' 대표 이미지 URL이 적용되었습니다!`);
+  };
+
+  const handleResetToDefault = () => {
+    const defaultUrl = 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800';
+    setUrlInput(defaultUrl);
+    setIsUrlMode(true);
+    setHasLoadError(false);
+    onImageChange(realIndex, defaultUrl);
+    onShowToast(`'${product.name}' 이미지가 기본 이미지로 초기화되었습니다.`);
+  };
+
+  return (
+    <div className="lg:col-span-3 flex flex-col items-center sm:items-start gap-2.5 w-full">
+      {/* Image Preview Box */}
+      <div className="relative w-36 h-36 rounded-2xl bg-slate-100 border-2 border-slate-200 overflow-hidden group flex items-center justify-center shadow-xs">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-contain p-2"
+          onError={() => setHasLoadError(true)}
+          onLoad={() => setHasLoadError(false)}
+        />
+        
+        {/* Top Status Badge */}
+        <div className="absolute top-1.5 left-1.5 right-1.5 flex justify-between items-center pointer-events-none">
+          {isData ? (
+            <span className="px-1.5 py-0.5 rounded bg-emerald-600/95 text-white font-black text-[9px] shadow-xs flex items-center gap-0.5">
+              📷 로컬 사진
+            </span>
+          ) : hasLoadError ? (
+            <span className="px-1.5 py-0.5 rounded bg-red-600/95 text-white font-black text-[9px] shadow-xs flex items-center gap-0.5">
+              ⚠️ 로드 실패
+            </span>
+          ) : (
+            <span className="px-1.5 py-0.5 rounded bg-slate-900/85 text-emerald-400 font-black text-[9px] shadow-xs flex items-center gap-0.5">
+              🌐 웹 URL
+            </span>
+          )}
+        </div>
+
+        {/* Hover overlay for quick upload */}
+        <label
+          htmlFor={`upload-img-${product.id}`}
+          className="absolute inset-0 bg-slate-950/75 text-white font-extrabold text-xs flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer p-2 text-center"
+        >
+          <Upload className="w-5 h-5 mb-1 text-amber-400" />
+          <span>사진 변경</span>
+          <span className="text-[10px] text-slate-300">내 컴퓨터 파일 선택</span>
+        </label>
+      </div>
+
+      <input
+        type="file"
+        id={`upload-img-${product.id}`}
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            onFileUpload(realIndex, e.target.files[0]);
+            setIsUrlMode(false);
+          }
+        }}
+      />
+
+      {/* Upload button & Quick Actions */}
+      <div className="w-full space-y-1.5">
+        <label
+          htmlFor={`upload-img-${product.id}`}
+          className="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[11px] font-black text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+        >
+          <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+          <span>사진 파일 업로드</span>
+        </label>
+
+        {isData && !isUrlMode ? (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                setIsUrlMode(true);
+                setUrlInput('');
+              }}
+              className="flex-1 py-1 px-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10px] font-bold text-center cursor-pointer border border-blue-200 transition-colors"
+            >
+              🌐 웹 URL로 변경
+            </button>
+            <button
+              type="button"
+              onClick={handleResetToDefault}
+              className="py-1 px-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold cursor-pointer transition-colors"
+              title="기본 이미지로 초기화"
+            >
+              초기화
+            </button>
+          </div>
+        ) : (
+          <div className="w-full space-y-1">
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                placeholder="https://... 이미지 URL 입력"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleApplyUrl();
+                  }
+                }}
+                className="flex-1 px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={handleApplyUrl}
+                className="py-1 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black rounded-lg cursor-pointer transition-colors shrink-0"
+                title="입력한 이미지 URL 적용"
+              >
+                적용
+              </button>
+            </div>
+            {hasLoadError && (
+              <p className="text-[10px] font-bold text-red-600">
+                ⚠️ 이미지 URL을 불러올 수 없습니다. 링크를 확인해주세요.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const AdminPage: React.FC<AdminPageProps> = ({
   products,
   onSaveProducts,
@@ -887,11 +1054,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setProductList(updated);
   };
 
+  // Validate and sanitize image URL helper
+  const validateImageUrl = (url: string): { isValid: boolean; message: string; type: 'local' | 'url' | 'empty' | 'invalid' } => {
+    if (!url || !url.trim()) {
+      return { isValid: false, message: '이미지가 설정되지 않았습니다.', type: 'empty' };
+    }
+    const trimmed = url.trim();
+    if (trimmed.startsWith('data:image/')) {
+      return { isValid: true, message: '📷 로컬 사진 파일 (압축 완료)', type: 'local' };
+    }
+    if (trimmed.startsWith('blob:')) {
+      return { isValid: true, message: '📎 임시 브라우저 이미지', type: 'local' };
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('//') || trimmed.startsWith('/')) {
+      return { isValid: true, message: '🌐 웹 이미지 URL', type: 'url' };
+    }
+    return { isValid: false, message: '⚠️ 유효하지 않은 URL 형식', type: 'invalid' };
+  };
+
   // Handle Product Image File Upload (Directly convert local photo file to Data URL with canvas compression)
   const handleProductImageUpload = (index: number, file: File) => {
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      alert('이미지 파일 크기가 너무 큽니다. 10MB 이하의 JPG/PNG 이미지를 선택해 주세요.');
+    if (file.size > 15 * 1024 * 1024) {
+      alert('이미지 파일 크기가 너무 큽니다. 15MB 이하의 JPG/PNG 이미지를 선택해 주세요.');
       return;
     }
     const reader = new FileReader();
@@ -928,7 +1113,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             updated[index] = { ...updated[index], image: finalImg };
             setProductList(updated);
             onSaveProducts(updated);
-            setSaveSuccessMsg(`'${updated[index].name}' 상품의 사진 프로필 이미지가 즉시 저장 및 연동되었습니다!`);
+            setSaveSuccessMsg(`'${updated[index].name}' 대표 사진이 압축되어 로컬스토리지에 저장 및 실시간 동기화되었습니다!`);
             setTimeout(() => setSaveSuccessMsg(''), 3500);
           }
         };
@@ -1131,9 +1316,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       e.stopPropagation();
     }
     try {
-      onSaveProducts(productList);
+      const validatedList = productList.map(p => {
+        if (p.id === product.id) {
+          const imgVal = p.image?.trim() || 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800';
+          return { ...p, image: imgVal };
+        }
+        return p;
+      });
+      setProductList(validatedList);
+      onSaveProducts(validatedList);
       setIsSavedRecently(true);
-      setSaveSuccessMsg(`'${product.name}' 상품 정보가 개별 저장되었습니다!`);
+      setSaveSuccessMsg(`'${product.name}' 상품 정보 및 대표 이미지가 검증되어 로컬스토리지에 저장되었습니다!`);
       setTimeout(() => {
         setSaveSuccessMsg('');
         setIsSavedRecently(false);
@@ -1152,9 +1345,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       e.stopPropagation();
     }
     try {
-      onSaveProducts(productList);
+      const validatedList = productList.map(p => ({
+        ...p,
+        image: p.image?.trim() || 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=800'
+      }));
+      setProductList(validatedList);
+      onSaveProducts(validatedList);
       setIsSavedRecently(true);
-      setSaveSuccessMsg('전체 상품 정보 및 변경된 설정이 성공적으로 일괄 저장되었습니다!');
+      setSaveSuccessMsg(`전체 ${validatedList.length}개 상품의 정보 및 대표 이미지가 성공적으로 일괄 동기화되었습니다!`);
       setTimeout(() => {
         setSaveSuccessMsg('');
         setIsSavedRecently(false);
@@ -2011,59 +2209,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                       
-                      {/* Image Preview & Upload Column */}
-                      <div className="lg:col-span-3 flex flex-col items-center sm:items-start gap-2">
-                        <div className="relative w-36 h-36 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 overflow-hidden group flex items-center justify-center">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-contain p-2"
-                          />
-                          <label
-                            htmlFor={`upload-img-${product.id}`}
-                            className="absolute inset-0 bg-slate-900/70 text-white font-extrabold text-xs flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer p-2 text-center"
-                          >
-                            <Upload className="w-5 h-5 mb-1 text-amber-400" />
-                            <span>내 컴퓨터에서</span>
-                            <span className="text-[10px] text-slate-300">사진 파일 선택 (JPG/PNG)</span>
-                          </label>
-                        </div>
-
-                        <input
-                          type="file"
-                          id={`upload-img-${product.id}`}
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              handleProductImageUpload(realIndex, e.target.files[0]);
-                            }
-                          }}
-                        />
-
-                        <div className="w-full flex items-center gap-1.5">
-                          <label
-                            htmlFor={`upload-img-${product.id}`}
-                            className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-[11px] font-black text-center cursor-pointer flex items-center justify-center gap-1 shadow-xs"
-                          >
-                            <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                            <span>사진 파일 업로드</span>
-                          </label>
-                        </div>
-
-                        <input
-                          type="text"
-                          placeholder="또는 이미지 URL 직접 입력"
-                          value={product.image.startsWith('data:') ? '📷 파일에서 업로드된 이미지' : product.image}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (!val.includes('업로드된 이미지') && !val.includes('Local Image File Loaded')) {
-                              handleProductChange(realIndex, 'image', val);
-                            }
-                          }}
-                          className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono text-slate-600 truncate"
-                        />
-                      </div>
+                      {/* Image Preview & Upload Column with Validation */}
+                      <ProductImageControl
+                        product={product}
+                        realIndex={realIndex}
+                        onImageChange={(idx, newUrl) => handleProductChange(idx, 'image', newUrl)}
+                        onFileUpload={(idx, file) => handleProductImageUpload(idx, file)}
+                        onShowToast={(msg) => {
+                          setSaveSuccessMsg(msg);
+                          setTimeout(() => setSaveSuccessMsg(''), 3500);
+                        }}
+                      />
 
                       {/* Product Details Column */}
                       <div className="lg:col-span-5 space-y-3">

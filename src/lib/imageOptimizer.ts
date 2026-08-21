@@ -43,8 +43,8 @@ export function getOptimizedImageUrl(
 
   const { width, height, quality = 80, format = 'webp' } = options;
 
-  // 1. Leave inline SVG data URIs or already optimized tiny assets intact
-  if (url.startsWith('data:image/svg+xml') || url.startsWith('blob:')) {
+  // 1. Leave inline SVG / data URIs or already optimized tiny assets intact
+  if (url.startsWith('data:') || url.startsWith('blob:')) {
     return url;
   }
 
