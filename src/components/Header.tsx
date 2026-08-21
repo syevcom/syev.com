@@ -16,7 +16,7 @@ import {
   Youtube, 
   Phone, 
   ChevronDown, 
-  ChevronUp,
+  ChevronUp, 
   ChevronRight,
   BookOpen,
   Search,
@@ -25,7 +25,8 @@ import {
   Truck,
   Headphones,
   ShieldCheck,
-  FileText
+  FileText,
+  Bell
 } from 'lucide-react';
 import { User as UserType, ActivePage, HeaderConfig, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from '../types';
 import { SearchModal } from './SearchModal';
@@ -89,6 +90,8 @@ interface HeaderProps {
   onOpenCartModal?: () => void;
   mobileDesignConfig?: MobileDesignConfig;
   onOpenMobileDesignCenter?: () => void;
+  unreadNotificationCount?: number;
+  onOpenNotificationCenter?: () => void;
 }
 
 export default function Header({
@@ -129,6 +132,8 @@ export default function Header({
   onOpenCartModal,
   mobileDesignConfig = DEFAULT_MOBILE_DESIGN_CONFIG,
   onOpenMobileDesignCenter,
+  unreadNotificationCount = 0,
+  onOpenNotificationCenter,
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInquiryDropdownOpen, setIsInquiryDropdownOpen] = useState(false);
@@ -341,6 +346,25 @@ export default function Header({
             {/* Admin control buttons: Visible ONLY when logged in as Admin or in Edit Mode */}
             {(user?.isAdmin || isEditMode) && (
               <div className="flex items-center gap-1">
+                {/* Admin Notification Bell */}
+                {onOpenNotificationCenter && (
+                  <button
+                    onClick={onOpenNotificationCenter}
+                    className={`relative p-1.5 rounded-lg border transition-all cursor-pointer ${
+                      unreadNotificationCount > 0
+                        ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm animate-pulse hover:bg-amber-300'
+                        : 'bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-amber-800 border-stone-200'
+                    }`}
+                    title={`실시간 예약 및 상담 신청 알림 (${unreadNotificationCount}건 미확인)`}
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                    {unreadNotificationCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-black text-[9px] min-w-[15px] h-3.5 px-0.5 rounded-full flex items-center justify-center shadow-xs">
+                        {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                      </span>
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={onToggleEditMode}
                   className={`w-6 h-6 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
@@ -398,6 +422,26 @@ export default function Header({
               title="모바일 디자인센터 (크기 조절)"
             >
               <span className="text-sm">🎨</span>
+            </button>
+          )}
+
+          {/* Mobile Notification Bell (Admins only) */}
+          {(user?.isAdmin || isEditMode) && onOpenNotificationCenter && (
+            <button
+              onClick={onOpenNotificationCenter}
+              className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-transform ${
+                unreadNotificationCount > 0
+                  ? 'bg-amber-400 text-slate-950 border border-amber-500 shadow-md animate-pulse'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
+              title={`실시간 알림 (${unreadNotificationCount}건)`}
+            >
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white font-black text-[9px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center">
+                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                </span>
+              )}
             </button>
           )}
 

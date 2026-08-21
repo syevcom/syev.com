@@ -28,11 +28,13 @@ import HomePopupModal, { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './co
 import { AdminPage } from './components/AdminPage';
 import LegalTermsModal, { LegalTabType } from './components/LegalTermsModal';
 import { MobileDesignCenterModal } from './components/MobileDesignCenterModal';
+import { AdminNotificationCenter } from './components/AdminNotificationCenter';
+import { AdminLoginAlertToast } from './components/AdminLoginAlertToast';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from './data';
-import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG } from './types';
+import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG, AdminNotification } from './types';
 import { CalendarDays, ShieldCheck, Heart, Sparkles, Phone, HelpCircle, Landmark, Instagram, Youtube, ChevronUp, ChevronDown, MessageSquare, ChevronRight, Sliders, Smartphone, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -298,6 +300,23 @@ export default function App() {
   // Bookings and A/S records stored persistently in localStorage
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [asRequests, setAsRequests] = useState<ASRequest[]>([]);
+
+  // Admin Real-Time Notifications State (Bookings & Consultations)
+  const [notifications, setNotifications] = useState<AdminNotification[]>(() => {
+    try {
+      const saved = localStorage.getItem('sy_admin_notifications');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to parse notifications', e);
+    }
+    return [];
+  });
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+  const [isNotificationBannerDismissed, setIsNotificationBannerDismissed] = useState(false);
+  const [showLoginAlertToast, setShowLoginAlertToast] = useState(false);
 
   // CMS Live Editor states
   const [isEditMode, setIsEditMode] = useState(false);
@@ -1497,6 +1516,8 @@ export default function App() {
     setUser(finalUser);
     if (isOwner) {
       setIsEditMode(true);
+      setIsNotificationBannerDismissed(false);
+      setShowLoginAlertToast(true);
     }
     localStorage.setItem('sy_logged_user', JSON.stringify(finalUser));
     localStorage.setItem('sy_user', JSON.stringify(finalUser));
@@ -1506,10 +1527,38 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     setIsEditMode(false);
+    setShowLoginAlertToast(false);
     localStorage.removeItem('sy_user');
     localStorage.removeItem('sy_logged_user');
     setIsMyPageOpen(false);
     window.dispatchEvent(new Event('sy_auth_state_changed'));
+  };
+
+  // Notification helpers
+  const handleMarkNotificationAsRead = (id: string) => {
+    setNotifications((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, isRead: true } : n));
+      localStorage.setItem('sy_admin_notifications', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleMarkAllNotificationsAsRead = () => {
+    setNotifications((prev) => {
+      const updated = prev.map((n) => ({ ...n, isRead: true }));
+      localStorage.setItem('sy_admin_notifications', JSON.stringify(updated));
+      return updated;
+    });
+    setIsNotificationBannerDismissed(true);
+    setShowLoginAlertToast(false);
+  };
+
+  const handleDeleteNotification = (id: string) => {
+    setNotifications((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      localStorage.setItem('sy_admin_notifications', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   // Cart & Payment management handlers
@@ -1620,6 +1669,33 @@ export default function App() {
     setBookings(updated);
     localStorage.setItem('sy_bookings', JSON.stringify(updated));
 
+    // Create real-time admin notification
+    const purposeName = freshBooking.purpose === 'Commercial' ? '아파트·공동주택' : freshBooking.purpose === 'ParkingLot' ? '상업시설·수익형' : '가정용·개인홈';
+    const newNotif: AdminNotification = {
+      id: `notif-bk-${Date.now()}`,
+      type: freshBooking.purpose === 'Commercial' ? 'consultation' : 'booking',
+      title: `[${purposeName}] 전기차 충전기 설치·실측 상담 예약`,
+      customerName: freshBooking.name || '신청 고객',
+      customerPhone: freshBooking.phone || '',
+      location: freshBooking.location || freshBooking.address || '',
+      memo: freshBooking.memo || freshBooking.notes || '',
+      purpose: freshBooking.purpose,
+      estimateCost: freshBooking.estimateCost,
+      status: '접수대기',
+      createdAt: freshBooking.createdAt,
+      timestamp: Date.now(),
+      isRead: false,
+      targetId: freshBooking.id
+    };
+
+    setNotifications((prev) => {
+      const updatedNotifs = [newNotif, ...prev];
+      localStorage.setItem('sy_admin_notifications', JSON.stringify(updatedNotifs));
+      return updatedNotifs;
+    });
+    setIsNotificationBannerDismissed(false);
+    setShowLoginAlertToast(true);
+
     // Launch celebratory consultation confirmation modal with roadmap
     setConsultationSuccessData({
       name: freshBooking.name,
@@ -1646,6 +1722,30 @@ export default function App() {
     const updated = [freshAS, ...asRequests];
     setAsRequests(updated);
     localStorage.setItem('sy_as', JSON.stringify(updated));
+
+    // Create real-time admin notification
+    const newNotif: AdminNotification = {
+      id: `notif-as-${Date.now()}`,
+      type: 'as',
+      title: `[긴급 A/S] ${freshAS.productName || '전기차 충전기 수리/점검'} 접수`,
+      customerName: freshAS.userName || '고객',
+      customerPhone: freshAS.phone || '',
+      location: freshAS.locationAddress || '',
+      memo: freshAS.symptom || freshAS.description || '',
+      status: '접수완료',
+      createdAt: freshAS.createdAt,
+      timestamp: Date.now(),
+      isRead: false,
+      targetId: freshAS.id
+    };
+
+    setNotifications((prev) => {
+      const updatedNotifs = [newNotif, ...prev];
+      localStorage.setItem('sy_admin_notifications', JSON.stringify(updatedNotifs));
+      return updatedNotifs;
+    });
+    setIsNotificationBannerDismissed(false);
+    setShowLoginAlertToast(true);
   };
 
   // CMS configuration save handlers
@@ -2236,6 +2336,16 @@ export default function App() {
             onOpenMyPageAS={handleOpenMyPageAS}
             onOpenAuth={() => setIsAuthOpen(true)}
             isLoggedIn={!!user}
+            onAddInquiry={(inquiry) => {
+              handleAddBooking({
+                name: inquiry.name,
+                phone: inquiry.phone,
+                location: '1:1 온라인 고객센터 문의',
+                purpose: 'Residential',
+                memo: inquiry.memo,
+                estimateCost: '상담 후 견적 산출'
+              });
+            }}
           />
         );
       case 'admin':
@@ -2407,7 +2517,41 @@ export default function App() {
           onOpenCartModal={() => handlePageChange('cart')}
           mobileDesignConfig={mobileDesignConfig}
           onOpenMobileDesignCenter={(user?.isAdmin || isEditMode) ? () => setIsMobileDesignCenterOpen(true) : undefined}
+          unreadNotificationCount={(notifications || []).filter((n) => !n.isRead).length}
+          onOpenNotificationCenter={(user?.isAdmin || isEditMode) ? () => setIsNotificationCenterOpen(true) : undefined}
         />
+
+        {/* Real-time Admin Notification Center & Top Floating Alert Toast */}
+        {(user?.isAdmin || isEditMode) && (
+          <>
+            <AdminNotificationCenter
+              notifications={notifications}
+              onMarkAsRead={handleMarkNotificationAsRead}
+              onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+              onDeleteNotification={handleDeleteNotification}
+              onNavigateToAdmin={(tab) => {
+                handlePageChange('admin');
+                window.dispatchEvent(new CustomEvent('sy_admin_switch_tab', { detail: { tab: tab || 'inquiries' } }));
+              }}
+              isBannerDismissed={isNotificationBannerDismissed}
+              onDismissBanner={() => setIsNotificationBannerDismissed(true)}
+              isOpen={isNotificationCenterOpen}
+              onClose={() => setIsNotificationCenterOpen(false)}
+            />
+            {showLoginAlertToast && (notifications || []).filter((n) => !n.isRead).length > 0 && (
+              <AdminLoginAlertToast
+                notifications={notifications}
+                onNavigateToAdmin={(tab) => {
+                  handlePageChange('admin');
+                  window.dispatchEvent(new CustomEvent('sy_admin_switch_tab', { detail: { tab: tab || 'inquiries' } }));
+                }}
+                onOpenNotificationCenter={() => setIsNotificationCenterOpen(true)}
+                onMarkAsRead={handleMarkNotificationAsRead}
+                onClose={() => setShowLoginAlertToast(false)}
+              />
+            )}
+          </>
+        )}
 
 
 

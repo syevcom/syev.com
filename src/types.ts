@@ -157,6 +157,7 @@ export interface Booking {
   status: '접수대기' | '상담예약완료' | '시공설계중' | '시공완료';
   createdAt: string;
   estimateCost?: string;
+  isRead?: boolean;
 }
 
 export interface ASRequest {
@@ -173,6 +174,24 @@ export interface ASRequest {
   date?: string;
   status: '접수완료' | '기사배정' | '처리완료';
   createdAt: string;
+  isRead?: boolean;
+}
+
+export interface AdminNotification {
+  id: string;
+  type: 'booking' | 'consultation' | 'as' | 'order' | 'inquiry';
+  title: string;
+  customerName: string;
+  customerPhone: string;
+  location?: string;
+  memo?: string;
+  estimateCost?: string;
+  purpose?: string;
+  status?: string;
+  createdAt: string;
+  timestamp: number;
+  isRead: boolean;
+  targetId?: string;
 }
 
 export interface CartItem {

@@ -29,6 +29,7 @@ interface SupportSectionProps {
   notices: Notice[];
   isEditMode?: boolean;
   onOpenCms?: (tab: 'hero' | 'about' | 'products' | 'solutions' | 'review' | 'support') => void;
+  onAddInquiry?: (inquiry: { name: string; phone: string; title: string; memo: string }) => void;
 }
 
 export default function SupportSection({ 
@@ -38,7 +39,8 @@ export default function SupportSection({
   faqs,
   notices,
   isEditMode = false,
-  onOpenCms
+  onOpenCms,
+  onAddInquiry
 }: SupportSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFaq, setSelectedFaq] = useState<string | null>(null);
@@ -72,6 +74,15 @@ export default function SupportSection({
     if (!title || !contact || !message) {
       setInquiryError('제목, 연락처, 상세 내용을 정확히 기재해 주세요.');
       return;
+    }
+
+    if (onAddInquiry) {
+      onAddInquiry({
+        name: contact.includes('@') ? contact.split('@')[0] : '온라인문의 고객',
+        phone: contact,
+        title,
+        memo: `[1:1 온라인 문의] ${title} - ${message}`
+      });
     }
 
     setInquirySuccess(true);

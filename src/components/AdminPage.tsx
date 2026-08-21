@@ -507,6 +507,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   }, [adminTab]);
 
   useEffect(() => {
+    const handleSwitchTab = (e: any) => {
+      if (e.detail && e.detail.tab) {
+        setAdminTab(e.detail.tab);
+      }
+    };
+    window.addEventListener('sy_admin_switch_tab', handleSwitchTab);
+    return () => window.removeEventListener('sy_admin_switch_tab', handleSwitchTab);
+  }, []);
+
+  useEffect(() => {
     const handleBackupCompleted = (e: any) => {
       const doc = e.detail;
       if (doc) {
@@ -2913,20 +2923,50 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <div className="divide-y divide-slate-100 overflow-x-auto">
                   {bookings.map((b) => (
                     <div key={b.id} className="p-4 hover:bg-slate-50 flex flex-wrap items-center justify-between gap-4 text-xs">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-slate-900">{b.name}</span>
-                          <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">{b.phone}</span>
-                          <span className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded">{b.purpose}</span>
+                      <div className="space-y-1 max-w-xl">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-black text-slate-950 text-sm">{b.name} 고객님</span>
+                          <span className="text-[11px] px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg font-mono font-bold flex items-center gap-1">
+                            📞 {b.phone}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded font-bold">
+                            {b.purpose === 'Commercial' ? '⚡ 아파트·공동주택' : b.purpose === 'ParkingLot' ? '🏢 상업시설' : '🏠 가정용 홈'}
+                          </span>
+                          {b.status && (
+                            <span className="text-[10px] px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 rounded font-black">
+                              {b.status}
+                            </span>
+                          )}
                         </div>
-                        <p className="text-slate-600 font-medium mt-1">주소: {b.address || '미입력'}</p>
-                        {b.notes && <p className="text-slate-500 font-normal mt-0.5">요청사항: {b.notes}</p>}
+                        {(b.address || b.location) && (
+                          <p className="text-slate-700 font-medium">
+                            <span className="text-slate-400 font-bold">📍 주소/지역:</span> {b.address || b.location}
+                          </p>
+                        )}
+                        {(b.memo || b.notes) && (
+                          <p className="text-slate-600 font-medium bg-slate-100 p-2 rounded-lg mt-1">
+                            <span className="text-slate-500 font-bold">📝 요청내용:</span> {b.memo || b.notes}
+                          </p>
+                        )}
+                        {b.estimateCost && (
+                          <p className="text-emerald-700 font-bold text-xs mt-0.5">
+                            💰 {b.estimateCost}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <span className="block text-[10px] text-slate-400 font-mono">{b.createdAt || '오늘'}</span>
-                        <span className="inline-block mt-1 px-2.5 py-1 bg-amber-100 text-amber-800 font-extrabold rounded-lg text-[10px]">
-                          상담 진행중
-                        </span>
+                      <div className="text-right flex flex-col items-end gap-1.5 shrink-0">
+                        <span className="block text-[11px] text-slate-400 font-mono">{b.createdAt || '오늘'}</span>
+                        <div className="flex items-center gap-1">
+                          <a
+                            href={`tel:${b.phone}`}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-bold cursor-pointer transition-colors"
+                          >
+                            전화걸기
+                          </a>
+                          <span className="px-2.5 py-1 bg-amber-100 text-amber-900 font-extrabold rounded-lg text-[10.5px]">
+                            {b.status || '상담 진행중'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
