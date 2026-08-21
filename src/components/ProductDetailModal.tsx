@@ -40,7 +40,7 @@ export default function ProductDetailModal({
   const [addedSuccessMsg, setAddedSuccessMsg] = useState(false);
 
   const [selectedDisplayImage, setSelectedDisplayImage] = useState<string>(product?.image || '');
-  const [unifiedDetailsMap, setUnifiedDetailsMap] = useState<Record<string, ProductDetailItem>>(() => DEFAULT_PRODUCT_DETAILS);
+  const [unifiedDetailsMap, setUnifiedDetailsMap] = useState<Record<string, ProductDetailItem>>({});
 
   // Load merged product details
   useEffect(() => {
@@ -610,26 +610,6 @@ export default function ProductDetailModal({
                     <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">{brandName}</span>
                   </div>
 
-                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
-                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">운영료품목</span>
-                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">월 전기기본료, 월 통신료, 월 관제이용료</span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
-                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">운영료선택</span>
-                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">일시납, 매월납 옵션선택</span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
-                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">옵션선택</span>
-                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">캐노피, I볼라드, 스토퍼 옵션선택</span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-2 py-1.5 border-b border-slate-100 items-start">
-                    <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">한전불입금</span>
-                    <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal">신규증설 시 현장 실측 후 안내</span>
-                  </div>
-
                   <div className="grid grid-cols-12 gap-2 py-1.5 items-start">
                     <span className="col-span-4 sm:col-span-3 text-slate-400 font-bold shrink-0">청약철회</span>
                     <span className="col-span-8 sm:col-span-9 font-extrabold text-slate-800 break-words whitespace-normal leading-relaxed">
@@ -996,8 +976,18 @@ export default function ProductDetailModal({
             {(() => {
               const detailUrls = (resolvedDetail.pdfUrls && resolvedDetail.pdfUrls.length > 0)
                 ? resolvedDetail.pdfUrls
-                : (resolvedDetail.pdfUrl ? [resolvedDetail.pdfUrl] : [product.image]);
+                : (resolvedDetail.pdfUrl ? [resolvedDetail.pdfUrl] : []);
               const detailNames = resolvedDetail.pdfNames || [];
+
+              if (detailUrls.length === 0) {
+                return (
+                  <div className="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 text-center space-y-2">
+                    <FileText className="w-8 h-8 text-slate-300 mx-auto" />
+                    <p className="text-sm font-black text-slate-700">등록된 공식 상세페이지 이미지가 없습니다.</p>
+                    <p className="text-xs text-slate-400 font-medium">관리자(CMS) 모드에서 상세페이지 이미지 및 브로셔 PDF를 등록하실 수 있습니다.</p>
+                  </div>
+                );
+              }
 
               return (
                 <div className="space-y-4">

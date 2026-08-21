@@ -4,5 +4,8 @@ service cloud.firestore {
     match /sy_cms_data/{document} {
       allow read, write: if true;
     }
+    match /sy_cms_backups/{document} {
+      allow read, write: if true;
+    }
   }
 }

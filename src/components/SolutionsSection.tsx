@@ -13,6 +13,18 @@ import { saveBrandPdf, deleteBrandPdf, loadAllBrandPdfs } from '../lib/indexedDb
 import { compressImage } from '../lib/imageCompressor';
 import { getOptimizedImageUrl } from '../lib/imageOptimizer';
 import { OptionPreset, INITIAL_OPTION_PRESETS } from './AdminPage';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
+import { 
+  DEFAULT_BRAND_CATALOGS, 
+  loadUnifiedBrandCatalogs, 
+  saveUnifiedBrandCatalog, 
+  deleteUnifiedBrandCatalog,
+  loadUnifiedProductDetails, 
+  saveUnifiedProductDetail, 
+  deleteUnifiedProductDetail, 
+  resolveDetailData, 
+  DEFAULT_PRODUCT_DETAILS 
+} from '../lib/detailPagesData';
 
 export const BRAND_METADATA: Record<string, {
   name: string;
@@ -454,6 +466,20 @@ export default function SolutionsSection({
   const [selectedOptionQuantities, setSelectedOptionQuantities] = useState<Record<string, number>>({});
   const [quantity, setQuantity] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Admin Delete Confirmation Modal Config
+  const [deleteModalConfig, setDeleteModalConfig] = useState<{
+    isOpen: boolean;
+    title?: string;
+    targetName?: string;
+    description?: string;
+    warningNote?: string;
+    confirmLabel?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    onConfirm: () => {},
+  });
 
   const getOptionGroupsForProduct = (prod: SolutionProduct | null, serviceTypeParam?: string): ProductOptionGroup[] => {
     if (!prod) return [];
@@ -1098,64 +1124,63 @@ export default function SolutionsSection({
   };
 
   const [brands, setBrands] = useState<Record<string, any>>(() => {
+    const base: Record<string, any> = {};
+    let deletedBrandKeys: string[] = [];
+    try {
+      const raw = localStorage.getItem('sy_cms_deleted_brand_catalogs');
+      if (raw) deletedBrandKeys = JSON.parse(raw);
+    } catch (e) {}
+
+    Object.keys(BRAND_METADATA).forEach(k => {
+      const isDeleted = deletedBrandKeys.includes(k);
+      base[k] = {
+        ...BRAND_METADATA[k],
+        pdfUrl: isDeleted ? undefined : DEFAULT_BRAND_CATALOGS[k]?.pdfUrl,
+        pdfName: isDeleted ? undefined : DEFAULT_BRAND_CATALOGS[k]?.pdfName
+      };
+    });
+
     const saved = localStorage.getItem('sy_cms_brands');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Automatically clean up heavy base64 pdfUrls and remove deprecated/duplicate brands
         const cleaned: Record<string, any> = {};
         Object.keys(parsed).forEach(k => {
           if (k === 'nice인프라' || k.includes('현대엔지니어링')) return;
           cleaned[k] = { ...parsed[k] };
-          if (cleaned[k].pdfUrl) {
-            cleaned[k].pdfUrl = undefined;
-          }
         });
-        try {
-          localStorage.setItem('sy_cms_brands', JSON.stringify(cleaned));
-        } catch (err) {
-          console.error('Failed to save cleaned brands to localStorage:', err);
-        }
-        const merged = { ...BRAND_METADATA, ...cleaned };
+        const merged = { ...base, ...cleaned };
         delete merged['nice인프라'];
         delete merged['현대엔지니어링'];
         delete merged['현대엔지니어링(E-pit)'];
         return merged;
       } catch (e) {
-        return BRAND_METADATA;
+        return base;
       }
     }
-    return BRAND_METADATA;
+    return base;
   });
 
-  // Load PDFs from IndexedDB on component mount to merge with metadata state
+  // Load merged catalogs and product details across IndexedDB, localStorage, and Firestore
   useEffect(() => {
     let isMounted = true;
-    const loadPdfs = async () => {
+    const loadAllCatalogsAndDetails = async () => {
       try {
-        const storedPdfs = await loadAllBrandPdfs();
-        if (isMounted && Object.keys(storedPdfs).length > 0) {
-          const brandPdfs: Record<string, any> = {};
-          const prodDetails: Record<string, any> = {};
-          
-          Object.keys(storedPdfs).forEach(key => {
-            if (key.startsWith('product-')) {
-              prodDetails[key] = storedPdfs[key];
-            } else {
-              brandPdfs[key] = storedPdfs[key];
-            }
-          });
+        const [brandCats, prodDetails] = await Promise.all([
+          loadUnifiedBrandCatalogs(),
+          loadUnifiedProductDetails()
+        ]);
 
+        if (isMounted) {
           setBrands(prev => {
             const updated = { ...prev };
-            Object.keys(brandPdfs).forEach(brandKey => {
-              if (updated[brandKey]) {
-                updated[brandKey] = {
-                  ...updated[brandKey],
-                  pdfUrl: brandPdfs[brandKey].pdfUrl,
-                  pdfName: brandPdfs[brandKey].pdfName
-                };
-              }
+            Object.keys(updated).forEach(brandKey => {
+              const cat = brandCats[brandKey];
+              updated[brandKey] = {
+                ...updated[brandKey],
+                pdfUrl: cat ? cat.pdfUrl : undefined,
+                pdfName: cat ? cat.pdfName : undefined
+              };
             });
             return updated;
           });
@@ -1163,20 +1188,22 @@ export default function SolutionsSection({
           setProductDetails(prodDetails);
         }
       } catch (err) {
-        console.error('Error loading brand PDFs from IndexedDB:', err);
+        console.error('Error loading brand catalogs and product details:', err);
       }
     };
-    loadPdfs();
+    loadAllCatalogsAndDetails();
 
     const handleDetailsUpdate = () => {
-      loadPdfs();
+      loadAllCatalogsAndDetails();
     };
 
+    window.addEventListener('sy_cms_brand_catalogs_update', handleDetailsUpdate);
     window.addEventListener('sy_cms_product_details_update', handleDetailsUpdate);
     window.addEventListener('sy_cms_data_sync_completed', handleDetailsUpdate);
 
     return () => {
       isMounted = false;
+      window.removeEventListener('sy_cms_brand_catalogs_update', handleDetailsUpdate);
       window.removeEventListener('sy_cms_product_details_update', handleDetailsUpdate);
       window.removeEventListener('sy_cms_data_sync_completed', handleDetailsUpdate);
     };
@@ -1205,36 +1232,29 @@ export default function SolutionsSection({
 
     Promise.all(promises).then(async (newAssets) => {
       const key = `product-${productId}`;
-      setProductDetails(prev => {
-        const existing = prev[key] || {};
-        const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
-          ? existing.pdfUrls
-          : (existing.pdfUrl ? [existing.pdfUrl] : []);
-        const existingNames = existing.pdfNames && existing.pdfNames.length > 0
-          ? existing.pdfNames
-          : (existing.pdfName ? [existing.pdfName] : []);
+      const existing = productDetails[key] || {};
+      const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
+        ? existing.pdfUrls
+        : (existing.pdfUrl ? [existing.pdfUrl] : []);
+      const existingNames = existing.pdfNames && existing.pdfNames.length > 0
+        ? existing.pdfNames
+        : (existing.pdfName ? [existing.pdfName] : []);
 
-        const updatedUrls = [...existingUrls, ...newAssets.map(a => a.url)];
-        const updatedNames = [...existingNames, ...newAssets.map(a => a.name)];
+      const updatedUrls = [...existingUrls, ...newAssets.map(a => a.url)];
+      const updatedNames = [...existingNames, ...newAssets.map(a => a.name)];
 
-        const updatedObj = {
-          pdfUrls: updatedUrls,
-          pdfNames: updatedNames,
-          pdfUrl: updatedUrls[0],
-          pdfName: updatedNames[0]
-        };
+      const updatedObj = {
+        pdfUrls: updatedUrls,
+        pdfNames: updatedNames,
+        pdfUrl: updatedUrls[0],
+        pdfName: updatedNames[0]
+      };
 
-        saveBrandPdf(key, updatedObj).then(() => {
-          window.dispatchEvent(new Event('sy_cms_product_details_update'));
-        }).catch(dbErr => {
-          console.error('Failed to save product detail to IndexedDB:', dbErr);
-        });
-
-        return {
-          ...prev,
-          [key]: updatedObj
-        };
-      });
+      await saveUnifiedProductDetail(key, updatedObj);
+      setProductDetails(prev => ({
+        ...prev,
+        [key]: updatedObj
+      }));
     }).catch(err => {
       console.error('Error reading files:', err);
       alert('파일을 읽는 도중 오류가 발생했습니다.');
@@ -1243,91 +1263,106 @@ export default function SolutionsSection({
 
   const handleDeleteProductSingleFile = async (productId: string, index: number) => {
     const key = `product-${productId}`;
-    setProductDetails(prev => {
-      const existing = prev[key];
-      if (!existing) return prev;
+    const existing = productDetails[key];
+    if (!existing) return;
 
-      const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
-        ? existing.pdfUrls
-        : (existing.pdfUrl ? [existing.pdfUrl] : []);
-      const existingNames = existing.pdfNames && existing.pdfNames.length > 0
-        ? existing.pdfNames
-        : (existing.pdfName ? [existing.pdfName] : []);
+    const existingUrls = existing.pdfUrls && existing.pdfUrls.length > 0
+      ? existing.pdfUrls
+      : (existing.pdfUrl ? [existing.pdfUrl] : []);
+    const existingNames = existing.pdfNames && existing.pdfNames.length > 0
+      ? existing.pdfNames
+      : (existing.pdfName ? [existing.pdfName] : []);
 
-      const updatedUrls = existingUrls.filter((_, i) => i !== index);
-      const updatedNames = existingNames.filter((_, i) => i !== index);
+    const updatedUrls = existingUrls.filter((_, i) => i !== index);
+    const updatedNames = existingNames.filter((_, i) => i !== index);
 
-      if (updatedUrls.length === 0) {
-        deleteBrandPdf(key).then(() => {
-          window.dispatchEvent(new Event('sy_cms_product_details_update'));
-        }).catch(err => console.error(err));
+    if (updatedUrls.length === 0) {
+      await deleteUnifiedProductDetail(key);
+      setProductDetails(prev => {
         const next = { ...prev };
         delete next[key];
         return next;
-      } else {
-        const updatedObj = {
-          pdfUrls: updatedUrls,
-          pdfNames: updatedNames,
-          pdfUrl: updatedUrls[0],
-          pdfName: updatedNames[0]
-        };
-        saveBrandPdf(key, updatedObj).then(() => {
-          window.dispatchEvent(new Event('sy_cms_product_details_update'));
-        }).catch(err => console.error(err));
-        return {
-          ...prev,
-          [key]: updatedObj
-        };
-      }
+      });
+    } else {
+      const updatedObj = {
+        pdfUrls: updatedUrls,
+        pdfNames: updatedNames,
+        pdfUrl: updatedUrls[0],
+        pdfName: updatedNames[0]
+      };
+      await saveUnifiedProductDetail(key, updatedObj);
+      setProductDetails(prev => ({
+        ...prev,
+        [key]: updatedObj
+      }));
+    }
+  };
+
+  const confirmDeleteProductSingleFile = (productId: string, index: number, fileName?: string) => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '상세페이지 파일 삭제 확인',
+      targetName: fileName || `상세페이지 이미지 #${index + 1}`,
+      description: '선택하신 상세페이지 이미지/PDF 파일을 상세페이지 목록에서 삭제하시겠습니까?',
+      warningNote: '삭제 시 상세페이지 목록에서 즉시 제거되며, 다시 업로드할 때까지 노출되지 않습니다.',
+      confirmLabel: '파일 삭제',
+      onConfirm: () => handleDeleteProductSingleFile(productId, index)
     });
   };
 
-  const handleReorderProductFile = (productId: string, fromIndex: number, toIndex: number) => {
+  const handleReorderProductFile = async (productId: string, fromIndex: number, toIndex: number) => {
     const key = `product-${productId}`;
-    setProductDetails(prev => {
-      const existing = prev[key];
-      if (!existing) return prev;
+    const existing = productDetails[key];
+    if (!existing) return;
 
-      const existingUrls = [...(existing.pdfUrls && existing.pdfUrls.length > 0 ? existing.pdfUrls : (existing.pdfUrl ? [existing.pdfUrl] : []))];
-      const existingNames = [...(existing.pdfNames && existing.pdfNames.length > 0 ? existing.pdfNames : (existing.pdfName ? [existing.pdfName] : []))];
+    const existingUrls = [...(existing.pdfUrls && existing.pdfUrls.length > 0 ? existing.pdfUrls : (existing.pdfUrl ? [existing.pdfUrl] : []))];
+    const existingNames = [...(existing.pdfNames && existing.pdfNames.length > 0 ? existing.pdfNames : (existing.pdfName ? [existing.pdfName] : []))];
 
-      if (toIndex < 0 || toIndex >= existingUrls.length) return prev;
+    if (toIndex < 0 || toIndex >= existingUrls.length) return;
 
-      const [movedUrl] = existingUrls.splice(fromIndex, 1);
-      const [movedName] = existingNames.splice(fromIndex, 1);
+    const [movedUrl] = existingUrls.splice(fromIndex, 1);
+    const [movedName] = existingNames.splice(fromIndex, 1);
 
-      existingUrls.splice(toIndex, 0, movedUrl);
-      existingNames.splice(toIndex, 0, movedName);
+    existingUrls.splice(toIndex, 0, movedUrl);
+    existingNames.splice(toIndex, 0, movedName);
 
-      const updatedObj = {
-        pdfUrls: existingUrls,
-        pdfNames: existingNames,
-        pdfUrl: existingUrls[0],
-        pdfName: existingNames[0]
-      };
-      saveBrandPdf(key, updatedObj).then(() => {
-        window.dispatchEvent(new Event('sy_cms_product_details_update'));
-      }).catch(err => console.error(err));
-      return {
-        ...prev,
-        [key]: updatedObj
-      };
-    });
+    const updatedObj = {
+      pdfUrls: existingUrls,
+      pdfNames: existingNames,
+      pdfUrl: existingUrls[0],
+      pdfName: existingNames[0]
+    };
+    await saveUnifiedProductDetail(key, updatedObj);
+    setProductDetails(prev => ({
+      ...prev,
+      [key]: updatedObj
+    }));
   };
 
   const handleDeleteProductPdf = async (productId: string) => {
     const key = `product-${productId}`;
     try {
-      await deleteBrandPdf(key);
+      await deleteUnifiedProductDetail(key);
       setProductDetails(prev => {
         const updated = { ...prev };
         delete updated[key];
         return updated;
       });
-      window.dispatchEvent(new Event('sy_cms_product_details_update'));
     } catch (dbError) {
-      console.error('Failed to delete product detail from IndexedDB:', dbError);
+      console.error('Failed to delete product detail:', dbError);
     }
+  };
+
+  const confirmDeleteProductPdf = (productId: string, prodName?: string) => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '상세페이지 전체 삭제 확인',
+      targetName: prodName ? `${prodName} 상세페이지 전체` : '등록된 상세페이지 전체',
+      description: '등록된 모든 상세페이지 이미지와 PDF 문서를 전체 삭제하시겠습니까?',
+      warningNote: '삭제 시 기존에 등록된 모든 커스텀 상세페이지가 제거되고 기본 사양서로 대체됩니다.',
+      confirmLabel: '상세페이지 전체 삭제',
+      onConfirm: () => handleDeleteProductPdf(productId)
+    });
   };
 
   const startAddProduct = (type: 'home' | 'parking', category: string) => {
@@ -1387,16 +1422,7 @@ export default function SolutionsSection({
     setIsProductModalOpen(true);
   };
 
-  const deleteProduct = (productId: string, type: 'home' | 'parking', category: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-
-    if (!window.confirm('정말 이 충전기 상품을 삭제하시겠습니까?')) {
-      return;
-    }
-
+  const executeDeleteProduct = (productId: string, type: 'home' | 'parking', category: string) => {
     if (type === 'home') {
       const updated = { ...homeProducts };
       if (updated[category]) {
@@ -1423,6 +1449,27 @@ export default function SolutionsSection({
 
     window.dispatchEvent(new Event('sy_cms_products_update'));
     setToastMessage('🗑️ 상품이 성공적으로 삭제되었습니다.');
+  };
+
+  const deleteProduct = (productId: string, type: 'home' | 'parking', category: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    const list = type === 'home' ? (homeProducts[category] || []) : (parkingProducts[category] || []);
+    const targetProd = list.find(p => p.id === productId);
+    const prodName = targetProd ? targetProd.name : productId;
+
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '충전기 상품 삭제 확인',
+      targetName: prodName,
+      description: `정말 '${prodName}' 충전기 상품을 솔루션 및 관리자 목록에서 삭제하시겠습니까?`,
+      warningNote: '삭제된 상품은 고객 쇼핑몰 및 관리자 페이지에서 즉시 제외됩니다.',
+      confirmLabel: '상품 삭제',
+      onConfirm: () => executeDeleteProduct(productId, type, category)
+    });
   };
 
   const saveProductForm = () => {
@@ -1606,36 +1653,16 @@ export default function SolutionsSection({
     reader.onloadend = async () => {
       const dataUrl = reader.result as string;
       try {
-        // 1. Save to IndexedDB (virtually unlimited size)
-        await saveBrandPdf(brandKey, dataUrl, file.name);
+        await saveUnifiedBrandCatalog(brandKey, dataUrl, file.name);
 
-        // 2. Update local react state
-        setBrands(prev => {
-          const updated = {
-            ...prev,
-            [brandKey]: {
-              ...prev[brandKey],
-              pdfUrl: dataUrl,
-              pdfName: file.name
-            }
-          };
-
-          // 3. Sync to localStorage, completely stripping heavy pdfUrl values to prevent quota issues
-          try {
-            const lightweight: Record<string, any> = {};
-            Object.keys(updated).forEach(k => {
-              lightweight[k] = {
-                ...updated[k],
-                pdfUrl: undefined, // never store heavy file strings in localStorage
-                pdfName: updated[k].pdfName
-              };
-            });
-            localStorage.setItem('sy_cms_brands', JSON.stringify(lightweight));
-          } catch (storageError) {
-            console.error('Failed to save brand metadata to localStorage:', storageError);
+        setBrands(prev => ({
+          ...prev,
+          [brandKey]: {
+            ...prev[brandKey],
+            pdfUrl: dataUrl,
+            pdfName: file.name
           }
-          return updated;
-        });
+        }));
       } catch (dbError) {
         console.error('Failed to save to IndexedDB:', dbError);
         alert('브라우저 데이터베이스(IndexedDB) 저장에 실패했습니다. 프라이빗 브라우징 모드를 해제해 주십시오.');
@@ -1646,10 +1673,8 @@ export default function SolutionsSection({
 
   const handleDeletePdf = async (brandKey: string) => {
     try {
-      // 1. Delete from IndexedDB
-      await deleteBrandPdf(brandKey);
+      await deleteUnifiedBrandCatalog(brandKey);
 
-      // 2. Update react state
       setBrands(prev => {
         const updated = {
           ...prev,
@@ -1660,7 +1685,6 @@ export default function SolutionsSection({
           }
         };
 
-        // 3. Update localStorage
         try {
           const lightweight: Record<string, any> = {};
           Object.keys(updated).forEach(k => {
@@ -1676,9 +1700,23 @@ export default function SolutionsSection({
         }
         return updated;
       });
+
+      window.dispatchEvent(new Event('sy_cms_brand_catalogs_update'));
     } catch (dbError) {
-      console.error('Failed to delete from IndexedDB:', dbError);
+      console.error('Failed to delete brand catalog:', dbError);
     }
+  };
+
+  const confirmDeleteBrandPdf = (brandKey: string, brandName?: string) => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '브랜드 브로셔 삭제 확인',
+      targetName: brandName ? `${brandName} 공식 브로셔` : `${brandKey} 공식 브로셔`,
+      description: `선택하신 '${brandName || brandKey}' 아파트 공식 브로셔 및 카탈로그 문서를 삭제하시겠습니까?`,
+      warningNote: '삭제 시 아파트 브랜드 솔루션 화면에서 브로셔 뷰어가 비활성화됩니다.',
+      confirmLabel: '브로셔 삭제',
+      onConfirm: () => handleDeletePdf(brandKey)
+    });
   };
 
   const filteredSolutions = solutions.filter(sol => {
@@ -1702,25 +1740,7 @@ export default function SolutionsSection({
   if (activeDetailProduct) {
     const isResidentialProduct = activeDetailProduct.id.startsWith('res-') || activeDetailProduct.id.startsWith('sy-') || activeDetailProduct.name.includes('개인용') || activeDetailProduct.name.includes('가정용') || !activeDetailProduct.id.startsWith('park-');
     const productPurpose = isResidentialProduct ? 'Residential' : 'ParkingLot';
-    const detailKey = `product-${activeDetailProduct.id}`;
-    let detailData = productDetails[detailKey];
-
-    if (!detailData) {
-      if (activeDetailProduct.id === 'sy-ac07' || activeDetailProduct.id === 'res-7kw-spil') {
-        detailData = productDetails['product-sy-ac07'] || productDetails['product-res-7kw-spil'];
-      } else if (activeDetailProduct.id === 'sy-ac05' || activeDetailProduct.id === 'res-5kw-spil' || activeDetailProduct.id === 'res-5kw-coolcharge') {
-        detailData = productDetails['product-sy-ac05'] || productDetails['product-res-5kw-spil'] || productDetails['product-res-5kw-coolcharge'];
-      } else if (activeDetailProduct.id === 'sy-ac11-bi' || activeDetailProduct.id === 'res-11kw-spil') {
-        detailData = productDetails['product-sy-ac11-bi'] || productDetails['product-res-11kw-spil'];
-      } else if (activeDetailProduct.id === 'park-50kw-1ch-coolcharge' || activeDetailProduct.id === 'sy-dc50') {
-        detailData = productDetails['product-park-50kw-1ch-coolcharge'] || productDetails['product-sy-dc50'];
-      }
-    }
-
-    if (!detailData && activeDetailProduct.name) {
-      const nameKey = `product-${activeDetailProduct.name.trim()}`;
-      detailData = productDetails[nameKey];
-    }
+    const detailData = resolveDetailData(activeDetailProduct, productDetails);
     
     // Extract power to display correct specs dynamically
     let powerKey = '7kW';
@@ -2938,22 +2958,6 @@ export default function SolutionsSection({
                         <div className="col-span-9 text-slate-800 font-extrabold">{activeDetailProduct.brand || '쿨차지'}</div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
 
-                        <div className="col-span-3 font-extrabold text-slate-600 self-center">운영료품목</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">월 전기기본료,월 통신료, 월 관제이용료</div>
-                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
-
-                        <div className="col-span-3 font-extrabold text-slate-600 self-center">운영료선택</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">일시납,매월납 옵션선택</div>
-                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
-
-                        <div className="col-span-3 font-extrabold text-slate-600 self-center">옵션선택</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">캐노피,I볼라드,스토퍼 옵션선택</div>
-                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
-
-                        <div className="col-span-3 font-extrabold text-slate-600 self-center">한전불입금</div>
-                        <div className="col-span-9 text-slate-800 font-extrabold">신규증설시 옵션선택</div>
-                        <div className="col-span-12 border-t border-slate-100 my-1"></div>
-
                         <div className="col-span-3 font-extrabold text-slate-600 self-center">시공방식</div>
                         <div className="col-span-9 text-slate-800 font-extrabold text-emerald-700">본사 직영 책임시공 (외주/중개 없음)</div>
                         <div className="col-span-12 border-t border-slate-100 my-1"></div>
@@ -3283,7 +3287,7 @@ export default function SolutionsSection({
                         />
                         <button
                           type="button"
-                          onClick={() => handleDeleteProductPdf(activeDetailProduct.id)}
+                          onClick={() => confirmDeleteProductPdf(activeDetailProduct.id, activeDetailProduct.name)}
                           className="px-3.5 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs font-bold rounded-xl flex items-center gap-1 cursor-pointer transition-all border border-rose-800"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -3326,7 +3330,7 @@ export default function SolutionsSection({
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleDeleteProductSingleFile(activeDetailProduct.id, idx)}
+                                onClick={() => confirmDeleteProductSingleFile(activeDetailProduct.id, idx, detailNames[idx])}
                                 className="px-2.5 py-1.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-600 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors ml-2"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -3673,7 +3677,7 @@ export default function SolutionsSection({
                           <div className="flex justify-end border-b border-slate-200 pb-2">
                             <button
                               type="button"
-                              onClick={() => handleDeletePdf(selectedAptBrand)}
+                              onClick={() => confirmDeleteBrandPdf(selectedAptBrand, brandData.name)}
                               className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer border border-rose-200"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -4701,6 +4705,18 @@ export default function SolutionsSection({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Admin Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={deleteModalConfig.isOpen}
+        title={deleteModalConfig.title}
+        targetName={deleteModalConfig.targetName}
+        description={deleteModalConfig.description}
+        warningNote={deleteModalConfig.warningNote}
+        confirmLabel={deleteModalConfig.confirmLabel}
+        onConfirm={deleteModalConfig.onConfirm}
+        onClose={() => setDeleteModalConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

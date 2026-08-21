@@ -36,9 +36,28 @@ import {
   Copy,
   Sliders,
   Edit3,
-  FolderPlus
+  FolderPlus,
+  Database,
+  Cloud,
+  CloudDownload,
+  CloudUpload,
+  History,
+  ShieldCheck,
+  Clock,
+  AlertTriangle,
+  RotateCcw,
+  HardDrive
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal';
+import { 
+  createFirestoreBackup, 
+  restoreFromLatestBackup, 
+  restoreFromSpecificBackup, 
+  getBackupHistory, 
+  BackupMetadata, 
+  formatBackupDate 
+} from '../lib/firebase';
 
 export interface OptionPreset {
   id: string;
@@ -282,7 +301,133 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onPreviewPopup,
   onNavigateHome
 }) => {
-  const [adminTab, setAdminTab] = useState<'products' | 'residential' | 'brands' | 'commercial' | 'inquiries' | 'settings' | 'popup'>('products');
+  const [adminTab, setAdminTab] = useState<'products' | 'residential' | 'brands' | 'commercial' | 'inquiries' | 'settings' | 'popup' | 'backup'>('products');
+  
+  // Cloud Backup & Restore States
+  const [backupHistory, setBackupHistory] = useState<BackupMetadata[]>([]);
+  const [isLoadingBackups, setIsLoadingBackups] = useState(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [lastBackupInfo, setLastBackupInfo] = useState<{ formattedDate?: string; keyCount?: number; trigger?: string; dataSizeKb?: number } | null>(() => {
+    try {
+      const saved = localStorage.getItem('sy_last_backup_info');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const loadBackups = async () => {
+    setIsLoadingBackups(true);
+    try {
+      const list = await getBackupHistory(30);
+      setBackupHistory(list);
+      const saved = localStorage.getItem('sy_last_backup_info');
+      if (saved) {
+        setLastBackupInfo(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingBackups(false);
+    }
+  };
+
+  useEffect(() => {
+    if (adminTab === 'backup') {
+      loadBackups();
+    }
+  }, [adminTab]);
+
+  useEffect(() => {
+    const handleBackupCompleted = (e: any) => {
+      const doc = e.detail;
+      if (doc) {
+        setLastBackupInfo({
+          formattedDate: doc.formattedDate,
+          keyCount: doc.keyCount,
+          trigger: doc.trigger,
+          dataSizeKb: doc.dataSizeKb
+        });
+      }
+    };
+    window.addEventListener('sy_cms_backup_completed', handleBackupCompleted);
+    return () => window.removeEventListener('sy_cms_backup_completed', handleBackupCompleted);
+  }, []);
+
+  const handleManualBackup = async () => {
+    setIsBackingUp(true);
+    try {
+      const res = await createFirestoreBackup('manual');
+      if (res.success) {
+        setSaveSuccessMsg(`☁️ ${res.message}`);
+        setTimeout(() => setSaveSuccessMsg(''), 4000);
+        await loadBackups();
+      } else {
+        alert(res.message);
+      }
+    } catch (e) {
+      alert(`백업 실패: ${e}`);
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleConfirmRestoreLatest = () => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '최신 클라우드 백업본에서 전체 복구',
+      targetName: lastBackupInfo?.formattedDate ? `[${lastBackupInfo.formattedDate}] 백업 스냅샷` : '최신 정상 백업본',
+      description: 'Firestore에 저장된 최신 정상 백업 데이터로 로컬스토리지 및 쇼핑몰 전체 구성을 복구하시겠습니까?',
+      warningNote: '현재 로컬 데이터가 클라우드 백업 시점의 데이터로 덮어씌워지며, 전체 상품 및 설정이 즉시 복원됩니다.',
+      confirmLabel: '백업본에서 전체 복구',
+      onConfirm: async () => {
+        setIsRestoring(true);
+        try {
+          const res = await restoreFromLatestBackup();
+          if (res.success) {
+            setSaveSuccessMsg(`🎉 ${res.message}`);
+            setTimeout(() => setSaveSuccessMsg(''), 5000);
+            await loadBackups();
+          } else {
+            alert(`복구 실패: ${res.message}`);
+          }
+        } catch (err) {
+          alert(`복구 중 오류가 발생했습니다: ${err}`);
+        } finally {
+          setIsRestoring(false);
+        }
+      }
+    });
+  };
+
+  const handleConfirmRestoreSpecific = (backup: BackupMetadata) => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '특정 시점 백업본 복구',
+      targetName: `[${backup.formattedDate}] 백업 스냅샷 (${backup.summary || `${backup.keyCount}개 항목`})`,
+      description: `선택하신 '${backup.formattedDate}' 시점의 백업본으로 모든 데이터를 롤백 복구하시겠습니까?`,
+      warningNote: '현재 상태가 선택하신 과거 시점 데이터로 즉시 교체 적용됩니다.',
+      confirmLabel: '이 시점으로 롤백 복구',
+      onConfirm: async () => {
+        setIsRestoring(true);
+        try {
+          const res = await restoreFromSpecificBackup(backup.id);
+          if (res.success) {
+            setSaveSuccessMsg(`🎉 ${res.message}`);
+            setTimeout(() => setSaveSuccessMsg(''), 5000);
+            await loadBackups();
+          } else {
+            alert(`복구 실패: ${res.message}`);
+          }
+        } catch (err) {
+          alert(`복구 중 오류 발생: ${err}`);
+        } finally {
+          setIsRestoring(false);
+        }
+      }
+    });
+  };
   
   // Local working copy of products for batch editing
   const [productList, setProductList] = useState<Product[]>(products);
@@ -315,6 +460,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Local SNS & Footer config
   const [snsState, setSnsState] = useState(snsConfig);
   const [footerState, setFooterState] = useState(footerConfig);
+
+  // Admin Delete Confirmation Modal Config
+  const [deleteModalConfig, setDeleteModalConfig] = useState<{
+    isOpen: boolean;
+    title?: string;
+    targetName?: string;
+    description?: string;
+    warningNote?: string;
+    confirmLabel?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    onConfirm: () => {},
+  });
 
   // Option Presets State
   const [optionPresets, setOptionPresets] = useState<OptionPreset[]>(() => {
@@ -399,22 +558,43 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     alert(`'${editingPreset.name}' 템플릿이 정상적으로 저장되었습니다!`);
   };
 
-  // Delete Preset with confirmation
+  // Delete Preset with confirmation modal
+  const executeDeletePreset = (presetId: string) => {
+    const nextPresets = optionPresets.filter(p => p.id !== presetId);
+    updateOptionPresets(nextPresets);
+    setSaveSuccessMsg('옵션 템플릿이 성공적으로 삭제되었습니다.');
+    setTimeout(() => setSaveSuccessMsg(''), 3000);
+  };
+
   const handleDeletePreset = (presetId: string) => {
     const preset = optionPresets.find(p => p.id === presetId);
     if (!preset) return;
-    if (confirm(`'${preset.name}' 템플릿을 삭제하시겠습니까?`)) {
-      const nextPresets = optionPresets.filter(p => p.id !== presetId);
-      updateOptionPresets(nextPresets);
-    }
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '옵션 템플릿 삭제 확인',
+      targetName: preset.name,
+      description: `'${preset.name}' 옵션 템플릿을 삭제하시겠습니까?`,
+      warningNote: '삭제된 템플릿은 템플릿 선택 목록에서 영구적으로 제거됩니다.',
+      confirmLabel: '템플릿 삭제',
+      onConfirm: () => executeDeletePreset(presetId)
+    });
   };
 
-  // Reset Presets to Default
+  // Reset Presets to Default with confirmation modal
   const handleResetPresetsToDefault = () => {
-    if (confirm('모든 옵션 템플릿을 초기 브랜드 기본값으로 복원하시겠습니까? (작성한 커스텀 템플릿이 초기화될 수 있습니다)')) {
-      updateOptionPresets(INITIAL_OPTION_PRESETS);
-      alert('템플릿이 초기 기본값으로 복원되었습니다.');
-    }
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '옵션 템플릿 초기화 확인',
+      targetName: '전체 옵션 템플릿',
+      description: '모든 옵션 템플릿을 브랜드 공식 기본값으로 복원하시겠습니까?',
+      warningNote: '작성하신 커스텀 템플릿이 삭제되고 초기 기본 프리셋으로 덮어씌워집니다.',
+      confirmLabel: '기본값으로 복원',
+      onConfirm: () => {
+        updateOptionPresets(INITIAL_OPTION_PRESETS);
+        setSaveSuccessMsg('옵션 템플릿이 초기 기본값으로 복원되었습니다.');
+        setTimeout(() => setSaveSuccessMsg(''), 3000);
+      }
+    });
   };
 
   // Apply a preset to a single product
@@ -625,13 +805,29 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   // Delete Option Group
-  const handleDeleteOptionGroup = (productIndex: number, groupIdx: number) => {
+  const executeDeleteOptionGroup = (productIndex: number, groupIdx: number) => {
     const updated = [...productList];
     const target = updated[productIndex];
     const currentGroups = [...(target.optionGroups || [])];
     currentGroups.splice(groupIdx, 1);
     updated[productIndex] = { ...target, optionGroups: currentGroups };
     setProductList(updated);
+  };
+
+  const handleDeleteOptionGroup = (productIndex: number, groupIdx: number) => {
+    const target = productList[productIndex];
+    const grp = target?.optionGroups?.[groupIdx];
+    const grpTitle = grp?.title || `옵션 그룹 #${groupIdx + 1}`;
+
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '옵션 그룹 삭제 확인',
+      targetName: grpTitle,
+      description: `'${target?.name || '상품'}'의 '${grpTitle}' 옵션 그룹 및 하위 항목을 삭제하시겠습니까?`,
+      warningNote: '삭제 후 [저장하기]를 누르면 상품 구성에 최종 반영됩니다.',
+      confirmLabel: '옵션 그룹 삭제',
+      onConfirm: () => executeDeleteOptionGroup(productIndex, groupIdx)
+    });
   };
 
   // Update Option Group Title
@@ -857,18 +1053,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setIsPresetManagerOpen(false);
   };
 
-  // Delete Product
-  const handleDeleteProduct = (id: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
+  // Delete Product with confirmation modal
+  const executeDeleteProduct = (id: string) => {
     const target = productList.find(p => p.id === id);
     const prodName = target ? target.name : '상품';
-
-    if (!window.confirm(`정말 '${prodName}' 충전기 상품을 관리자 목록에서 삭제하시겠습니까?`)) {
-      return;
-    }
 
     try {
       const savedDeleted = localStorage.getItem('sy_cms_deleted_product_ids');
@@ -896,14 +1084,44 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setTimeout(() => setSaveSuccessMsg(''), 3000);
   };
 
-  // Reset Default Products
-  const handleResetDefaultProducts = () => {
-    if (window.confirm('기초 정식 충전기 상품 목록(SY.com 기본 데이터)으로 전체 복원하시겠습니까?\n실수로 삭제하셨던 기본 충전기 상품들이 모두 복구됩니다.')) {
-      setProductList(PRODUCTS);
-      onSaveProducts(PRODUCTS);
-      setSaveSuccessMsg('SY.com 기본 충전기 상품 목록이 성공적으로 전면 복원되었습니다!');
-      setTimeout(() => setSaveSuccessMsg(''), 3500);
+  const handleDeleteProduct = (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
     }
+    const target = productList.find(p => p.id === id);
+    const prodName = target ? target.name : '상품';
+
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '충전기 상품 삭제 확인',
+      targetName: prodName,
+      description: `정말 '${prodName}' 충전기 상품을 관리자 상품 목록에서 삭제하시겠습니까?`,
+      warningNote: '삭제 시 고객 솔루션 화면과 관리자 목록에서 즉시 제외됩니다.',
+      confirmLabel: '상품 삭제',
+      onConfirm: () => executeDeleteProduct(id)
+    });
+  };
+
+  // Reset Default Products with confirmation modal
+  const handleResetDefaultProducts = () => {
+    setDeleteModalConfig({
+      isOpen: true,
+      title: '기본 충전기 상품 목록 복원',
+      targetName: 'SY.com 기본 충전기 전체 목록',
+      description: '기초 정식 충전기 상품 목록(SY.com 기본 데이터)으로 전체 복원하시겠습니까?',
+      warningNote: '실수로 삭제하셨던 기본 충전기 상품들이 모두 복구되며, 새로 덮어씌워집니다.',
+      confirmLabel: '기본 데이터로 전체 복구',
+      onConfirm: () => {
+        try {
+          localStorage.removeItem('sy_cms_deleted_product_ids');
+        } catch (e) {}
+        setProductList(PRODUCTS);
+        onSaveProducts(PRODUCTS);
+        setSaveSuccessMsg('SY.com 기본 충전기 상품 목록이 성공적으로 전면 복원되었습니다!');
+        setTimeout(() => setSaveSuccessMsg(''), 3500);
+      }
+    });
   };
 
   // Save Single Product
@@ -1115,7 +1333,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         </AnimatePresence>
 
         {/* Dashboard Tab Bar */}
-        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
+        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           <button
             onClick={() => {
               setAdminTab('products');
@@ -1130,7 +1348,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }`}
           >
             <Package className="w-4 h-4 text-blue-400 shrink-0" />
-            <span className="truncate">📦 전체 상품 ({productList.length})</span>
+            <span className="truncate">📦 전체 ({productList.length})</span>
           </button>
 
           <button
@@ -1147,7 +1365,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }`}
           >
             <Home className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="truncate">🏠 가정용 충전기 ({residentialCount})</span>
+            <span className="truncate">🏠 홈 ({residentialCount})</span>
           </button>
 
           <button
@@ -1176,7 +1394,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }`}
           >
             <Building className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span className="truncate">🏬 상업시설 수익형 ({commercialCount})</span>
+            <span className="truncate">🏬 상업 ({commercialCount})</span>
           </button>
 
           <button
@@ -1188,7 +1406,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }`}
           >
             <ClipboardList className="w-4 h-4 text-indigo-400 shrink-0" />
-            <span className="truncate">📋 견적&A/S ({bookings.length + asRequests.length})</span>
+            <span className="truncate">📋 문의 ({bookings.length + asRequests.length})</span>
           </button>
 
           <button
@@ -1212,7 +1430,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }`}
           >
             <Bell className="w-4 h-4 text-purple-400 shrink-0" />
-            <span className="truncate">🔔 팝업&네이버폼</span>
+            <span className="truncate">🔔 팝업&폼</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('backup')}
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              adminTab === 'backup'
+                ? 'bg-sky-700 text-white shadow-md ring-2 ring-sky-400/50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <Cloud className="w-4 h-4 text-sky-400 shrink-0" />
+            <span className="truncate">☁️ 클라우드 백업</span>
           </button>
         </div>
 
@@ -2715,6 +2945,47 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               </div>
 
             </div>
+
+            {/* Cloud Backup Quick Status Banner inside Settings */}
+            <div className="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-6 rounded-2xl border border-sky-800/60 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center border border-sky-400/30 shrink-0">
+                  <Cloud className="w-6 h-6 text-sky-300" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-black text-white">Firestore 정기 백업 & 데이터 안전 보호</h3>
+                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-bold rounded-md border border-emerald-500/30">
+                      매 1시간 자동 백업 가동 중
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-medium mt-1">
+                    마지막 성공 백업: <span className="text-sky-300 font-bold font-mono">{lastBackupInfo?.formattedDate || '오늘'}</span> ({lastBackupInfo?.keyCount || '전체'}개 데이터 항목)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full md:w-auto">
+                <button
+                  type="button"
+                  onClick={handleManualBackup}
+                  disabled={isBackingUp}
+                  className="flex-1 md:flex-initial px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <CloudUpload className="w-4 h-4" />
+                  <span>{isBackingUp ? '백업 중...' : '즉시 클라우드 백업'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAdminTab('backup')}
+                  className="flex-1 md:flex-initial px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <History className="w-4 h-4 text-sky-300" />
+                  <span>백업 & 복구 관리자 열기</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -3011,6 +3282,227 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 8: FIRESTORE CLOUD BACKUP & DISASTER RECOVERY */}
+        {adminTab === 'backup' && (
+          <div className="space-y-6">
+            {/* Header & Primary Actions */}
+            <div className="bg-white p-5 rounded-2xl border border-sky-200/80 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <Cloud className="w-5 h-5 text-sky-600" />
+                  Firestore 클라우드 정기 백업 & 데이터 복구 관리
+                </h2>
+                <p className="text-xs text-slate-500 font-semibold mt-1">
+                  로컬스토리지 데이터를 매 1시간 주기 및 데이터 변경 시마다 Firestore로 안전하게 백업하고, 비상 시 마지막 성공 백업본에서 원클릭으로 완벽하게 복구합니다.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <button
+                  type="button"
+                  onClick={loadBackups}
+                  disabled={isLoadingBackups}
+                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  title="백업 목록 새로고침"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingBackups ? 'animate-spin' : ''}`} />
+                  <span>새로고침</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleManualBackup}
+                  disabled={isBackingUp}
+                  className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <CloudUpload className="w-4 h-4" />
+                  <span>{isBackingUp ? '스냅샷 백업 중...' : '지금 즉시 클라우드 백업'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleConfirmRestoreLatest}
+                  disabled={isRestoring}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{isRestoring ? '데이터 복구 중...' : '최신 백업본에서 전체 복구'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Status Monitoring Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-blue-500" />
+                    정기 1시간 자동 백업
+                  </span>
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-black rounded-md">
+                    상시 가동 중
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900">매 60분 간격 실행</div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  앱이 실행되는 동안 1시간마다 전체 로컬스토리지 스냅샷을 자동 백업합니다.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-amber-500" />
+                    변경 시 실시간 동기화
+                  </span>
+                  <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded-md">
+                    실시간 연동
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900">데이터 수정 시 즉시 백업</div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  상품 수정, 추가, 삭제 등 로컬스토리지 변경 시 Firestore에 즉각 동기화됩니다.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    데이터 유실 자동 복구 가드
+                  </span>
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-md">
+                    보호 활성화
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900">손상 시 자동 복구</div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  브라우저 캐시 삭제 또는 데이터 유실 감지 시 최신 백업본에서 자동 복원합니다.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                    <HardDrive className="w-3.5 h-3.5 text-indigo-500" />
+                    마지막 백업 상태
+                  </span>
+                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-[10px] font-black rounded-md">
+                    {lastBackupInfo?.dataSizeKb ? `${lastBackupInfo.dataSizeKb} KB` : '정상'}
+                  </span>
+                </div>
+                <div className="text-xs font-mono font-bold text-indigo-950 truncate">
+                  {lastBackupInfo?.formattedDate || '방금 전'}
+                </div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  총 <span className="font-bold text-indigo-600">{lastBackupInfo?.keyCount || 18}개</span> 설정 데이터 항목이 저장되어 있습니다.
+                </p>
+              </div>
+            </div>
+
+            {/* Backup Snapshots History Table */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <div className="p-4 bg-slate-900 text-white font-black text-xs flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-sky-400" />
+                  <span>Firestore 스냅샷 백업 히스토리 ({backupHistory.length}개 기록)</span>
+                </div>
+                <span className="text-[11px] font-normal text-slate-300">
+                  각 백업본을 선택하여 해당 시점으로 즉시 롤백 복구할 수 있습니다.
+                </span>
+              </div>
+
+              {isLoadingBackups ? (
+                <div className="p-12 text-center text-xs font-bold text-slate-500 flex flex-col items-center justify-center gap-2">
+                  <RefreshCw className="w-6 h-6 animate-spin text-sky-600" />
+                  <span>클라우드 백업 목록을 불러오는 중입니다...</span>
+                </div>
+              ) : backupHistory.length === 0 ? (
+                <div className="p-12 text-center space-y-3">
+                  <Cloud className="w-10 h-10 text-slate-300 mx-auto" />
+                  <p className="text-sm font-bold text-slate-700">기록된 클라우드 백업 히스토리가 없습니다.</p>
+                  <p className="text-xs text-slate-500">
+                    상단의 <span className="font-bold text-sky-600">[지금 즉시 클라우드 백업]</span> 버튼을 누르면 첫 전체 스냅샷이 생성됩니다.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleManualBackup}
+                    className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl transition-all shadow-md cursor-pointer"
+                  >
+                    첫 백업 생성하기
+                  </button>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100 overflow-x-auto">
+                  {backupHistory.map((backup) => (
+                    <div key={backup.id} className="p-4 hover:bg-slate-50 flex flex-wrap items-center justify-between gap-4 transition-colors">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-black text-xs text-slate-900">
+                            {backup.formattedDate}
+                          </span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded font-black ${
+                            backup.trigger === 'hourly'
+                              ? 'bg-blue-100 text-blue-800'
+                              : backup.trigger === 'on_change'
+                              ? 'bg-amber-100 text-amber-800'
+                              : backup.trigger === 'manual'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {backup.trigger === 'hourly'
+                              ? '⏰ 1시간 정기 백업'
+                              : backup.trigger === 'on_change'
+                              ? '🔄 변경 감지 자동'
+                              : backup.trigger === 'manual'
+                              ? '👤 관리자 수동 백업'
+                              : '🚀 시스템 부팅 초기화'}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400 font-mono">
+                            {backup.dataSizeKb} KB ({backup.keyCount}개 항목)
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 font-medium">
+                          주요 백업 데이터: <span className="font-semibold text-slate-800">{backup.summary || `${backup.keyCount}개 항목`}</span>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleConfirmRestoreSpecific(backup)}
+                          disabled={isRestoring}
+                          className="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-300 rounded-xl text-xs font-black transition-all shadow-xs flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>이 시점으로 복구</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Disaster Recovery & Developer Console Guide */}
+            <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 shadow-xs space-y-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-sm font-black text-white">비상 데이터 복구 스크립트 (Disaster Recovery Script Guide)</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                만약 관리자 페이지 접속이 어렵거나 긴급 상황이 발생했을 때도, 브라우저 개발자 도구 콘솔(<code className="px-1.5 py-0.5 bg-slate-800 rounded font-mono text-amber-300">F12 &gt; Console</code>)에서 언제든지 아래 복구 스크립트를 직접 실행하여 마지막 성공 백업본을 즉시 로드할 수 있습니다.
+              </p>
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs font-mono space-y-1.5 text-slate-200">
+                <div className="text-slate-400">// 최신 백업본에서 즉시 전체 복구 실행:</div>
+                <div className="text-emerald-400 font-bold">await window.syRestoreFromBackup();</div>
+                <div className="text-slate-400 pt-1">// 수동 즉시 클라우드 백업 생성:</div>
+                <div className="text-sky-400 font-bold">await window.syCreateBackup();</div>
               </div>
             </div>
           </div>
@@ -3405,6 +3897,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </motion.div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={deleteModalConfig.isOpen}
+        title={deleteModalConfig.title}
+        targetName={deleteModalConfig.targetName}
+        description={deleteModalConfig.description}
+        warningNote={deleteModalConfig.warningNote}
+        confirmLabel={deleteModalConfig.confirmLabel}
+        onConfirm={deleteModalConfig.onConfirm}
+        onClose={() => setDeleteModalConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

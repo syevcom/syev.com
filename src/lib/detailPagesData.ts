@@ -18,11 +18,44 @@ export interface ProductDetailItem {
   certifications?: string[];
   warrantyInfo?: string;
   updatedAt?: string;
+  deleted?: boolean;
 }
 
-// 1. High-fidelity built-in default detail pages for all categories (Home, Apartment, Commercial)
-// These ensure that even on fresh mobile browsers or without local IndexedDB, high quality official specifications and graphics are immediately visible.
+// 1. Initial default detail pages for first-time onboarding
 export const DEFAULT_PRODUCT_DETAILS: Record<string, ProductDetailItem> = {
+  // === HOME 5kW (Slim Economy) ===
+  'product-sy-ac05': {
+    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
+    pdfName: 'SY-AC05 5kW 슬림 스마트 홈 충전기 상세 사양서',
+    pdfUrls: [
+      'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200'
+    ],
+    pdfNames: ['SY-AC05 5kW 기본요금 절약형 상세 스펙'],
+    specs: {
+      '정격 전압/전류': '단상 AC 220V / 23A (60Hz)',
+      '최대 충전 용량': '5kW (한전 승압 불필요 모델)',
+      '커넥터 규격': '완속 5핀 (Type 1 J1772)',
+      '방수/방진 등급': 'IP55 방우형 디자인',
+      '특장점': '한전 기본요금 월 1만원 영구 절감 효과'
+    }
+  },
+  'product-res-5kw-spil': {
+    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '스필 5kW 슬림형 상세페이지'
+  },
+  'product-res-5kw-coolcharge': {
+    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '쿨차지 5kW 슬림형 상세페이지'
+  },
+  'product-res-5kw-electree': {
+    pdfUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '일렉트리 5kW 개인용 충전기 상세페이지'
+  },
+  'product-res-5kw-chargego': {
+    pdfUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '차지고 5kW 개인용 충전기 상세페이지'
+  },
+
   // === HOME 7kW (Standard Bestseller) ===
   'product-sy-ac07': {
     pdfUrl: 'https://images.unsplash.com/photo-1594535182308-8ffef9412388?auto=format&fit=crop&q=80&w=1200',
@@ -58,30 +91,17 @@ export const DEFAULT_PRODUCT_DETAILS: Record<string, ProductDetailItem> = {
     ],
     pdfNames: ['스필 7kW 홈충전기 상세 스펙']
   },
-
-  // === HOME 5kW (Slim Economy) ===
-  'product-sy-ac05': {
-    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
-    pdfName: 'SY-AC05 5kW 슬림 스마트 홈 충전기 상세 사양서',
-    pdfUrls: [
-      'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200'
-    ],
-    pdfNames: ['SY-AC05 5kW 기본요금 절약형 상세 스펙'],
-    specs: {
-      '정격 전압/전류': '단상 AC 220V / 23A (60Hz)',
-      '최대 충전 용량': '5kW (한전 승압 불필요 모델)',
-      '커넥터 규격': '완속 5핀 (Type 1 J1772)',
-      '방수/방진 등급': 'IP55 방우형 디자인',
-      '특장점': '한전 기본요금 월 1만원 영구 절감 효과'
-    }
+  'product-res-7kw-chargego': {
+    pdfUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '차지고 7kW 가정용 충전기 상세페이지'
   },
-  'product-res-5kw-spil': {
-    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
-    pdfName: '스필 5kW 슬림형 상세페이지'
+  'product-res-7kw-electree': {
+    pdfUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '일렉트리 7kW 가정용 충전기 상세페이지'
   },
-  'product-res-5kw-coolcharge': {
-    pdfUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&q=80&w=1200',
-    pdfName: '쿨차지 5kW 슬림형 상세페이지'
+  'product-res-7kw-coolcharge': {
+    pdfUrl: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '쿨차지 7kW 개인용 충전기 상세페이지'
   },
 
   // === HOME 11kW (3-Phase High-Power) ===
@@ -102,6 +122,40 @@ export const DEFAULT_PRODUCT_DETAILS: Record<string, ProductDetailItem> = {
   'product-res-11kw-spil': {
     pdfUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
     pdfName: '스필 11kW 고속형 상세페이지'
+  },
+  'product-res-11kw-coolcharge': {
+    pdfUrl: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '쿨차지 11kW 개인용 충전기 상세페이지'
+  },
+  'product-res-11kw-electree': {
+    pdfUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '일렉트리 11kW 3상 충전기 상세페이지'
+  },
+
+  // === COMMERCIAL / PARKING BIZ ===
+  'product-park-7kw-plc-biz': {
+    pdfUrl: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '스마트제어 PLC 7kW BIZ 공용 충전기 사양서 및 수익형 모델 브로셔',
+    pdfUrls: [
+      'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=1200'
+    ],
+    pdfNames: ['PLC 7kW BIZ 공용 충전기 상세 사양서']
+  },
+  'product-park-11kw-stormshield': {
+    pdfUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '11kW BIZ 공용 쿨차지 스톰쉴드 상세페이지',
+    pdfUrls: [
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'
+    ],
+    pdfNames: ['11kW BIZ 공용 스톰쉴드 사양서']
+  },
+  'product-park-35kw-stormshield': {
+    pdfUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '35kW BIZ 공용 쿨차지 스톰쉴드 중급속 사양서',
+    pdfUrls: [
+      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200'
+    ],
+    pdfNames: ['35kW BIZ 중급속 스톰쉴드 브로셔']
   },
 
   // === COMMERCIAL / PARKING 50kW (Rapid) ===
@@ -150,11 +204,19 @@ export const DEFAULT_PRODUCT_DETAILS: Record<string, ProductDetailItem> = {
   }
 };
 
-// 2. High-fidelity built-in brand catalogs for Apartment category
-export const DEFAULT_BRAND_CATALOGS: Record<string, { pdfUrl?: string; pdfName?: string; description?: string }> = {
+// 2. Initial brand catalogs for Apartment category
+export const DEFAULT_BRAND_CATALOGS: Record<string, { pdfUrl?: string; pdfName?: string; description?: string; deleted?: boolean }> = {
   'sk일렉링크': {
     pdfUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1200',
     pdfName: 'SK일렉링크 아파트 공식 브로셔 및 무상 설치 제안서'
+  },
+  '플러그링크': {
+    pdfUrl: 'https://images.unsplash.com/photo-1594535182308-8ffef9412388?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '플러그링크 스마트 로드밸런싱 아파트 공식 카탈로그'
+  },
+  '이엘일렉트릭': {
+    pdfUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=1200',
+    pdfName: '이엘일렉트릭 화재안심 완속 충전기 공식 브로셔'
   },
   '나이스차져': {
     pdfUrl: 'https://images.unsplash.com/photo-1558441719-ff34b0524a24?auto=format&fit=crop&q=80&w=1200',
@@ -179,29 +241,77 @@ export const DEFAULT_BRAND_CATALOGS: Record<string, { pdfUrl?: string; pdfName?:
 };
 
 /**
- * Loads and merges all product detail records across Firestore, localStorage, IndexedDB, and Defaults.
+ * Helper to get set of deleted detail keys from persistent storage
+ */
+function getDeletedDetailKeys(): Set<string> {
+  const set = new Set<string>();
+  try {
+    const raw = localStorage.getItem('sy_cms_deleted_product_details');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        arr.forEach(k => set.add(k));
+      }
+    }
+  } catch (e) {}
+  return set;
+}
+
+function getDeletedBrandKeys(): Set<string> {
+  const set = new Set<string>();
+  try {
+    const raw = localStorage.getItem('sy_cms_deleted_brand_catalogs');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        arr.forEach(k => set.add(k));
+      }
+    }
+  } catch (e) {}
+  return set;
+}
+
+/**
+ * Loads and merges all product detail records across Firestore, localStorage, IndexedDB, and Defaults,
+ * STRICTLY respecting user deletions so deleted items are NEVER resurrected.
  */
 export async function loadUnifiedProductDetails(): Promise<Record<string, ProductDetailItem>> {
-  const merged: Record<string, ProductDetailItem> = { ...DEFAULT_PRODUCT_DETAILS };
+  const deletedKeys = getDeletedDetailKeys();
+  const merged: Record<string, ProductDetailItem> = {};
 
-  // 1. Read from localStorage (synced with Firestore)
+  // 1. Seed defaults ONLY for keys that have NOT been deleted by the user
+  Object.keys(DEFAULT_PRODUCT_DETAILS).forEach((k) => {
+    if (!deletedKeys.has(k)) {
+      merged[k] = { ...DEFAULT_PRODUCT_DETAILS[k] };
+    }
+  });
+
+  // 2. Read from localStorage (synced with Firestore)
   try {
     const localStr = localStorage.getItem('sy_cms_product_details');
     if (localStr) {
       const parsed = JSON.parse(localStr);
       Object.keys(parsed).forEach((k) => {
-        merged[k] = { ...merged[k], ...parsed[k] };
+        if (parsed[k]?.deleted || deletedKeys.has(k)) {
+          delete merged[k];
+        } else {
+          merged[k] = { ...merged[k], ...parsed[k] };
+        }
       });
     }
   } catch (err) {
     console.warn('Error parsing sy_cms_product_details from localStorage:', err);
   }
 
-  // 2. Read from local IndexedDB for large cached assets
+  // 3. Read from local IndexedDB for large cached assets
   try {
     const idbData = await loadAllBrandPdfs();
     Object.keys(idbData).forEach((k) => {
       if (k.startsWith('product-')) {
+        if (deletedKeys.has(k)) {
+          delete merged[k];
+          return;
+        }
         const item = idbData[k];
         const existing = merged[k] || {};
         merged[k] = {
@@ -217,16 +327,30 @@ export async function loadUnifiedProductDetails(): Promise<Record<string, Produc
     console.warn('Error reading product details from IndexedDB:', err);
   }
 
+  // Final cleanup: ensure no deleted keys slip through
+  deletedKeys.forEach(k => {
+    delete merged[k];
+  });
+
   return merged;
 }
 
 /**
- * Saves a product detail item to both localStorage (cloud synced via firebase.ts) and IndexedDB (fast local binary cache).
+ * Saves a product detail item to all storage layers and clears any prior deletion flag.
  */
 export async function saveUnifiedProductDetail(productId: string, detailData: ProductDetailItem): Promise<void> {
   const key = productId.startsWith('product-') ? productId : `product-${productId}`;
 
-  // 1. Save to IndexedDB
+  // 1. Clear deletion flag
+  try {
+    const deletedKeys = getDeletedDetailKeys();
+    if (deletedKeys.has(key)) {
+      deletedKeys.delete(key);
+      localStorage.setItem('sy_cms_deleted_product_details', JSON.stringify(Array.from(deletedKeys)));
+    }
+  } catch (e) {}
+
+  // 2. Save to IndexedDB
   try {
     await saveBrandPdf(key, {
       pdfUrl: detailData.pdfUrl,
@@ -238,7 +362,7 @@ export async function saveUnifiedProductDetail(productId: string, detailData: Pr
     console.error('IndexedDB save failed:', err);
   }
 
-  // 2. Save to localStorage (which triggers setupFirebaseStorageSync -> Firestore sync)
+  // 3. Save to localStorage (triggers Firestore sync via firebase.ts)
   try {
     let currentMap: Record<string, ProductDetailItem> = {};
     const localStr = localStorage.getItem('sy_cms_product_details');
@@ -251,6 +375,7 @@ export async function saveUnifiedProductDetail(productId: string, detailData: Pr
     currentMap[key] = {
       ...currentMap[key],
       ...detailData,
+      deleted: false,
       updatedAt: new Date().toISOString()
     };
 
@@ -259,55 +384,102 @@ export async function saveUnifiedProductDetail(productId: string, detailData: Pr
     console.error('Failed to save product detail to localStorage:', err);
   }
 
-  // 3. Dispatch global refresh events for desktop and mobile listeners
+  // 4. Dispatch global refresh events
   window.dispatchEvent(new Event('sy_cms_product_details_update'));
   window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
 }
 
 /**
- * Deletes a product detail item from all layers.
+ * Permanently deletes a product detail item from all layers (IndexedDB, localStorage, Firestore)
+ * and records it in sy_cms_deleted_product_details to ensure built-in defaults NEVER return.
  */
 export async function deleteUnifiedProductDetail(productId: string): Promise<void> {
   const key = productId.startsWith('product-') ? productId : `product-${productId}`;
 
+  // 1. Record in persistent deleted list
+  try {
+    const deletedKeys = getDeletedDetailKeys();
+    deletedKeys.add(key);
+    // Also record alias if applicable
+    if (productId.startsWith('product-')) {
+      deletedKeys.add(productId.replace('product-', ''));
+    } else {
+      deletedKeys.add(productId);
+    }
+    localStorage.setItem('sy_cms_deleted_product_details', JSON.stringify(Array.from(deletedKeys)));
+  } catch (e) {}
+
+  // 2. Delete from IndexedDB
   try {
     await deleteBrandPdf(key);
   } catch (e) {}
 
+  // 3. Mark as deleted/empty in localStorage sy_cms_product_details
   try {
     const localStr = localStorage.getItem('sy_cms_product_details');
+    let parsed: Record<string, ProductDetailItem> = {};
     if (localStr) {
-      const parsed = JSON.parse(localStr);
-      delete parsed[key];
-      localStorage.setItem('sy_cms_product_details', JSON.stringify(parsed));
+      try {
+        parsed = JSON.parse(localStr);
+      } catch (e) {}
     }
+    parsed[key] = {
+      deleted: true,
+      pdfUrls: [],
+      pdfNames: [],
+      pdfUrl: '',
+      pdfName: '',
+      specs: {},
+      features: [],
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem('sy_cms_product_details', JSON.stringify(parsed));
   } catch (e) {}
 
+  // 4. Dispatch update events to all active views
   window.dispatchEvent(new Event('sy_cms_product_details_update'));
+  window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
 }
 
 /**
- * Loads and merges all brand catalogs across Firestore, localStorage, IndexedDB, and Defaults.
+ * Loads and merges all brand catalogs across Firestore, localStorage, IndexedDB, and Defaults,
+ * strictly honoring user deletions.
  */
-export async function loadUnifiedBrandCatalogs(): Promise<Record<string, { pdfUrl?: string; pdfName?: string }>> {
-  const merged: Record<string, { pdfUrl?: string; pdfName?: string }> = { ...DEFAULT_BRAND_CATALOGS };
+export async function loadUnifiedBrandCatalogs(): Promise<Record<string, { pdfUrl?: string; pdfName?: string; deleted?: boolean }>> {
+  const deletedKeys = getDeletedBrandKeys();
+  const merged: Record<string, { pdfUrl?: string; pdfName?: string; deleted?: boolean }> = {};
 
-  // 1. Read from localStorage
+  // 1. Defaults (only non-deleted)
+  Object.keys(DEFAULT_BRAND_CATALOGS).forEach(k => {
+    if (!deletedKeys.has(k)) {
+      merged[k] = { ...DEFAULT_BRAND_CATALOGS[k] };
+    }
+  });
+
+  // 2. Read from localStorage
   try {
     const localStr = localStorage.getItem('sy_cms_brand_catalogs');
     if (localStr) {
       const parsed = JSON.parse(localStr);
       Object.keys(parsed).forEach((k) => {
-        merged[k] = { ...merged[k], ...parsed[k] };
+        if (parsed[k]?.deleted || deletedKeys.has(k)) {
+          delete merged[k];
+        } else {
+          merged[k] = { ...merged[k], ...parsed[k] };
+        }
       });
     }
   } catch (e) {}
 
-  // 2. Read from IndexedDB
+  // 3. Read from IndexedDB
   try {
     const idbData = await loadAllBrandPdfs();
     Object.keys(idbData).forEach((k) => {
       if (!k.startsWith('product-')) {
+        if (deletedKeys.has(k)) {
+          delete merged[k];
+          return;
+        }
         const item = idbData[k];
         merged[k] = {
           ...merged[k],
@@ -318,15 +490,27 @@ export async function loadUnifiedBrandCatalogs(): Promise<Record<string, { pdfUr
     });
   } catch (e) {}
 
+  deletedKeys.forEach(k => {
+    delete merged[k];
+  });
+
   return merged;
 }
 
 /**
- * Saves a brand catalog item.
+ * Saves a brand catalog item and clears any deletion flag.
  */
 export async function saveUnifiedBrandCatalog(brandKey: string, pdfUrl: string, pdfName: string): Promise<void> {
   try {
-    await saveBrandPdf(brandKey, pdfUrl, pdfName);
+    const deletedKeys = getDeletedBrandKeys();
+    if (deletedKeys.has(brandKey)) {
+      deletedKeys.delete(brandKey);
+      localStorage.setItem('sy_cms_deleted_brand_catalogs', JSON.stringify(Array.from(deletedKeys)));
+    }
+  } catch (e) {}
+
+  try {
+    await saveBrandPdf(brandKey, { pdfUrl, pdfName });
   } catch (e) {}
 
   try {
@@ -337,92 +521,93 @@ export async function saveUnifiedBrandCatalog(brandKey: string, pdfUrl: string, 
         currentMap = JSON.parse(localStr);
       } catch (e) {}
     }
-    currentMap[brandKey] = { pdfUrl, pdfName, updatedAt: new Date().toISOString() };
+    currentMap[brandKey] = { pdfUrl, pdfName, deleted: false, updatedAt: new Date().toISOString() };
     localStorage.setItem('sy_cms_brand_catalogs', JSON.stringify(currentMap));
   } catch (e) {}
 
   window.dispatchEvent(new Event('sy_cms_brand_catalogs_update'));
   window.dispatchEvent(new Event('sy_cms_product_details_update'));
+  window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
+}
+
+/**
+ * Permanently deletes a brand catalog.
+ */
+export async function deleteUnifiedBrandCatalog(brandKey: string): Promise<void> {
+  try {
+    const deletedKeys = getDeletedBrandKeys();
+    deletedKeys.add(brandKey);
+    localStorage.setItem('sy_cms_deleted_brand_catalogs', JSON.stringify(Array.from(deletedKeys)));
+  } catch (e) {}
+
+  try {
+    await deleteBrandPdf(brandKey);
+  } catch (e) {}
+
+  try {
+    let currentMap: Record<string, any> = {};
+    const localStr = localStorage.getItem('sy_cms_brand_catalogs');
+    if (localStr) {
+      try {
+        currentMap = JSON.parse(localStr);
+      } catch (e) {}
+    }
+    currentMap[brandKey] = { deleted: true, pdfUrl: '', pdfName: '', updatedAt: new Date().toISOString() };
+    localStorage.setItem('sy_cms_brand_catalogs', JSON.stringify(currentMap));
+  } catch (e) {}
+
+  window.dispatchEvent(new Event('sy_cms_brand_catalogs_update'));
+  window.dispatchEvent(new Event('sy_cms_product_details_update'));
+  window.dispatchEvent(new Event('sy_cms_data_sync_completed'));
 }
 
 /**
  * Intelligent resolver for any product detail:
- * Checks exact key, normalized IDs, name matching, and category fallbacks
- * ensuring NO product on mobile or desktop ever renders as blank or missing!
+ * Checks exact key and custom uploaded data FIRST.
+ * NEVER forcefully injects default placeholders if the item has been deleted or has no custom details!
  */
 export function resolveDetailData(
   product: { id?: string; name?: string; power?: string; type?: string },
   detailsMap: Record<string, ProductDetailItem>
 ): ProductDetailItem {
-  if (!product) return {};
+  if (!product || !detailsMap) return {};
 
   const id = product.id || '';
   const name = product.name || '';
+  const deletedKeys = getDeletedDetailKeys();
 
-  // 1. Direct ID match
-  if (id && detailsMap[`product-${id}`]) {
-    return detailsMap[`product-${id}`];
-  }
-  if (id && detailsMap[id]) {
-    return detailsMap[id];
+  if (deletedKeys.has(`product-${id}`) || deletedKeys.has(id)) {
+    return {};
   }
 
-  // 2. Model aliases & normalized ID matching
-  if (id === 'sy-ac07' || id === 'res-7kw-spil' || id === 'res-7kw-electree' || id === 'res-7kw-coolcharge' || id === 'res-7kw-chargego') {
-    const found = detailsMap['product-sy-ac07'] || detailsMap['product-res-7kw-spil'];
-    if (found) return found;
-  }
-  if (id === 'sy-ac05' || id === 'res-5kw-spil' || id === 'res-5kw-coolcharge' || id === 'res-5kw-electree') {
-    const found = detailsMap['product-sy-ac05'] || detailsMap['product-res-5kw-spil'];
-    if (found) return found;
-  }
-  if (id === 'sy-ac11' || id === 'sy-ac11-bi' || id === 'res-11kw-spil' || id === 'res-11kw-coolcharge') {
-    const found = detailsMap['product-sy-ac11-bi'] || detailsMap['product-res-11kw-spil'];
-    if (found) return found;
-  }
-  if (id === 'park-50kw-1ch-coolcharge' || id === 'sy-dc50' || id === 'park-50kw-2ch') {
-    const found = detailsMap['product-park-50kw-1ch-coolcharge'] || detailsMap['product-sy-dc50'];
-    if (found) return found;
-  }
-  if (id === 'park-100kw-2ch' || id === 'sy-fc100') {
-    const found = detailsMap['product-park-100kw-2ch'];
-    if (found) return found;
-  }
-  if (id === 'park-200kw-2ch' || id === 'sy-fc200') {
-    const found = detailsMap['product-park-200kw-2ch'];
-    if (found) return found;
+  // 1. Direct ID match in loaded detailsMap
+  const directKey = `product-${id}`;
+  if (detailsMap[directKey] && !detailsMap[directKey].deleted) {
+    const item = detailsMap[directKey];
+    const hasFiles = (item.pdfUrls && item.pdfUrls.length > 0) || !!item.pdfUrl;
+    if (hasFiles || (item.specs && Object.keys(item.specs).length > 0)) {
+      return item;
+    }
   }
 
-  // 3. Name matching
+  if (detailsMap[id] && !detailsMap[id].deleted) {
+    const item = detailsMap[id];
+    const hasFiles = (item.pdfUrls && item.pdfUrls.length > 0) || !!item.pdfUrl;
+    if (hasFiles || (item.specs && Object.keys(item.specs).length > 0)) {
+      return item;
+    }
+  }
+
+  // 2. Direct Name match
   if (name) {
     const nameKey = `product-${name.trim()}`;
-    if (detailsMap[nameKey]) return detailsMap[nameKey];
-
-    // Power keywords in name
-    if (name.includes('5kW')) {
-      return detailsMap['product-sy-ac05'] || DEFAULT_PRODUCT_DETAILS['product-sy-ac05'];
-    }
-    if (name.includes('7kW')) {
-      return detailsMap['product-sy-ac07'] || DEFAULT_PRODUCT_DETAILS['product-sy-ac07'];
-    }
-    if (name.includes('11kW')) {
-      return detailsMap['product-sy-ac11-bi'] || DEFAULT_PRODUCT_DETAILS['product-sy-ac11-bi'];
-    }
-    if (name.includes('50kW')) {
-      return detailsMap['product-park-50kw-1ch-coolcharge'] || DEFAULT_PRODUCT_DETAILS['product-park-50kw-1ch-coolcharge'];
-    }
-    if (name.includes('100kW')) {
-      return detailsMap['product-park-100kw-2ch'] || DEFAULT_PRODUCT_DETAILS['product-park-100kw-2ch'];
-    }
-    if (name.includes('200kW')) {
-      return detailsMap['product-park-200kw-2ch'] || DEFAULT_PRODUCT_DETAILS['product-park-200kw-2ch'];
+    if (!deletedKeys.has(nameKey) && detailsMap[nameKey] && !detailsMap[nameKey].deleted) {
+      return detailsMap[nameKey];
     }
   }
 
-  // 4. Fallback by Category
-  const isResidential = id.startsWith('res-') || id.startsWith('sy-ac') || name.includes('개인') || name.includes('홈') || name.includes('가정');
-  if (isResidential) {
-    return DEFAULT_PRODUCT_DETAILS['product-sy-ac07'];
-  }
-  return DEFAULT_PRODUCT_DETAILS['product-park-50kw-1ch-coolcharge'];
+  // If no explicit detail page was found or if it has been deleted, return empty object!
+  // Do NOT forcefully return unrequested default placeholder images.
+  return {};
 }
+
