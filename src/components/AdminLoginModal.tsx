@@ -28,6 +28,22 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
   const [confirmPass, setConfirmPass] = useState('');
   const [changeMsg, setChangeMsg] = useState('');
 
+  // Reset fields on modal open
+  React.useEffect(() => {
+    if (isOpen) {
+      setAdminId('');
+      setPassword('');
+      setError('');
+      setSuccess('');
+      setIsChangingPassword(false);
+      setCurrentPass('');
+      setNewAdminId('');
+      setNewPass('');
+      setConfirmPass('');
+      setChangeMsg('');
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -20,9 +20,23 @@ export const CMS_COLLECTION = 'sy_cms_data';
 export const BACKUP_COLLECTION = 'sy_cms_backups';
 export const LATEST_BACKUP_DOC_ID = 'latest_snapshot';
 
+// Excluded user session, auth credentials and private state keys (MUST NOT be synced to Firestore or shared)
+export const NON_SYNCABLE_KEYS = new Set([
+  'sy_logged_user',
+  'sy_user',
+  'sy_saved_login_id',
+  'sy_saved_login_password',
+  'sy_remember_auth',
+  'sy_admin_password',
+  'sy_registered_users',
+  'sy_admin_notifications'
+]);
+
 // Helper to check if a key should be synced & backed up
 export function shouldSyncKey(key: string): boolean {
-  return key.startsWith('sy_');
+  if (!key.startsWith('sy_')) return false;
+  if (NON_SYNCABLE_KEYS.has(key)) return false;
+  return true;
 }
 
 // Keep a flag to prevent infinite loops during write syncing or restoring
@@ -392,11 +406,21 @@ export async function loadFromFirestore(): Promise<void> {
     querySnapshot.forEach((document) => {
       const key = document.id;
       const data = document.data();
+
+      // If a non-syncable private session / credential key exists in Firestore, purge it immediately
+      if (NON_SYNCABLE_KEYS.has(key)) {
+        deleteDoc(doc(db, CMS_COLLECTION, key)).catch(() => {});
+        return;
+      }
+
       if (shouldSyncKey(key) && data && typeof data.value === 'string') {
         localStorage.setItem(key, data.value);
         firebaseKeys.add(key);
       }
     });
+
+    // Clean up any insecure locally saved passwords
+    localStorage.removeItem('sy_saved_login_password');
 
     // Check if Firestore was empty or missing keys, but localStorage had them -> seed Firestore
     for (let i = 0; i < localStorage.length; i++) {

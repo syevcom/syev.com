@@ -95,10 +95,12 @@ export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>('home');
   const [user, setUser] = useState<User | null>(() => {
     try {
+      // Ensure insecure saved passwords are purged
+      localStorage.removeItem('sy_saved_login_password');
       const savedUserStr = localStorage.getItem('sy_logged_user') || localStorage.getItem('sy_user');
       if (savedUserStr) {
         const parsed = JSON.parse(savedUserStr);
-        if (parsed.email === 'sy.car.com@gmail.com' || parsed.isAdmin) {
+        if (parsed.email === 'sy.car.com@gmail.com' || parsed.role === 'admin') {
           parsed.isAdmin = true;
           parsed.role = 'admin';
         }

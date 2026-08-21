@@ -87,25 +87,67 @@ function ImageCatalogViewer({ imageUrl, fileName, brandName, isAdmin }: { imageU
 
   const displayName = isAdmin ? fileName : '공식 사양서 및 카탈로그';
 
-  // 1-A. Non-Admin View: Pure clean image output without control bars or dark borders
-  // On mobile: 100% full width edge-to-edge without fixed scaling (홈페이지는 기존 배율/고정 설정 유지)
+  // 1-A. Non-Admin View: Pure clean image output with tap-to-expand lightbox for mobile/desktop
   if (!isAdmin) {
     return (
-      <div className="w-full flex justify-center py-0 sm:py-1">
-        <div 
-          className="w-full rounded-none sm:rounded-2xl bg-white overflow-hidden"
-          style={!isMobile && isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
-        >
-          <img
-            src={getOptimizedImageUrl(imageUrl, { width: 1400, format: 'webp' })}
-            alt={`${brandName} 카탈로그`}
-            className="w-full h-auto object-contain block"
-            referrerPolicy="no-referrer"
-            loading="lazy"
-            decoding="async"
-          />
+      <>
+        <div className="w-full flex justify-center py-0 sm:py-1">
+          <div 
+            className="w-full rounded-none sm:rounded-2xl bg-white overflow-hidden relative group cursor-zoom-in"
+            style={!isMobile && isLocked ? { width: `${zoom}%`, maxWidth: '100%' } : { width: '100%' }}
+            onClick={() => setIsFullscreen(true)}
+          >
+            <img
+              src={getOptimizedImageUrl(imageUrl, { width: 1400, format: 'webp' })}
+              alt={`${brandName} 카탈로그`}
+              className="w-full h-auto object-contain block select-none"
+              referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
+            />
+            
+            {/* Subtle mobile tap-to-expand indicator */}
+            <div className="absolute bottom-2 right-2 bg-slate-950/70 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <Maximize2 className="w-3 h-3 text-emerald-400" />
+              <span>터치하여 크게 보기</span>
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Fullscreen Lightbox Modal for Non-Admin */}
+        {isFullscreen && (
+          <div 
+            className="fixed inset-0 z-[9999] bg-black/95 flex flex-col backdrop-blur-sm animate-fade-in"
+            onClick={() => setIsFullscreen(false)}
+          >
+            <div className="p-3 sm:p-4 bg-slate-950/90 border-b border-slate-800/60 flex justify-between items-center px-4 sm:px-6">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs sm:text-sm font-black text-white truncate max-w-[200px] sm:max-w-md">
+                  {brandName} 공식 상세페이지 카탈로그
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-black cursor-pointer border border-slate-700 flex items-center gap-1"
+              >
+                <span>✕ 닫기</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto flex items-center justify-center p-2 sm:p-6 cursor-zoom-out">
+              <img
+                src={getOptimizedImageUrl(imageUrl, { width: 1800, format: 'webp' })}
+                alt={`${brandName} Full Catalog`}
+                className="max-w-full h-auto max-h-full object-contain rounded-lg shadow-2xl"
+                referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 

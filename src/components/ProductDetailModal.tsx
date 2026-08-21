@@ -414,7 +414,7 @@ export default function ProductDetailModal({
           </div>
 
           {/* Top Title & Subtitle matching Screenshot 1 */}
-          <div className="space-y-2 border-b border-slate-100 pb-4 pr-8 sm:pr-10">
+          <div className="space-y-3 border-b border-slate-100 pb-4 pr-8 sm:pr-10">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug break-words whitespace-normal">
               {product.name}
             </h2>
@@ -423,7 +423,7 @@ export default function ProductDetailModal({
               <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
                 <button 
                   onClick={() => alert('상품 링크가 복사되었습니다!')} 
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-xs"
+                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer text-xs font-bold"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>공유</span>
@@ -436,6 +436,58 @@ export default function ProductDetailModal({
                   <span>찜</span>
                 </button>
               </div>
+            </div>
+
+            {/* Mobile & Desktop Quick Jump Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1 border-t border-slate-100 pt-2.5 [&::-webkit-scrollbar]:hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('detail-catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>상세 카탈로그</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const specsEl = document.getElementById('detail-specs-section');
+                  if (specsEl) {
+                    specsEl.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    document.getElementById('detail-catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0"
+              >
+                <Info className="w-3.5 h-3.5" />
+                <span>제원 사양표</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('detail-option-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0"
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>옵션/구매</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  document.getElementById('detail-delivery-section')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>4년 A/S & 시공</span>
+              </button>
             </div>
           </div>
 
@@ -685,7 +737,7 @@ export default function ProductDetailModal({
           </div>
 
           {/* Options Selection Section matching Screenshot 2 */}
-          <div className="pt-4 border-t border-slate-200 space-y-4">
+          <div id="detail-option-section" className="pt-4 border-t border-slate-200 space-y-4 scroll-mt-6">
             
             {/* 1. 상품옵션 (Primary Option) */}
             {primaryOptionGroup && (
@@ -939,7 +991,7 @@ export default function ProductDetailModal({
           </div>
 
           {/* Detailed Product Specifications & High-Resolution Catalog Brochure */}
-          <div className="pt-8 border-t-2 border-slate-900/10 space-y-6">
+          <div id="detail-catalog-section" className="pt-8 border-t-2 border-slate-900/10 space-y-6">
             
             {/* Section Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-slate-900 pb-3">
@@ -956,14 +1008,14 @@ export default function ProductDetailModal({
 
             {/* Detailed Spec Table */}
             {resolvedDetail.specs && Object.keys(resolvedDetail.specs).length > 0 && (
-              <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200 space-y-3">
+              <div id="detail-specs-section" className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200 space-y-3">
                 <h4 className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
                   <Info className="w-4 h-4 text-blue-600" />
                   <span>공식 상세 제원표 (Specification)</span>
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
                   {Object.entries(resolvedDetail.specs).map(([specKey, specVal]) => (
-                    <div key={specKey} className="bg-white p-3 rounded-xl border border-slate-200/80 flex flex-col justify-center">
+                    <div key={specKey} className="bg-white p-3 rounded-xl border border-slate-200/80 flex flex-col justify-center shadow-2xs">
                       <span className="text-[11px] font-bold text-slate-400">{specKey}</span>
                       <span className="font-extrabold text-slate-800 break-words whitespace-normal mt-0.5 leading-snug">{specVal}</span>
                     </div>
@@ -1005,8 +1057,122 @@ export default function ProductDetailModal({
               );
             })()}
 
+            {/* Delivery, Warranty & Installation Guide Section */}
+            <div id="detail-delivery-section" className="pt-6 space-y-4">
+              <div className="border-t border-slate-200 pt-6">
+                <h4 className="text-sm sm:text-base font-black text-slate-900 mb-3 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                  <span>에스와이 4년 무상 A/S 보증 및 전문 설치 안내</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div className="font-black text-slate-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span>4년 무상 품질보증 A/S</span>
+                    </div>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      에스와이에서 구매 및 시공된 모든 충전기는 4년간 무상 품질보증을 지원하며, 24시간 긴급 A/S 접수 및 직영 기술팀의 신속한 현장 점검 서비스를 제공합니다.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div className="font-black text-slate-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                      <span>한전 불입금 & 인입 공사 안내</span>
+                    </div>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      전기차 충전기 신규 설치 시 한국전력공사 계량기 신설(한전불입금) 및 전기 안전검사 대행 업무를 원스톱으로 지원해 드립니다.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div className="font-black text-slate-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                      <span>전국 직영 전문 시공</span>
+                    </div>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      국가공인 전기공사업 면허 보유 직영 시공팀이 방문하여 누전차단기 규격 검토, 케이블 포설, 접지공사까지 안전 기준을 완벽하게 준수합니다.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div className="font-black text-slate-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      <span>교환 및 반품 규정</span>
+                    </div>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      제품 수령 후 7일 이내 미개봉 상품에 한하여 교환 및 반품이 가능하며, 이미 시공이 완료되었거나 고객 과실로 훼손된 제품은 반품이 제한될 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
+        </div>
+
+        {/* Mobile Sticky Bottom Action Bar */}
+        <div className="block sm:hidden sticky bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
+          <div className="flex items-center justify-between gap-2.5">
+            {/* Price & Like */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsLiked(!isLiked)}
+                className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
+                  isLiked ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-600'
+                }`}
+                title="찜하기"
+              >
+                <Heart className={`w-5 h-5 ${isLiked ? 'fill-rose-600' : ''}`} />
+              </button>
+
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400">총 상품금액</span>
+                {isCommercial ? (
+                  <span className="text-base font-black text-rose-600 leading-tight">견적문의</span>
+                ) : (
+                  <span className="text-base font-black text-slate-950 leading-tight">
+                    ₩{totalPrice.toLocaleString()}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1.5 flex-1 justify-end">
+              {isCommercial ? (
+                <button
+                  type="button"
+                  onClick={handleRequestQuote}
+                  className="w-full py-3 px-4 bg-slate-900 active:bg-slate-800 text-white rounded-xl font-black text-xs transition-transform active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>📋 견적 신청</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="py-3 px-3.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl font-black text-xs transition-transform active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>담기</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    className="flex-1 py-3 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 active:from-blue-700 active:to-indigo-700 text-white rounded-xl font-black text-xs transition-transform active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>⚡ 바로구매</span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
       </div>

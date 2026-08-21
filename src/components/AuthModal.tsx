@@ -29,20 +29,22 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Auto-fill remembered credentials on modal open
+  // Clear any insecure stored passwords and initialize empty fields
   useEffect(() => {
+    localStorage.removeItem('sy_saved_login_password');
     if (isOpen) {
+      setPassword('');
+      setError('');
+      setSuccess('');
       const savedId = localStorage.getItem('sy_saved_login_id');
-      const savedPass = localStorage.getItem('sy_saved_login_password');
       if (savedId) {
         setEmail(savedId);
-      }
-      if (savedPass) {
-        setPassword(savedPass);
       }
       const savedRemember = localStorage.getItem('sy_remember_auth');
       if (savedRemember !== null) {
         setRememberMe(savedRemember === 'true');
+      } else {
+        setRememberMe(false);
       }
     }
   }, [isOpen]);
@@ -167,13 +169,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
 
       if (rememberMe) {
         localStorage.setItem('sy_saved_login_id', inputId);
-        localStorage.setItem('sy_saved_login_password', inputPass);
         localStorage.setItem('sy_remember_auth', 'true');
       } else {
         localStorage.removeItem('sy_saved_login_id');
-        localStorage.removeItem('sy_saved_login_password');
         localStorage.removeItem('sy_remember_auth');
       }
+      localStorage.removeItem('sy_saved_login_password');
 
       localStorage.setItem('sy_logged_user', JSON.stringify(adminUser));
       onLoginSuccess(adminUser);
@@ -207,13 +208,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
 
         if (rememberMe) {
           localStorage.setItem('sy_saved_login_id', inputId);
-          localStorage.setItem('sy_saved_login_password', inputPass);
           localStorage.setItem('sy_remember_auth', 'true');
         } else {
           localStorage.removeItem('sy_saved_login_id');
-          localStorage.removeItem('sy_saved_login_password');
           localStorage.removeItem('sy_remember_auth');
         }
+        localStorage.removeItem('sy_saved_login_password');
 
         localStorage.setItem('sy_logged_user', JSON.stringify(loggedUser));
         onLoginSuccess(loggedUser);
@@ -238,13 +238,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
 
       if (rememberMe) {
         localStorage.setItem('sy_saved_login_id', inputId);
-        localStorage.setItem('sy_saved_login_password', inputPass);
         localStorage.setItem('sy_remember_auth', 'true');
       } else {
         localStorage.removeItem('sy_saved_login_id');
-        localStorage.removeItem('sy_saved_login_password');
         localStorage.removeItem('sy_remember_auth');
       }
+      localStorage.removeItem('sy_saved_login_password');
 
       localStorage.setItem('sy_logged_user', JSON.stringify(loggedUser));
       onLoginSuccess(loggedUser);
@@ -272,9 +271,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, onOpenAdmin
       
       if (rememberMe) {
         localStorage.setItem('sy_saved_login_id', inputId);
-        localStorage.setItem('sy_saved_login_password', inputPass);
         localStorage.setItem('sy_remember_auth', 'true');
       }
+      localStorage.removeItem('sy_saved_login_password');
 
       localStorage.setItem('sy_logged_user', JSON.stringify(newUser));
       onLoginSuccess(newUser);
