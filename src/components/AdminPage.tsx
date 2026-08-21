@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem } from '../types';
+import { Product, Solution, Review, FAQ, Booking, ASRequest, ActivePage, ProductOptionGroup, ProductOptionItem, VisitorAnalyticsData } from '../types';
 import { DEFAULT_RESIDENTIAL_OPTION_GROUPS, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS, PRODUCTS } from '../data';
 import { HomePopupConfig, DEFAULT_HOME_POPUP_CONFIG } from './HomePopupModal';
+import { AdminVisitorAnalytics } from './AdminVisitorAnalytics';
+import { getVisitorAnalytics, fetchRealVisitorAnalyticsFromFirestore } from '../lib/visitorAnalytics';
 import { compressImage } from '../lib/imageCompressor';
 import { 
   Package, 
@@ -46,7 +48,8 @@ import {
   Clock,
   AlertTriangle,
   RotateCcw,
-  HardDrive
+  HardDrive,
+  BarChart3
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
@@ -468,7 +471,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onPreviewPopup,
   onNavigateHome
 }) => {
-  const [adminTab, setAdminTab] = useState<'products' | 'residential' | 'brands' | 'commercial' | 'inquiries' | 'settings' | 'popup' | 'backup'>('products');
+  const [adminTab, setAdminTab] = useState<'products' | 'residential' | 'brands' | 'commercial' | 'inquiries' | 'analytics' | 'settings' | 'popup' | 'backup'>('products');
+  const [visitorData, setVisitorData] = useState<VisitorAnalyticsData>(() => getVisitorAnalytics());
   
   // Cloud Backup & Restore States
   const [backupHistory, setBackupHistory] = useState<BackupMetadata[]>([]);
@@ -504,12 +508,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (adminTab === 'backup') {
       loadBackups();
     }
+    if (adminTab === 'analytics') {
+      setVisitorData(getVisitorAnalytics());
+      fetchRealVisitorAnalyticsFromFirestore().then(res => setVisitorData(res));
+    }
   }, [adminTab]);
 
   useEffect(() => {
     const handleSwitchTab = (e: any) => {
       if (e.detail && e.detail.tab) {
         setAdminTab(e.detail.tab);
+        if (e.detail.tab === 'analytics') {
+          setVisitorData(getVisitorAnalytics());
+          fetchRealVisitorAnalyticsFromFirestore().then(res => setVisitorData(res));
+        }
       }
     };
     window.addEventListener('sy_admin_switch_tab', handleSwitchTab);
@@ -1541,7 +1553,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         </AnimatePresence>
 
         {/* Dashboard Tab Bar */}
-        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-2">
           <button
             onClick={() => {
               setAdminTab('products');
@@ -1615,6 +1627,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           >
             <ClipboardList className="w-4 h-4 text-indigo-400 shrink-0" />
             <span className="truncate">📋 문의 ({bookings.length + asRequests.length})</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('analytics')}
+            className={`px-3 py-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              adminTab === 'analytics'
+                ? 'bg-indigo-900 text-white shadow-md ring-2 ring-indigo-400/50'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span className="truncate">📊 방문자 ({visitorData.todayUV}명)</span>
           </button>
 
           <button
@@ -3010,7 +3034,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </div>
         )}
 
-        {/* TAB 4: SITE SETTINGS & SNS QUICK CHANNELS */}
+        {/* TAB 4: VISITOR ANALYTICS & TRAFFIC */}
+        {adminTab === 'analytics' && (
+          <AdminVisitorAnalytics
+            data={visitorData}
+            onUpdateData={(newData) => setVisitorData(newData)}
+          />
+        )}
+
+        {/* TAB 5: SITE SETTINGS & SNS QUICK CHANNELS */}
         {adminTab === 'settings' && (
           <div className="space-y-6">
             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">

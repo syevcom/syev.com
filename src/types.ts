@@ -194,6 +194,41 @@ export interface AdminNotification {
   targetId?: string;
 }
 
+export interface DailyVisitorRecord {
+  date: string;
+  uniqueVisitors: number;
+  pageViews: number;
+  mobileVisitors: number;
+  desktopVisitors: number;
+  inquiryConversions: number;
+  hourlyDistribution: number[];
+}
+
+export interface VisitorLogEntry {
+  id: string;
+  timestamp: number;
+  date: string;
+  time: string;
+  page: string;
+  device: 'desktop' | 'mobile' | 'tablet';
+  browser: string;
+  ip: string;
+  referrer: string;
+}
+
+export interface VisitorAnalyticsData {
+  todayUV: number;
+  todayPV: number;
+  yesterdayUV: number;
+  yesterdayPV: number;
+  thisMonthUV: number;
+  totalAllTimeUV: number;
+  totalAllTimePV: number;
+  dailyRecords: DailyVisitorRecord[];
+  recentLogs: VisitorLogEntry[];
+  pagePopularity: { pageName: string; views: number; percentage: number }[];
+}
+
 export interface CartItem {
   id: string;
   productId: string;

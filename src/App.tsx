@@ -32,6 +32,7 @@ import { AdminNotificationCenter } from './components/AdminNotificationCenter';
 import { AdminLoginAlertToast } from './components/AdminLoginAlertToast';
 import { BRAND_METADATA, HOME_PRODUCTS_DATA, PARKING_PRODUCTS_DATA } from './components/SolutionsSection';
 import { setupFirebaseStorageSync, loadFromFirestore } from './lib/firebase';
+import { recordVisitorHit, initExternalAnalytics } from './lib/visitorAnalytics';
 
 import { PRODUCTS, SOLUTIONS, REVIEWS, FAQS, NOTICES, LOTTE_EVSIS_OPTION_GROUPS, ELECTREE_OPTION_GROUPS, CHARGEGO_OPTION_GROUPS, COOLCHARGE_OPTION_GROUPS, DEFAULT_RESIDENTIAL_OPTION_GROUPS, PUBLIC_CHARGER_OPTION_GROUPS } from './data';
 import { ActivePage, User, Booking, ASRequest, Product, Solution, Review, FAQ, HeaderConfig, CartItem, MobileDesignConfig, DEFAULT_MOBILE_DESIGN_CONFIG, AdminNotification } from './types';
@@ -1118,6 +1119,28 @@ export default function App() {
       } catch (e) { console.error(e); }
     }
   }, [isSyncing]);
+
+  // Initialize external analytics (GA4 & Naver) if configured
+  useEffect(() => {
+    initExternalAnalytics();
+  }, []);
+
+  // Track visitor visits in real-time
+  useEffect(() => {
+    const pageNamesMap: Record<string, string> = {
+      home: '메인 홈 (충전기 통합 솔루션)',
+      residential: '🏠 가정용 홈 충전기 스토어',
+      commercial: '⚡ 아파트·상업용 솔루션',
+      calculator: '무료 시공 견적 계산기',
+      support: '고객지원 센터 & FAQ',
+      as: '🔧 긴급 A/S 접수',
+      mypage: '마이페이지',
+      cart: '장바구니 & 주문서',
+      admin: '관리자 대시보드'
+    };
+    const pageName = pageNamesMap[activePage] || `페이지: ${activePage}`;
+    recordVisitorHit(pageName);
+  }, [activePage]);
 
   useEffect(() => {
     const handleProductsUpdate = () => {

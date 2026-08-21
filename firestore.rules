@@ -7,5 +7,11 @@ service cloud.firestore {
     match /sy_cms_backups/{document} {
       allow read, write: if true;
     }
+    match /sy_visitor_daily/{document} {
+      allow read, write: if true;
+    }
+    match /sy_visitor_logs/{document} {
+      allow read, write: if true;
+    }
   }
 }
